@@ -4,6 +4,7 @@
     select-tests.py --base REV [--head REV] [--merge-base] [--repo DIR] [--json FILE] [--github]
     select-tests.py --full-reason TEXT [--head REV] [--repo DIR] [--json FILE] [--github]
     select-tests.py --codeunits JSON [--head REV] [--repo DIR] [--json FILE] [--github]
+    select-tests.py --check-reuse JSON --head REV [--repo DIR]
 
 The change is the tree diff from the merge base of BASE and HEAD to HEAD (three dots, BASE...HEAD): what HEAD changed
 since it left BASE. For a pull request BASE is the merge commit's first parent, which is also the merge base. For a
@@ -21,6 +22,8 @@ What is selected, per test job of .github/workflows/ci.yml:
     publisher are selected for a changed subscriber (Graph.fires). A Manual subscriber runs only once bound, which names
     its codeunit. A subscriber that can run in any test (platform publisher, install or upgrade event, a publisher more
     than MAX_PUBLISHER_USERS test codeunits use, a name the scan cannot resolve) means a full run.
+  * shared fixtures (CONTRIBUTING.md, standing rule 3): a change to a file the base already has under
+    tests/<app>/_fixtures/ (an edit, a deletion, a move out) means a full run. A new fixture file is selected as usual.
   * every job also runs one small test codeunit outside any #if (the sentinel): the reusable workflow fails a leg that
     ran no test at all, and a selected codeunit can be compiled out on an older BC version. The leg still compiles and
     publishes every app.
@@ -38,6 +41,13 @@ full run: the selection is made as usual, plus every test codeunit the edit brin
 
 A full run is chosen instead when the change touches something a reference scan cannot follow (the rules are in
 FULL_RULES below and in CONTRIBUTING.md, "Test selection in CI"). Any error in this script also means a full run.
+Every full-run reason has a kind (reason_kinds in --json, same order as reasons); readers match the kind, not the text.
+
+--check-reuse (the al-runtime-rs corpus bump, ADR-077) asks whether results reused from an older commit still hold at
+HEAD: a JSON object {source commit: {test app dir: "ids"}}. A result of codeunit K from commit S holds at HEAD only when
+the selection of S..HEAD (two dots, no file cap) is a subset run that does not select K; a full-run reason of a kind in
+REUSE_KINDS does not count. A test app dir that no job reads the selection of, a range, or an id that is no runnable test
+codeunit at HEAD is refused. The exit code is 1 when any result is refused (each is printed) or the check fails, else 0.
 
 Output: the step summary (--github: $GITHUB_STEP_SUMMARY), and the job output `subset` ($GITHUB_OUTPUT): a JSON object
 {test app dir: "id,id,..."}; {} means a full run. ci.yml passes the value as codeunit_range, or the job's full range
@@ -54,6 +64,12 @@ import zipfile
 
 CI_YML = '.github/workflows/ci.yml'
 MAX_FILES = 50
+# The full-run reasons that do not make a reused result stale (--check-reuse): the file cap (a span of many merges passes
+# it, and --check-reuse computes the selection without it), and an empty diff or one that no test app reads.
+REUSE_KINDS = {'file-cap', 'nothing-to-select', 'no-changed-files'}
+
+# Shared fixtures (CONTRIBUTING.md, standing rule 3). A change to a file under one that the base already has is a full run.
+FIXTURE_FILE = re.compile(r'^tests/[^/]+/_fixtures/')
 
 # Paths outside the CI apps that no CI leg reads. A change to anything else outside the CI apps means a full run.
 IGNORED_OUTSIDE_APPS = (
@@ -411,34 +427,70 @@ def app_of(path, app_dirs):
     return None
 
 
-def select(git, base, head, merge_base=True, ci_text=None):
+class Head:
+    """What a selection needs of HEAD, read once and shared by every diff to it (--check-reuse): the test jobs of ci.yml,
+    the files, and, on first use, the objects with their reference graph."""
+
+    def __init__(self, git, head, ci_text=None):
+        self.git, self.head = git, head
+        self.ci = parse_ci(ci_text if ci_text is not None else git.read(head, [CI_YML]).get(CI_YML, ''))
+        self.test_apps = {}
+        for j in self.ci:
+            for d in j['test_app_dirs']:
+                self.test_apps.setdefault(d, []).append(j)
+        self.ci_apps = sorted({d for j in self.ci for d in j['app_dirs'] + j['test_app_dirs']}, key=len, reverse=True)
+        self.all_files = git.files(head)
+        self.app_resources = resource_dirs(git, head, self.ci_apps)
+        self.objs = None
+
+    def load(self):
+        if self.objs is not None:
+            return self
+        al_files = [f for f in self.all_files if f.endswith('.al') and app_of(f, self.ci_apps)]
+        self.texts = self.git.read(self.head, al_files)
+        self.objs = []
+        for f in al_files:
+            self.objs.extend(parse_al(f, self.texts[f]))
+        index = {}
+        for n, o in enumerate(self.objs):
+            for t in o.tokens:
+                index.setdefault(t, []).append(n)
+        self.by_path = {}
+        for n, o in enumerate(self.objs):
+            self.by_path.setdefault(o.path, []).append(n)
+        self.runnable = runnable_fn(self.objs, self.test_apps)
+        self.graph = Graph(self.objs, index, self.runnable,
+                           lambda: microsoft_names(self.git, self.head, self.all_files, self.ci_apps))
+        return self
+
+
+def select(git, base, head, merge_base=True, ci_text=None, max_files=MAX_FILES, loaded=None):
+    """The selection for the diff base..head (base...head with merge_base). max_files=None: no file cap (--check-reuse
+    needs the selection of a long span). loaded: a Head of the same head, to share its graph between diffs."""
     head = git.rev(head)
     base = git.rev(base)
     if merge_base:
         base = git.merge_base(base, head)
-    result = {'base': base, 'head': head, 'mode': 'subset', 'reasons': [], 'changed_files': [], 'apps': {}}
-    ci = parse_ci(ci_text if ci_text is not None else git.read(head, [CI_YML]).get(CI_YML, ''))
+    result = {'base': base, 'head': head, 'mode': 'subset', 'reasons': [], 'reason_kinds': [], 'changed_files': [], 'apps': {}}
+    h = loaded if loaded is not None else Head(git, head, ci_text)
+    if h.head != head:
+        raise ValueError('the loaded head is %s, not %s' % (h.head, head))
+    ci, test_apps, ci_apps, all_files = h.ci, h.test_apps, h.ci_apps, h.all_files
     if not ci:
-        return full(result, 'could not read the test jobs of %s' % CI_YML)
+        return full(result, ('ci-unreadable', 'could not read the test jobs of %s' % CI_YML))
     unwired = [j['job'] for j in ci if not j['key']]
     if len(unwired) == len(ci):
-        return full(result, 'no test job of %s reads the selection' % CI_YML)
-    test_apps = {}
-    for j in ci:
-        for d in j['test_app_dirs']:
-            test_apps.setdefault(d, []).append(j)
-    ci_apps = sorted({d for j in ci for d in j['app_dirs'] + j['test_app_dirs']}, key=len, reverse=True)
+        return full(result, ('ci-unwired', 'no test job of %s reads the selection' % CI_YML))
     dependency_only = sorted(set(ci_apps) - set(test_apps))
 
     changed = git.changed(base, head)
     result['changed_files'] = changed
     if not changed:
-        return full(result, 'no changed files between %s and %s' % (base[:10], head[:10]))
+        return full(result, ('no-changed-files', 'no changed files between %s and %s' % (base[:10], head[:10])))
 
-    all_files = git.files(head)
     ci_texts = git.read(base, [CI_YML]), git.read(head, [CI_YML])
     range_edit = CI_YML in changed and ci_range_edit(ci_texts[0].get(CI_YML, ''), ci_texts[1].get(CI_YML, ''))
-    app_resources = resource_dirs(git, head, ci_apps)
+    app_resources = h.app_resources
     relevant, ignored = [], []
     reasons = []
     for f in changed:
@@ -446,45 +498,37 @@ def select(git, base, head, merge_base=True, ci_text=None):
         if f == CI_YML and range_edit:
             result['ci_range_edit'] = [f]  # only codeunit_range values changed: select as usual
         elif f.startswith('.github/') and not any(p.search(f) for p in IGNORED_OUTSIDE_APPS):
-            reasons.append('CI configuration changed: %s' % f)
+            reasons.append(('ci-config', 'CI configuration changed: %s' % f))
         elif app is None:
             if any(p.search(f) for p in IGNORED_OUTSIDE_APPS) or test_app_outside_ci(f, all_files, ci_apps):
                 ignored.append(f)
             else:
-                reasons.append('file outside the test apps that CI may read: %s' % f)
+                reasons.append(('outside-apps', 'file outside the test apps that CI may read: %s' % f))
         elif app in dependency_only:
-            reasons.append('dependency app changed: %s' % f)
+            reasons.append(('dependency-app', 'dependency app changed: %s' % f))
         elif f == app + '/app.json' or f.startswith(app + '/.alpackages/'):
-            reasons.append('app manifest or symbols changed: %s' % f)
+            reasons.append(('manifest', 'app manifest or symbols changed: %s' % f))
         elif any(f.startswith(r + '/') for r in app_resources.get(app, ())):
-            reasons.append('app resource changed (NavApp.ListResources sees every resource): %s' % f)
+            reasons.append(('resource', 'app resource changed (NavApp.ListResources sees every resource): %s' % f))
         elif IGNORED_INSIDE_APP.search(f) and not f.endswith('.al'):
             ignored.append(f)
         else:
             relevant.append(f)
     result['ignored_files'] = ignored
-    if len(relevant) > MAX_FILES:
-        reasons.append('%d changed files in the test apps (more than %d)' % (len(relevant), MAX_FILES))
+    # shared fixtures (CONTRIBUTING.md, standing rule 3): a fixture file the base already has, changed, deleted or moved
+    edited = [f for f in relevant if FIXTURE_FILE.match(f)]
+    for f in sorted(git.read(base, edited)) if edited else ():
+        reasons.append(('fixture-edit', 'shared fixture changed in place (an edit, a deletion or a move): %s' % f))
+    if max_files is not None and len(relevant) > max_files:
+        reasons.append(('file-cap', '%d changed files in the test apps (more than %d)' % (len(relevant), max_files)))
     if reasons:
         return full(result, *reasons)
     if not relevant:
-        return full(result, 'no changed file in the test apps, so nothing to select')
+        return full(result, ('nothing-to-select', 'no changed file in the test apps, so nothing to select'))
 
-    al_files = [f for f in all_files if f.endswith('.al') and app_of(f, ci_apps)]
-    texts = git.read(head, al_files)
-    objs = []
-    for f in al_files:
-        objs.extend(parse_al(f, texts[f]))
-    index = {}
-    for n, o in enumerate(objs):
-        for t in o.tokens:
-            index.setdefault(t, []).append(n)
-    by_path = {}
-    for n, o in enumerate(objs):
-        by_path.setdefault(o.path, []).append(n)
 
-    runnable = runnable_fn(objs, test_apps)
-    graph = Graph(objs, index, runnable, lambda: microsoft_names(git, head, all_files, ci_apps))
+    h.load()
+    texts, objs, by_path, runnable, graph = h.texts, h.objs, h.by_path, h.runnable, h.graph
 
     # seeds: the changed objects of the changed files (head and base versions), objects that name a changed non-AL file.
     # An object whose text is the same on both sides is not a seed: it can only behave differently through a changed
@@ -500,7 +544,7 @@ def select(git, base, head, merge_base=True, ci_text=None):
                     why[n] = 'changed: %s' % f
             base_objs = parse_al(f, base_texts[f]) if f in base_texts else []
             if f in texts and not here and has_code(texts[f]):
-                reasons.append('no AL object found in %s' % f)
+                reasons.append(('unreadable', 'no AL object found in %s' % f))
             if file_scope(texts.get(f, '')) != file_scope(base_texts.get(f, '')):
                 base_sig, head_sig = set(), set()  # using, namespace or #define changed: every object of the file counts
             else:
@@ -509,11 +553,11 @@ def select(git, base, head, merge_base=True, ci_text=None):
             changed_base = [o for o in base_objs if sig(o) not in head_sig]
             for o in [objs[n] for n in changed_here] + changed_base:
                 if o.kind is None:
-                    reasons.append('an object in %s could not be read' % f)
+                    reasons.append(('unreadable', 'an object in %s could not be read' % f))
                 elif o.subtype in ('install', 'upgrade', 'testrunner'):
-                    reasons.append('Subtype = %s codeunit in %s' % (o.subtype.capitalize(), f))
+                    reasons.append(('subtype', 'Subtype = %s codeunit in %s' % (o.subtype.capitalize(), f)))
                 elif o.kind in PERMISSION_KINDS:
-                    reasons.append('%s in %s' % (o.kind, f))
+                    reasons.append(('permission', '%s in %s' % (o.kind, f)))
             if changed_here:
                 seeds.append(('changed: %s' % f, set(), changed_here, True, True))
             elif here and not changed_base:
@@ -523,7 +567,7 @@ def select(git, base, head, merge_base=True, ci_text=None):
             for o in changed_base:
                 pubs, cause = graph.fires(o)
                 if cause:
-                    reasons.append('event subscriber in %s (%s, before this change): it %s' % (f, o.label(), cause))
+                    reasons.append(('subscriber', 'event subscriber in %s (%s, before this change): it %s' % (f, o.label(), cause)))
                 elif pubs:
                     seeds.append(('event subscriber changed or removed in %s (%s)' % (f, o.label()), set(), pubs, False,
                                   True))
@@ -538,7 +582,7 @@ def select(git, base, head, merge_base=True, ci_text=None):
             users = [n for n, o in enumerate(objs) if o.path.startswith(app + '/') and base_name in texts[o.path].lower()]
             users = sorted({n for n in users})
             if not users and f in all_files:
-                reasons.append('no AL object names the changed file %s' % f)
+                reasons.append(('unnamed-file', 'no AL object names the changed file %s' % f))
             seeds.append(('changed: %s (named in %s)' % (f, ', '.join(sorted({objs[n].path for n in users})) or 'nothing'),
                           set(), users, f in all_files, True))
     if reasons:
@@ -547,11 +591,11 @@ def select(git, base, head, merge_base=True, ci_text=None):
     for desc, keys, here, needs_cover, events in seeds:
         reached, escapes = graph.closure(keys, here, events)
         for n, reason in escapes:
-            reasons.append('%s: %s %s, which %s' % (desc, 'it declares' if n in here else 'it can run',
-                                                    '%s (%s)' % (objs[n].label(), objs[n].path), reason))
+            reasons.append(('escape', '%s: %s %s, which %s' % (desc, 'it declares' if n in here else 'it can run',
+                                                    '%s (%s)' % (objs[n].label(), objs[n].path), reason)))
         tests = {n: v for n, v in reached.items() if runnable(n)}
         if needs_cover and not tests and not escapes:
-            reasons.append('nothing in a test codeunit uses what %s declares, so its effect is unknown' % desc.split(': ', 1)[-1])
+            reasons.append(('no-user', 'nothing in a test codeunit uses what %s declares, so its effect is unknown' % desc.split(': ', 1)[-1]))
         for n, v in tests.items():
             if n not in why:
                 why[n] = describe(objs, v, desc)
@@ -568,7 +612,7 @@ def select(git, base, head, merge_base=True, ci_text=None):
             if app and n not in why and not in_spans(base_ranges.get(app, []), int(objs[n].id)):
                 why[n] = 'brought into codeunit_range by the CI range edit in %s' % CI_YML
     if not why:
-        return full(result, 'nothing selected')
+        return full(result, ('nothing-to-select', 'nothing selected'))
 
     for app, jobs in sorted(test_apps.items()):
         if not any(j['key'] for j in jobs):
@@ -581,7 +625,7 @@ def select(git, base, head, merge_base=True, ci_text=None):
         # selected codeunit can be compiled out on an older BC version.
         s = sentinel(objs, [n for n in range(len(objs)) if runnable(n) == app and not objs[n].conditional])
         if s is None:
-            return full(result, 'no test codeunit without #if in %s to keep its leg running' % app)
+            return full(result, ('no-sentinel', 'no test codeunit without #if in %s to keep its leg running' % app))
         if s not in picked:
             entry['codeunits'].append({'id': int(objs[s].id), 'name': objs[s].display, 'file': objs[s].path,
                                        'why': 'sentinel: one small codeunit every leg runs, so that no leg runs zero codeunits',
@@ -639,14 +683,15 @@ def parse_given(text):
 def given(git, head, text, ci_text=None):
     """--codeunits: the given selection, checked against HEAD's objects and ci.yml (see the module docstring)."""
     head = git.rev(head)
-    result = {'base': None, 'head': head, 'mode': 'subset', 'reasons': [], 'changed_files': [], 'apps': {}, 'given': True}
+    result = {'base': None, 'head': head, 'mode': 'subset', 'reasons': [], 'reason_kinds': [], 'changed_files': [], 'apps': {},
+              'given': True}
     try:
         want = parse_given(text)
     except ValueError as e:
-        return full(result, 'the select_codeunits input is not valid (%s)' % e)
+        return full(result, ('given-invalid', 'the select_codeunits input is not valid (%s)' % e))
     ci = parse_ci(ci_text if ci_text is not None else git.read(head, [CI_YML]).get(CI_YML, ''))
     if not ci:
-        return full(result, 'could not read the test jobs of %s' % CI_YML)
+        return full(result, ('ci-unreadable', 'could not read the test jobs of %s' % CI_YML))
     test_apps = {}
     for j in ci:
         for d in j['test_app_dirs']:
@@ -654,8 +699,8 @@ def given(git, head, text, ci_text=None):
     wired = sorted(d for d, jobs in test_apps.items() if any(j['key'] for j in jobs))
     unknown = sorted(set(want) - set(wired))
     if unknown:
-        return full(result, 'the select_codeunits input names %s, which is no test app whose job reads the selection'
-                    % ', '.join(unknown))
+        return full(result, ('given-unknown-app', 'the select_codeunits input names %s, which is no test app whose job reads the selection'
+                    % ', '.join(unknown)))
     ci_apps = sorted({d for j in ci for d in j['app_dirs'] + j['test_app_dirs']}, key=len, reverse=True)
     al_files = [f for f in git.files(head) if f.endswith('.al') and app_of(f, ci_apps)]
     texts = git.read(head, al_files)
@@ -675,7 +720,7 @@ def given(git, head, text, ci_text=None):
             entry['dropped'] = sorted({i for lo, hi in sp for i in range(lo, hi + 1) if hi == lo} - found)
         s = sentinel(objs, [n for n in cands if not objs[n].conditional])
         if s is None:
-            return full(result, 'no test codeunit without #if in %s to keep its leg running' % app)
+            return full(result, ('no-sentinel', 'no test codeunit without #if in %s to keep its leg running' % app))
         if s not in picked:
             entry['codeunits'].append({'id': int(objs[s].id), 'name': objs[s].display, 'file': objs[s].path,
                                        'why': 'sentinel: one small codeunit every leg runs, so that no leg runs zero codeunits',
@@ -861,8 +906,12 @@ def test_app_outside_ci(f, all_files, ci_apps):
 
 
 def full(result, *reasons):
+    """A full run. reasons: (kind, text) pairs; --json writes the texts as reasons and the kinds as reason_kinds, in the
+    same order. Readers match a reason by its kind, never by its text."""
+    pairs = list(dict.fromkeys(reasons))
     result['mode'] = 'full'
-    result['reasons'] = list(dict.fromkeys(reasons))
+    result['reasons'] = [t for _, t in pairs]
+    result['reason_kinds'] = [k for k, _ in pairs]
     result['apps'] = {}
     return result
 
@@ -914,6 +963,54 @@ def summary(result):
     return '\n'.join(out) + '\n'
 
 
+def known_reuse(h, wanted):
+    """[refusal text] for reused results the check cannot place at HEAD: an app dir that is no test app whose job reads
+    the selection, a range instead of an id, or an id that is no runnable test codeunit of that app."""
+    wired = {d for d, jobs in h.test_apps.items() if any(j['key'] for j in jobs)}
+    refused = []
+    for src, apps in sorted(wanted.items()):
+        for app, sp in sorted(apps.items()):
+            if app not in wired:
+                refused.append('%s: %s is no test app whose job reads the selection' % (src[:10], app))
+                continue
+            h.load()
+            ids = {int(h.objs[n].id) for n in range(len(h.objs)) if h.runnable(n) == app}
+            for lo, hi in sp:
+                if lo != hi:
+                    refused.append('%s: %s %d..%d is a range; a reused result is listed by its id' % (src[:10], app, lo, hi))
+                elif lo not in ids:
+                    refused.append('%s: %s codeunit %d is no runnable test codeunit at HEAD' % (src[:10], app, lo))
+    return refused
+
+
+def check_reuse(git, head, text, ci_text=None):
+    """--check-reuse: [refusal text] for reused results that HEAD may have made stale. text: {source commit: {test app
+    dir: "ids"}}. A reused codeunit is refused when the selection of source..HEAD (two dots, no file cap) selects it, and
+    every codeunit of a source commit when that span has a full-run reason other than REUSE_KINDS."""
+    try:
+        given_by_source = json.loads(text)
+        if not isinstance(given_by_source, dict) or not given_by_source:
+            raise ValueError('not a non-empty JSON object')
+        wanted = {src: parse_given(json.dumps(apps)) for src, apps in given_by_source.items()}
+    except ValueError as e:
+        return ['the --check-reuse input is not {source commit: {test app dir: "ids"}} (%s)' % e]
+    head = git.rev(head)
+    loaded = Head(git, head, ci_text)
+    refused = known_reuse(loaded, wanted)
+    for src in sorted(wanted):
+        r = select(git, src, head, False, ci_text, max_files=None, loaded=loaded)
+        span = '%s..%s' % (src[:10], head[:10])
+        if r['mode'] == 'full':
+            refused.extend('%s: full-run reason %s: %s' % (span, k, t)
+                           for k, t in zip(r['reason_kinds'], r['reasons']) if k not in REUSE_KINDS)
+            continue
+        for app, sp in sorted(wanted[src].items()):
+            for c in r['apps'].get(app, {}).get('codeunits', []):
+                if not c.get('sentinel') and in_spans(sp, c['id']):
+                    refused.append('%s: %s codeunit %d is selected (%s)' % (span, app, c['id'], c['why']))
+    return refused
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
     ap.add_argument('--base')
@@ -926,14 +1023,26 @@ def main(argv=None):
     ap.add_argument('--full-reason')
     ap.add_argument('--codeunits', help='use this selection, a JSON object {test app dir: "ids and lo..hi ranges"}, '
                                         'instead of a diff (ci.yml: the select_codeunits input)')
+    ap.add_argument('--check-reuse', help='JSON {source commit: {test app dir: "ids"}}: exit 1 and print each reused '
+                                          'result HEAD may have made stale (al-runtime-rs corpus bump)')
     ap.add_argument('--json')
     ap.add_argument('--github', action='store_true', help='write $GITHUB_STEP_SUMMARY and $GITHUB_OUTPUT')
     a = ap.parse_args(argv)
+    if a.check_reuse is not None:
+        try:
+            refused = check_reuse(Git(a.repo), a.head, a.check_reuse, open(a.ci_yml).read() if a.ci_yml else None)
+        except Exception as e:  # noqa: BLE001 - the check could not be made: refuse, never pass
+            refused = ['the reuse check failed (%s: %s)' % (type(e).__name__, e)]
+        for line in refused:
+            print('refused: %s' % line)
+        if not refused:
+            print('every reused result is still valid at %s' % a.head)
+        return 1 if refused else 0
     if not a.full_reason and not a.base and a.codeunits is None:
-        ap.error('--base, --codeunits or --full-reason is required')
+        ap.error('--base, --codeunits, --check-reuse or --full-reason is required')
     git = Git(a.repo)
     if a.full_reason:
-        result = full({'base': None, 'head': None, 'mode': 'full', 'reasons': [], 'apps': {}}, a.full_reason)
+        result = full({'base': None, 'head': None, 'mode': 'full', 'reasons': [], 'apps': {}}, ('requested', a.full_reason))
     else:
         try:
             ci_text = open(a.ci_yml).read() if a.ci_yml else None
@@ -943,7 +1052,7 @@ def main(argv=None):
                 result = select(git, a.base, a.head, True, ci_text)
         except Exception as e:  # never block CI on this script: run everything
             result = full({'base': None, 'head': None, 'mode': 'full', 'reasons': [], 'apps': {}},
-                          'the selection script failed (%s: %s)' % (type(e).__name__, e))
+                          ('script-failed', 'the selection script failed (%s: %s)' % (type(e).__name__, e)))
     text = summary(result)
     print(text)
     if a.json:
