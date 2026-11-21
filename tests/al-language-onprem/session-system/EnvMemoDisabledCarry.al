@@ -12,6 +12,8 @@
 //   98960 / 98961 Codeunit -> Disabled, 98962 / 98963 Codeunit -> Codeunit. IsPreview and IsEarlyPreview are No on the corpus
 //   tiers without a flag, so they show whether the flags carried. IsSaaS and IsSandbox are Yes on these sandbox tiers either way
 //   (PVEnvironmentTestability.al), so they do NOT tell a carried memo from a fresh one; they are observed for completeness only.
+//   SetTestabilityPreview / SetTestabilityEarlyPreview, IsPreview and IsEarlyPreview do not exist in the BC 27 System Application
+//   (AL0132), so on BC 27 no flag can show a carry: those lines are guarded with BC28PLUS.
 //   IsSaaSInfrastructure is read only after the SaaS flag was set in the same test (its native value differs per tier).
 // BC versions: 27 - 29
 codeunit 98964 "LT DM Env Probe"
@@ -22,16 +24,20 @@ codeunit 98964 "LT DM Env Probe"
     begin
         EnvTestLib.SetTestabilitySandbox(Value);
         EnvTestLib.SetTestabilitySoftwareAsAService(Value);
+#if BC28PLUS
         EnvTestLib.SetTestabilityPreview(Value);
         EnvTestLib.SetTestabilityEarlyPreview(Value);
+#endif
     end;
 
     procedure ObserveFlags(var Observer: Codeunit "Probe Observer"; Prefix: Text)
     var
         EnvInfo: Codeunit "Environment Information";
     begin
+#if BC28PLUS
         Observer.Observe(Prefix + '_is_preview', Format(EnvInfo.IsPreview()));
         Observer.Observe(Prefix + '_is_early_preview', Format(EnvInfo.IsEarlyPreview()));
+#endif
         Observer.Observe(Prefix + '_is_saas', Format(EnvInfo.IsSaaS()));
         Observer.Observe(Prefix + '_is_sandbox', Format(EnvInfo.IsSandbox()));
     end;
