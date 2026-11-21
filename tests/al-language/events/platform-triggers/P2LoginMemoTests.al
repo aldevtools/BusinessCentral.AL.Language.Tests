@@ -11,7 +11,14 @@
 //     (only the values are observable: the test compares what it reads with what the login saw, never the host's own values);
 //   - (a) a test that reads the memo, (b) a test that writes a row whose OnInsert reads it, (c) a test that reads nothing;
 //   - a memo changed again by a test, read by the next test of the same codeunit and by a second test codeunit.
-// BC result: see the Expect lines (measured on BC 27.5, 28.5 and 29.0).
+// BC result (measured on BC 27.5, 28.5 and 29.0, the same on all three): the OnAfterLogin subscribers of both dependency apps ran once, in the
+//   test session, before the first test. Every memo keeps what the login left, whatever app it lives in and whatever app's subscriber changed it:
+//   the Boolean memos are filled once (Initialized Yes, Value Yes, one fill; reading them again does not refill), the Text/Integer/List memo
+//   holds L, 10 and one name, the memo two subscribers changed holds both changes (2 calls). The real "Server Setting Impl." and
+//   "Environment Information Impl." memos give the test and the OnInsert trigger the same IsSaaS(), IsSandbox() and
+//   GetEnableMembershipEntitlement() values the login saw. A row insert whose OnInsert reads a memo works and reads the same state. A test that
+//   reads nothing runs. A change made by a test (Value := false, Text += 'T', Integer += 1, List.Add, one more call) stays: the next test,
+//   the next OnInsert and a second test codeunit see it, and the login does not run again.
 // BC versions: 27 - 29
 using System.Environment;
 using System.Environment.Configuration;
@@ -84,7 +91,8 @@ codeunit 97921 "LT P2 Login Memo A"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('ran', 'yes');
-        Observer.Finish();
+        Observer.Expect('ran', 'yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -98,7 +106,12 @@ codeunit 97921 "LT P2 Login Memo A"
         Observer.Observe('raw fills', Format(BoolMemo.RawFills()));
         Observer.Observe('is on', Format(BoolMemo.IsOn()));
         Observer.Observe('fills after is on', Format(BoolMemo.RawFills()));
-        Observer.Finish();
+        Observer.Expect('raw initialized', 'Yes');
+        Observer.Expect('raw value', 'Yes');
+        Observer.Expect('raw fills', '1');
+        Observer.Expect('is on', 'Yes');
+        Observer.Expect('fills after is on', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -112,7 +125,12 @@ codeunit 97921 "LT P2 Login Memo A"
         Observer.Observe('raw fills', Format(BoolMemoOther.RawFills()));
         Observer.Observe('is on', Format(BoolMemoOther.IsOn()));
         Observer.Observe('fills after is on', Format(BoolMemoOther.RawFills()));
-        Observer.Finish();
+        Observer.Expect('raw initialized', 'Yes');
+        Observer.Expect('raw value', 'Yes');
+        Observer.Expect('raw fills', '1');
+        Observer.Expect('is on', 'Yes');
+        Observer.Expect('fills after is on', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -124,7 +142,10 @@ codeunit 97921 "LT P2 Login Memo A"
         Observer.Observe('txt', Mixed.RawTxt());
         Observer.Observe('num', Format(Mixed.RawNum()));
         Observer.Observe('names', Mixed.RawNames());
-        Observer.Finish();
+        Observer.Expect('txt', 'L');
+        Observer.Expect('num', '10');
+        Observer.Expect('names', '1:login;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -136,7 +157,10 @@ codeunit 97921 "LT P2 Login Memo A"
         Observer.Observe('calls', Format(TwoSubs.RawCalls()));
         Observer.Observe('from a', Format(TwoSubs.RawFromA()));
         Observer.Observe('from b', Format(TwoSubs.RawFromB()));
-        Observer.Finish();
+        Observer.Expect('calls', '2');
+        Observer.Expect('from a', 'Yes');
+        Observer.Expect('from b', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -151,7 +175,11 @@ codeunit 97921 "LT P2 Login Memo A"
         Observer.Observe('saas equals login', Format(EnvironmentInformation.IsSaaS() = EnvSeen.RawSaaS()));
         Observer.Observe('sandbox equals login', Format(EnvironmentInformation.IsSandbox() = EnvSeen.RawSandbox()));
         Observer.Observe('entitlement equals login', Format(ServerSetting.GetEnableMembershipEntitlement() = EnvSeen.RawEntitlement()));
-        Observer.Finish();
+        Observer.Expect('login calls', '1');
+        Observer.Expect('saas equals login', 'Yes');
+        Observer.Expect('sandbox equals login', 'Yes');
+        Observer.Expect('entitlement equals login', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -162,7 +190,10 @@ codeunit 97921 "LT P2 Login Memo A"
     begin
         InsertKind(1, 1, Observer);
         Observer.Observe('fills', Format(BoolMemo.RawFills()));
-        Observer.Finish();
+        Observer.Expect('1 insert ran', 'Yes');
+        Observer.Expect('1 bool value', 'Yes');
+        Observer.Expect('fills', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -173,7 +204,10 @@ codeunit 97921 "LT P2 Login Memo A"
     begin
         InsertKind(2, 2, Observer);
         Observer.Observe('fills', Format(BoolMemoOther.RawFills()));
-        Observer.Finish();
+        Observer.Expect('2 insert ran', 'Yes');
+        Observer.Expect('2 bool value', 'Yes');
+        Observer.Expect('fills', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -182,7 +216,11 @@ codeunit 97921 "LT P2 Login Memo A"
         Observer: Codeunit "Probe Observer";
     begin
         InsertKind(3, 3, Observer);
-        Observer.Finish();
+        Observer.Expect('3 insert ran', 'Yes');
+        Observer.Expect('3 mixed txt', 'L');
+        Observer.Expect('3 mixed num', '10');
+        Observer.Expect('3 mixed names', '1:login;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -191,7 +229,9 @@ codeunit 97921 "LT P2 Login Memo A"
         Observer: Codeunit "Probe Observer";
     begin
         InsertKind(4, 4, Observer);
-        Observer.Finish();
+        Observer.Expect('4 insert ran', 'Yes');
+        Observer.Expect('4 two subs calls', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -212,7 +252,12 @@ codeunit 97921 "LT P2 Login Memo A"
         Observer.Observe('row sandbox equals login', Format(Row.EnvSandbox = EnvSeen.RawSandbox()));
         Observer.Observe('row entitlement equals login', Format(Row.EnvEntitlement = EnvSeen.RawEntitlement()));
         Observer.Observe('count', Format(Row.Count()));
-        Observer.Finish();
+        Observer.Expect('insert ran', 'Yes');
+        Observer.Expect('row saas equals login', 'Yes');
+        Observer.Expect('row sandbox equals login', 'Yes');
+        Observer.Expect('row entitlement equals login', 'Yes');
+        Observer.Expect('count', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -229,7 +274,20 @@ codeunit 97921 "LT P2 Login Memo A"
         Mixed.ChangeFromTest();
         TwoSubs.AddFrom('T');
         ObserveAll(Observer);
-        Observer.Finish();
+        Observer.Expect('same initialized', 'Yes');
+        Observer.Expect('same value', 'No');
+        Observer.Expect('same fills', '1');
+        Observer.Expect('other initialized', 'Yes');
+        Observer.Expect('other value', 'No');
+        Observer.Expect('other fills', '1');
+        Observer.Expect('mixed txt', 'LT');
+        Observer.Expect('mixed num', '11');
+        Observer.Expect('mixed names', '2:login;test;');
+        Observer.Expect('two subs calls', '3');
+        Observer.Expect('two subs from a', 'Yes');
+        Observer.Expect('two subs from b', 'Yes');
+        Observer.Expect('env login calls', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -238,7 +296,20 @@ codeunit 97921 "LT P2 Login Memo A"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveAll(Observer);
-        Observer.Finish();
+        Observer.Expect('same initialized', 'Yes');
+        Observer.Expect('same value', 'No');
+        Observer.Expect('same fills', '1');
+        Observer.Expect('other initialized', 'Yes');
+        Observer.Expect('other value', 'No');
+        Observer.Expect('other fills', '1');
+        Observer.Expect('mixed txt', 'LT');
+        Observer.Expect('mixed num', '11');
+        Observer.Expect('mixed names', '2:login;test;');
+        Observer.Expect('two subs calls', '3');
+        Observer.Expect('two subs from a', 'Yes');
+        Observer.Expect('two subs from b', 'Yes');
+        Observer.Expect('env login calls', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -248,7 +319,11 @@ codeunit 97921 "LT P2 Login Memo A"
     begin
         InsertKind(21, 1, Observer);
         InsertKind(22, 2, Observer);
-        Observer.Finish();
+        Observer.Expect('21 insert ran', 'Yes');
+        Observer.Expect('21 bool value', 'No');
+        Observer.Expect('22 insert ran', 'Yes');
+        Observer.Expect('22 bool value', 'No');
+        Observer.Verify();
     end;
 
     local procedure InsertKind(No: Integer; Kind: Integer; var Observer: Codeunit "Probe Observer")
@@ -332,6 +407,19 @@ codeunit 97922 "LT P2 Login Memo B"
         Observer.Observe('two subs from a', Format(TwoSubs.RawFromA()));
         Observer.Observe('two subs from b', Format(TwoSubs.RawFromB()));
         Observer.Observe('env login calls', Format(EnvSeen.RawCalls()));
-        Observer.Finish();
+        Observer.Expect('same initialized', 'Yes');
+        Observer.Expect('same value', 'No');
+        Observer.Expect('same fills', '1');
+        Observer.Expect('other initialized', 'Yes');
+        Observer.Expect('other value', 'No');
+        Observer.Expect('other fills', '1');
+        Observer.Expect('mixed txt', 'LT');
+        Observer.Expect('mixed num', '11');
+        Observer.Expect('mixed names', '2:login;test;');
+        Observer.Expect('two subs calls', '3');
+        Observer.Expect('two subs from a', 'Yes');
+        Observer.Expect('two subs from b', 'Yes');
+        Observer.Expect('env login calls', '1');
+        Observer.Verify();
     end;
 }
