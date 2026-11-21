@@ -1302,3 +1302,14 @@ stem	area
 3596-option-optionmembers-tableextension	types
 3597-option-optionmembers-first-true	types
 3598-option-tableextension-optionmembers-else	types
+3599-option-local-variable-first-begin	types
+3600-option-local-variable-middle-begin	types
+3601-option-global-variable-middle-begin	types
+3602-option-parameter-first-begin	types
+3603-option-parameter-middle-begin	types
+3604-option-return-type-first-begin	types
+3605-option-local-variable-first-var	types
+3606-option-global-variable-middle-var	types
+3607-option-parameter-middle-var	types
+3608-option-return-type-first-var	types
+3609-option-return-type-middle-var	types
