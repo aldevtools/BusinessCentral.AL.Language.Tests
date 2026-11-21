@@ -22,7 +22,7 @@ The Record type: insert, modify, delete, get and find; filters; keys and sorting
 - `temporary/`: temporary records and tables (6 AL files).
 - `testfield/`: TestField and FieldError (29 AL files).
 - `transferfields-cross-app/`: TransferFields between tables of different apps, and between fields of different apps (3 AL files).
-- `validate/`: Validate of a field with values of other types, through a Variant; the xRec a table or table extension procedure reads when the field trigger, a codeunit or an event subscriber calls it (3 AL files).
+- `validate/`: Validate of a field with values of other types, through a Variant; the xRec a table or table extension procedure reads when the field trigger, a codeunit or an event subscriber calls it, whoever calls the Validate and with two subscribers on the event (5 AL files).
 - `views/`: SetView and GetView (5 AL files).
 
 A new topic gets a line here in the same pull request (standing rule 8 in CONTRIBUTING.md).
