@@ -133,6 +133,9 @@ def result(base_manifest, compared=0, differences=(), dropped=0, base_reused=0, 
     return {'comparison': answer,
             'compared_run': base_manifest.get('run_id') if base_manifest else None,
             'compared_commit': base_manifest.get('commit') if base_manifest else None,
+            # The attempt of the base run that was downloaded (check_manifest: the manifest is of the run's latest
+            # attempt). al-runtime-rs compares it with the attempt of the run it bumps to.
+            'compared_attempt': base_manifest.get('run_attempt') if base_manifest else None,
             'compared': compared, 'dropped': dropped, 'base_reused': base_reused,
             'base_reused_compared': base_reused_compared, 'source_runs': dict(sorted((source_runs or {}).items())),
             'differences': list(differences), 'note': note}

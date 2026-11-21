@@ -150,6 +150,10 @@ def main():
         check('compare: the detail names the run compared with and the runs it confirmed',
               (r['compared_run'], r['compared_commit'], r['source_runs'], r['base_reused'], r['base_reused_compared'])
               == (200, 'base', {'200': 2}, 0, 0), r)
+        check('compare: the detail names the attempt of the base run that was compared',
+              r['compared_attempt'] == 1, r)
+        r2 = cr.compare_version(version(), nf, version(), bf, every, dict(BM, run_attempt=2))
+        check('compare: a base run at attempt 2 is named as attempt 2', r2['compared_attempt'] == 2, r2)
     with tempfile.TemporaryDirectory() as d:
         nf, bf = setup(d, {50001: {'A': 'failure'}, 50002: {'B': 'passed'}}, same)
         r = cr.compare_version(version(), nf, version(), bf, every, BM)
@@ -295,7 +299,8 @@ def main():
 
         results = cr.compare(nm, legs, None, None, every)
         check('compare: no base run: identical, nothing compared, with the reason',
-              all(r['comparison'] == 'identical' and r['compared'] == 0 and r['compared_run'] is None and r['note']
+              all(r['comparison'] == 'identical' and r['compared'] == 0 and r['compared_run'] is None
+                  and r['compared_attempt'] is None and r['note']
                   for r in results.values()), results)
 
     # ---- the command nightly, with fake I/O ----
@@ -343,7 +348,8 @@ def main():
               open(gh_out).read())
         e = written['versions']['27.5']
         check('nightly: base run 202, its JUnit downloaded, the selection from its commit',
-              e['comparison_detail']['compared_run'] == 202 and (202, 'junit-test-results-27.5', 'work/base/27.5') in calls
+              e['comparison_detail']['compared_run'] == 202 and e['comparison_detail']['compared_attempt'] == 1
+              and (202, 'junit-test-results-27.5', 'work/base/27.5') in calls
               and selected == [('good', 'head')], (e, calls, selected))
         check('nightly: the changed outcome of a reused codeunit is written as differs',
               e['comparison'] == 'differs' and [x['codeunit'] for x in e['comparison_detail']['differences']] == [50002], e)
