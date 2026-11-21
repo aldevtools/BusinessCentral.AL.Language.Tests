@@ -1257,3 +1257,9 @@ stem	area
 3161-table-trigger-unknown-quoted-name	table-objects
 3162-page-trigger-unknown-quoted-name	pages
 3163-codeunit-unknown-quoted-field-name	codeunits
+3216-subscriber-codeunit-kind-id-literal	events
+3217-subscriber-database-kind-id-literal	events
+3218-subscriber-page-kind-id-literal	events
+3219-subscriber-bare-id-missing-codeunit	events
+3220-subscriber-bare-id-missing-table	events
+3221-subscriber-bare-table-id-other-record	events
