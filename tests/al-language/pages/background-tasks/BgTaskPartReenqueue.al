@@ -10,8 +10,8 @@
 //     GoToRecord of the row OpenView already shows; GoToRecord of another row; OpenView and Close only; Next; and GoToRecord of the same row twice.
 //   The log is a SingleInstance codeunit of the test session (the Completed trigger runs in the test session: PbtChildSession.al).
 // Measured by CI run 43158116365 (BC 27.5, 28.5, 29.0, identical on all three): every Expect except the last two lines of GoToRecord_TheSameRowTwice
-//   matched. There the second GoToRecord of the same row logs 'agcr 1;done 1;enqueued 1;agcr 2;done 2;enqueued 2;' (a new enqueue). The value of
-//   'after Close' in that test is not measured yet (the observer reports only the first wrong value): it has no Expect, so the next run reports it.
+//   matched. There the second GoToRecord of the same row logs 'agcr 1;done 1;enqueued 1;agcr 2;done 2;enqueued 2;' (a new enqueue). Its
+//   'after Close' is empty, as measured by CI run 43167554166 (identical on all three).
 // BC versions: 27 - 29
 
 // local object: the rows the host and its part show
@@ -266,6 +266,7 @@ codeunit 97925 "LT BPR Part Reenqueue"
         Observer.Observe('after Close', Log.Take());
         Observer.Expect('after OpenView and GoToRecord', 'agcr 1;done 1;enqueued 1;agcr 2;done 2;enqueued 2;');
         Observer.Expect('after the second GoToRecord', 'agcr 1;done 1;enqueued 1;agcr 2;done 2;enqueued 2;');
+        Observer.Expect('after Close', '');
         Observer.Verify();
     end;
 }
