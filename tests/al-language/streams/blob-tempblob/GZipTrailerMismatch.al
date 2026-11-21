@@ -1,6 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/application/system-application/codeunit-system-data-compression-data-compression
 // Scope: in-scope (System Application "Data Compression", GZipDecompress over a Temp Blob OutStream)
 // Fixtures used: Probe Observer (69160); own codeunit 75290
+// Split: this probe is three codeunits, 75290 (GZipTrailerMismatch.al), 75294 (GZipTrailerText1MB.al) and 75295 (GZipTrailerSizes.al), so each one runs in a short time. The facts below cover all three.
 // Probe: written against a local BC 27.5 service tier; every literal asserted below is what BC produced. Other BC versions are checked by the corpus CI matrix.
 // Facts: GZipDecompress of members whose trailer is wrong, measured per decoded size: a wrong CRC32 or ISIZE field raises "A call to System.IO.Compression.GZipStream.CopyTo
 //   failed with this message: The archive entry was compressed using an unsupported compression method." (DotNetInvoke:InvalidData). The bytes written to the OutStream before the
@@ -294,148 +295,6 @@ codeunit 75290 "GZZ GZip Trailer"
     end;
 
     [Test]
-    procedure GZipDecompress_TrailerWrong_Size65536()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        TrailerCells(65536, '', Observer);
-        Observer.Expect('plain_len', '65536');
-        Observer.Expect('valid', 'ok len=65536 prefix=Yes');
-        Observer.Expect('crc_wrong', 'error:A call to System.IO.Compression.GZipStream.CopyTo failed with this message: The archive entry was compressed using an unsupported compression method.|DotNetInvoke:InvalidData len=0 prefix=Yes');
-        Observer.Expect('isize_wrong', 'error:A call to System.IO.Compression.GZipStream.CopyTo failed with this message: The archive entry was compressed using an unsupported compression method.|DotNetInvoke:InvalidData len=0 prefix=Yes');
-        Observer.Verify();
-    end;
-
-    [Test]
-    procedure GZipDecompress_TrailerWrong_Size81920()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        TrailerCells(81919, 'n81919_', Observer);
-        TrailerCells(81920, 'n81920_', Observer);
-        TrailerCells(81921, 'n81921_', Observer);
-        Observer.Expect('n81919_plain_len', '81919');
-        Observer.Expect('n81919_valid', 'ok len=81919 prefix=Yes');
-        Observer.Expect('n81919_crc_wrong', 'error:A call to System.IO.Compression.GZipStream.CopyTo failed with this message: The archive entry was compressed using an unsupported compression method.|DotNetInvoke:InvalidData len=0 prefix=Yes');
-        Observer.Expect('n81919_isize_wrong', 'error:A call to System.IO.Compression.GZipStream.CopyTo failed with this message: The archive entry was compressed using an unsupported compression method.|DotNetInvoke:InvalidData len=0 prefix=Yes');
-        Observer.Expect('n81920_plain_len', '81920');
-        Observer.Expect('n81920_valid', 'ok len=81920 prefix=Yes');
-        Observer.Expect('n81920_crc_wrong', 'error:A call to System.IO.Compression.GZipStream.CopyTo failed with this message: The archive entry was compressed using an unsupported compression method.|DotNetInvoke:InvalidData len=0 prefix=Yes');
-        Observer.Expect('n81920_isize_wrong', 'error:A call to System.IO.Compression.GZipStream.CopyTo failed with this message: The archive entry was compressed using an unsupported compression method.|DotNetInvoke:InvalidData len=0 prefix=Yes');
-        Observer.Expect('n81921_plain_len', '81921');
-        Observer.Expect('n81921_valid', 'ok len=81921 prefix=Yes');
-        Observer.Expect('n81921_crc_wrong', 'error:A call to System.IO.Compression.GZipStream.CopyTo failed with this message: The archive entry was compressed using an unsupported compression method.|DotNetInvoke:InvalidData len=0 prefix=Yes');
-        Observer.Expect('n81921_isize_wrong', 'error:A call to System.IO.Compression.GZipStream.CopyTo failed with this message: The archive entry was compressed using an unsupported compression method.|DotNetInvoke:InvalidData len=0 prefix=Yes');
-        Observer.Verify();
-    end;
-
-    [Test]
-    procedure GZipDecompress_TrailerWrong_Size163840()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        TrailerCells(163840, 'n163840_', Observer);
-        TrailerCells(163841, 'n163841_', Observer);
-        Observer.Expect('n163840_plain_len', '163840');
-        Observer.Expect('n163840_valid', 'ok len=163840 prefix=Yes');
-        Observer.Expect('n163840_crc_wrong', 'error:A call to System.IO.Compression.GZipStream.CopyTo failed with this message: The archive entry was compressed using an unsupported compression method.|DotNetInvoke:InvalidData len=131072 prefix=Yes');
-        Observer.Expect('n163840_isize_wrong', 'error:A call to System.IO.Compression.GZipStream.CopyTo failed with this message: The archive entry was compressed using an unsupported compression method.|DotNetInvoke:InvalidData len=131072 prefix=Yes');
-        Observer.Expect('n163841_plain_len', '163841');
-        Observer.Expect('n163841_valid', 'ok len=163841 prefix=Yes');
-        Observer.Expect('n163841_crc_wrong', 'error:A call to System.IO.Compression.GZipStream.CopyTo failed with this message: The archive entry was compressed using an unsupported compression method.|DotNetInvoke:InvalidData len=131072 prefix=Yes');
-        Observer.Expect('n163841_isize_wrong', 'error:A call to System.IO.Compression.GZipStream.CopyTo failed with this message: The archive entry was compressed using an unsupported compression method.|DotNetInvoke:InvalidData len=131072 prefix=Yes');
-        Observer.Verify();
-    end;
-
-    [Test]
-    procedure GZipDecompress_TrailerWrong_Size1MB()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        TrailerCells(1048576, '', Observer);
-        Observer.Expect('plain_len', '1048576');
-        Observer.Expect('valid', 'ok len=1048576 prefix=Yes');
-        Observer.Expect('crc_wrong', 'error:A call to System.IO.Compression.GZipStream.CopyTo failed with this message: The archive entry was compressed using an unsupported compression method.|DotNetInvoke:InvalidData len=917504 prefix=Yes');
-        Observer.Expect('isize_wrong', 'error:A call to System.IO.Compression.GZipStream.CopyTo failed with this message: The archive entry was compressed using an unsupported compression method.|DotNetInvoke:InvalidData len=917504 prefix=Yes');
-        Observer.Verify();
-    end;
-
-    [Test]
-    procedure GZipDecompress_TrailerWrong_MoreSizes()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        TrailerCells(65537, 'n65537_', Observer);
-        TrailerCells(131072, 'n131072_', Observer);
-        TrailerCells(131073, 'n131073_', Observer);
-        Observer.Expect('n65537_plain_len', '65537');
-        Observer.Expect('n65537_valid', 'ok len=65537 prefix=Yes');
-        Observer.Expect('n65537_crc_wrong', 'error:A call to System.IO.Compression.GZipStream.CopyTo failed with this message: The archive entry was compressed using an unsupported compression method.|DotNetInvoke:InvalidData len=0 prefix=Yes');
-        Observer.Expect('n65537_isize_wrong', 'error:A call to System.IO.Compression.GZipStream.CopyTo failed with this message: The archive entry was compressed using an unsupported compression method.|DotNetInvoke:InvalidData len=0 prefix=Yes');
-        Observer.Expect('n131072_plain_len', '131072');
-        Observer.Expect('n131072_valid', 'ok len=131072 prefix=Yes');
-        Observer.Expect('n131072_crc_wrong', 'error:A call to System.IO.Compression.GZipStream.CopyTo failed with this message: The archive entry was compressed using an unsupported compression method.|DotNetInvoke:InvalidData len=0 prefix=Yes');
-        Observer.Expect('n131072_isize_wrong', 'error:A call to System.IO.Compression.GZipStream.CopyTo failed with this message: The archive entry was compressed using an unsupported compression method.|DotNetInvoke:InvalidData len=0 prefix=Yes');
-        Observer.Expect('n131073_plain_len', '131073');
-        Observer.Expect('n131073_valid', 'ok len=131073 prefix=Yes');
-        Observer.Expect('n131073_crc_wrong', 'error:A call to System.IO.Compression.GZipStream.CopyTo failed with this message: The archive entry was compressed using an unsupported compression method.|DotNetInvoke:InvalidData len=131072 prefix=Yes');
-        Observer.Expect('n131073_isize_wrong', 'error:A call to System.IO.Compression.GZipStream.CopyTo failed with this message: The archive entry was compressed using an unsupported compression method.|DotNetInvoke:InvalidData len=131072 prefix=Yes');
-        Observer.Verify();
-    end;
-
-    [Test]
-    procedure GZipDecompress_TrailerWrong_MoreSizes2()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        TrailerCells(196608, 'n196608_', Observer);
-        TrailerCells(262144, 'n262144_', Observer);
-        TrailerCells(524288, 'n524288_', Observer);
-        Observer.Expect('n196608_plain_len', '196608');
-        Observer.Expect('n196608_valid', 'ok len=196608 prefix=Yes');
-        Observer.Expect('n196608_crc_wrong', 'error:A call to System.IO.Compression.GZipStream.CopyTo failed with this message: The archive entry was compressed using an unsupported compression method.|DotNetInvoke:InvalidData len=131072 prefix=Yes');
-        Observer.Expect('n196608_isize_wrong', 'error:A call to System.IO.Compression.GZipStream.CopyTo failed with this message: The archive entry was compressed using an unsupported compression method.|DotNetInvoke:InvalidData len=131072 prefix=Yes');
-        Observer.Expect('n262144_plain_len', '262144');
-        Observer.Expect('n262144_valid', 'ok len=262144 prefix=Yes');
-        Observer.Expect('n262144_crc_wrong', 'error:A call to System.IO.Compression.GZipStream.CopyTo failed with this message: The archive entry was compressed using an unsupported compression method.|DotNetInvoke:InvalidData len=131072 prefix=Yes');
-        Observer.Expect('n262144_isize_wrong', 'error:A call to System.IO.Compression.GZipStream.CopyTo failed with this message: The archive entry was compressed using an unsupported compression method.|DotNetInvoke:InvalidData len=131072 prefix=Yes');
-        Observer.Expect('n524288_plain_len', '524288');
-        Observer.Expect('n524288_valid', 'ok len=524288 prefix=Yes');
-        Observer.Expect('n524288_crc_wrong', 'error:A call to System.IO.Compression.GZipStream.CopyTo failed with this message: The archive entry was compressed using an unsupported compression method.|DotNetInvoke:InvalidData len=393216 prefix=Yes');
-        Observer.Expect('n524288_isize_wrong', 'error:A call to System.IO.Compression.GZipStream.CopyTo failed with this message: The archive entry was compressed using an unsupported compression method.|DotNetInvoke:InvalidData len=393216 prefix=Yes');
-        Observer.Verify();
-    end;
-
-    // Pseudo-random member of N bytes with the first CRC32 byte flipped.
-    local procedure NoiseCrcCell(N: Integer; Prefix: Text; var Observer: Codeunit "Probe Observer")
-    var
-        Plain: Codeunit "Temp Blob";
-        Packed: Codeunit "Temp Blob";
-        Bad: Codeunit "Temp Blob";
-    begin
-        NoiseBlob(N, Plain);
-        Compress(Plain, Packed);
-        Flipped(Packed, Packed.Length() - 7, Bad);
-        Observer.Observe(Prefix + 'crc_wrong', Outcome(Bad, Plain));
-    end;
-
-    [Test]
-    procedure GZipDecompress_NoiseSizes_CrcWrong()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        NoiseCrcCell(1000, 'n1000_', Observer);
-        NoiseCrcCell(65536, 'n65536_', Observer);
-        NoiseCrcCell(131072, 'n131072_', Observer);
-        NoiseCrcCell(200000, 'n200000_', Observer);
-        Observer.Expect('n1000_crc_wrong', 'error:A call to System.IO.Compression.GZipStream.CopyTo failed with this message: The archive entry was compressed using an unsupported compression method.|DotNetInvoke:InvalidData len=0 prefix=Yes');
-        Observer.Expect('n65536_crc_wrong', 'error:A call to System.IO.Compression.GZipStream.CopyTo failed with this message: The archive entry was compressed using an unsupported compression method.|DotNetInvoke:InvalidData len=0 prefix=Yes');
-        Observer.Expect('n131072_crc_wrong', 'error:A call to System.IO.Compression.GZipStream.CopyTo failed with this message: The archive entry was compressed using an unsupported compression method.|DotNetInvoke:InvalidData len=131022 prefix=Yes');
-        Observer.Expect('n200000_crc_wrong', 'error:A call to System.IO.Compression.GZipStream.CopyTo failed with this message: The archive entry was compressed using an unsupported compression method.|DotNetInvoke:InvalidData len=131022 prefix=Yes');
-        Observer.Verify();
-    end;
-
-    [Test]
     procedure GZipDecompress_Noise1MB_TrailerAndMiddle()
     var
         Observer: Codeunit "Probe Observer";
@@ -458,28 +317,6 @@ codeunit 75290 "GZZ GZip Trailer"
         Observer.Expect('valid', 'ok len=1048576 prefix=Yes');
         Observer.Expect('crc_wrong', 'error:A call to System.IO.Compression.GZipStream.CopyTo failed with this message: The archive entry was compressed using an unsupported compression method.|DotNetInvoke:InvalidData len=1048246 prefix=Yes');
         Observer.Expect('middle_byte_flipped', 'error:A call to System.IO.Compression.GZipStream.CopyTo failed with this message: The archive entry was compressed using an unsupported compression method.|DotNetInvoke:InvalidData len=1048246 prefix=No');
-        Observer.Verify();
-    end;
-
-    [Test]
-    procedure GZipDecompress_Pattern1MB_MiddleCorrupt()
-    var
-        Observer: Codeunit "Probe Observer";
-        Plain: Codeunit "Temp Blob";
-        Packed: Codeunit "Temp Blob";
-        Bad: Codeunit "Temp Blob";
-        Len: Integer;
-    begin
-        PatternBlob(1048576, Plain);
-        Compress(Plain, Packed);
-        Len := Packed.Length();
-        Flipped(Packed, Len div 2, Bad);
-        Observer.Observe('middle_byte_flipped', Outcome(Bad, Plain));
-        Clear(Bad);
-        Flipped(Packed, 12, Bad);
-        Observer.Observe('byte_12_flipped', Outcome(Bad, Plain));
-        Observer.Expect('middle_byte_flipped', 'error:A call to System.IO.Compression.GZipStream.CopyTo failed with this message: The archive entry was compressed using an unsupported compression method.|DotNetInvoke:InvalidData len=917504 prefix=No');
-        Observer.Expect('byte_12_flipped', 'error:A call to System.IO.Compression.GZipStream.CopyTo failed with this message: The archive entry was compressed using an unsupported compression method.|DotNetInvoke:InvalidData len=0 prefix=Yes');
         Observer.Verify();
     end;
 
@@ -523,41 +360,6 @@ codeunit 75290 "GZZ GZip Trailer"
         Observer.Expect('good_then_crc_wrong', 'error:A call to System.IO.Compression.GZipStream.CopyTo failed with this message: The archive entry was compressed using an unsupported compression method.|DotNetInvoke:InvalidData len=13 prefix=Yes');
         Observer.Expect('crc_wrong_then_good', 'error:A call to System.IO.Compression.GZipStream.CopyTo failed with this message: The archive entry was compressed using an unsupported compression method.|DotNetInvoke:InvalidData len=0 prefix=Yes');
         Observer.Expect('good_then_isize_wrong', 'error:A call to System.IO.Compression.GZipStream.CopyTo failed with this message: The archive entry was compressed using an unsupported compression method.|DotNetInvoke:InvalidData len=13 prefix=Yes');
-        Observer.Verify();
-    end;
-
-    [Test]
-    procedure GZipDecompress_TwoMembers_LargeFirst_SecondCrcWrong()
-    var
-        Observer: Codeunit "Probe Observer";
-        PlainA: Codeunit "Temp Blob";
-        PlainB: Codeunit "Temp Blob";
-        PackedA: Codeunit "Temp Blob";
-        PackedB: Codeunit "Temp Blob";
-        BadB: Codeunit "Temp Blob";
-        Joined: Codeunit "Temp Blob";
-        PlainAB: Codeunit "Temp Blob";
-        OutS: OutStream;
-    begin
-        PatternBlob(200000, PlainA);
-        TextBlob('second member', PlainB);
-        PlainAB.CreateOutStream(OutS);
-        Append(PlainA, OutS);
-        Append(PlainB, OutS);
-        Compress(PlainA, PackedA);
-        Compress(PlainB, PackedB);
-        Flipped(PackedB, PackedB.Length() - 7, BadB);
-        Joined.CreateOutStream(OutS);
-        Append(PackedA, OutS);
-        Append(BadB, OutS);
-        Observer.Observe('large_good_then_crc_wrong', Outcome(Joined, PlainA));
-        Clear(Joined);
-        Joined.CreateOutStream(OutS);
-        Append(PackedA, OutS);
-        Append(PackedB, OutS);
-        Observer.Observe('large_good_then_good', Outcome(Joined, PlainAB));
-        Observer.Expect('large_good_then_crc_wrong', 'error:A call to System.IO.Compression.GZipStream.CopyTo failed with this message: The archive entry was compressed using an unsupported compression method.|DotNetInvoke:InvalidData len=200000 prefix=Yes');
-        Observer.Expect('large_good_then_good', 'ok len=200013 prefix=Yes');
         Observer.Verify();
     end;
 
