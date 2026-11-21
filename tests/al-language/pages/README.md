@@ -14,7 +14,7 @@ The page object: page triggers, parts, controls, actions, CurrPage, Run and RunM
 - `bare-page-methods/`: page methods called without CurrPage (2 AL files).
 - `client-features/`: client-only features seen in a test session (role centers, camera) (1 AL file).
 - `close-errors/`: where an error is raised when a page closes (OnQueryClosePage, OnClosePage, OnModifyRecord, table triggers, handlers, an unhandled Confirm) crossed with how the page closes and the page shape (6 AL files).
-- `controls/`: page controls and their properties (26 AL files).
+- `controls/`: page controls and their properties (27 AL files).
 - `cue-visible/`: visibility of cues (1 AL file).
 - `currpage/`: CurrPage, Update, SetRecord, SetTableView, SetSelectionFilter (33 AL files).
 - `deleted-rows/`: a page that is open when its rows are deleted (1 AL file).
@@ -68,7 +68,7 @@ A new topic gets a line here in the same pull request (standing rule 8 in CONTRI
 
 ## Shared fixtures used here
 
-- codeunit 69160 "Probe Observer": 322 files
+- codeunit 69160 "Probe Observer": 323 files
 - table 60000 "ALT Universal": 4 files
 - enum 60009 "ALT Status": 1 file
 - page 60016 "ALT List Page": 1 file
