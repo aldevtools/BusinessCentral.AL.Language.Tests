@@ -40,21 +40,11 @@ codeunit 61234 "LT User Windows SID"
         Observer.Expect('insert_other_sid_other_name', 'ok:Yes');
         Observer.Expect('insert_blank_sid_a', 'ok:Yes');
         Observer.Expect('insert_blank_sid_b', 'ok:Yes');
-#if BC29PLUS
+        // The refusal "Windows security identifier is not supported in online environments." that the Linux CI tier gave on the .NET 8 builds
+        // of 27.5 and 28.5 was a host difference: Windows BC 28.4 (nightly 2026-11-16) and the .NET 10 builds on Linux (CI 2026-11-17) modify.
         Observer.Expect('modify_to_sid_held_by_other', 'error:The same Windows Account can be connected to only one Business Central user.|UserTableUserWindowsSidMustBeUnique');
-#else
-        Observer.Expect('modify_to_sid_held_by_other', 'error:Windows security identifier is not supported in online environments.|Dialog');
-#endif
-#if BC29PLUS
         Observer.Expect('modify_to_free_sid', 'ok:Yes');
-#else
-        Observer.Expect('modify_to_free_sid', 'error:Windows security identifier is not supported in online environments.|Dialog');
-#endif
-#if BC29PLUS
         Observer.Expect('modify_own_sid_unchanged', 'ok:Yes');
-#else
-        Observer.Expect('modify_own_sid_unchanged', 'error:Windows security identifier is not supported in online environments.|Dialog');
-#endif
         Observer.Expect('modify_sid_to_blank', 'ok:Yes');
         Observer.Expect('insert_not_a_sid', 'ok:Yes');
         Observer.Expect('insert_sid_case', 'ok:Yes');
@@ -75,11 +65,7 @@ codeunit 61234 "LT User Windows SID"
         Observer.Observe('modify_disabled_to_enabled', Ops.Perform(T, 'modify', '1={A1000000-0000-0000-0000-000000000011}|4=0', true));
         Observer.Expect('insert_disabled', 'ok:Yes');
         Observer.Expect('insert_enabled_same_sid', 'error:The same Windows Account can be connected to only one Business Central user.|UserTableUserWindowsSidMustBeUnique');
-#if BC29PLUS
         Observer.Expect('modify_disabled_to_enabled', 'ok:Yes');
-#else
-        Observer.Expect('modify_disabled_to_enabled', 'error:Windows security identifier is not supported in online environments.|Dialog');
-#endif
         Observer.Verify();
     end;
 }
