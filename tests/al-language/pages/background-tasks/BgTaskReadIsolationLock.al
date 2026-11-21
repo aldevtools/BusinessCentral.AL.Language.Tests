@@ -13,7 +13,7 @@
 // Readings: what the worker's read answered, or the text and code of its error.
 // Cells: a row the test codeunit wrote stays locked to the worker for the whole codeunit: a Get under ReadCommitted,
 //   RepeatableRead or UpdLock of a row the test modified, of a row it only inserted and committed, and of a row it modified and
-//   committed, waits on the lock and fails with NDBCS:LockTimeout; so do FindFirst and Count under ReadCommitted of a group with
+//   committed, and of a row it inserted without committing (ReadCommitted), waits on the lock and fails with NDBCS:LockTimeout; so do FindFirst and Count under ReadCommitted of a group with
 //   a filter on a field outside the key, also of a group that holds no row (the read scans the table). A Get under ReadCommitted
 //   of a key no row has answers not found at once. Under ReadUncommitted and without a ReadIsolation the Get sees the change, and
 //   reads the row the test inserted and committed.
@@ -347,5 +347,44 @@ codeunit 97543 "RL Tests"
         Seed(A, '', 'first');
         Rows.OpenView();
         Assert.AreEqual('first', Run(Rows, 'default', 'get', A), 'DefaultGet_RowTheTestInsertedAndCommitted');
+    end;
+    [Test]
+    procedure BgTaskReadIsolation_ReadCommittedGet_RowTheTestInsertedNotCommitted_WaitsOnTheLock()
+    var
+        Rows: TestPage "RL Rows";
+        Row: Record "RL Row";
+        A: Code[20];
+    begin
+        A := NewKey();
+        Row."No." := A;
+        Row.Description := 'new';
+        Row.Insert();
+        Row.Get(A);
+        Rows.OpenView();
+        Assert.AreEqual(LockText, Run(Rows, 'readcommitted', 'get', A), 'ReadCommittedGet_RowTheTestInsertedNotCommitted');
+    end;
+
+    [Test]
+    procedure BgTaskReadIsolation_RepeatableReadGet_RowTheTestInsertedAndCommitted_WaitsOnTheLock()
+    var
+        Rows: TestPage "RL Rows";
+        A: Code[20];
+    begin
+        A := NewKey();
+        Seed(A, '', 'first');
+        Rows.OpenView();
+        Assert.AreEqual(LockText, Run(Rows, 'repeatableread', 'get', A), 'RepeatableReadGet_RowTheTestInsertedAndCommitted');
+    end;
+
+    [Test]
+    procedure BgTaskReadIsolation_UpdLockGet_RowTheTestInsertedAndCommitted_WaitsOnTheLock()
+    var
+        Rows: TestPage "RL Rows";
+        A: Code[20];
+    begin
+        A := NewKey();
+        Seed(A, '', 'first');
+        Rows.OpenView();
+        Assert.AreEqual(LockText, Run(Rows, 'updlock', 'get', A), 'UpdLockGet_RowTheTestInsertedAndCommitted');
     end;
 }
