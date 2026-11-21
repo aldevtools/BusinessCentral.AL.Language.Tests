@@ -14,12 +14,13 @@
 //     Library - Manufacturing.RefreshProdOrder (codeunit 97183) around a report shaped like 99001025 "Refresh Production Order".
 //   * Any other type (UpdateNoLocks, Snapshot, Report, Browse after a Commit): a world (TxU11, TxU13 to TxU15); a pending Insert
 //     under UpdateNoLocks refuses the run (TxU12). With the request page shown the type does not matter (TxU16, TxU17).
-//   * A Commit keeps the type the transaction had (TxU07, TxU08, TxU21 to TxU26). So after a Commit at UpdateNoLocks the report
+//   * A Commit keeps the type the transaction had (TxU07, TxU08, TxU21 to TxU26, TxU34 to TxU38: after a write, a read or no
+//     call, and over two Commits). So after a Commit at UpdateNoLocks the report
 //     enters a world (TxU07 Run; TxU19 RunModal of the report shaped like Refresh Production Order), and a pending Insert
 //     refuses it (TxU08, TxU20).
 //   The session's type carries into the next test method, so every test that sets a type ends with
 //   Commit() and CurrentTransactionType(TransactionType::UpdateNoLocks), as Library - Manufacturing does.
-//   Measured on a local BC 29.1 OnPrem w1 container (35/35 green); BC 27.5, 28.5 and 29.0 are left to CI.
+//   Measured on a local BC 29.1 OnPrem w1 container (40/40 green); BC 27.5, 28.5 and 29.0 are left to CI.
 // BC versions: 27, 28, 29
 table 97180 "TxU Row"
 {
@@ -763,6 +764,55 @@ codeunit 97184 "TxU Update Report Tx"
         Assert.IsTrue(RowExists(97184331), 'The report must have written its marker.');
         TrapAnError();
         Assert.IsFalse(RowExists(97184331), 'The report''s marker is rolled back: no transaction world.');
+        RestoreType();
+    end;
+
+    [Test]
+    procedure TxU34_TypeAfterCommit_UpdateNoLocksNoCall()
+    begin
+        CurrentTransactionType(TransactionType::UpdateNoLocks);
+        Commit();
+        Assert.AreEqual('UpdateNoLocks', TypeText(), 'The type after the Commit.');
+    end;
+
+    [Test]
+    procedure TxU35_TypeAfterCommit_SnapshotNoCall()
+    begin
+        CurrentTransactionType(TransactionType::Snapshot);
+        Commit();
+        Assert.AreEqual('Snapshot', TypeText(), 'The type after the Commit.');
+        RestoreType();
+    end;
+
+    [Test]
+    procedure TxU36_TypeAfterCommit_BrowseNoCall()
+    begin
+        CurrentTransactionType(TransactionType::Browse);
+        Commit();
+        Assert.AreEqual('Browse', TypeText(), 'The type after the Commit.');
+        RestoreType();
+    end;
+
+    [Test]
+    procedure TxU37_TypeAfterCommit_ReportNoCall()
+    begin
+        CurrentTransactionType(TransactionType::Report);
+        Commit();
+        Assert.AreEqual('Report', TypeText(), 'The type after the Commit.');
+        RestoreType();
+    end;
+
+    [Test]
+    procedure TxU38_TypeAfterTwoCommits_SnapshotRead()
+    var
+        TxURow: Record "TxU Row";
+    begin
+        CurrentTransactionType(TransactionType::Snapshot);
+        if TxURow.FindFirst() then;
+        Commit();
+        if TxURow.FindFirst() then;
+        Commit();
+        Assert.AreEqual('Snapshot', TypeText(), 'The type after the second Commit.');
         RestoreType();
     end;
 
