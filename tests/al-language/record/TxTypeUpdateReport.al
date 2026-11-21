@@ -8,8 +8,9 @@
 //   the test's start, where the session's type is UpdateNoLocks. Here the type is set first. A trapped Error after the run tells
 //   whether the report entered a transaction world: a world commits the report's writes, so they survive the trapped error.
 //   * The type is Update (set after a Commit, or at the test's start): no world. The report runs in the caller's transaction, a
-//     pending Insert does not refuse it, and its writes are rolled back with the caller's (TxU03 to TxU06, TxU09, TxU10, TxU18).
-//     Run and RunModal, with and without a Get before the run, and two runs in a row. TxU01 and TxU02 are the steps of
+//     pending write does not refuse it, and its writes are rolled back with the caller's (TxU03 to TxU06, TxU09, TxU10, TxU18,
+//     TxU27 to TxU33). Run and RunModal; nothing, a Get, FindFirst, FindSet and Next, Count and IsEmpty, an Insert, a Modify,
+//     a Delete, or a Get and an Insert before the run; two runs in a row. TxU01 and TxU02 are the steps of
 //     Library - Manufacturing.RefreshProdOrder (codeunit 97183) around a report shaped like 99001025 "Refresh Production Order".
 //   * Any other type (UpdateNoLocks, Snapshot, Report, Browse after a Commit): a world (TxU11, TxU13 to TxU15); a pending Insert
 //     under UpdateNoLocks refuses the run (TxU12). With the request page shown the type does not matter (TxU16, TxU17).
@@ -18,7 +19,7 @@
 //     refuses it (TxU08, TxU20).
 //   The session's type carries into the next test method, so every test that sets a type ends with
 //   Commit() and CurrentTransactionType(TransactionType::UpdateNoLocks), as Library - Manufacturing does.
-//   Measured on a local BC 29.1 OnPrem w1 container (28/28 green); BC 27.5, 28.5 and 29.0 are left to CI.
+//   Measured on a local BC 29.1 OnPrem w1 container (35/35 green); BC 27.5, 28.5 and 29.0 are left to CI.
 // BC versions: 27, 28, 29
 table 97180 "TxU Row"
 {
@@ -623,6 +624,145 @@ codeunit 97184 "TxU Update Report Tx"
         CurrentTransactionType(TransactionType::Update);
         Commit();
         Assert.AreEqual('Update', TypeText(), 'The type after the Commit.');
+        RestoreType();
+    end;
+
+    // ----- Other reads and writes after the Update set (the cells above read with Get and write with Insert) -----
+
+    [Test]
+    procedure TxU27_CommitSetUpdateFindFirstRun_NoWorld()
+    var
+        TxURow: Record "TxU Row";
+        TxUUpdateReport: Report "TxU Update Report";
+    begin
+        InsertRow(97184271);
+        Commit();
+        CurrentTransactionType(TransactionType::Update);
+        TxURow.SetRange("Entry No.", 97184271);
+        TxURow.FindFirst();
+        TxUUpdateReport.SetMarker(97184272);
+        TxUUpdateReport.Run();
+        Assert.IsTrue(RowExists(97184272), 'The report must have written its marker.');
+        TrapAnError();
+        Assert.IsFalse(RowExists(97184272), 'The report''s marker is rolled back: no transaction world.');
+        RestoreType();
+    end;
+
+    [Test]
+    procedure TxU28_CommitSetUpdateFindSetRun_NoWorld()
+    var
+        TxURow: Record "TxU Row";
+        TxUUpdateReport: Report "TxU Update Report";
+    begin
+        InsertRow(97184281);
+        Commit();
+        CurrentTransactionType(TransactionType::Update);
+        TxURow.SetRange("Entry No.", 97184281);
+        if TxURow.FindSet() then
+            repeat
+            until TxURow.Next() = 0;
+        TxUUpdateReport.SetMarker(97184282);
+        TxUUpdateReport.Run();
+        Assert.IsTrue(RowExists(97184282), 'The report must have written its marker.');
+        TrapAnError();
+        Assert.IsFalse(RowExists(97184282), 'The report''s marker is rolled back: no transaction world.');
+        RestoreType();
+    end;
+
+    [Test]
+    procedure TxU29_CommitSetUpdateCountRun_NoWorld()
+    var
+        TxURow: Record "TxU Row";
+        TxUUpdateReport: Report "TxU Update Report";
+    begin
+        InsertRow(97184291);
+        Commit();
+        CurrentTransactionType(TransactionType::Update);
+        TxURow.SetRange("Entry No.", 97184291);
+        Assert.AreEqual(1, TxURow.Count(), 'The row committed before the set.');
+        Assert.IsFalse(TxURow.IsEmpty(), 'The row committed before the set.');
+        TxUUpdateReport.SetMarker(97184292);
+        TxUUpdateReport.Run();
+        Assert.IsTrue(RowExists(97184292), 'The report must have written its marker.');
+        TrapAnError();
+        Assert.IsFalse(RowExists(97184292), 'The report''s marker is rolled back: no transaction world.');
+        RestoreType();
+    end;
+
+    [Test]
+    procedure TxU30_CommitSetUpdateModifyRun_NoWorld()
+    var
+        TxURow: Record "TxU Row";
+        TxUUpdateReport: Report "TxU Update Report";
+    begin
+        InsertRow(97184301);
+        Commit();
+        CurrentTransactionType(TransactionType::Update);
+        TxURow."Entry No." := 97184301;
+        TxURow.Touched := true;
+        TxURow.Modify();
+        TxUUpdateReport.SetMarker(97184302);
+        TxUUpdateReport.Run();
+        Assert.IsTrue(RowExists(97184302), 'The report must have written its marker.');
+        TrapAnError();
+        Assert.IsFalse(IsTouched(97184301), 'The pending Modify is rolled back.');
+        Assert.IsFalse(RowExists(97184302), 'The report''s marker is rolled back: no transaction world.');
+        RestoreType();
+    end;
+
+    [Test]
+    procedure TxU31_CommitSetUpdateDeleteRun_NoWorld()
+    var
+        TxURow: Record "TxU Row";
+        TxUUpdateReport: Report "TxU Update Report";
+    begin
+        InsertRow(97184311);
+        Commit();
+        CurrentTransactionType(TransactionType::Update);
+        TxURow."Entry No." := 97184311;
+        TxURow.Delete();
+        TxUUpdateReport.SetMarker(97184312);
+        TxUUpdateReport.Run();
+        Assert.IsTrue(RowExists(97184312), 'The report must have written its marker.');
+        TrapAnError();
+        Assert.IsTrue(RowExists(97184311), 'The pending Delete is rolled back.');
+        Assert.IsFalse(RowExists(97184312), 'The report''s marker is rolled back: no transaction world.');
+        RestoreType();
+    end;
+
+    [Test]
+    procedure TxU32_CommitSetUpdateGetInsertRun_NoWorld()
+    var
+        TxURow: Record "TxU Row";
+        TxUUpdateReport: Report "TxU Update Report";
+    begin
+        InsertRow(97184321);
+        Commit();
+        CurrentTransactionType(TransactionType::Update);
+        TxURow.Get(97184321);
+        InsertRow(97184322);
+        TxUUpdateReport.SetMarker(97184323);
+        TxUUpdateReport.Run();
+        Assert.IsTrue(RowExists(97184323), 'The report must have written its marker.');
+        TrapAnError();
+        Assert.IsFalse(RowExists(97184322), 'The pending Insert is rolled back.');
+        Assert.IsFalse(RowExists(97184323), 'The report''s marker is rolled back: no transaction world.');
+        RestoreType();
+    end;
+
+    [Test]
+    procedure TxU33_SetUpdateAtStartFindFirstRun_NoWorld()
+    var
+        TxURow: Record "TxU Row";
+        TxUUpdateReport: Report "TxU Update Report";
+    begin
+        CurrentTransactionType(TransactionType::Update);
+        if TxURow.FindFirst() then;
+        TxUUpdateReport.SetMarker(97184331);
+        TxUUpdateReport.Run();
+        Assert.IsTrue(RowExists(97184331), 'The report must have written its marker.');
+        TrapAnError();
+        Assert.IsFalse(RowExists(97184331), 'The report''s marker is rolled back: no transaction world.');
         RestoreType();
     end;
 
