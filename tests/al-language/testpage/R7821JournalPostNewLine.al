@@ -230,6 +230,7 @@ codeunit 67141 "TP R7821 Tests"
     begin
         Run(Observer, 2, false);
         OnlyOne(Observer, 'shown line');
+        Observer.Expect('shown line', '0');
         Observer.Verify();
     end;
 
@@ -240,6 +241,7 @@ codeunit 67141 "TP R7821 Tests"
     begin
         Run(Observer, 2, false);
         OnlyOne(Observer, 'after close');
+        Observer.Expect('after close', '');
         Observer.Verify();
     end;
 
@@ -250,6 +252,7 @@ codeunit 67141 "TP R7821 Tests"
     begin
         Run(Observer, 2, false);
         OnlyOne(Observer, 'lines left');
+        Observer.Expect('lines left', '0');
         Observer.Verify();
     end;
 
@@ -271,6 +274,7 @@ codeunit 67141 "TP R7821 Tests"
     begin
         Run(Observer, 3, false);
         OnlyOne(Observer, 'shown line');
+        Observer.Expect('shown line', '0');
         Observer.Verify();
     end;
 
@@ -281,6 +285,7 @@ codeunit 67141 "TP R7821 Tests"
     begin
         Run(Observer, 3, false);
         OnlyOne(Observer, 'after close');
+        Observer.Expect('after close', '');
         Observer.Verify();
     end;
 
@@ -291,6 +296,7 @@ codeunit 67141 "TP R7821 Tests"
     begin
         Run(Observer, 3, false);
         OnlyOne(Observer, 'lines left');
+        Observer.Expect('lines left', '0');
         Observer.Verify();
     end;
 }
