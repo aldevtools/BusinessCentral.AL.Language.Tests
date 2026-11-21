@@ -16,6 +16,7 @@ codeunit 75620 "YBL Json Yaml Blank Lines"
     TestPermissions = Disabled;
 
     var
+        Observer: Codeunit "Probe Observer";
         JO: JsonObject;
         Ok: Boolean;
 
@@ -57,32 +58,34 @@ codeunit 75620 "YBL Json Yaml Blank Lines"
         exit(Src.Replace('~', Eol));
     end;
 
-    local procedure Read(var Observer: Codeunit "Probe Observer"; Name: Text; Src: Text)
+    local procedure Read(var Obs: Codeunit "Probe Observer"; Name: Text; Src: Text)
     var
         Out: Text;
+        Res: Text;
     begin
-        Observer.Observe(Name + '-ret', Format(TryReadReturn(Src)) + '|' + Format(Ok));
-        Observer.ObserveError(Name + '-ret');
+        ClearLastError();
+        Res := Format(TryReadReturn(Src)) + '|' + Format(Ok);
+        Obs.Observe(Name + '-ret', Res + '|' + GetLastErrorText() + '|' + GetLastErrorCode());
         JO.WriteTo(Out);
-        Observer.Observe(Name + '-json', Out);
-        Observer.Observe(Name + '-stmt', Format(TryReadStatement(Src)));
-        Observer.ObserveError(Name + '-stmt');
+        Obs.Observe(Name + '-json', Out);
+        ClearLastError();
+        Res := Format(TryReadStatement(Src));
+        Obs.Observe(Name + '-stmt', Res + '|' + GetLastErrorText() + '|' + GetLastErrorCode());
+        ClearLastError();
     end;
 
-    local procedure ReadLf(var Observer: Codeunit "Probe Observer"; Name: Text; Src: Text)
+    local procedure ReadLf(var Obs: Codeunit "Probe Observer"; Name: Text; Src: Text)
     begin
-        Read(Observer, Name, Doc(Src, Lf()));
+        Read(Obs, Name, Doc(Src, Lf()));
     end;
 
-    local procedure ReadCrLf(var Observer: Codeunit "Probe Observer"; Name: Text; Src: Text)
+    local procedure ReadCrLf(var Obs: Codeunit "Probe Observer"; Name: Text; Src: Text)
     begin
-        Read(Observer, Name + '-crlf', Doc(Src, CrLf()));
+        Read(Obs, Name + '-crlf', Doc(Src, CrLf()));
     end;
 
     [Test]
     procedure ReadFromYaml_BlankLineTopList_Read()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
         ReadLf(Observer, 'toplist', '- a~~- b');
         ReadLf(Observer, 'keylist0', 'k:~- a~~- b');
@@ -92,8 +95,6 @@ codeunit 75620 "YBL Json Yaml Blank Lines"
 
     [Test]
     procedure ReadFromYaml_BlankLineNestedList_Read()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
         ReadLf(Observer, 'keylist2', 'k:~  - a~~  - b');
         ReadCrLf(Observer, 'keylist2', 'k:~  - a~~  - b');
@@ -103,8 +104,6 @@ codeunit 75620 "YBL Json Yaml Blank Lines"
 
     [Test]
     procedure ReadFromYaml_BlankLineNestedKeys_Read()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
         ReadLf(Observer, 'nested', 'a:~  b: 1~~  c: 2');
         ReadCrLf(Observer, 'nested', 'a:~  b: 1~~  c: 2');
@@ -114,8 +113,6 @@ codeunit 75620 "YBL Json Yaml Blank Lines"
 
     [Test]
     procedure ReadFromYaml_BlankLineListItemMapping_Read()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
         ReadLf(Observer, 'itemmap-inner', 'k:~  - x: 1~~    y: 2');
         ReadLf(Observer, 'itemmap-between', 'k:~  - x: 1~    y: 2~~  - x: 3~    y: 4');
@@ -125,8 +122,6 @@ codeunit 75620 "YBL Json Yaml Blank Lines"
 
     [Test]
     procedure ReadFromYaml_CrLfNoBlank_Read()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
         ReadCrLf(Observer, 'nested', 'a:~  b: 1');
         ReadCrLf(Observer, 'toplist', '- a~- b');
@@ -136,8 +131,6 @@ codeunit 75620 "YBL Json Yaml Blank Lines"
 
     [Test]
     procedure ReadFromYaml_TrailingLines_Read()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
         ReadLf(Observer, 'nested-lf', 'a:~  b: 1~');
         ReadLf(Observer, 'nested-lflflf', 'a:~  b: 1~~~');
@@ -147,8 +140,6 @@ codeunit 75620 "YBL Json Yaml Blank Lines"
 
     [Test]
     procedure ReadFromYaml_TrailingLinesCrLf_Read()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
         ReadCrLf(Observer, 'nested-lf', 'a:~  b: 1~');
         ReadCrLf(Observer, 'list-lflf', 'k:~  - a~  - b~~');
@@ -158,8 +149,6 @@ codeunit 75620 "YBL Json Yaml Blank Lines"
 
     [Test]
     procedure ReadFromYaml_SpacesOnlyLine_Read()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
         ReadLf(Observer, 'list', 'k:~  - a~   ~  - b');
         ReadLf(Observer, 'nested', 'a:~  b: 1~  ~  c: 2');
@@ -169,8 +158,6 @@ codeunit 75620 "YBL Json Yaml Blank Lines"
 
     [Test]
     procedure ReadFromYaml_SpacesOnlyLineMore_Read()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
         ReadCrLf(Observer, 'list', 'k:~  - a~   ~  - b');
         ReadLf(Observer, 'trailing', 'a:~  b: 1~    ');
@@ -180,8 +167,6 @@ codeunit 75620 "YBL Json Yaml Blank Lines"
 
     [Test]
     procedure ReadFromYaml_FlowInBlockList_Read()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
         ReadLf(Observer, 'flow', 'k:~  - [a, b]~  - {x: 1}');
         ReadLf(Observer, 'flow-blank', 'k:~  - [a, b]~~  - {x: 1}');
@@ -191,8 +176,6 @@ codeunit 75620 "YBL Json Yaml Blank Lines"
 
     [Test]
     procedure ReadFromYaml_FlowInListItemMapping_Read()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
         ReadLf(Observer, 'itemflow', 'k:~  - tags: [a, "b c"]~    opts: {x: 1}~~  - tags: []');
         ReadCrLf(Observer, 'itemflow', 'k:~  - tags: [a, "b c"]~    opts: {x: 1}~~  - tags: []');
@@ -202,8 +185,6 @@ codeunit 75620 "YBL Json Yaml Blank Lines"
 
     [Test]
     procedure ReadFromYaml_LiteralBlockScalar_Read()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
         ReadLf(Observer, 'literal', 'q: |~  line one~  line two~n: 1');
         ReadLf(Observer, 'literal-strip', 'q: |-~  line one~  line two~n: 1');
@@ -213,8 +194,6 @@ codeunit 75620 "YBL Json Yaml Blank Lines"
 
     [Test]
     procedure ReadFromYaml_FoldedBlockScalar_Read()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
         ReadLf(Observer, 'folded', 'q: >~  line one~  line two~n: 1');
         ReadLf(Observer, 'folded-strip', 'q: >-~  line one~  line two~n: 1');
@@ -224,8 +203,6 @@ codeunit 75620 "YBL Json Yaml Blank Lines"
 
     [Test]
     procedure ReadFromYaml_BlockScalarEnd_Read()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
         ReadLf(Observer, 'literal-last', 'q: |~  line one~  line two');
         ReadLf(Observer, 'literal-last-lf', 'q: |~  line one~  line two~');
@@ -235,8 +212,6 @@ codeunit 75620 "YBL Json Yaml Blank Lines"
 
     [Test]
     procedure ReadFromYaml_BlockScalarInListItem_Read()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
         ReadLf(Observer, 'item-literal', 'k:~  - q: |~      one~      two~    n: 1~~  - q: >-~      three~      four');
         ReadCrLf(Observer, 'item-literal', 'k:~  - q: |~      one~      two~    n: 1~~  - q: >-~      three~      four');
@@ -245,8 +220,6 @@ codeunit 75620 "YBL Json Yaml Blank Lines"
 
     [Test]
     procedure ReadFromYaml_CommentsAndQuotes_Read()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
         ReadLf(Observer, 'comment', '# head~a: 1 # tail~~# between~b: 2');
         ReadLf(Observer, 'quoted-key', '"Some Key": two words~''Other Key'': "x"');
@@ -256,8 +229,6 @@ codeunit 75620 "YBL Json Yaml Blank Lines"
 
     [Test]
     procedure ReadFromYaml_ScalarForms_Read()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
         ReadLf(Observer, 'numbers', 'a: 1.5~b: -3~c: 0010~d: 1e3');
         ReadLf(Observer, 'words', 'a: two words here~b: yes~c: ~~d: Null');
@@ -267,8 +238,6 @@ codeunit 75620 "YBL Json Yaml Blank Lines"
 
     [Test]
     procedure ReadFromYaml_DatasetDocument_Read()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
         ReadLf(Observer, 'dataset', DatasetDoc());
         Observer.Finish();
@@ -276,8 +245,6 @@ codeunit 75620 "YBL Json Yaml Blank Lines"
 
     [Test]
     procedure ReadFromYaml_DatasetDocumentCrLf_Read()
-    var
-        Observer: Codeunit "Probe Observer";
     begin
         ReadCrLf(Observer, 'dataset', DatasetDoc());
         Observer.Finish();
@@ -286,7 +253,6 @@ codeunit 75620 "YBL Json Yaml Blank Lines"
     [Test]
     procedure ReadFromYaml_DatasetDocumentGet_Read()
     var
-        Observer: Codeunit "Probe Observer";
         Tok: JsonToken;
         Tests: JsonArray;
         Item: JsonToken;
