@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-subscribing-to-events
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160); XApp A tests/al-language-xapp-a/P2XaLoginMemos.al (memos 98490-98494, OnAfterLogin subscriber 98495);
-//   XApp B tests/al-language-xapp-b/P2XbLoginMemos.al (OnAfterLogin subscriber 98500); table 97920 below.
+//   XApp B tests/al-language-xapp-b/P2XbLoginMemos.al (OnAfterLogin subscriber 98500); table 97930 below.
 // Probe (al-runner issue 8239, probe P2): what the test session finds in the globals of a dependency app's memo (a SingleInstance codeunit that fills
 //   its globals on first use) after the OnAfterLogin subscribers of the partner dependency apps filled or changed it. Cells:
 //   - memo of the subscriber's own app vs memo of another app (XApp B's subscriber fills an XApp A memo, the stand-in for "Server Setting Impl.");
@@ -23,7 +23,7 @@
 using System.Environment;
 using System.Environment.Configuration;
 
-table 97920 "LT P2 Memo Row"
+table 97930 "LT P2 Memo Row"
 {
     DataClassification = SystemMetadata;
 
@@ -80,7 +80,7 @@ table 97920 "LT P2 Memo Row"
     end;
 }
 
-codeunit 97921 "LT P2 Login Memo A"
+codeunit 97931 "LT P2 Login Memo A"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -379,7 +379,7 @@ codeunit 97921 "LT P2 Login Memo A"
     end;
 }
 
-codeunit 97922 "LT P2 Login Memo B"
+codeunit 97932 "LT P2 Login Memo B"
 {
     Subtype = Test;
     TestPermissions = Disabled;
