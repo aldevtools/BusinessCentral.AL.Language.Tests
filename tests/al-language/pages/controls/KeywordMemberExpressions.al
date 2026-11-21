@@ -7,6 +7,8 @@
 //   - A control's Visible and Editable expressions and a control's source expression compile when they name a keyword member
 //     quoted (Rec."If", Rec."Exit", Rec.Opt::"Do") or a member that is no keyword unquoted (Rec.Key, Rec.Local); a TestPage
 //     reads the values the source expressions give and the Visible and Editable states the expressions give.
+//   - Reading the Visible state of a control whose expression names the field "Exit" raises "The identifier 'Exit' could
+//     not be found." on BC 27 and 28; BC 29 gives the state (the test that reads it is BC 29 only).
 //   - Not compiling (must-not-compile 3500 to 3551): one of 32 words unquoted after `.` or `::` in a page control's Visible,
 //     Editable, Enabled, CaptionClass, HideValue, ShowMandatory or QuickEntry, a page action's Visible or Enabled, a group's
 //     or part's Visible, a page's DataCaptionExpression, a control's or report column's source expression, and the same in
@@ -68,13 +70,59 @@ codeunit 75682 "PGC Keyword Member Tests"
     TestPermissions = Disabled;
 
     [Test]
-    procedure KeywordMemberExpressions_TestPage_ReadsValuesAndStates()
+    procedure KeywordMemberExpressions_TestPage_ReadsSourceValues()
     var
         Observer: Codeunit "Probe Observer";
-        Row: Record "PGC Keyword Member Row";
         Card: TestPage "PGC Keyword Member Card";
     begin
         Initialize();
+        OpenOnRow(Card);
+        Observer.Observe('IfShown', Card.IfShown.Value);
+        Observer.Observe('KeyShown', Card.KeyShown.Value);
+        Card.Close();
+        Observer.Expect('IfShown', '5');
+        Observer.Expect('KeyShown', '5');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure KeywordMemberExpressions_TestPage_ReadsStatesOfQuotedOptionMemberAndPlainWord()
+    var
+        Observer: Codeunit "Probe Observer";
+        Card: TestPage "PGC Keyword Member Card";
+    begin
+        Initialize();
+        OpenOnRow(Card);
+        Observer.Observe('KeyShown visible', Format(Card.KeyShown.Visible()));
+        Observer.Observe('LocalShown editable', Format(Card.LocalShown.Editable()));
+        Card.Close();
+        Observer.Expect('KeyShown visible', 'Yes');
+        Observer.Expect('LocalShown editable', 'Yes');
+        Observer.Verify();
+    end;
+
+#if BC29PLUS
+    // BC 29 only: on BC 27 and 28, reading this Visible state raises "The identifier 'Exit' could not be found." (corpus
+    // PR CI of al-runner issue 8650); the expression names the field "Exit" quoted.
+    [Test]
+    procedure KeywordMemberExpressions_TestPage_ReadsStateOfQuotedKeywordField()
+    var
+        Observer: Codeunit "Probe Observer";
+        Card: TestPage "PGC Keyword Member Card";
+    begin
+        Initialize();
+        OpenOnRow(Card);
+        Observer.Observe('IfShown visible', Format(Card.IfShown.Visible()));
+        Card.Close();
+        Observer.Expect('IfShown visible', 'Yes');
+        Observer.Verify();
+    end;
+#endif
+
+    local procedure OpenOnRow(var Card: TestPage "PGC Keyword Member Card")
+    var
+        Row: Record "PGC Keyword Member Row";
+    begin
         Row.Id := 1;
         Row."If" := 4;
         Row."Exit" := 1;
@@ -84,18 +132,6 @@ codeunit 75682 "PGC Keyword Member Tests"
         Row.Insert();
         Card.OpenEdit();
         Card.GoToRecord(Row);
-        Observer.Observe('IfShown', Card.IfShown.Value);
-        Observer.Observe('KeyShown', Card.KeyShown.Value);
-        Observer.Observe('IfShown visible', Format(Card.IfShown.Visible()));
-        Observer.Observe('KeyShown visible', Format(Card.KeyShown.Visible()));
-        Observer.Observe('LocalShown editable', Format(Card.LocalShown.Editable()));
-        Card.Close();
-        Observer.Expect('IfShown', '5');
-        Observer.Expect('KeyShown', '5');
-        Observer.Expect('IfShown visible', 'Yes');
-        Observer.Expect('KeyShown visible', 'Yes');
-        Observer.Expect('LocalShown editable', 'Yes');
-        Observer.Verify();
     end;
 
     local procedure Initialize()
