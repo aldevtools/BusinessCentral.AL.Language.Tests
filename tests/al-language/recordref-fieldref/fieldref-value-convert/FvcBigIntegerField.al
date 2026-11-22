@@ -6,6 +6,8 @@
 //   Each cell is run twice: directly (R := FR.Value) and through a Variant (V := FR.Value; R := V).
 //   Source fields of the type named in the codeunit; targets DateTime, Date, Time, Duration, Decimal, Boolean, Code, Text, Integer, BigInteger.
 //   A cell that BC refuses records the error text and code.
+//   Version difference: a direct assignment of a number, Duration or Boolean field to a DateTime, Date or Time is refused on BC 27 with
+//   'Unable to convert from ... to System.DateTime.' (code Conversion) and on BC 28 and later with an Evaluate:Conversion error; through a Variant all versions agree.
 // BC versions: see the asserted values; a version guard is used only where the versions differ.
 
 codeunit 75982 "FVC BigInteger Field"
@@ -37,7 +39,55 @@ codeunit 75982 "FVC BigInteger Field"
         FR.Value := -1;
         if ToDateTime(FR, R) then Observer.Observe('neg1', Format(R, 0, 9)) else Observer.ObserveError('neg1');
         if ToViaDateTime(FR, R) then Observer.Observe('neg1 via variant', Format(R, 0, 9)) else Observer.ObserveError('neg1 via variant');
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('0|text', 'The value "0" can''t be evaluated into type DateTime.');
+#else
+        Observer.Expect('0|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime.');
+#endif
+#if BC28PLUS
+        Observer.Expect('0|code', 'Evaluate:Conversion');
+#else
+        Observer.Expect('0|code', 'Conversion');
+#endif
+        Observer.Expect('0 via variant|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('0 via variant|code', 'TypeConversion');
+#if BC28PLUS
+        Observer.Expect('1|text', 'The value "1" can''t be evaluated into type DateTime.');
+#else
+        Observer.Expect('1|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime.');
+#endif
+#if BC28PLUS
+        Observer.Expect('1|code', 'Evaluate:Conversion');
+#else
+        Observer.Expect('1|code', 'Conversion');
+#endif
+        Observer.Expect('1 via variant|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('1 via variant|code', 'TypeConversion');
+#if BC28PLUS
+        Observer.Expect('3e9|text', 'The value "3000000000" can''t be evaluated into type DateTime.');
+#else
+        Observer.Expect('3e9|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime.');
+#endif
+#if BC28PLUS
+        Observer.Expect('3e9|code', 'Evaluate:Conversion');
+#else
+        Observer.Expect('3e9|code', 'Conversion');
+#endif
+        Observer.Expect('3e9 via variant|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('3e9 via variant|code', 'TypeConversion');
+#if BC28PLUS
+        Observer.Expect('neg1|text', 'The value "-1" can''t be evaluated into type DateTime.');
+#else
+        Observer.Expect('neg1|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime.');
+#endif
+#if BC28PLUS
+        Observer.Expect('neg1|code', 'Evaluate:Conversion');
+#else
+        Observer.Expect('neg1|code', 'Conversion');
+#endif
+        Observer.Expect('neg1 via variant|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('neg1 via variant|code', 'TypeConversion');
+        Observer.Verify();
     end;
 
     [Test]
@@ -64,32 +114,58 @@ codeunit 75982 "FVC BigInteger Field"
         FR.Value := -1;
         if ToDate(FR, R) then Observer.Observe('neg1', Format(R, 0, 9)) else Observer.ObserveError('neg1');
         if ToViaDate(FR, R) then Observer.Observe('neg1 via variant', Format(R, 0, 9)) else Observer.ObserveError('neg1 via variant');
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('0|text', 'The format of the Date ''0'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+#else
+        Observer.Expect('0|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime.');
+#endif
+#if BC28PLUS
+        Observer.Expect('0|code', 'Evaluate:Conversion');
+#else
+        Observer.Expect('0|code', 'Conversion');
+#endif
+        Observer.Expect('0 via variant|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('0 via variant|code', 'TypeConversion');
+#if BC28PLUS
+        Observer.Expect('1|text', 'The format of the Date ''1'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+#else
+        Observer.Expect('1|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime.');
+#endif
+#if BC28PLUS
+        Observer.Expect('1|code', 'Evaluate:Conversion');
+#else
+        Observer.Expect('1|code', 'Conversion');
+#endif
+        Observer.Expect('1 via variant|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('1 via variant|code', 'TypeConversion');
+#if BC28PLUS
+        Observer.Expect('3e9|text', 'The format of the Date ''3000000000'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+#else
+        Observer.Expect('3e9|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime.');
+#endif
+#if BC28PLUS
+        Observer.Expect('3e9|code', 'Evaluate:Conversion');
+#else
+        Observer.Expect('3e9|code', 'Conversion');
+#endif
+        Observer.Expect('3e9 via variant|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('3e9 via variant|code', 'TypeConversion');
+#if BC28PLUS
+        Observer.Expect('neg1|text', 'The format of the Date ''-1'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+#else
+        Observer.Expect('neg1|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime.');
+#endif
+#if BC28PLUS
+        Observer.Expect('neg1|code', 'Evaluate:Conversion');
+#else
+        Observer.Expect('neg1|code', 'Conversion');
+#endif
+        Observer.Expect('neg1 via variant|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue can');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure BigField_To_Date_More1()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure BigField_To_Date_More2()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure BigField_To_Date_More3()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure BigField_To_Time()
@@ -115,7 +191,55 @@ codeunit 75982 "FVC BigInteger Field"
         FR.Value := -1;
         if ToTime(FR, R) then Observer.Observe('neg1', Format(R, 0, 9)) else Observer.ObserveError('neg1');
         if ToViaTime(FR, R) then Observer.Observe('neg1 via variant', Format(R, 0, 9)) else Observer.ObserveError('neg1 via variant');
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('0|text', 'The value "0" can''t be evaluated into type Time.');
+#else
+        Observer.Expect('0|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime.');
+#endif
+#if BC28PLUS
+        Observer.Expect('0|code', 'Evaluate:Conversion');
+#else
+        Observer.Expect('0|code', 'Conversion');
+#endif
+        Observer.Expect('0 via variant|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('0 via variant|code', 'TypeConversion');
+#if BC28PLUS
+        Observer.Expect('1|text', 'The value "1" can''t be evaluated into type Time.');
+#else
+        Observer.Expect('1|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime.');
+#endif
+#if BC28PLUS
+        Observer.Expect('1|code', 'Evaluate:Conversion');
+#else
+        Observer.Expect('1|code', 'Conversion');
+#endif
+        Observer.Expect('1 via variant|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('1 via variant|code', 'TypeConversion');
+#if BC28PLUS
+        Observer.Expect('3e9|text', 'The value "3000000000" can''t be evaluated into type Time.');
+#else
+        Observer.Expect('3e9|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime.');
+#endif
+#if BC28PLUS
+        Observer.Expect('3e9|code', 'Evaluate:Conversion');
+#else
+        Observer.Expect('3e9|code', 'Conversion');
+#endif
+        Observer.Expect('3e9 via variant|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('3e9 via variant|code', 'TypeConversion');
+#if BC28PLUS
+        Observer.Expect('neg1|text', 'The value "-1" can''t be evaluated into type Time.');
+#else
+        Observer.Expect('neg1|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime.');
+#endif
+#if BC28PLUS
+        Observer.Expect('neg1|code', 'Evaluate:Conversion');
+#else
+        Observer.Expect('neg1|code', 'Conversion');
+#endif
+        Observer.Expect('neg1 via variant|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('neg1 via variant|code', 'TypeConversion');
+        Observer.Verify();
     end;
 
     [Test]
@@ -142,7 +266,15 @@ codeunit 75982 "FVC BigInteger Field"
         FR.Value := -1;
         if ToDuration(FR, R) then Observer.Observe('neg1', Format(R, 0, 9)) else Observer.ObserveError('neg1');
         if ToViaDuration(FR, R) then Observer.Observe('neg1 via variant', Format(R, 0, 9)) else Observer.ObserveError('neg1 via variant');
-        Observer.Finish();
+        Observer.Expect('0', 'P0DT0H0M0.0S');
+        Observer.Expect('0 via variant', 'P0DT0H0M0.0S');
+        Observer.Expect('1', 'P0DT0H0M0.001S');
+        Observer.Expect('1 via variant', 'P0DT0H0M0.001S');
+        Observer.Expect('3e9', 'P34DT17H20M0.0S');
+        Observer.Expect('3e9 via variant', 'P34DT17H20M0.0S');
+        Observer.Expect('neg1', '-P0DT0H0M0.001S');
+        Observer.Expect('neg1 via variant', '-P0DT0H0M0.001S');
+        Observer.Verify();
     end;
 
     [Test]
@@ -169,7 +301,15 @@ codeunit 75982 "FVC BigInteger Field"
         FR.Value := -1;
         if ToDecimal(FR, R) then Observer.Observe('neg1', Format(R, 0, 9)) else Observer.ObserveError('neg1');
         if ToViaDecimal(FR, R) then Observer.Observe('neg1 via variant', Format(R, 0, 9)) else Observer.ObserveError('neg1 via variant');
-        Observer.Finish();
+        Observer.Expect('0', '0');
+        Observer.Expect('0 via variant', '0');
+        Observer.Expect('1', '1');
+        Observer.Expect('1 via variant', '1');
+        Observer.Expect('3e9', '3000000000');
+        Observer.Expect('3e9 via variant', '3000000000');
+        Observer.Expect('neg1', '-1');
+        Observer.Expect('neg1 via variant', '-1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -196,7 +336,17 @@ codeunit 75982 "FVC BigInteger Field"
         FR.Value := -1;
         if ToBoolean(FR, R) then Observer.Observe('neg1', Format(R, 0, 9)) else Observer.ObserveError('neg1');
         if ToViaBoolean(FR, R) then Observer.Observe('neg1 via variant', Format(R, 0, 9)) else Observer.ObserveError('neg1 via variant');
-        Observer.Finish();
+        Observer.Expect('0', 'false');
+        Observer.Expect('0 via variant', 'false');
+        Observer.Expect('1', 'true');
+        Observer.Expect('1 via variant', 'true');
+        Observer.Expect('3e9|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('3e9|code', 'AL:Overflow');
+        Observer.Expect('3e9 via variant|text', 'The expression Variant cannot be type-converted to a Boolean value.');
+        Observer.Expect('3e9 via variant|code', 'TypeConversion:Overflow');
+        Observer.Expect('neg1', 'true');
+        Observer.Expect('neg1 via variant', 'true');
+        Observer.Verify();
     end;
 
     [Test]
@@ -223,7 +373,19 @@ codeunit 75982 "FVC BigInteger Field"
         FR.Value := -1;
         if ToCode20(FR, R) then Observer.Observe('neg1', Format(R, 0, 9)) else Observer.ObserveError('neg1');
         if ToViaCode20(FR, R) then Observer.Observe('neg1 via variant', Format(R, 0, 9)) else Observer.ObserveError('neg1 via variant');
-        Observer.Finish();
+        Observer.Expect('0', '0');
+        Observer.Expect('0 via variant|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('0 via variant|code', 'TypeConversion');
+        Observer.Expect('1', '1');
+        Observer.Expect('1 via variant|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('1 via variant|code', 'TypeConversion');
+        Observer.Expect('3e9', '3000000000');
+        Observer.Expect('3e9 via variant|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('3e9 via variant|code', 'TypeConversion');
+        Observer.Expect('neg1', '-1');
+        Observer.Expect('neg1 via variant|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('neg1 via variant|code', 'TypeConversion');
+        Observer.Verify();
     end;
 
     [Test]
@@ -250,7 +412,19 @@ codeunit 75982 "FVC BigInteger Field"
         FR.Value := -1;
         if ToText50(FR, R) then Observer.Observe('neg1', Format(R, 0, 9)) else Observer.ObserveError('neg1');
         if ToViaText50(FR, R) then Observer.Observe('neg1 via variant', Format(R, 0, 9)) else Observer.ObserveError('neg1 via variant');
-        Observer.Finish();
+        Observer.Expect('0', '0');
+        Observer.Expect('0 via variant|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('0 via variant|code', 'TypeConversion');
+        Observer.Expect('1', '1');
+        Observer.Expect('1 via variant|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('1 via variant|code', 'TypeConversion');
+        Observer.Expect('3e9', '3000000000');
+        Observer.Expect('3e9 via variant|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('3e9 via variant|code', 'TypeConversion');
+        Observer.Expect('neg1', '-1');
+        Observer.Expect('neg1 via variant|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('neg1 via variant|code', 'TypeConversion');
+        Observer.Verify();
     end;
 
     [Test]
@@ -277,7 +451,17 @@ codeunit 75982 "FVC BigInteger Field"
         FR.Value := -1;
         if ToInteger(FR, R) then Observer.Observe('neg1', Format(R, 0, 9)) else Observer.ObserveError('neg1');
         if ToViaInteger(FR, R) then Observer.Observe('neg1 via variant', Format(R, 0, 9)) else Observer.ObserveError('neg1 via variant');
-        Observer.Finish();
+        Observer.Expect('0', '0');
+        Observer.Expect('0 via variant', '0');
+        Observer.Expect('1', '1');
+        Observer.Expect('1 via variant', '1');
+        Observer.Expect('3e9|text', 'Overflow under conversion of System.Int64 value 3000000000 to System.Int32.');
+        Observer.Expect('3e9|code', 'ConversionCast');
+        Observer.Expect('3e9 via variant|text', 'The expression Variant cannot be type-converted to a Integer value.');
+        Observer.Expect('3e9 via variant|code', 'TypeConversion:Overflow');
+        Observer.Expect('neg1', '-1');
+        Observer.Expect('neg1 via variant', '-1');
+        Observer.Verify();
     end;
 
     [TryFunction]

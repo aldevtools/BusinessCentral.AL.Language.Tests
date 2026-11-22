@@ -6,6 +6,8 @@
 //   Each cell is run twice: directly (R := FR.Value) and through a Variant (V := FR.Value; R := V).
 //   Source fields of the type named in the codeunit; targets DateTime, Date, Time, Duration, Decimal, Boolean, Code, Text, Integer, BigInteger.
 //   A cell that BC refuses records the error text and code.
+//   Version difference: a direct assignment of a number, Duration or Boolean field to a DateTime, Date or Time is refused on BC 27 with
+//   'Unable to convert from ... to System.DateTime.' (code Conversion) and on BC 28 and later with an Evaluate:Conversion error; through a Variant all versions agree.
 // BC versions: see the asserted values; a version guard is used only where the versions differ.
 
 codeunit 75983 "FVC Temporal Fields"
@@ -31,7 +33,12 @@ codeunit 75983 "FVC Temporal Fields"
         FR.Value := 0DT;
         if ToDate(FR, R) then Observer.Observe('dt-zero', Format(R, 0, 9)) else Observer.ObserveError('dt-zero');
         if ToViaDate(FR, R) then Observer.Observe('dt-zero via variant', Format(R, 0, 9)) else Observer.ObserveError('dt-zero via variant');
-        Observer.Finish();
+        Observer.Expect('dt|text', 'The date is not valid.');
+        Observer.Expect('dt|code', 'DateInvalid');
+        Observer.Expect('dt via variant', '2026-01-31');
+        Observer.Expect('dt-zero', '');
+        Observer.Expect('dt-zero via variant', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -52,7 +59,14 @@ codeunit 75983 "FVC Temporal Fields"
         FR.Value := 0DT;
         if ToTime(FR, R) then Observer.Observe('dt-zero', Format(R, 0, 9)) else Observer.ObserveError('dt-zero');
         if ToViaTime(FR, R) then Observer.Observe('dt-zero via variant', Format(R, 0, 9)) else Observer.ObserveError('dt-zero via variant');
-        Observer.Finish();
+        Observer.Expect('dt|text', 'The time is not valid.');
+        Observer.Expect('dt|code', 'InvalidTime');
+        Observer.Expect('dt via variant|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('dt via variant|code', 'TypeConversion');
+        Observer.Expect('dt-zero', '');
+        Observer.Expect('dt-zero via variant|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('dt-zero via variant|code', 'TypeConversion');
+        Observer.Verify();
     end;
 
     [Test]
@@ -73,7 +87,11 @@ codeunit 75983 "FVC Temporal Fields"
         FR.Value := 0DT;
         if ToDuration(FR, R) then Observer.Observe('dt-zero', Format(R, 0, 9)) else Observer.ObserveError('dt-zero');
         if ToViaDuration(FR, R) then Observer.Observe('dt-zero via variant', Format(R, 0, 9)) else Observer.ObserveError('dt-zero via variant');
-        Observer.Finish();
+        Observer.Expect('dt', 'P740012DT12H0M0.001S');
+        Observer.Expect('dt via variant', 'P740012DT12H0M0.001S');
+        Observer.Expect('dt-zero', 'P0DT0H0M0.0S');
+        Observer.Expect('dt-zero via variant', 'P0DT0H0M0.0S');
+        Observer.Verify();
     end;
 
     [Test]
@@ -94,7 +112,13 @@ codeunit 75983 "FVC Temporal Fields"
         FR.Value := 0DT;
         if ToDecimal(FR, R) then Observer.Observe('dt-zero', Format(R, 0, 9)) else Observer.ObserveError('dt-zero');
         if ToViaDecimal(FR, R) then Observer.Observe('dt-zero via variant', Format(R, 0, 9)) else Observer.ObserveError('dt-zero via variant');
-        Observer.Finish();
+        Observer.Expect('dt|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to Microsoft.Dynamics.Nav.Runtime.Decimal18.');
+        Observer.Expect('dt|code', 'Conversion');
+        Observer.Expect('dt via variant', '63937080000001');
+        Observer.Expect('dt-zero|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to Microsoft.Dynamics.Nav.Runtime.Decimal18.');
+        Observer.Expect('dt-zero|code', 'Conversion');
+        Observer.Expect('dt-zero via variant', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -115,7 +139,15 @@ codeunit 75983 "FVC Temporal Fields"
         FR.Value := 0DT;
         if ToBoolean(FR, R) then Observer.Observe('dt-zero', Format(R, 0, 9)) else Observer.ObserveError('dt-zero');
         if ToViaBoolean(FR, R) then Observer.Observe('dt-zero via variant', Format(R, 0, 9)) else Observer.ObserveError('dt-zero via variant');
-        Observer.Finish();
+        Observer.Expect('dt|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32.');
+        Observer.Expect('dt|code', 'Conversion');
+        Observer.Expect('dt via variant|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32.');
+        Observer.Expect('dt via variant|code', 'Conversion');
+        Observer.Expect('dt-zero|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32.');
+        Observer.Expect('dt-zero|code', 'Conversion');
+        Observer.Expect('dt-zero via variant|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32.');
+        Observer.Expect('dt-zero via variant|code', 'Conversion');
+        Observer.Verify();
     end;
 
     [Test]
@@ -136,7 +168,13 @@ codeunit 75983 "FVC Temporal Fields"
         FR.Value := 0DT;
         if ToCode20(FR, R) then Observer.Observe('dt-zero', Format(R, 0, 9)) else Observer.ObserveError('dt-zero');
         if ToViaCode20(FR, R) then Observer.Observe('dt-zero via variant', Format(R, 0, 9)) else Observer.ObserveError('dt-zero via variant');
-        Observer.Finish();
+        Observer.Expect('dt', '01/31/26 12:00 PM');
+        Observer.Expect('dt via variant|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('dt via variant|code', 'TypeConversion');
+        Observer.Expect('dt-zero', '');
+        Observer.Expect('dt-zero via variant|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('dt-zero via variant|code', 'TypeConversion');
+        Observer.Verify();
     end;
 
     [Test]
@@ -157,7 +195,13 @@ codeunit 75983 "FVC Temporal Fields"
         FR.Value := 0DT;
         if ToText50(FR, R) then Observer.Observe('dt-zero', Format(R, 0, 9)) else Observer.ObserveError('dt-zero');
         if ToViaText50(FR, R) then Observer.Observe('dt-zero via variant', Format(R, 0, 9)) else Observer.ObserveError('dt-zero via variant');
-        Observer.Finish();
+        Observer.Expect('dt', '01/31/26 12:00 PM');
+        Observer.Expect('dt via variant|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('dt via variant|code', 'TypeConversion');
+        Observer.Expect('dt-zero', '');
+        Observer.Expect('dt-zero via variant|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('dt-zero via variant|code', 'TypeConversion');
+        Observer.Verify();
     end;
 
     [Test]
@@ -178,7 +222,15 @@ codeunit 75983 "FVC Temporal Fields"
         FR.Value := 0DT;
         if ToInteger(FR, R) then Observer.Observe('dt-zero', Format(R, 0, 9)) else Observer.ObserveError('dt-zero');
         if ToViaInteger(FR, R) then Observer.Observe('dt-zero via variant', Format(R, 0, 9)) else Observer.ObserveError('dt-zero via variant');
-        Observer.Finish();
+        Observer.Expect('dt|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32.');
+        Observer.Expect('dt|code', 'Conversion');
+        Observer.Expect('dt via variant|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32.');
+        Observer.Expect('dt via variant|code', 'Conversion');
+        Observer.Expect('dt-zero|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32.');
+        Observer.Expect('dt-zero|code', 'Conversion');
+        Observer.Expect('dt-zero via variant|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32.');
+        Observer.Expect('dt-zero via variant|code', 'Conversion');
+        Observer.Verify();
     end;
 
     [Test]
@@ -199,7 +251,13 @@ codeunit 75983 "FVC Temporal Fields"
         FR.Value := 0DT;
         if ToBigInteger(FR, R) then Observer.Observe('dt-zero', Format(R, 0, 9)) else Observer.ObserveError('dt-zero');
         if ToViaBigInteger(FR, R) then Observer.Observe('dt-zero via variant', Format(R, 0, 9)) else Observer.ObserveError('dt-zero via variant');
-        Observer.Finish();
+        Observer.Expect('dt|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int64.');
+        Observer.Expect('dt|code', 'Conversion');
+        Observer.Expect('dt via variant', '63937080000001');
+        Observer.Expect('dt-zero|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int64.');
+        Observer.Expect('dt-zero|code', 'Conversion');
+        Observer.Expect('dt-zero via variant', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -217,7 +275,10 @@ codeunit 75983 "FVC Temporal Fields"
         FR.Value := 20260131D;
         if ToInteger(FR, R) then Observer.Observe('d', Format(R, 0, 9)) else Observer.ObserveError('d');
         if ToViaInteger(FR, R) then Observer.Observe('d via variant', Format(R, 0, 9)) else Observer.ObserveError('d via variant');
-        Observer.Finish();
+        Observer.Expect('d|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Int32.');
+        Observer.Expect('d|code', 'Conversion');
+        Observer.Expect('d via variant', '1480025');
+        Observer.Verify();
     end;
 
     [Test]
@@ -235,7 +296,9 @@ codeunit 75983 "FVC Temporal Fields"
         FR.Value := 20260131D;
         if ToDateTime(FR, R) then Observer.Observe('d', Format(R, 0, 9)) else Observer.ObserveError('d');
         if ToViaDateTime(FR, R) then Observer.Observe('d via variant', Format(R, 0, 9)) else Observer.ObserveError('d via variant');
-        Observer.Finish();
+        Observer.Expect('d', '2026-01-31T00:00:00Z');
+        Observer.Expect('d via variant', '2026-01-31T00:00:00Z');
+        Observer.Verify();
     end;
 
     [Test]
@@ -253,7 +316,10 @@ codeunit 75983 "FVC Temporal Fields"
         FR.Value := 20260131D;
         if ToDecimal(FR, R) then Observer.Observe('d', Format(R, 0, 9)) else Observer.ObserveError('d');
         if ToViaDecimal(FR, R) then Observer.Observe('d via variant', Format(R, 0, 9)) else Observer.ObserveError('d via variant');
-        Observer.Finish();
+        Observer.Expect('d|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to Microsoft.Dynamics.Nav.Runtime.Decimal18.');
+        Observer.Expect('d|code', 'Conversion');
+        Observer.Expect('d via variant', '1480025');
+        Observer.Verify();
     end;
 
     [Test]
@@ -271,7 +337,10 @@ codeunit 75983 "FVC Temporal Fields"
         FR.Value := 20260131D;
         if ToText50(FR, R) then Observer.Observe('d', Format(R, 0, 9)) else Observer.ObserveError('d');
         if ToViaText50(FR, R) then Observer.Observe('d via variant', Format(R, 0, 9)) else Observer.ObserveError('d via variant');
-        Observer.Finish();
+        Observer.Expect('d', '01/31/26');
+        Observer.Expect('d via variant|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('d via variant|code', 'TypeConversion');
+        Observer.Verify();
     end;
 
     [Test]
@@ -289,7 +358,10 @@ codeunit 75983 "FVC Temporal Fields"
         FR.Value := 120000T;
         if ToInteger(FR, R) then Observer.Observe('t', Format(R, 0, 9)) else Observer.ObserveError('t');
         if ToViaInteger(FR, R) then Observer.Observe('t via variant', Format(R, 0, 9)) else Observer.ObserveError('t via variant');
-        Observer.Finish();
+        Observer.Expect('t|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to System.Int32.');
+        Observer.Expect('t|code', 'Conversion');
+        Observer.Expect('t via variant', '43200001');
+        Observer.Verify();
     end;
 
     [Test]
@@ -307,7 +379,10 @@ codeunit 75983 "FVC Temporal Fields"
         FR.Value := 120000T;
         if ToDateTime(FR, R) then Observer.Observe('t', Format(R, 0, 9)) else Observer.ObserveError('t');
         if ToViaDateTime(FR, R) then Observer.Observe('t via variant', Format(R, 0, 9)) else Observer.ObserveError('t via variant');
-        Observer.Finish();
+        Observer.Expect('t', '0001-01-02T12:00:00Z');
+        Observer.Expect('t via variant|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('t via variant|code', 'TypeConversion');
+        Observer.Verify();
     end;
 
     [Test]
@@ -325,7 +400,10 @@ codeunit 75983 "FVC Temporal Fields"
         FR.Value := 120000T;
         if ToDecimal(FR, R) then Observer.Observe('t', Format(R, 0, 9)) else Observer.ObserveError('t');
         if ToViaDecimal(FR, R) then Observer.Observe('t via variant', Format(R, 0, 9)) else Observer.ObserveError('t via variant');
-        Observer.Finish();
+        Observer.Expect('t|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to Microsoft.Dynamics.Nav.Runtime.Decimal18.');
+        Observer.Expect('t|code', 'Conversion');
+        Observer.Expect('t via variant', '43200001');
+        Observer.Verify();
     end;
 
     [Test]
@@ -343,7 +421,10 @@ codeunit 75983 "FVC Temporal Fields"
         FR.Value := 120000T;
         if ToText50(FR, R) then Observer.Observe('t', Format(R, 0, 9)) else Observer.ObserveError('t');
         if ToViaText50(FR, R) then Observer.Observe('t via variant', Format(R, 0, 9)) else Observer.ObserveError('t via variant');
-        Observer.Finish();
+        Observer.Expect('t', '12:00:00 PM');
+        Observer.Expect('t via variant|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('t via variant|code', 'TypeConversion');
+        Observer.Verify();
     end;
 
     [TryFunction]
