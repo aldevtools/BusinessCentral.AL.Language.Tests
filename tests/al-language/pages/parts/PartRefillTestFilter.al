@@ -2,8 +2,8 @@
 // Scope: in-scope
 // local object: the part's own refill (Reset, DeleteAll and CurrPage.Update(false), then Insert, FindFirst and CurrPage.Update(false))
 //   and the host's ways to start it are what is under test
-// Fixtures used: shared Assert (60021); own tables 97100-97102, codeunits 97103 and 97108, pages 97104-97107, 97110 and 97111, test
-//   codeunit 97109
+// Fixtures used: shared Assert (60021); own tables 97100-97102 and 97112, codeunits 97103 and 97108, pages 97104-97107, 97110,
+//   97111, 97113 and 97114, test codeunit 97109
 // Probe (al-runner issue 8537): a ListPart on a temporary table whose rows the host's OnAfterGetCurrRecord deletes and inserts again
 //   through two part procedures, each ending with CurrPage.Update(false). A host action marks the part stale and calls
 //   CurrPage.Update(false), so the part is cleared and refilled with new quantities. The test sets a filter on the part with
@@ -11,9 +11,10 @@
 //   First(), and Last() find after the action; the same after a host Next() to an operation of another resource instead of the
 //   action; on a List host; on a Worksheet host whose OnAfterGetCurrRecord fills the part from a page background task (the rows are
 //   committed so the task's session reads them); with a part that declares OnOpenPage and OnAfterGetRecord (a variable control shows
-//   what OnAfterGetRecord computed for the row); and First() after the action without a new filter (Rec.Reset() in the part dropped
-//   the test's filter). Results are `name=Found:Period Start - TheDay:Allocated Qty.`.
-//   Measured on a local BC 29.1 OnPrem w1 container (9/9 green); BC 27.5, 28.5 and 29.0 are left to CI.
+//   what OnAfterGetRecord computed for the row), also over a two-field key (Period Type, Period Start, as Base Application's Load
+//   Buffer) filtered on Period Start; and First() after the action without a new filter (Rec.Reset() in the part dropped the test's
+//   filter). Results are `name=Found:Period Start - TheDay:Allocated Qty.`.
+//   Measured on a local BC 29.1 OnPrem w1 container (10/10 green); BC 27.5, 28.5 and 29.0 are left to CI.
 // BC versions: 27, 28, 29
 table 97100 "LT PR Op"
 {
@@ -448,6 +449,152 @@ page 97111 "LT PR Load Trig Host"
     end;
 }
 
+table 97112 "LT PR Load Line Typed"
+{
+    DataClassification = SystemMetadata;
+    TableType = Temporary;
+
+    fields
+    {
+        field(1; "Period Type"; Option) { OptionMembers = Day,Week; }
+        field(2; "Period Start"; Date) { }
+        field(3; "Allocated Qty."; Decimal) { }
+    }
+
+    keys
+    {
+        key(PK; "Period Type", "Period Start") { Clustered = true; }
+    }
+}
+
+page 97113 "LT PR Typed Trig Part"
+{
+    PageType = ListPart;
+    SourceTable = "LT PR Load Line Typed";
+    SourceTableTemporary = true;
+    InsertAllowed = false;
+    DeleteAllowed = false;
+    Editable = false;
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Lines)
+            {
+                field("Period Start"; Rec."Period Start") { ApplicationArea = All; }
+                field("Allocated Qty."; Rec."Allocated Qty.") { ApplicationArea = All; StyleExpr = QtyStyle; }
+                field(QtyText; QtyText) { ApplicationArea = All; StyleExpr = QtyStyle; }
+                field(Scope; ScopeText) { ApplicationArea = All; }
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    begin
+        ScopeText := 'open';
+    end;
+
+    trigger OnAfterGetRecord()
+    begin
+        QtyText := 'agr' + Format(Rec."Allocated Qty.", 0, 9);
+        QtyStyle := 'Standard';
+        if Rec."Allocated Qty." > 20 then
+            QtyStyle := 'Unfavorable';
+    end;
+
+    var
+        ResourceNo: Code[20];
+        LinesLoaded: Boolean;
+        QtyText: Text;
+        QtyStyle: Text;
+        ScopeText: Text;
+
+    procedure IsLoadedFor(NewResourceNo: Code[20]): Boolean
+    begin
+        exit(LinesLoaded and (NewResourceNo = ResourceNo));
+    end;
+
+    procedure Invalidate()
+    begin
+        LinesLoaded := false;
+    end;
+
+    procedure ClearLines(NewResourceNo: Code[20])
+    begin
+        ResourceNo := NewResourceNo;
+        LinesLoaded := false;
+        Rec.Reset();
+        Rec.DeleteAll(false);
+        CurrPage.Update(false);
+    end;
+
+    procedure SetLoadLines(Results: Dictionary of [Text, Text])
+    var
+        DayKey: Text;
+    begin
+        foreach DayKey in Results.Keys() do begin
+            Rec.Init();
+            Rec."Period Type" := Rec."Period Type"::Day;
+            Evaluate(Rec."Period Start", DayKey, 9);
+            Evaluate(Rec."Allocated Qty.", Results.Get(DayKey), 9);
+            Rec.Insert();
+        end;
+        LinesLoaded := true;
+        if Rec.FindFirst() then;
+        CurrPage.Update(false);
+    end;
+}
+
+page 97114 "LT PR Typed Trig Host"
+{
+    PageType = Worksheet;
+    SourceTable = "LT PR Op";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Ops)
+            {
+                field("No."; Rec."No.") { ApplicationArea = All; }
+                field("Resource No."; Rec."Resource No.") { ApplicationArea = All; }
+            }
+            part(Load; "LT PR Typed Trig Part") { ApplicationArea = All; }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(Refresh)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                begin
+                    CurrPage.Load.Page.Invalidate();
+                    CurrPage.Update(false);
+                end;
+            }
+        }
+    }
+
+    trigger OnAfterGetCurrRecord()
+    var
+        LoadCalc: Codeunit "LT PR Load Calc";
+    begin
+        if CurrPage.Load.Page.IsLoadedFor(Rec."Resource No.") then
+            exit;
+        CurrPage.Load.Page.ClearLines(Rec."Resource No.");
+        CurrPage.Load.Page.SetLoadLines(LoadCalc.Calculate(Rec."Resource No."));
+    end;
+}
 codeunit 97109 "LT PR Tests"
 {
     Subtype = Test;
@@ -744,5 +891,32 @@ codeunit 97109 "LT PR Tests"
         Seen += 'text=' + Host.Load.QtyText.Value() + ';scope=' + Host.Load.Scope.Value() + ';';
         Host.Close();
         Assert.AreEqual('before=T:0:10;text=agr10;scope=open;after=T:0:30;text=agr30;scope=open;', Seen, 'Worksheet, a part with OnOpenPage and OnAfterGetRecord: Refresh, then Filter.SetFilter and First on the part');
+    end;
+
+    [Test]
+    procedure PartRefill_TypedKeyTriggerPartActionThenFilterFirst_FindsRefilledRow()
+    var
+        Op: Record "LT PR Op";
+        Host: TestPage "LT PR Typed Trig Host";
+        Found: Boolean;
+        Seen: Text;
+    begin
+        Initialize();
+        Seed();
+        Op.Get('OP1');
+        Host.OpenView();
+        Host.GoToRecord(Op);
+        Host.Load.Filter.SetFilter("Period Start", Format(TheDay()));
+        Found := Host.Load.First();
+        Seen := Fact('before', Found, Host.Load."Period Start".AsDate(), Host.Load."Allocated Qty.".AsDecimal());
+        Seen += 'text=' + Host.Load.QtyText.Value() + ';scope=' + Host.Load.Scope.Value() + ';';
+        AddBooking(3, 'R1', TheDay(), 20);
+        Host.Refresh.Invoke();
+        Host.Load.Filter.SetFilter("Period Start", Format(TheDay()));
+        Found := Host.Load.First();
+        Seen += Fact('after', Found, Host.Load."Period Start".AsDate(), Host.Load."Allocated Qty.".AsDecimal());
+        Seen += 'text=' + Host.Load.QtyText.Value() + ';scope=' + Host.Load.Scope.Value() + ';';
+        Host.Close();
+        Assert.AreEqual('before=T:0:10;text=agr10;scope=open;after=T:0:30;text=agr30;scope=open;', Seen, 'Worksheet, a part with OnOpenPage and OnAfterGetRecord over a two-field key (Period Type, Period Start): Refresh, then Filter.SetFilter on Period Start and First on the part');
     end;
 }
