@@ -243,8 +243,8 @@ codeunit 73473 "SIR Read Other"
     begin
         S.GetRecDelete(R);
         Wr.WRecDelete();
-        Observer.Observe('local count', R.Count());
-        Observer.Observe('global count', S.CountRecDelete());
+        Observer.Observe('local count', Format(R.Count()));
+        Observer.Observe('global count', Format(S.CountRecDelete()));
         Observer.Finish();
     end;
 

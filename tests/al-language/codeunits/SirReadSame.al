@@ -228,8 +228,8 @@ codeunit 73471 "SIR Read Same"
     begin
         S.GetRecDelete(R);
         S.WRecDelete();
-        Observer.Observe('local count', R.Count());
-        Observer.Observe('global count', S.CountRecDelete());
+        Observer.Observe('local count', Format(R.Count()));
+        Observer.Observe('global count', Format(S.CountRecDelete()));
         Observer.Finish();
     end;
 
