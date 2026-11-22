@@ -384,12 +384,12 @@ codeunit 75987 "FVC DateTime Digits"
         exit('error ' + GetLastErrorCode() + ' | ' + GetLastErrorText());
     end;
 
-    local procedure Report(var Observer: Codeunit "Probe Observer"; Label: Text; Base: Text; This: Text)
+    local procedure Report(var Observer: Codeunit "Probe Observer"; Label: Text; Base: Text; Got: Text)
     begin
-        if This = Base then
+        if Got = Base then
             Observer.Observe(Label, 'same as var')
         else
-            Observer.Observe(Label, This);
+            Observer.Observe(Label, Got);
     end;
 
     [TryFunction]
@@ -442,7 +442,7 @@ codeunit 75987 "FVC DateTime Digits"
     var
         Base: Text;
         Other: Text;
-        This: Text;
+        Got: Text;
         Ok: Boolean;
     begin
         Other := '';
@@ -451,11 +451,11 @@ codeunit 75987 "FVC DateTime Digits"
         Observer.Observe(Label + ' var', Base);
         Other := '';
         Ok := TryLocalDate(FR, Other);
-        This := OutcomeDate(Ok, Other);
-        if This = Base then
+        Got := OutcomeDate(Ok, Other);
+        if Got = Base then
             Observer.Observe(Label + ' local', 'same as var')
         else
-            Observer.Observe(Label + ' local', This);
+            Observer.Observe(Label + ' local', Got);
     end;
 
     local procedure OutcomeDate(Ok: Boolean; Res: Text): Text
@@ -492,7 +492,7 @@ codeunit 75987 "FVC DateTime Digits"
     var
         Base: Text;
         Other: Text;
-        This: Text;
+        Got: Text;
         Ok: Boolean;
     begin
         Other := '';
@@ -501,11 +501,11 @@ codeunit 75987 "FVC DateTime Digits"
         Observer.Observe(Label + ' var', Base);
         Other := '';
         Ok := TryLocalTime(FR, Other);
-        This := OutcomeTime(Ok, Other);
-        if This = Base then
+        Got := OutcomeTime(Ok, Other);
+        if Got = Base then
             Observer.Observe(Label + ' local', 'same as var')
         else
-            Observer.Observe(Label + ' local', This);
+            Observer.Observe(Label + ' local', Got);
     end;
 
     local procedure OutcomeTime(Ok: Boolean; Res: Text): Text

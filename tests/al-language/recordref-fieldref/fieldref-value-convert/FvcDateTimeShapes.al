@@ -193,12 +193,12 @@ codeunit 75985 "FVC DateTime Shapes"
         exit('error ' + GetLastErrorCode() + ' | ' + GetLastErrorText());
     end;
 
-    local procedure Report(var Observer: Codeunit "Probe Observer"; Label: Text; Base: Text; This: Text)
+    local procedure Report(var Observer: Codeunit "Probe Observer"; Label: Text; Base: Text; Got: Text)
     begin
-        if This = Base then
+        if Got = Base then
             Observer.Observe(Label, 'same as var')
         else
-            Observer.Observe(Label, This);
+            Observer.Observe(Label, Got);
     end;
 
     [TryFunction]
