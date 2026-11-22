@@ -3,7 +3,7 @@
 // Fixtures used: Probe Observer (codeunit 69160)
 // Probe: AL Runner issue 8580 (AI eval datasets in .yaml app resources). A matrix of every printable ASCII punctuation character
 //   in every scalar position, so that a reader can admit exactly the shapes BC reads.
-//   Written against BC 27.5, 28.5 and 29.0; every literal asserted below is what those tiers produced.
+//   Measured on BC 27.5, 28.5 and 29.0 (corpus CI); every literal asserted below is what those tiers produced.
 // Facts: JsonObject.ReadFromYaml(Text) of a document that holds one item in one position. Items: each of
 //   ! " # $ % & ' ( ) * + , - . / : ; < = > ? @ [ \ ] ^ _ ` { | } ~ and the sequences "...", ": ", " #", "- ", "? ".
 //   Each item is placed in four slots of the line: S = item + 'ab' (start), M = 'a' + item + 'b' (middle),
@@ -16,7 +16,22 @@
 //   the lines joined as YAML folds or keeps them); "F<n>" = ReadFromYaml returned false with error n; "T<n>" = the call raised
 //   error n (the TryFunction caught it); otherwise the JSON text the object holds (WriteTo), characters outside printable
 //   ASCII as <U+XXXX>. The error texts are listed per test under 'errors'.
-// Results: (filled in from the observation)
+// Results (corpus CI, BC 27.5, 28.5 and 29.0 gave identical results for every test; the only error text is
+//   "The data does not represent valid YAML."):
+//   Plain scalars, all six positions: the middle slot is read as written for every item except ": " and " #". The end slot
+//   is read as written except for ":", ": ", " #", "- " and "? " (a trailing space is trimmed). The between-words slot is
+//   read as written except for "#", ":", ": " and " #". So "." and "..." are read as written in every slot of every position,
+//   and "," in every slot but the start (a list-item mapping value "a, b" is read as written).
+//   Start slot: ! " % ' * , > @ [ ] ` { | } and ": " make ReadFromYaml return false; "#" and " #" start a comment and
+//   "&" starts an anchor, so the value is null. In a mapping value, ":" at the end, ": ", and "- " or "? " at the start return
+//   false; in a list item they turn the item into a one-entry mapping or a nested list instead.
+//   Blocks (>-, >, |, |-, and >- as a list-item mapping value): every item in every slot is read as written. A line that
+//   starts with " #" is indented one more space, and that space counts as indentation, so the value starts with "#".
+//   Double-quoted: '"' returns false in every slot; a backslash is a YAML escape (\a, \b, "\ " become U+0007, backspace and a
+//   space; a backslash before the closing quote returns false). Single-quoted: "'" returns false in every slot. Every other
+//   item is read as written in both quoted forms.
+//   Not measured (refuse): mapping keys, flow collections, tabs, documents with "---" or "...", a slot item that is the whole
+//   value (no letters around it), CRLF line ends, the InStream overload.
 // BC versions: 27, 28, 29
 
 codeunit 75623 "YPM Json Yaml Punct Matrix"
@@ -158,168 +173,584 @@ codeunit 75623 "YPM Json Yaml Punct Matrix"
     procedure ReadFromYamlPunct_PlainTop_Read()
     begin
         Matrix('q: {V}~n: 1', '$.q', '{V}');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure ReadFromYamlPunct_PlainTop_Read_More1()
-    begin
-        Observer.More();
+        Observer.Expect('[!]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('["]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[#]', 'S {"q":null,"n":"1"} | M ok | E ok | W {"q":"a","n":"1"}');
+        Observer.Expect('[$]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[%]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[&]', 'S {"q":null,"n":"1"} | M ok | E ok | W ok');
+        Observer.Expect('['']', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[(]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[)]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[*]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[+]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[,]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[-]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[.]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[/]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[:]', 'S ok | M ok | E F1 | W F1');
+        Observer.Expect('[;]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[<]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[=]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[>]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[?]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[@]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[[]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[\]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[]]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[^]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[_]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[`]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[{]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[|]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[}]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[~]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[...]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[: ]', 'S F1 | M F1 | E F1 | W F1');
+        Observer.Expect('[ #]', 'S {"q":null,"n":"1"} | M {"q":"a","n":"1"} | E {"q":"ab","n":"1"} | W {"q":"a","n":"1"}');
+        Observer.Expect('[- ]', 'S F1 | M ok | E {"q":"ab-","n":"1"} | W ok');
+        Observer.Expect('[? ]', 'S F1 | M ok | E {"q":"ab?","n":"1"} | W ok');
+        Observer.Expect('errors', '1: The data does not represent valid YAML. ');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYamlPunct_PlainNested_Read()
     begin
         Matrix('o:~  q: {V}~  r: 2~n: 1', '$.o.q', '{V}');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure ReadFromYamlPunct_PlainNested_Read_More1()
-    begin
-        Observer.More();
+        Observer.Expect('[!]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('["]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[#]', 'S {"o":{"q":null,"r":"2"},"n":"1"} | M ok | E ok | W {"o":{"q":"a","r":"2"},"n":"1"}');
+        Observer.Expect('[$]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[%]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[&]', 'S {"o":{"q":null,"r":"2"},"n":"1"} | M ok | E ok | W ok');
+        Observer.Expect('['']', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[(]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[)]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[*]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[+]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[,]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[-]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[.]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[/]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[:]', 'S ok | M ok | E F1 | W F1');
+        Observer.Expect('[;]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[<]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[=]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[>]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[?]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[@]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[[]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[\]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[]]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[^]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[_]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[`]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[{]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[|]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[}]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[~]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[...]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[: ]', 'S F1 | M F1 | E F1 | W F1');
+        Observer.Expect('[ #]', 'S {"o":{"q":null,"r":"2"},"n":"1"} | M {"o":{"q":"a","r":"2"},"n":"1"} | E {"o":{"q":"ab","r":"2"},"n":"1"} | W {"o":{"q":"a","r":"2"},"n":"1"}');
+        Observer.Expect('[- ]', 'S F1 | M ok | E {"o":{"q":"ab-","r":"2"},"n":"1"} | W ok');
+        Observer.Expect('[? ]', 'S F1 | M ok | E {"o":{"q":"ab?","r":"2"},"n":"1"} | W ok');
+        Observer.Expect('errors', '1: The data does not represent valid YAML. ');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYamlPunct_PlainListItem_Read()
     begin
         Matrix('k:~  - {V}~  - c', '$.k[0]', '{V}');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure ReadFromYamlPunct_PlainListItem_Read_More1()
-    begin
-        Observer.More();
+        Observer.Expect('[!]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('["]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[#]', 'S {"k":[null,"c"]} | M ok | E ok | W {"k":["a","c"]}');
+        Observer.Expect('[$]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[%]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[&]', 'S {"k":[null,"c"]} | M ok | E ok | W ok');
+        Observer.Expect('['']', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[(]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[)]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[*]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[+]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[,]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[-]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[.]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[/]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[:]', 'S ok | M ok | E {"k":[{"ab":null},"c"]} | W {"k":[{"a":"b"},"c"]}');
+        Observer.Expect('[;]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[<]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[=]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[>]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[?]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[@]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[[]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[\]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[]]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[^]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[_]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[`]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[{]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[|]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[}]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[~]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[...]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[: ]', 'S F1 | M {"k":[{"a":"b"},"c"]} | E {"k":[{"ab":null},"c"]} | W {"k":[{"a":"b"},"c"]}');
+        Observer.Expect('[ #]', 'S {"k":[null,"c"]} | M {"k":["a","c"]} | E {"k":["ab","c"]} | W {"k":["a","c"]}');
+        Observer.Expect('[- ]', 'S {"k":[["ab"],"c"]} | M ok | E {"k":["ab-","c"]} | W ok');
+        Observer.Expect('[? ]', 'S {"k":[{"ab":null},"c"]} | M ok | E {"k":["ab?","c"]} | W ok');
+        Observer.Expect('errors', '1: The data does not represent valid YAML. ');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYamlPunct_PlainListMapFirst_Read()
     begin
         Matrix('k:~  - m: {V}~    r: 2~  - c', '$.k[0].m', '{V}');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure ReadFromYamlPunct_PlainListMapFirst_Read_More1()
-    begin
-        Observer.More();
+        Observer.Expect('[!]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('["]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[#]', 'S {"k":[{"m":null,"r":"2"},"c"]} | M ok | E ok | W {"k":[{"m":"a","r":"2"},"c"]}');
+        Observer.Expect('[$]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[%]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[&]', 'S {"k":[{"m":null,"r":"2"},"c"]} | M ok | E ok | W ok');
+        Observer.Expect('['']', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[(]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[)]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[*]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[+]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[,]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[-]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[.]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[/]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[:]', 'S ok | M ok | E F1 | W F1');
+        Observer.Expect('[;]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[<]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[=]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[>]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[?]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[@]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[[]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[\]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[]]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[^]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[_]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[`]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[{]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[|]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[}]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[~]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[...]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[: ]', 'S F1 | M F1 | E F1 | W F1');
+        Observer.Expect('[ #]', 'S {"k":[{"m":null,"r":"2"},"c"]} | M {"k":[{"m":"a","r":"2"},"c"]} | E {"k":[{"m":"ab","r":"2"},"c"]} | W {"k":[{"m":"a","r":"2"},"c"]}');
+        Observer.Expect('[- ]', 'S F1 | M ok | E {"k":[{"m":"ab-","r":"2"},"c"]} | W ok');
+        Observer.Expect('[? ]', 'S F1 | M ok | E {"k":[{"m":"ab?","r":"2"},"c"]} | W ok');
+        Observer.Expect('errors', '1: The data does not represent valid YAML. ');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYamlPunct_PlainListMapSecond_Read()
     begin
         Matrix('k:~  - r: 2~    m: {V}~  - c', '$.k[0].m', '{V}');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure ReadFromYamlPunct_PlainListMapSecond_Read_More1()
-    begin
-        Observer.More();
+        Observer.Expect('[!]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('["]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[#]', 'S {"k":[{"r":"2","m":null},"c"]} | M ok | E ok | W {"k":[{"r":"2","m":"a"},"c"]}');
+        Observer.Expect('[$]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[%]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[&]', 'S {"k":[{"r":"2","m":null},"c"]} | M ok | E ok | W ok');
+        Observer.Expect('['']', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[(]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[)]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[*]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[+]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[,]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[-]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[.]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[/]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[:]', 'S ok | M ok | E F1 | W F1');
+        Observer.Expect('[;]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[<]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[=]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[>]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[?]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[@]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[[]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[\]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[]]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[^]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[_]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[`]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[{]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[|]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[}]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[~]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[...]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[: ]', 'S F1 | M F1 | E F1 | W F1');
+        Observer.Expect('[ #]', 'S {"k":[{"r":"2","m":null},"c"]} | M {"k":[{"r":"2","m":"a"},"c"]} | E {"k":[{"r":"2","m":"ab"},"c"]} | W {"k":[{"r":"2","m":"a"},"c"]}');
+        Observer.Expect('[- ]', 'S F1 | M ok | E {"k":[{"r":"2","m":"ab-"},"c"]} | W ok');
+        Observer.Expect('[? ]', 'S F1 | M ok | E {"k":[{"r":"2","m":"ab?"},"c"]} | W ok');
+        Observer.Expect('errors', '1: The data does not represent valid YAML. ');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYamlPunct_PlainNestedList_Read()
     begin
         Matrix('o:~  k:~    - {V}~    - c~n: 1', '$.o.k[0]', '{V}');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure ReadFromYamlPunct_PlainNestedList_Read_More1()
-    begin
-        Observer.More();
+        Observer.Expect('[!]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('["]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[#]', 'S {"o":{"k":[null,"c"]},"n":"1"} | M ok | E ok | W {"o":{"k":["a","c"]},"n":"1"}');
+        Observer.Expect('[$]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[%]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[&]', 'S {"o":{"k":[null,"c"]},"n":"1"} | M ok | E ok | W ok');
+        Observer.Expect('['']', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[(]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[)]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[*]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[+]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[,]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[-]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[.]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[/]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[:]', 'S ok | M ok | E {"o":{"k":[{"ab":null},"c"]},"n":"1"} | W {"o":{"k":[{"a":"b"},"c"]},"n":"1"}');
+        Observer.Expect('[;]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[<]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[=]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[>]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[?]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[@]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[[]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[\]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[]]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[^]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[_]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[`]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[{]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[|]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[}]', 'S F1 | M ok | E ok | W ok');
+        Observer.Expect('[~]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[...]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[: ]', 'S F1 | M {"o":{"k":[{"a":"b"},"c"]},"n":"1"} | E {"o":{"k":[{"ab":null},"c"]},"n":"1"} | W {"o":{"k":[{"a":"b"},"c"]},"n":"1"}');
+        Observer.Expect('[ #]', 'S {"o":{"k":[null,"c"]},"n":"1"} | M {"o":{"k":["a","c"]},"n":"1"} | E {"o":{"k":["ab","c"]},"n":"1"} | W {"o":{"k":["a","c"]},"n":"1"}');
+        Observer.Expect('[- ]', 'S {"o":{"k":[["ab"],"c"]},"n":"1"} | M ok | E {"o":{"k":["ab-","c"]},"n":"1"} | W ok');
+        Observer.Expect('[? ]', 'S {"o":{"k":[{"ab":null},"c"]},"n":"1"} | M ok | E {"o":{"k":["ab?","c"]},"n":"1"} | W ok');
+        Observer.Expect('errors', '1: The data does not represent valid YAML. ');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYamlPunct_FoldedStrip_Read()
     begin
         Matrix('q: >-~  {V}~  {V}~n: 1', '$.q', '{V} {V}');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure ReadFromYamlPunct_FoldedStrip_Read_More1()
-    begin
-        Observer.More();
+        Observer.Expect('[!]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('["]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[#]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[$]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[%]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[&]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('['']', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[(]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[)]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[*]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[+]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[,]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[-]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[.]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[/]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[:]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[;]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[<]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[=]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[>]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[?]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[@]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[[]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[\]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[]]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[^]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[_]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[`]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[{]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[|]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[}]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[~]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[...]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[: ]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[ #]', 'S {"q":"#ab #ab","n":"1"} | M ok | E ok | W ok');
+        Observer.Expect('[- ]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[? ]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('errors', '');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYamlPunct_Folded_Read()
     begin
         Matrix('q: >~  {V}~  {V}~n: 1', '$.q', '{V} {V}~');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure ReadFromYamlPunct_Folded_Read_More1()
-    begin
-        Observer.More();
+        Observer.Expect('[!]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('["]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[#]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[$]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[%]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[&]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('['']', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[(]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[)]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[*]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[+]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[,]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[-]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[.]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[/]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[:]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[;]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[<]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[=]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[>]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[?]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[@]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[[]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[\]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[]]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[^]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[_]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[`]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[{]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[|]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[}]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[~]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[...]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[: ]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[ #]', 'S {"q":"#ab #ab\n","n":"1"} | M ok | E ok | W ok');
+        Observer.Expect('[- ]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[? ]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('errors', '');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYamlPunct_Literal_Read()
     begin
         Matrix('q: |~  {V}~  {V}~n: 1', '$.q', '{V}~{V}~');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure ReadFromYamlPunct_Literal_Read_More1()
-    begin
-        Observer.More();
+        Observer.Expect('[!]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('["]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[#]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[$]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[%]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[&]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('['']', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[(]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[)]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[*]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[+]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[,]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[-]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[.]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[/]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[:]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[;]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[<]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[=]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[>]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[?]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[@]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[[]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[\]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[]]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[^]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[_]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[`]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[{]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[|]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[}]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[~]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[...]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[: ]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[ #]', 'S {"q":"#ab\n#ab\n","n":"1"} | M ok | E ok | W ok');
+        Observer.Expect('[- ]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[? ]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('errors', '');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYamlPunct_LiteralStrip_Read()
     begin
         Matrix('q: |-~  {V}~  {V}~n: 1', '$.q', '{V}~{V}');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure ReadFromYamlPunct_LiteralStrip_Read_More1()
-    begin
-        Observer.More();
+        Observer.Expect('[!]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('["]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[#]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[$]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[%]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[&]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('['']', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[(]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[)]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[*]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[+]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[,]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[-]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[.]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[/]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[:]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[;]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[<]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[=]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[>]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[?]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[@]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[[]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[\]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[]]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[^]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[_]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[`]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[{]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[|]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[}]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[~]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[...]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[: ]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[ #]', 'S {"q":"#ab\n#ab","n":"1"} | M ok | E ok | W ok');
+        Observer.Expect('[- ]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[? ]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('errors', '');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYamlPunct_FoldedStripListMap_Read()
     begin
         Matrix('k:~  - m: >-~      {V}~      {V}~    r: 2', '$.k[0].m', '{V} {V}');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure ReadFromYamlPunct_FoldedStripListMap_Read_More1()
-    begin
-        Observer.More();
+        Observer.Expect('[!]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('["]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[#]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[$]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[%]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[&]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('['']', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[(]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[)]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[*]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[+]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[,]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[-]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[.]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[/]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[:]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[;]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[<]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[=]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[>]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[?]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[@]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[[]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[\]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[]]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[^]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[_]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[`]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[{]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[|]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[}]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[~]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[...]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[: ]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[ #]', 'S {"k":[{"m":"#ab #ab","r":"2"}]} | M ok | E ok | W ok');
+        Observer.Expect('[- ]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[? ]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('errors', '');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYamlPunct_DoubleQuoted_Read()
     begin
         Matrix('q: "{V}"~n: 1', '$.q', '{V}');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure ReadFromYamlPunct_DoubleQuoted_Read_More1()
-    begin
-        Observer.More();
+        Observer.Expect('[!]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('["]', 'S F1 | M F1 | E F1 | W F1');
+        Observer.Expect('[#]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[$]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[%]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[&]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('['']', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[(]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[)]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[*]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[+]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[,]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[-]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[.]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[/]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[:]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[;]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[<]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[=]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[>]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[?]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[@]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[[]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[\]', 'S {"q":"\u0007b","n":"1"} | M {"q":"a\b","n":"1"} | E F1 | W {"q":"a  b","n":"1"}');
+        Observer.Expect('[]]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[^]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[_]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[`]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[{]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[|]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[}]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[~]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[...]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[: ]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[ #]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[- ]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[? ]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('errors', '1: The data does not represent valid YAML. ');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYamlPunct_SingleQuoted_Read()
     begin
         Matrix('q: ''{V}''~n: 1', '$.q', '{V}');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure ReadFromYamlPunct_SingleQuoted_Read_More1()
-    begin
-        Observer.More();
+        Observer.Expect('[!]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('["]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[#]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[$]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[%]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[&]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('['']', 'S F1 | M F1 | E F1 | W F1');
+        Observer.Expect('[(]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[)]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[*]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[+]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[,]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[-]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[.]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[/]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[:]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[;]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[<]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[=]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[>]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[?]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[@]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[[]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[\]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[]]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[^]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[_]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[`]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[{]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[|]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[}]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[~]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[...]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[: ]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[ #]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[- ]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[? ]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('errors', '1: The data does not represent valid YAML. ');
+        Observer.Verify();
     end;
 }
