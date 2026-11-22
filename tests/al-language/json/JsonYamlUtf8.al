@@ -21,6 +21,12 @@
 //   "The data does not represent valid YAML.", the object stays empty. As double-quoted escapes (\N, \L, \P) they are valid.
 //   ReadFromYaml(InStream) decodes the bytes as UTF-8 itself, ignoring the InStream's TextEncoding; bytes written with the
 //   default (legacy code page) OutStream encoding give U+FFFD for the invalid sequences.
+//   Plain scalars with punctuation (top-level mapping value, nested mapping value, list item, nested list item) keep the text
+//   as written for: a comma, " ...", Waldo's line "Ask-order primary question, then fallthrough ...", a colon without a
+//   following space (a:b), "#" without a leading space, parentheses, slash, apostrophe, double quote mid-text, a leading
+//   or trailing hyphen word, " - ", " ? ", brackets, percent, "@" and "&". " #" starts a comment (value "a"). A ": " inside
+//   quotes in a plain scalar is not protected: as a mapping value the read fails ("The data does not represent valid YAML.",
+//   object empty), as a list item it becomes a one-entry mapping split at the ": ".
 //   Not measured (refuse): leading BOM, tabs, other C1 controls, unpaired surrogates, |+ and >+, indentation indicators,
 //   non-ASCII in anchors and tags, WriteToYaml, UTF-16 streams.
 // BC versions: 27, 28, 29
@@ -850,132 +856,318 @@ codeunit 75621 "YU8 Json Yaml Utf8"
     procedure ReadFromYaml_PlainComma_Read()
     begin
         PlainAll('p', 'a, b');
-        Observer.Finish();
+        Observer.Expect('p-top', 'Yes|Yes||{"q":"a, b","n":"1"}');
+        Observer.Expect('p-top-len', '4');
+        Observer.Expect('p-top-eq', 'Yes');
+        Observer.Expect('p-nest', 'Yes|Yes||{"o":{"q":"a, b","r":"2"},"n":"1"}');
+        Observer.Expect('p-nest-len', 'no value');
+        Observer.Expect('p-list', 'Yes|Yes||{"k":["a, b","c"]}');
+        Observer.Expect('p-list-len', '4');
+        Observer.Expect('p-list-eq', 'Yes');
+        Observer.Expect('p-nestlist', 'Yes|Yes||{"o":{"k":["a, b","c"]}}');
+        Observer.Expect('p-nestlist-len', 'no value');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYaml_PlainDots_Read()
     begin
         PlainAll('p', 'a ...');
-        Observer.Finish();
+        Observer.Expect('p-top', 'Yes|Yes||{"q":"a ...","n":"1"}');
+        Observer.Expect('p-top-len', '5');
+        Observer.Expect('p-top-eq', 'Yes');
+        Observer.Expect('p-nest', 'Yes|Yes||{"o":{"q":"a ...","r":"2"},"n":"1"}');
+        Observer.Expect('p-nest-len', 'no value');
+        Observer.Expect('p-list', 'Yes|Yes||{"k":["a ...","c"]}');
+        Observer.Expect('p-list-len', '5');
+        Observer.Expect('p-list-eq', 'Yes');
+        Observer.Expect('p-nestlist', 'Yes|Yes||{"o":{"k":["a ...","c"]}}');
+        Observer.Expect('p-nestlist-len', 'no value');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYaml_PlainCommaDots_Read()
     begin
         PlainAll('p', 'Ask-order primary question, then fallthrough ...');
-        Observer.Finish();
+        Observer.Expect('p-top', 'Yes|Yes||{"q":"Ask-order primary question, then fallthrough ...","n":"1"}');
+        Observer.Expect('p-top-len', '48');
+        Observer.Expect('p-top-eq', 'Yes');
+        Observer.Expect('p-nest', 'Yes|Yes||{"o":{"q":"Ask-order primary question, then fallthrough ...","r":"2"},"n":"1"}');
+        Observer.Expect('p-nest-len', 'no value');
+        Observer.Expect('p-list', 'Yes|Yes||{"k":["Ask-order primary question, then fallthrough ...","c"]}');
+        Observer.Expect('p-list-len', '48');
+        Observer.Expect('p-list-eq', 'Yes');
+        Observer.Expect('p-nestlist', 'Yes|Yes||{"o":{"k":["Ask-order primary question, then fallthrough ...","c"]}}');
+        Observer.Expect('p-nestlist-len', 'no value');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYaml_PlainQuotedColon_Read()
     begin
         PlainAll('p', 'say "a: b" end');
-        Observer.Finish();
+        Observer.Expect('p-top', 'Yes|No|The data does not represent valid YAML.|{}');
+        Observer.Expect('p-top-len', 'no value');
+        Observer.Expect('p-nest', 'Yes|No|The data does not represent valid YAML.|{}');
+        Observer.Expect('p-nest-len', 'no value');
+        Observer.Expect('p-list', 'Yes|Yes||{"k":[{"say \"a":"b\" end"},"c"]}');
+        Observer.Expect('p-list-len', 'no value');
+        Observer.Expect('p-nestlist', 'Yes|Yes||{"o":{"k":[{"say \"a":"b\" end"},"c"]}}');
+        Observer.Expect('p-nestlist-len', 'no value');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYaml_PlainQuotedColonSingle_Read()
     begin
         PlainAll('p', 'say ''a: b'' end');
-        Observer.Finish();
+        Observer.Expect('p-top', 'Yes|No|The data does not represent valid YAML.|{}');
+        Observer.Expect('p-top-len', 'no value');
+        Observer.Expect('p-nest', 'Yes|No|The data does not represent valid YAML.|{}');
+        Observer.Expect('p-nest-len', 'no value');
+        Observer.Expect('p-list', 'Yes|Yes||{"k":[{"say ''a":"b'' end"},"c"]}');
+        Observer.Expect('p-list-len', 'no value');
+        Observer.Expect('p-nestlist', 'Yes|Yes||{"o":{"k":[{"say ''a":"b'' end"},"c"]}}');
+        Observer.Expect('p-nestlist-len', 'no value');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYaml_PlainColonNoSpace_Read()
     begin
         PlainAll('p', 'a:b');
-        Observer.Finish();
+        Observer.Expect('p-top', 'Yes|Yes||{"q":"a:b","n":"1"}');
+        Observer.Expect('p-top-len', '3');
+        Observer.Expect('p-top-eq', 'Yes');
+        Observer.Expect('p-nest', 'Yes|Yes||{"o":{"q":"a:b","r":"2"},"n":"1"}');
+        Observer.Expect('p-nest-len', 'no value');
+        Observer.Expect('p-list', 'Yes|Yes||{"k":["a:b","c"]}');
+        Observer.Expect('p-list-len', '3');
+        Observer.Expect('p-list-eq', 'Yes');
+        Observer.Expect('p-nestlist', 'Yes|Yes||{"o":{"k":["a:b","c"]}}');
+        Observer.Expect('p-nestlist-len', 'no value');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYaml_PlainSpaceHash_Read()
     begin
         PlainAll('p', 'a #b');
-        Observer.Finish();
+        Observer.Expect('p-top', 'Yes|Yes||{"q":"a","n":"1"}');
+        Observer.Expect('p-top-len', '1');
+        Observer.Expect('p-top-eq', 'No');
+        Observer.Expect('p-nest', 'Yes|Yes||{"o":{"q":"a","r":"2"},"n":"1"}');
+        Observer.Expect('p-nest-len', 'no value');
+        Observer.Expect('p-list', 'Yes|Yes||{"k":["a","c"]}');
+        Observer.Expect('p-list-len', '1');
+        Observer.Expect('p-list-eq', 'No');
+        Observer.Expect('p-nestlist', 'Yes|Yes||{"o":{"k":["a","c"]}}');
+        Observer.Expect('p-nestlist-len', 'no value');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYaml_PlainHashNoSpace_Read()
     begin
         PlainAll('p', 'a#b');
-        Observer.Finish();
+        Observer.Expect('p-top', 'Yes|Yes||{"q":"a#b","n":"1"}');
+        Observer.Expect('p-top-len', '3');
+        Observer.Expect('p-top-eq', 'Yes');
+        Observer.Expect('p-nest', 'Yes|Yes||{"o":{"q":"a#b","r":"2"},"n":"1"}');
+        Observer.Expect('p-nest-len', 'no value');
+        Observer.Expect('p-list', 'Yes|Yes||{"k":["a#b","c"]}');
+        Observer.Expect('p-list-len', '3');
+        Observer.Expect('p-list-eq', 'Yes');
+        Observer.Expect('p-nestlist', 'Yes|Yes||{"o":{"k":["a#b","c"]}}');
+        Observer.Expect('p-nestlist-len', 'no value');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYaml_PlainParens_Read()
     begin
         PlainAll('p', 'a (b) c');
-        Observer.Finish();
+        Observer.Expect('p-top', 'Yes|Yes||{"q":"a (b) c","n":"1"}');
+        Observer.Expect('p-top-len', '7');
+        Observer.Expect('p-top-eq', 'Yes');
+        Observer.Expect('p-nest', 'Yes|Yes||{"o":{"q":"a (b) c","r":"2"},"n":"1"}');
+        Observer.Expect('p-nest-len', 'no value');
+        Observer.Expect('p-list', 'Yes|Yes||{"k":["a (b) c","c"]}');
+        Observer.Expect('p-list-len', '7');
+        Observer.Expect('p-list-eq', 'Yes');
+        Observer.Expect('p-nestlist', 'Yes|Yes||{"o":{"k":["a (b) c","c"]}}');
+        Observer.Expect('p-nestlist-len', 'no value');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYaml_PlainSlash_Read()
     begin
         PlainAll('p', 'a/b c');
-        Observer.Finish();
+        Observer.Expect('p-top', 'Yes|Yes||{"q":"a/b c","n":"1"}');
+        Observer.Expect('p-top-len', '5');
+        Observer.Expect('p-top-eq', 'Yes');
+        Observer.Expect('p-nest', 'Yes|Yes||{"o":{"q":"a/b c","r":"2"},"n":"1"}');
+        Observer.Expect('p-nest-len', 'no value');
+        Observer.Expect('p-list', 'Yes|Yes||{"k":["a/b c","c"]}');
+        Observer.Expect('p-list-len', '5');
+        Observer.Expect('p-list-eq', 'Yes');
+        Observer.Expect('p-nestlist', 'Yes|Yes||{"o":{"k":["a/b c","c"]}}');
+        Observer.Expect('p-nestlist-len', 'no value');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYaml_PlainApostrophe_Read()
     begin
         PlainAll('p', 'it''s ok');
-        Observer.Finish();
+        Observer.Expect('p-top', 'Yes|Yes||{"q":"it''s ok","n":"1"}');
+        Observer.Expect('p-top-len', '7');
+        Observer.Expect('p-top-eq', 'Yes');
+        Observer.Expect('p-nest', 'Yes|Yes||{"o":{"q":"it''s ok","r":"2"},"n":"1"}');
+        Observer.Expect('p-nest-len', 'no value');
+        Observer.Expect('p-list', 'Yes|Yes||{"k":["it''s ok","c"]}');
+        Observer.Expect('p-list-len', '7');
+        Observer.Expect('p-list-eq', 'Yes');
+        Observer.Expect('p-nestlist', 'Yes|Yes||{"o":{"k":["it''s ok","c"]}}');
+        Observer.Expect('p-nestlist-len', 'no value');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYaml_PlainDoubleQuoteMid_Read()
     begin
         PlainAll('p', 'a "b" c');
-        Observer.Finish();
+        Observer.Expect('p-top', 'Yes|Yes||{"q":"a \"b\" c","n":"1"}');
+        Observer.Expect('p-top-len', '7');
+        Observer.Expect('p-top-eq', 'Yes');
+        Observer.Expect('p-nest', 'Yes|Yes||{"o":{"q":"a \"b\" c","r":"2"},"n":"1"}');
+        Observer.Expect('p-nest-len', 'no value');
+        Observer.Expect('p-list', 'Yes|Yes||{"k":["a \"b\" c","c"]}');
+        Observer.Expect('p-list-len', '7');
+        Observer.Expect('p-list-eq', 'Yes');
+        Observer.Expect('p-nestlist', 'Yes|Yes||{"o":{"k":["a \"b\" c","c"]}}');
+        Observer.Expect('p-nestlist-len', 'no value');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYaml_PlainHyphenLeading_Read()
     begin
         PlainAll('p', '-a b');
-        Observer.Finish();
+        Observer.Expect('p-top', 'Yes|Yes||{"q":"-a b","n":"1"}');
+        Observer.Expect('p-top-len', '4');
+        Observer.Expect('p-top-eq', 'Yes');
+        Observer.Expect('p-nest', 'Yes|Yes||{"o":{"q":"-a b","r":"2"},"n":"1"}');
+        Observer.Expect('p-nest-len', 'no value');
+        Observer.Expect('p-list', 'Yes|Yes||{"k":["-a b","c"]}');
+        Observer.Expect('p-list-len', '4');
+        Observer.Expect('p-list-eq', 'Yes');
+        Observer.Expect('p-nestlist', 'Yes|Yes||{"o":{"k":["-a b","c"]}}');
+        Observer.Expect('p-nestlist-len', 'no value');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYaml_PlainHyphenTrailing_Read()
     begin
         PlainAll('p', 'a b-');
-        Observer.Finish();
+        Observer.Expect('p-top', 'Yes|Yes||{"q":"a b-","n":"1"}');
+        Observer.Expect('p-top-len', '4');
+        Observer.Expect('p-top-eq', 'Yes');
+        Observer.Expect('p-nest', 'Yes|Yes||{"o":{"q":"a b-","r":"2"},"n":"1"}');
+        Observer.Expect('p-nest-len', 'no value');
+        Observer.Expect('p-list', 'Yes|Yes||{"k":["a b-","c"]}');
+        Observer.Expect('p-list-len', '4');
+        Observer.Expect('p-list-eq', 'Yes');
+        Observer.Expect('p-nestlist', 'Yes|Yes||{"o":{"k":["a b-","c"]}}');
+        Observer.Expect('p-nestlist-len', 'no value');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYaml_PlainHyphenWord_Read()
     begin
         PlainAll('p', 'a - b');
-        Observer.Finish();
+        Observer.Expect('p-top', 'Yes|Yes||{"q":"a - b","n":"1"}');
+        Observer.Expect('p-top-len', '5');
+        Observer.Expect('p-top-eq', 'Yes');
+        Observer.Expect('p-nest', 'Yes|Yes||{"o":{"q":"a - b","r":"2"},"n":"1"}');
+        Observer.Expect('p-nest-len', 'no value');
+        Observer.Expect('p-list', 'Yes|Yes||{"k":["a - b","c"]}');
+        Observer.Expect('p-list-len', '5');
+        Observer.Expect('p-list-eq', 'Yes');
+        Observer.Expect('p-nestlist', 'Yes|Yes||{"o":{"k":["a - b","c"]}}');
+        Observer.Expect('p-nestlist-len', 'no value');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYaml_PlainQuestionMid_Read()
     begin
         PlainAll('p', 'a ? b');
-        Observer.Finish();
+        Observer.Expect('p-top', 'Yes|Yes||{"q":"a ? b","n":"1"}');
+        Observer.Expect('p-top-len', '5');
+        Observer.Expect('p-top-eq', 'Yes');
+        Observer.Expect('p-nest', 'Yes|Yes||{"o":{"q":"a ? b","r":"2"},"n":"1"}');
+        Observer.Expect('p-nest-len', 'no value');
+        Observer.Expect('p-list', 'Yes|Yes||{"k":["a ? b","c"]}');
+        Observer.Expect('p-list-len', '5');
+        Observer.Expect('p-list-eq', 'Yes');
+        Observer.Expect('p-nestlist', 'Yes|Yes||{"o":{"k":["a ? b","c"]}}');
+        Observer.Expect('p-nestlist-len', 'no value');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYaml_PlainBrackets_Read()
     begin
         PlainAll('p', 'a [b] c');
-        Observer.Finish();
+        Observer.Expect('p-top', 'Yes|Yes||{"q":"a [b] c","n":"1"}');
+        Observer.Expect('p-top-len', '7');
+        Observer.Expect('p-top-eq', 'Yes');
+        Observer.Expect('p-nest', 'Yes|Yes||{"o":{"q":"a [b] c","r":"2"},"n":"1"}');
+        Observer.Expect('p-nest-len', 'no value');
+        Observer.Expect('p-list', 'Yes|Yes||{"k":["a [b] c","c"]}');
+        Observer.Expect('p-list-len', '7');
+        Observer.Expect('p-list-eq', 'Yes');
+        Observer.Expect('p-nestlist', 'Yes|Yes||{"o":{"k":["a [b] c","c"]}}');
+        Observer.Expect('p-nestlist-len', 'no value');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYaml_PlainPercent_Read()
     begin
         PlainAll('p', 'a % b');
-        Observer.Finish();
+        Observer.Expect('p-top', 'Yes|Yes||{"q":"a % b","n":"1"}');
+        Observer.Expect('p-top-len', '5');
+        Observer.Expect('p-top-eq', 'Yes');
+        Observer.Expect('p-nest', 'Yes|Yes||{"o":{"q":"a % b","r":"2"},"n":"1"}');
+        Observer.Expect('p-nest-len', 'no value');
+        Observer.Expect('p-list', 'Yes|Yes||{"k":["a % b","c"]}');
+        Observer.Expect('p-list-len', '5');
+        Observer.Expect('p-list-eq', 'Yes');
+        Observer.Expect('p-nestlist', 'Yes|Yes||{"o":{"k":["a % b","c"]}}');
+        Observer.Expect('p-nestlist-len', 'no value');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYaml_PlainAtAmp_Read()
     begin
         PlainAll('p', 'a @ b & c');
-        Observer.Finish();
+        Observer.Expect('p-top', 'Yes|Yes||{"q":"a @ b & c","n":"1"}');
+        Observer.Expect('p-top-len', '9');
+        Observer.Expect('p-top-eq', 'Yes');
+        Observer.Expect('p-nest', 'Yes|Yes||{"o":{"q":"a @ b & c","r":"2"},"n":"1"}');
+        Observer.Expect('p-nest-len', 'no value');
+        Observer.Expect('p-list', 'Yes|Yes||{"k":["a @ b & c","c"]}');
+        Observer.Expect('p-list-len', '9');
+        Observer.Expect('p-list-eq', 'Yes');
+        Observer.Expect('p-nestlist', 'Yes|Yes||{"o":{"k":["a @ b & c","c"]}}');
+        Observer.Expect('p-nestlist-len', 'no value');
+        Observer.Verify();
     end;
 }
