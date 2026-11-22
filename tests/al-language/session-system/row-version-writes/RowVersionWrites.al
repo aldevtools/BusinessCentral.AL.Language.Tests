@@ -8,6 +8,8 @@
 // Only relations are asserted (same, greater, less), never a row version number: the numbers differ per database. Existing pins of the neighbours:
 // PlTRowVersionValue.al (Insert, Modify and MinimumActiveRowVersion in an open transaction, Delete and DeleteAll without a prior Insert) and
 // MinimumActiveRowVersionStages.al (MinimumActiveRowVersion under three TestIsolation settings), not repeated here.
+// A fact the runs showed: an Insert is flushed to the database later (by a read of the table, another write or Commit), and LastUsedRowVersion() grows
+// only at that flush. The tests named ...AfterInsert write right after an unflushed Insert; the ...AfterFlushedInsert and Watermark ones read the row first.
 // Observation names: <stage> last/prev is LastUsedRowVersion() against its previous read, row/last is the SystemRowVersion of the row written last against
 // LastUsedRowVersion() read right after the write; tx is IsInWriteTransaction.
 // BC versions: 27+
@@ -354,14 +356,13 @@ codeunit 76603 "RVW Writes"
     end;
 
     [Test]
-    procedure LastUsedRowVersion_WatermarkShape()
+    procedure LastUsedRowVersion_WatermarkShape_UnflushedInsert()
     var
         Observer: Codeunit "Probe Observer";
-        Seq: Codeunit "RVW Sequence";
         Row: Record "RVW Row";
         Mark: BigInteger;
     begin
-        // The export shape: rows above a stored watermark and below LastUsedRowVersion() + 1.
+        // The export shape: a watermark read right after an Insert, then the rows above it and below LastUsedRowVersion() + 1.
         Row.DeleteAll();
         Commit();
         Row.Id := 1;
@@ -369,14 +370,164 @@ codeunit 76603 "RVW Writes"
         Mark := LastUsedRowVersion();
         Row.Id := 2;
         Row.Insert();
-        Row.SetFilter("SystemRowVersion", '>%1&<%2', Mark, LastUsedRowVersion() + 1);
-        Observer.Observe('above mark count', Format(Row.Count()));
-        Row.FindFirst();
-        Observer.Observe('above mark id', Format(Row.Id));
         Row.Reset();
-        Row.SetFilter("SystemRowVersion", '<=%1', Mark);
+        Row.SetFilter(SystemRowVersion, '>%1&<%2', Mark, LastUsedRowVersion() + 1);
+        Observer.Observe('above mark below last+1 found', Format(Row.FindFirst()));
+        Row.Reset();
+        Row.SetFilter(SystemRowVersion, '>%1', Mark);
+        Observer.Observe('above mark count', Format(Row.Count()));
+        Row.Reset();
+        Row.SetFilter(SystemRowVersion, '<=%1', Mark);
         Observer.Observe('at or below mark count', Format(Row.Count()));
         Row.Reset();
+        Row.DeleteAll();
+        Commit();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LastUsedRowVersion_WatermarkShape_FlushedInsert()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "RVW Row";
+        Mark: BigInteger;
+    begin
+        // The export shape: a watermark read right after an Insert, then the rows above it and below LastUsedRowVersion() + 1.
+        Row.DeleteAll();
+        Commit();
+        Row.Id := 1;
+        Row.Insert();
+        Row.Get(1);
+        Mark := LastUsedRowVersion();
+        Row.Id := 2;
+        Row.Insert();
+        Row.Get(2);
+        Row.Reset();
+        Row.SetFilter(SystemRowVersion, '>%1&<%2', Mark, LastUsedRowVersion() + 1);
+        Observer.Observe('above mark below last+1 found', Format(Row.FindFirst()));
+        Row.Reset();
+        Row.SetFilter(SystemRowVersion, '>%1', Mark);
+        Observer.Observe('above mark count', Format(Row.Count()));
+        Row.Reset();
+        Row.SetFilter(SystemRowVersion, '<=%1', Mark);
+        Observer.Observe('at or below mark count', Format(Row.Count()));
+        Row.Reset();
+        Row.DeleteAll();
+        Commit();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LastUsedRowVersion_DeleteAfterFlushedInsert()
+    var
+        Observer: Codeunit "Probe Observer";
+        Seq: Codeunit "RVW Sequence";
+        Row: Record "RVW Row";
+        Prev: BigInteger;
+    begin
+        Row.DeleteAll();
+        Commit();
+        Row.Id := 1;
+        Row.Insert();
+        Row.Get(1);
+        Prev := LastUsedRowVersion();
+        Row.Delete();
+        Seq.Step(Observer, 'delete', Prev);
+        Observer.Observe('count', Format(Row.Count()));
+        Row.DeleteAll();
+        Commit();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LastUsedRowVersion_RenameAfterFlushedInsert()
+    var
+        Observer: Codeunit "Probe Observer";
+        Seq: Codeunit "RVW Sequence";
+        Row: Record "RVW Row";
+        Prev: BigInteger;
+    begin
+        Row.DeleteAll();
+        Commit();
+        Row.Id := 1;
+        Row.Insert();
+        Row.Get(1);
+        Prev := LastUsedRowVersion();
+        Row.Rename(2);
+        Seq.Step(Observer, 'rename', Prev);
+        Row.Get(2);
+        Seq.StepRow(Observer, 'get renamed', Prev, Row.SystemRowVersion);
+        Row.DeleteAll();
+        Commit();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LastUsedRowVersion_ModifyAllAfterFlushedInsert()
+    var
+        Observer: Codeunit "Probe Observer";
+        Seq: Codeunit "RVW Sequence";
+        Row: Record "RVW Row";
+        Prev: BigInteger;
+    begin
+        Row.DeleteAll();
+        Commit();
+        Row.Id := 1;
+        Row.Insert();
+        Row.Id := 2;
+        Row.Insert();
+        Row.Get(2);
+        Prev := LastUsedRowVersion();
+        Row.ModifyAll(Name, 'y');
+        Seq.Step(Observer, 'modifyall', Prev);
+        Row.Get(2);
+        Seq.StepRow(Observer, 'get row 2', Prev, Row.SystemRowVersion);
+        Row.DeleteAll();
+        Commit();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LastUsedRowVersion_DeleteAllAfterFlushedInsert()
+    var
+        Observer: Codeunit "Probe Observer";
+        Seq: Codeunit "RVW Sequence";
+        Row: Record "RVW Row";
+        Prev: BigInteger;
+    begin
+        Row.DeleteAll();
+        Commit();
+        Row.Id := 1;
+        Row.Insert();
+        Row.Id := 2;
+        Row.Insert();
+        Row.Get(2);
+        Prev := LastUsedRowVersion();
+        Row.DeleteAll();
+        Seq.Step(Observer, 'deleteall', Prev);
+        Observer.Observe('count', Format(Row.Count()));
+        Row.DeleteAll();
+        Commit();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LastUsedRowVersion_TruncateAfterFlushedInsert()
+    var
+        Observer: Codeunit "Probe Observer";
+        Seq: Codeunit "RVW Sequence";
+        Row: Record "RVW Row";
+        Prev: BigInteger;
+    begin
+        Row.DeleteAll();
+        Commit();
+        Row.Id := 1;
+        Row.Insert();
+        Row.Get(1);
+        Prev := LastUsedRowVersion();
+        Row.Truncate();
+        Seq.Step(Observer, 'truncate', Prev);
+        Observer.Observe('count', Format(Row.Count()));
         Row.DeleteAll();
         Commit();
         Observer.Finish();
