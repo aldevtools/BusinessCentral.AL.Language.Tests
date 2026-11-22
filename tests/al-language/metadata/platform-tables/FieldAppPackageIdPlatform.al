@@ -52,7 +52,8 @@ codeunit 77804 "Field App Package Id Platform"
         Observer.Observe('field', Describe(2000000041));
         Observer.Observe('tableMetadata', Describe(2000000136));
         Observer.Observe('allObj', Describe(2000000038));
-        Observer.Observe('baseAppShippingAgent', Describe(Database::"Shipping Agent"));
+        // 291 is the Base Application table "Shipping Agent"; the corpus has its own table of that name (AL0275 by name).
+        Observer.Observe('baseAppShippingAgent', Describe(291));
         Observer.Observe('ownTable', Describe(Database::"FC Coll Row"));
         Observer.Observe('objectAllRowsShare', AllRowsShare(2000000001));
         Observer.Observe('ownAllRowsShare', AllRowsShare(Database::"FC Coll Row"));
