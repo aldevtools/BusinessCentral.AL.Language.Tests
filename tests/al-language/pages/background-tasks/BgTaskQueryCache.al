@@ -7108,8 +7108,8 @@ codeunit 97580 "BQ Reader 12"
 //     without a commit between the worker's two reads;
 //   - SelectLatestVersion before a Get with every read in one worker codeunit (BQ Reader 13), next to BQ Tests 11's cells, whose
 //     first read is BQ Reader's;
-//   - a table with a MediaSet field (table 97581), as BQ Tests 11 reads the Media one.
-table 97581 "BQ MediaSet Row"
+//   - a table with a MediaSet field (table 97586), as BQ Tests 11 reads the Media one.
+table 97586 "BQ MediaSet Row"
 {
     DataClassification = SystemMetadata;
     ReplicateData = false;
@@ -7127,7 +7127,7 @@ table 97581 "BQ MediaSet Row"
     }
 }
 
-codeunit 97581 "BQ Reader 13"
+codeunit 97586 "BQ Reader 13"
 {
     trigger OnRun()
     var
@@ -7178,7 +7178,7 @@ codeunit 97581 "BQ Reader 13"
     end;
 }
 
-codeunit 97582 "BQ Tests 13"
+codeunit 97587 "BQ Tests 13"
 {
     Subtype = Test;
 
