@@ -177,15 +177,12 @@ codeunit 68310 "Probe Environment Contracts"
 
     [Test]
     procedure EnvironmentInformation_IsSaaSInfrastructure_DiffersBetween28And29()
-    // Measured: true on the 27.5 and 28.5 runs, false on the 29.0 run (same container setup, bc-linux).
+    // False on every version. The .NET 8 builds of 27.5 and 28.5 answered true on the Linux CI tier only: Windows BC 28.4 answered false
+    // (nightly 2026-11-16), and so do the .NET 10 builds of 27.5 and 28.5 on Linux (CI 2026-11-17). The name stays (test keys never change).
     var
         EnvironmentInformation: Codeunit "Environment Information";
     begin
-#if BC29PLUS
         Assert.IsFalse(EnvironmentInformation.IsSaaSInfrastructure(), 'IsSaaSInfrastructure');
-#else
-        Assert.IsTrue(EnvironmentInformation.IsSaaSInfrastructure(), 'IsSaaSInfrastructure');
-#endif
     end;
 
     [Test]

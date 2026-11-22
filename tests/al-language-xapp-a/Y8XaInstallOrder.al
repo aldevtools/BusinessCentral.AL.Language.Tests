@@ -164,6 +164,7 @@ codeunit 94682 "LT Y88 Pkg Install"
         Enm: Record "LT Y88 Pkg Enum Table";
         DateHigh: Record "LT Y88 Pkg Date High";
         DecTiny: Record "LT Y88 Pkg Dec Tiny";
+        SysIdCo: Record "LT Y88 Pkg SysId Co";
     begin
         if Events.IsEmpty() then
             LoadOne(Database::"LT Y88 Pkg Events", 'events');
@@ -175,5 +176,16 @@ codeunit 94682 "LT Y88 Pkg Install"
             LoadOne(Database::"LT Y88 Pkg Date High", 'date high');
         if DecTiny.IsEmpty() then
             LoadOne(Database::"LT Y88 Pkg Dec Tiny", 'decimal tiny');
+        if SysIdCo.IsEmpty() then
+            LoadOne(Database::"LT Y88 Pkg SysId Co", 'systemid company');
+    end;
+
+    // al-runner issue 7366: the log table is per company, so the per-database load writes nothing but the rows; the test reads them.
+    trigger OnInstallAppPerDatabase()
+    var
+        SysIdDb: Record "LT Y88 Pkg SysId Db";
+    begin
+        if SysIdDb.IsEmpty() then
+            if TryLoad(Database::"LT Y88 Pkg SysId Db") then;
     end;
 }
