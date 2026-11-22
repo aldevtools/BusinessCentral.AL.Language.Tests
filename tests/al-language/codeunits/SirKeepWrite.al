@@ -8,7 +8,7 @@ codeunit 73478 "SIR Keep Write"
     TestPermissions = Disabled;
 
     [Test]
-    procedure Run()
+    procedure KeepWrite()
     var
         S: Codeunit "SIR State";
         K: Codeunit "SIR Keep";
