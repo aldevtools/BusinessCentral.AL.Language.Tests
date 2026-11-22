@@ -139,4 +139,29 @@ codeunit 97052 "LT EMF Shape Tests"
         Observer.Expect('equals', 'Yes');
         Observer.Verify();
     end;
+
+    [Test]
+    procedure FieldMember_GlobalRecordVariable_IsTheFieldsEnumMember()
+    var
+        Observer: Codeunit "Probe Observer";
+        Reader: Codeunit ALLanguage.Coverage.EmfTwin."LT EMF Twin Shapes Reader";
+    begin
+        Observer.Observe('ordinal', Format(Reader.GlobalRecordOrdinal()));
+        Observer.Expect('ordinal', '1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Field_GlobalRecordVariableWithoutMember_HasTheFieldsEnumType()
+    var
+        Observer: Codeunit "Probe Observer";
+        Reader: Codeunit ALLanguage.Coverage.EmfTwin."LT EMF Twin Shapes Reader";
+        Line: Record "LT EMF Line";
+    begin
+        // Transfer (2) is a member of the field's enum only: the twin of the reader's namespace has none at 2.
+        Line.Kind := Line.Kind::Transfer;
+        Observer.Observe('format_and_ordinal', Reader.GlobalRecordReadWithoutMember(Line));
+        Observer.Expect('format_and_ordinal', 'Transfer|2');
+        Observer.Verify();
+    end;
 }
