@@ -931,6 +931,255 @@ codeunit 87211 "REC MovedKey Tests"
         Obs.Expect('R10|stored', 'SOURCE=new TARGET=second X=x');
         Obs.Verify();
     end;
+
+    // Round 4 (cells S1a-S8, observe-only, al-runner issue 8721): more upsert shapes after the open transaction wrote the table
+    //   before the read (row X inserted after a committed seed, as Q2), unless stated. The 2nd call runs in asserterror.
+    //   S1a  no copy: Src.Get, CopyTo creates TARGET, then Src's own key moved to TARGET, `if not Src.Insert() then Src.Modify()`.
+    //   S1b  the same with Insert(true) and Modify(true).
+    //   S2a  TARGET committed before the read (inserted before SOURCE), row X inserted, Src.Get, CopyTo once.
+    //   S2b  committed seed, TARGET itself inserted (uncommitted) before the read, Src.Get, CopyTo once.
+    //   S3   Copy.Copy(Src) (the method) in place of `Copy := Src`.
+    //   S4   the buffer passed by value to a procedure that moves the key, Insert(true) and Modify(true).
+    //   S5   Src.Get, CopyTo creates TARGET, then a LockTable (2nd variable), then the 2nd CopyTo.
+    //   S6   committed row D; Src.Get, CopyTo creates TARGET, then D deleted by a 2nd variable, then the 2nd CopyTo.
+    //   S7   row X inserted, Src.Get, then `asserterror Error(..)` rolls X back, then CopyTo twice.
+    //   S8   committed TARGET; row X inserted, Src.Get, a 2nd variable deletes TARGET and TARGET is inserted again ('again'),
+    //        then CopyTo once.
+    //   Not measured: a version taken in another company (ChangeCompany): the test database has no second company to rely on, and
+    //   a probe may not create one.
+
+    // S3: the upsert with the Copy method.
+    local procedure CopyToByCopy(var Src: Record "REC MovedKey Row"; ToCode: Code[20])
+    var
+        Copy: Record "REC MovedKey Row";
+        Done: Boolean;
+    begin
+        Copy.Copy(Src);
+        Copy.Code := ToCode;
+        Done := Copy.Insert(true);
+        NoteInsert(Done);
+        if not Done then begin
+            Copy.TransferFields(Src, false);
+            Copy.Modify(true);
+        end;
+    end;
+
+    // S4: the buffer passed by value.
+    local procedure UpsertByValue(Copy: Record "REC MovedKey Row"; ToCode: Code[20])
+    var
+        Done: Boolean;
+    begin
+        Copy.Code := ToCode;
+        Done := Copy.Insert(true);
+        NoteInsert(Done);
+        if not Done then
+            Copy.Modify(true);
+    end;
+
+    [Test]
+    procedure FailedInsert_MovedKey_S1a_NoCopy_PlainInsertModify()
+    var
+        Src: Record "REC MovedKey Row";
+        Done: Boolean;
+    begin
+        Seed(false);
+        AddRow('X', 'x');
+        Src.Get('SOURCE');
+        CopyTo(Src, 'TARGET');
+        Src.Code := 'TARGET';
+        Src.Name := 'second';
+        asserterror begin
+            Done := Src.Insert();
+            NoteInsert(Done);
+            if not Done then
+                Src.Modify();
+            StoredInside := Stored();
+            Error(NoErrorTxt);
+        end;
+        CloseCell('S1a');
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure FailedInsert_MovedKey_S1b_NoCopy_InsertTrueModifyTrue()
+    var
+        Src: Record "REC MovedKey Row";
+        Done: Boolean;
+    begin
+        Seed(false);
+        AddRow('X', 'x');
+        Src.Get('SOURCE');
+        CopyTo(Src, 'TARGET');
+        Src.Code := 'TARGET';
+        Src.Name := 'second';
+        asserterror begin
+            Done := Src.Insert(true);
+            NoteInsert(Done);
+            if not Done then
+                Src.Modify(true);
+            StoredInside := Stored();
+            Error(NoErrorTxt);
+        end;
+        CloseCell('S1b');
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure FailedInsert_MovedKey_S2a_CommittedTarget_TableWrittenBeforeRead()
+    var
+        Src: Record "REC MovedKey Row";
+    begin
+        Seed(true);
+        AddRow('X', 'x');
+        Src.Get('SOURCE');
+        asserterror begin
+            CopyTo(Src, 'TARGET');
+            StoredInside := Stored();
+            Error(NoErrorTxt);
+        end;
+        CloseCell('S2a');
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure FailedInsert_MovedKey_S2b_TargetInsertedBeforeRead()
+    var
+        Src: Record "REC MovedKey Row";
+    begin
+        Seed(false);
+        AddRow('TARGET', 'old');
+        Src.Get('SOURCE');
+        asserterror begin
+            CopyTo(Src, 'TARGET');
+            StoredInside := Stored();
+            Error(NoErrorTxt);
+        end;
+        CloseCell('S2b');
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure FailedInsert_MovedKey_S3_CopyMethod()
+    var
+        Src: Record "REC MovedKey Row";
+    begin
+        Seed(false);
+        AddRow('X', 'x');
+        Src.Get('SOURCE');
+        CopyToByCopy(Src, 'TARGET');
+        Src.Name := 'second';
+        asserterror begin
+            CopyToByCopy(Src, 'TARGET');
+            StoredInside := Stored();
+            Error(NoErrorTxt);
+        end;
+        CloseCell('S3');
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure FailedInsert_MovedKey_S4_ByValueParameter()
+    var
+        Src: Record "REC MovedKey Row";
+    begin
+        Seed(false);
+        AddRow('X', 'x');
+        Src.Get('SOURCE');
+        UpsertByValue(Src, 'TARGET');
+        Src.Name := 'second';
+        asserterror begin
+            UpsertByValue(Src, 'TARGET');
+            StoredInside := Stored();
+            Error(NoErrorTxt);
+        end;
+        CloseCell('S4');
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure FailedInsert_MovedKey_S5_LockTableAfterRead()
+    var
+        Src: Record "REC MovedKey Row";
+        Other: Record "REC MovedKey Row";
+    begin
+        Seed(false);
+        AddRow('X', 'x');
+        Src.Get('SOURCE');
+        CopyTo(Src, 'TARGET');
+        Other.LockTable();
+        Src.Name := 'second';
+        asserterror begin
+            CopyTo(Src, 'TARGET');
+            StoredInside := Stored();
+            Error(NoErrorTxt);
+        end;
+        CloseCell('S5');
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure FailedInsert_MovedKey_S6_OtherRowDeletedAfterRead()
+    var
+        Src: Record "REC MovedKey Row";
+        Other: Record "REC MovedKey Row";
+    begin
+        SeedPlus('D', 'd');
+        AddRow('X', 'x');
+        Src.Get('SOURCE');
+        CopyTo(Src, 'TARGET');
+        Other.Get('D');
+        Other.Delete();
+        Src.Name := 'second';
+        asserterror begin
+            CopyTo(Src, 'TARGET');
+            StoredInside := Stored();
+            Error(NoErrorTxt);
+        end;
+        CloseCell('S6');
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure FailedInsert_MovedKey_S7_TableWriteRolledBackAfterRead()
+    var
+        Src: Record "REC MovedKey Row";
+    begin
+        Seed(false);
+        AddRow('X', 'x');
+        Src.Get('SOURCE');
+        asserterror Error('REC_MOVEDKEY_ROLLBACK');
+        ClearLastError();
+        CopyTo(Src, 'TARGET');
+        Src.Name := 'second';
+        asserterror begin
+            CopyTo(Src, 'TARGET');
+            StoredInside := Stored();
+            Error(NoErrorTxt);
+        end;
+        CloseCell('S7');
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure FailedInsert_MovedKey_S8_TargetDeletedAndInsertedAgainAfterRead()
+    var
+        Src: Record "REC MovedKey Row";
+        Other: Record "REC MovedKey Row";
+    begin
+        Seed(true);
+        AddRow('X', 'x');
+        Src.Get('SOURCE');
+        Other.Get('TARGET');
+        Other.Delete();
+        AddRow('TARGET', 'again');
+        asserterror begin
+            CopyTo(Src, 'TARGET');
+            StoredInside := Stored();
+            Error(NoErrorTxt);
+        end;
+        CloseCell('S8');
+        Obs.Finish();
+    end;
 }
 
 // Q3: a second table, written before the read.
