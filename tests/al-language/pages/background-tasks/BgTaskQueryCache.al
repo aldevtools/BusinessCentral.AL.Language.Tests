@@ -5869,7 +5869,7 @@ codeunit 97550 "BQ Tests 9b"
 }
 
 // BQ Tests 10 (al-runner issue 8677, a page background task's CalcFields and CalcSums; measured on a local BC 29.1 OnPrem w1
-// container). Each Mode commits a parent of tables 97597 and 97551 with line 1 of table 97594 (Kind A, Amount 5; none for
+// container). Each Mode commits a parent of tables 97597 and 97557 with line 1 of table 97594 (Kind A, Amount 5; none for
 // 'exist') and opens a page; the worker reads; the test session inserts line 0 (Kind K, Amount 2) and line 2 (Kind B, Amount
 // 11), or a note of table 97595 for the FlowFields over the notes, without a commit; the worker reads again: 'first / again'.
 // A worker's CalcFields answers its first answer for a FlowField of every method (count, sum, min, max, average, exist,
@@ -5879,9 +5879,9 @@ codeunit 97550 "BQ Tests 9b"
 // condition is a FlowField of its source read the table. The test session's CalcFields before its insert answers the
 // worker's first one; without it the worker reads the insert. CalcSums answers its first answer, of one field or two, with a
 // filter outside the key too.
-// Fixtures (the header's Fixtures used lines have no room): table 97551, worker codeunit 97552, test codeunit 97553.
+// Fixtures (the header's Fixtures used lines have no room): table 97557, worker codeunit 97552, test codeunit 97553.
 
-table 97551 "BQ Calc Filtered"
+table 97557 "BQ Calc Filtered"
 {
     DataClassification = SystemMetadata;
     ReplicateData = false;
