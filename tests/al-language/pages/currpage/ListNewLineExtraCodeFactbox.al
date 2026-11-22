@@ -15,7 +15,7 @@
 //   log with a mark at each step of the test.
 //   Measured on a local BC 29.1 OnPrem w1 container.
 // BC versions: 27, 28, 29
-table 97691 "LT NF Line"
+table 97691 "LT NK Line"
 {
     DataClassification = CustomerContent;
 
@@ -42,7 +42,7 @@ table 97691 "LT NF Line"
     }
 }
 
-codeunit 97692 "LT NF Log"
+codeunit 97692 "LT NK Log"
 {
     SingleInstance = true;
 
@@ -72,10 +72,10 @@ codeunit 97692 "LT NF Log"
     end;
 }
 
-page 97693 "LT NF Info"
+page 97693 "LT NK Info"
 {
     PageType = CardPart;
-    SourceTable = "LT NF Line";
+    SourceTable = "LT NK Line";
 
     layout
     {
@@ -98,10 +98,10 @@ page 97693 "LT NF Info"
 
 // The repro of 8734: page triggers, a CardPart FactBox, and a field set, the save, a modify through another record and
 // Update(false) in the Name control's OnValidate.
-page 97694 "LT NF Lines"
+page 97694 "LT NK Lines"
 {
     PageType = List;
-    SourceTable = "LT NF Line";
+    SourceTable = "LT NK Line";
     AutoSplitKey = true;
     ApplicationArea = All;
     UsageCategory = None;
@@ -131,7 +131,7 @@ page 97694 "LT NF Lines"
         }
         area(FactBoxes)
         {
-            part(Info; "LT NF Info")
+            part(Info; "LT NK Info")
             {
                 ApplicationArea = All;
                 SubPageLink = "Group Code" = field("Group Code"), "Entry No." = field("Entry No.");
@@ -149,9 +149,9 @@ page 97694 "LT NF Lines"
         CurrentName := Rec.Name;
     end;
 
-    local procedure StampMark(Line: Record "LT NF Line")
+    local procedure StampMark(Line: Record "LT NK Line")
     var
-        Other: Record "LT NF Line";
+        Other: Record "LT NK Line";
     begin
         Other.Get(Line."Group Code", Line."Entry No.");
         Other.Mark := 'Stamped';
@@ -163,22 +163,22 @@ page 97694 "LT NF Lines"
         CurrentName: Text;
 }
 
-codeunit 97695 "LT NF Opener"
+codeunit 97695 "LT NK Opener"
 {
     procedure Open(GroupCode: Code[10])
     var
-        Line: Record "LT NF Line";
+        Line: Record "LT NK Line";
     begin
         Line.SetRange("Group Code", GroupCode);
-        Page.RunModal(Page::"LT NF Lines", Line);
+        Page.RunModal(Page::"LT NK Lines", Line);
     end;
 }
 
-codeunit 97696 "LT NF Stamp"
+codeunit 97696 "LT NK Stamp"
 {
-    procedure StampMark(Line: Record "LT NF Line")
+    procedure StampMark(Line: Record "LT NK Line")
     var
-        Other: Record "LT NF Line";
+        Other: Record "LT NK Line";
     begin
         Other.Get(Line."Group Code", Line."Entry No.");
         Other.Mark := 'Stamped';
@@ -186,10 +186,10 @@ codeunit 97696 "LT NF Stamp"
     end;
 }
 
-page 97697 "LT NF Var Info"
+page 97697 "LT NK Var Info"
 {
     PageType = CardPart;
-    SourceTable = "LT NF Line";
+    SourceTable = "LT NK Line";
 
     layout
     {
@@ -203,7 +203,7 @@ page 97697 "LT NF Var Info"
 
     trigger OnAfterGetRecord()
     var
-        Log: Codeunit "LT NF Log";
+        Log: Codeunit "LT NK Log";
     begin
         Info := Rec.Name;
         Log.Add('P.AGR(' + Rec.Name + '/' + Rec.Note + '/' + Rec.Mark + ')');
@@ -214,10 +214,10 @@ page 97697 "LT NF Var Info"
 }
 
 // The logging page: its triggers and its part's log what they see; the mode of the log decides the control's code.
-page 97698 "LT NF Var Lines"
+page 97698 "LT NK Var Lines"
 {
     PageType = List;
-    SourceTable = "LT NF Line";
+    SourceTable = "LT NK Line";
     AutoSplitKey = true;
     ApplicationArea = All;
     UsageCategory = None;
@@ -234,8 +234,8 @@ page 97698 "LT NF Var Lines"
 
                     trigger OnValidate()
                     var
-                        Log: Codeunit "LT NF Log";
-                        Stamp: Codeunit "LT NF Stamp";
+                        Log: Codeunit "LT NK Log";
+                        Stamp: Codeunit "LT NK Stamp";
                     begin
                         case Log.GetMode() of
                             1:
@@ -272,7 +272,7 @@ page 97698 "LT NF Var Lines"
         }
         area(FactBoxes)
         {
-            part(Info; "LT NF Var Info")
+            part(Info; "LT NK Var Info")
             {
                 ApplicationArea = All;
                 SubPageLink = "Group Code" = field("Group Code"), "Entry No." = field("Entry No.");
@@ -282,31 +282,31 @@ page 97698 "LT NF Var Lines"
 
     trigger OnAfterGetRecord()
     var
-        Log: Codeunit "LT NF Log";
+        Log: Codeunit "LT NK Log";
     begin
         Log.Add('AGR(' + Rec.Name + '/' + Rec.Note + '/' + Rec.Mark + ')');
     end;
 
     trigger OnAfterGetCurrRecord()
     var
-        Log: Codeunit "LT NF Log";
+        Log: Codeunit "LT NK Log";
     begin
         Log.Add('AGCR(' + Rec.Name + '/' + Rec.Note + '/' + Rec.Mark + ')');
     end;
 }
 
-codeunit 97699 "LT NF Var Opener"
+codeunit 97699 "LT NK Var Opener"
 {
     procedure Open(GroupCode: Code[10])
     var
-        Line: Record "LT NF Line";
+        Line: Record "LT NK Line";
     begin
         Line.SetRange("Group Code", GroupCode);
-        Page.RunModal(Page::"LT NF Var Lines", Line);
+        Page.RunModal(Page::"LT NK Var Lines", Line);
     end;
 }
 
-codeunit 97700 "LT NF Tests"
+codeunit 97700 "LT NK Tests"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -318,7 +318,7 @@ codeunit 97700 "LT NF Tests"
     [HandlerFunctions('LinesHandler')]
     procedure NewLine_ExtraCodeOnPageWithTriggersAndFactBox_ShowsAndSavesTheRow()
     var
-        Opener: Codeunit "LT NF Opener";
+        Opener: Codeunit "LT NK Opener";
     begin
         Initialize();
         Opener.Open('G1');
@@ -330,7 +330,7 @@ codeunit 97700 "LT NF Tests"
     [HandlerFunctions('LinesHandler')]
     procedure NewLine_ExtraCodeOnPageWithTriggersAndFactBox_RowBefore_ShowsAndSavesTheRow()
     var
-        Opener: Codeunit "LT NF Opener";
+        Opener: Codeunit "LT NK Opener";
     begin
         Initialize();
         AddRow('B');
@@ -432,7 +432,7 @@ codeunit 97700 "LT NF Tests"
     end;
 
     [ModalPageHandler]
-    procedure LinesHandler(var Lines: TestPage "LT NF Lines")
+    procedure LinesHandler(var Lines: TestPage "LT NK Lines")
     begin
         Lines.New();
         Lines.Name.SetValue('A');
@@ -445,9 +445,9 @@ codeunit 97700 "LT NF Tests"
     end;
 
     [ModalPageHandler]
-    procedure VarHandler(var Lines: TestPage "LT NF Var Lines")
+    procedure VarHandler(var Lines: TestPage "LT NK Var Lines")
     var
-        LogCu: Codeunit "LT NF Log";
+        LogCu: Codeunit "LT NK Log";
     begin
         LogCu.Add('|open');
         Lines.New();
@@ -468,8 +468,8 @@ codeunit 97700 "LT NF Tests"
 
     local procedure Initialize()
     var
-        Line: Record "LT NF Line";
-        LogCu: Codeunit "LT NF Log";
+        Line: Record "LT NK Line";
+        LogCu: Codeunit "LT NK Log";
     begin
         Line.DeleteAll();
         LogCu.Reset(0);
@@ -479,7 +479,7 @@ codeunit 97700 "LT NF Tests"
 
     local procedure AddRow(Name: Text[30])
     var
-        Line: Record "LT NF Line";
+        Line: Record "LT NK Line";
     begin
         Line."Group Code" := 'G1';
         Line.Name := Name;
@@ -489,8 +489,8 @@ codeunit 97700 "LT NF Tests"
 
     local procedure RunVar(M: Integer)
     var
-        LogCu: Codeunit "LT NF Log";
-        Opener: Codeunit "LT NF Var Opener";
+        LogCu: Codeunit "LT NK Log";
+        Opener: Codeunit "LT NK Var Opener";
     begin
         LogCu.Reset(M);
         Opener.Open('G1');
@@ -498,14 +498,14 @@ codeunit 97700 "LT NF Tests"
 
     local procedure Log(): Text
     var
-        LogCu: Codeunit "LT NF Log";
+        LogCu: Codeunit "LT NK Log";
     begin
         exit(LogCu.Get());
     end;
 
     local procedure Rows() Result: Text
     var
-        Line: Record "LT NF Line";
+        Line: Record "LT NK Line";
     begin
         Line.SetRange("Group Code", 'G1');
         if Line.FindSet() then
