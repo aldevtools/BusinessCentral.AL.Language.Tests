@@ -12,7 +12,7 @@ codeunit 75986 "FVC DateTime Shapes DT"
     TestPermissions = Disabled;
 
     [Test]
-    procedure DecField_To_Date_Shapes()
+    procedure DecField_To_Date_Shapes1()
     var
         Observer: Codeunit "Probe Observer";
         Rec: Record "FVC Source";
@@ -28,13 +28,27 @@ codeunit 75986 "FVC DateTime Shapes DT"
         ShapesDate(Observer, FR, '999.99');
         FR.Value := 1.5;
         ShapesDate(Observer, FR, '1.5');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure DecField_To_Date_Shapes2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Rec: Record "FVC Source";
+        RR: RecordRef;
+        FR: FieldRef;
+    begin
+        Rec.DeleteAll();
+        RR.GetTable(Rec);
+        FR := RR.Field(Rec.FieldNo(DecF));
         FR.Value := 1;
         ShapesDate(Observer, FR, 'one');
         Observer.Finish();
     end;
 
     [Test]
-    procedure DurField_To_Date_Shapes()
+    procedure DurField_To_Date_Shapes1()
     var
         Observer: Codeunit "Probe Observer";
         Rec: Record "FVC Source";
@@ -50,6 +64,20 @@ codeunit 75986 "FVC DateTime Shapes DT"
         ShapesDate(Observer, FR, '65000');
         FR.Value := 93780000;
         ShapesDate(Observer, FR, '1 day 2h 3m');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure DurField_To_Date_Shapes2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Rec: Record "FVC Source";
+        RR: RecordRef;
+        FR: FieldRef;
+    begin
+        Rec.DeleteAll();
+        RR.GetTable(Rec);
+        FR := RR.Field(Rec.FieldNo(DurF));
         FR.Value := 0;
         ShapesDate(Observer, FR, '0');
         Observer.Finish();
@@ -137,12 +165,29 @@ codeunit 75986 "FVC DateTime Shapes DT"
 
     local procedure ShapesDate(var Observer: Codeunit "Probe Observer"; var FR: FieldRef; Label: Text)
     var
-        Res: Text;
+        Base: Text;
+        Other: Text;
+        This: Text;
+        Ok: Boolean;
     begin
-        Res := '';
-        if TryVarParamDate(FR, Res) then Observer.Observe(Label + ' var', Res) else Observer.ObserveError(Label + ' var');
-        Res := '';
-        if TryLocalDate(FR, Res) then Observer.Observe(Label + ' local', Res) else Observer.ObserveError(Label + ' local');
+        Other := '';
+        Ok := TryVarParamDate(FR, Other);
+        Base := OutcomeDate(Ok, Other);
+        Observer.Observe(Label + ' var', Base);
+        Other := '';
+        Ok := TryLocalDate(FR, Other);
+        This := OutcomeDate(Ok, Other);
+        if This = Base then
+            Observer.Observe(Label + ' local', 'same as var')
+        else
+            Observer.Observe(Label + ' local', This);
+    end;
+
+    local procedure OutcomeDate(Ok: Boolean; Res: Text): Text
+    begin
+        if Ok then
+            exit('ok ' + Res);
+        exit('error ' + GetLastErrorCode() + ' | ' + GetLastErrorText());
     end;
 
     [TryFunction]
@@ -170,12 +215,29 @@ codeunit 75986 "FVC DateTime Shapes DT"
 
     local procedure ShapesTime(var Observer: Codeunit "Probe Observer"; var FR: FieldRef; Label: Text)
     var
-        Res: Text;
+        Base: Text;
+        Other: Text;
+        This: Text;
+        Ok: Boolean;
     begin
-        Res := '';
-        if TryVarParamTime(FR, Res) then Observer.Observe(Label + ' var', Res) else Observer.ObserveError(Label + ' var');
-        Res := '';
-        if TryLocalTime(FR, Res) then Observer.Observe(Label + ' local', Res) else Observer.ObserveError(Label + ' local');
+        Other := '';
+        Ok := TryVarParamTime(FR, Other);
+        Base := OutcomeTime(Ok, Other);
+        Observer.Observe(Label + ' var', Base);
+        Other := '';
+        Ok := TryLocalTime(FR, Other);
+        This := OutcomeTime(Ok, Other);
+        if This = Base then
+            Observer.Observe(Label + ' local', 'same as var')
+        else
+            Observer.Observe(Label + ' local', This);
+    end;
+
+    local procedure OutcomeTime(Ok: Boolean; Res: Text): Text
+    begin
+        if Ok then
+            exit('ok ' + Res);
+        exit('error ' + GetLastErrorCode() + ' | ' + GetLastErrorText());
     end;
 
     [TryFunction]

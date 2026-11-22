@@ -167,16 +167,38 @@ codeunit 75985 "FVC DateTime Shapes"
 
     local procedure Shapes(var Observer: Codeunit "Probe Observer"; var FR: FieldRef; Label: Text)
     var
-        Res: Text;
+        Base: Text;
+        Other: Text;
+        Ok: Boolean;
     begin
-        Res := '';
-        if TryVarParam(FR, Res) then Observer.Observe(Label + ' var', Res) else Observer.ObserveError(Label + ' var');
-        Res := '';
-        if TryLocal(FR, Res) then Observer.Observe(Label + ' local', Res) else Observer.ObserveError(Label + ' local');
-        Res := '';
-        if TryByValue(FR, Res) then Observer.Observe(Label + ' byval', Res) else Observer.ObserveError(Label + ' byval');
-        Res := '';
-        if TryNamedReturn(FR, Res) then Observer.Observe(Label + ' named', Res) else Observer.ObserveError(Label + ' named');
+        Other := '';
+        Ok := TryVarParam(FR, Other);
+        Base := Outcome(Ok, Other);
+        Observer.Observe(Label + ' var', Base);
+        Other := '';
+        Ok := TryLocal(FR, Other);
+        Report(Observer, Label + ' local', Base, Outcome(Ok, Other));
+        Other := '';
+        Ok := TryByValue(FR, Other);
+        Report(Observer, Label + ' byval', Base, Outcome(Ok, Other));
+        Other := '';
+        Ok := TryNamedReturn(FR, Other);
+        Report(Observer, Label + ' named', Base, Outcome(Ok, Other));
+    end;
+
+    local procedure Outcome(Ok: Boolean; Res: Text): Text
+    begin
+        if Ok then
+            exit('ok ' + Res);
+        exit('error ' + GetLastErrorCode() + ' | ' + GetLastErrorText());
+    end;
+
+    local procedure Report(var Observer: Codeunit "Probe Observer"; Label: Text; Base: Text; This: Text)
+    begin
+        if This = Base then
+            Observer.Observe(Label, 'same as var')
+        else
+            Observer.Observe(Label, This);
     end;
 
     [TryFunction]

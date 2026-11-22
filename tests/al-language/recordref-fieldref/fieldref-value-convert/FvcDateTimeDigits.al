@@ -29,6 +29,10 @@ codeunit 75987 "FVC DateTime Digits"
         Shapes(Observer, FR, '20260115120000');
         FR.Value := '202601151200';
         Shapes(Observer, FR, '202601151200');
+        FR.Value := '120000';
+        Shapes(Observer, FR, '120000');
+        FR.Value := '1200';
+        Shapes(Observer, FR, '1200');
         Observer.Finish();
     end;
 
@@ -43,46 +47,14 @@ codeunit 75987 "FVC DateTime Digits"
         Rec.DeleteAll();
         RR.GetTable(Rec);
         FR := RR.Field(Rec.FieldNo(TextF));
-        FR.Value := '120000';
-        Shapes(Observer, FR, '120000');
-        FR.Value := '1200';
-        Shapes(Observer, FR, '1200');
         FR.Value := '0115';
         Shapes(Observer, FR, '0115');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure TextField_To_DateTime_Digits3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Rec: Record "FVC Source";
-        RR: RecordRef;
-        FR: FieldRef;
-    begin
-        Rec.DeleteAll();
-        RR.GetTable(Rec);
-        FR := RR.Field(Rec.FieldNo(TextF));
         FR.Value := '01152026';
         Shapes(Observer, FR, '01152026');
         FR.Value := '260115';
         Shapes(Observer, FR, '260115');
         FR.Value := '1';
         Shapes(Observer, FR, '1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure TextField_To_DateTime_Digits4()
-    var
-        Observer: Codeunit "Probe Observer";
-        Rec: Record "FVC Source";
-        RR: RecordRef;
-        FR: FieldRef;
-    begin
-        Rec.DeleteAll();
-        RR.GetTable(Rec);
-        FR := RR.Field(Rec.FieldNo(TextF));
         FR.Value := '0';
         Shapes(Observer, FR, '0');
         Observer.Finish();
@@ -137,7 +109,7 @@ codeunit 75987 "FVC DateTime Digits"
     end;
 
     [Test]
-    procedure TextField_To_Date_Digits()
+    procedure TextField_To_Date_Digits1()
     var
         Observer: Codeunit "Probe Observer";
         Rec: Record "FVC Source";
@@ -153,25 +125,67 @@ codeunit 75987 "FVC DateTime Digits"
         ShapesDate(Observer, FR, '20260115120000');
         FR.Value := '202601151200';
         ShapesDate(Observer, FR, '202601151200');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TextField_To_Date_Digits2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Rec: Record "FVC Source";
+        RR: RecordRef;
+        FR: FieldRef;
+    begin
+        Rec.DeleteAll();
+        RR.GetTable(Rec);
+        FR := RR.Field(Rec.FieldNo(TextF));
         FR.Value := '120000';
         ShapesDate(Observer, FR, '120000');
         FR.Value := '1200';
         ShapesDate(Observer, FR, '1200');
         FR.Value := '0115';
         ShapesDate(Observer, FR, '0115');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TextField_To_Date_Digits3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Rec: Record "FVC Source";
+        RR: RecordRef;
+        FR: FieldRef;
+    begin
+        Rec.DeleteAll();
+        RR.GetTable(Rec);
+        FR := RR.Field(Rec.FieldNo(TextF));
         FR.Value := '01152026';
         ShapesDate(Observer, FR, '01152026');
         FR.Value := '260115';
         ShapesDate(Observer, FR, '260115');
         FR.Value := '1';
         ShapesDate(Observer, FR, '1');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TextField_To_Date_Digits4()
+    var
+        Observer: Codeunit "Probe Observer";
+        Rec: Record "FVC Source";
+        RR: RecordRef;
+        FR: FieldRef;
+    begin
+        Rec.DeleteAll();
+        RR.GetTable(Rec);
+        FR := RR.Field(Rec.FieldNo(TextF));
         FR.Value := '0';
         ShapesDate(Observer, FR, '0');
         Observer.Finish();
     end;
 
     [Test]
-    procedure TextField_To_Time_Digits()
+    procedure TextField_To_Time_Digits1()
     var
         Observer: Codeunit "Probe Observer";
         Rec: Record "FVC Source";
@@ -191,6 +205,20 @@ codeunit 75987 "FVC DateTime Digits"
         ShapesTime(Observer, FR, '120000');
         FR.Value := '1200';
         ShapesTime(Observer, FR, '1200');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TextField_To_Time_Digits2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Rec: Record "FVC Source";
+        RR: RecordRef;
+        FR: FieldRef;
+    begin
+        Rec.DeleteAll();
+        RR.GetTable(Rec);
+        FR := RR.Field(Rec.FieldNo(TextF));
         FR.Value := '0115';
         ShapesTime(Observer, FR, '0115');
         FR.Value := '01152026';
@@ -205,7 +233,7 @@ codeunit 75987 "FVC DateTime Digits"
     end;
 
     [Test]
-    procedure CodeField_To_Date_Digits()
+    procedure CodeField_To_Date_Digits1()
     var
         Observer: Codeunit "Probe Observer";
         Rec: Record "FVC Source";
@@ -221,25 +249,67 @@ codeunit 75987 "FVC DateTime Digits"
         ShapesDate(Observer, FR, '20260115120000');
         FR.Value := '202601151200';
         ShapesDate(Observer, FR, '202601151200');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure CodeField_To_Date_Digits2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Rec: Record "FVC Source";
+        RR: RecordRef;
+        FR: FieldRef;
+    begin
+        Rec.DeleteAll();
+        RR.GetTable(Rec);
+        FR := RR.Field(Rec.FieldNo(CodeF));
         FR.Value := '120000';
         ShapesDate(Observer, FR, '120000');
         FR.Value := '1200';
         ShapesDate(Observer, FR, '1200');
         FR.Value := '0115';
         ShapesDate(Observer, FR, '0115');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure CodeField_To_Date_Digits3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Rec: Record "FVC Source";
+        RR: RecordRef;
+        FR: FieldRef;
+    begin
+        Rec.DeleteAll();
+        RR.GetTable(Rec);
+        FR := RR.Field(Rec.FieldNo(CodeF));
         FR.Value := '01152026';
         ShapesDate(Observer, FR, '01152026');
         FR.Value := '260115';
         ShapesDate(Observer, FR, '260115');
         FR.Value := '1';
         ShapesDate(Observer, FR, '1');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure CodeField_To_Date_Digits4()
+    var
+        Observer: Codeunit "Probe Observer";
+        Rec: Record "FVC Source";
+        RR: RecordRef;
+        FR: FieldRef;
+    begin
+        Rec.DeleteAll();
+        RR.GetTable(Rec);
+        FR := RR.Field(Rec.FieldNo(CodeF));
         FR.Value := '0';
         ShapesDate(Observer, FR, '0');
         Observer.Finish();
     end;
 
     [Test]
-    procedure CodeField_To_Time_Digits()
+    procedure CodeField_To_Time_Digits1()
     var
         Observer: Codeunit "Probe Observer";
         Rec: Record "FVC Source";
@@ -259,6 +329,20 @@ codeunit 75987 "FVC DateTime Digits"
         ShapesTime(Observer, FR, '120000');
         FR.Value := '1200';
         ShapesTime(Observer, FR, '1200');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure CodeField_To_Time_Digits2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Rec: Record "FVC Source";
+        RR: RecordRef;
+        FR: FieldRef;
+    begin
+        Rec.DeleteAll();
+        RR.GetTable(Rec);
+        FR := RR.Field(Rec.FieldNo(CodeF));
         FR.Value := '0115';
         ShapesTime(Observer, FR, '0115');
         FR.Value := '01152026';
@@ -274,16 +358,38 @@ codeunit 75987 "FVC DateTime Digits"
 
     local procedure Shapes(var Observer: Codeunit "Probe Observer"; var FR: FieldRef; Label: Text)
     var
-        Res: Text;
+        Base: Text;
+        Other: Text;
+        Ok: Boolean;
     begin
-        Res := '';
-        if TryVarParam(FR, Res) then Observer.Observe(Label + ' var', Res) else Observer.ObserveError(Label + ' var');
-        Res := '';
-        if TryLocal(FR, Res) then Observer.Observe(Label + ' local', Res) else Observer.ObserveError(Label + ' local');
-        Res := '';
-        if TryByValue(FR, Res) then Observer.Observe(Label + ' byval', Res) else Observer.ObserveError(Label + ' byval');
-        Res := '';
-        if TryNamedReturn(FR, Res) then Observer.Observe(Label + ' named', Res) else Observer.ObserveError(Label + ' named');
+        Other := '';
+        Ok := TryVarParam(FR, Other);
+        Base := Outcome(Ok, Other);
+        Observer.Observe(Label + ' var', Base);
+        Other := '';
+        Ok := TryLocal(FR, Other);
+        Report(Observer, Label + ' local', Base, Outcome(Ok, Other));
+        Other := '';
+        Ok := TryByValue(FR, Other);
+        Report(Observer, Label + ' byval', Base, Outcome(Ok, Other));
+        Other := '';
+        Ok := TryNamedReturn(FR, Other);
+        Report(Observer, Label + ' named', Base, Outcome(Ok, Other));
+    end;
+
+    local procedure Outcome(Ok: Boolean; Res: Text): Text
+    begin
+        if Ok then
+            exit('ok ' + Res);
+        exit('error ' + GetLastErrorCode() + ' | ' + GetLastErrorText());
+    end;
+
+    local procedure Report(var Observer: Codeunit "Probe Observer"; Label: Text; Base: Text; This: Text)
+    begin
+        if This = Base then
+            Observer.Observe(Label, 'same as var')
+        else
+            Observer.Observe(Label, This);
     end;
 
     [TryFunction]
@@ -334,12 +440,29 @@ codeunit 75987 "FVC DateTime Digits"
 
     local procedure ShapesDate(var Observer: Codeunit "Probe Observer"; var FR: FieldRef; Label: Text)
     var
-        Res: Text;
+        Base: Text;
+        Other: Text;
+        This: Text;
+        Ok: Boolean;
     begin
-        Res := '';
-        if TryVarParamDate(FR, Res) then Observer.Observe(Label + ' var', Res) else Observer.ObserveError(Label + ' var');
-        Res := '';
-        if TryLocalDate(FR, Res) then Observer.Observe(Label + ' local', Res) else Observer.ObserveError(Label + ' local');
+        Other := '';
+        Ok := TryVarParamDate(FR, Other);
+        Base := OutcomeDate(Ok, Other);
+        Observer.Observe(Label + ' var', Base);
+        Other := '';
+        Ok := TryLocalDate(FR, Other);
+        This := OutcomeDate(Ok, Other);
+        if This = Base then
+            Observer.Observe(Label + ' local', 'same as var')
+        else
+            Observer.Observe(Label + ' local', This);
+    end;
+
+    local procedure OutcomeDate(Ok: Boolean; Res: Text): Text
+    begin
+        if Ok then
+            exit('ok ' + Res);
+        exit('error ' + GetLastErrorCode() + ' | ' + GetLastErrorText());
     end;
 
     [TryFunction]
@@ -367,12 +490,29 @@ codeunit 75987 "FVC DateTime Digits"
 
     local procedure ShapesTime(var Observer: Codeunit "Probe Observer"; var FR: FieldRef; Label: Text)
     var
-        Res: Text;
+        Base: Text;
+        Other: Text;
+        This: Text;
+        Ok: Boolean;
     begin
-        Res := '';
-        if TryVarParamTime(FR, Res) then Observer.Observe(Label + ' var', Res) else Observer.ObserveError(Label + ' var');
-        Res := '';
-        if TryLocalTime(FR, Res) then Observer.Observe(Label + ' local', Res) else Observer.ObserveError(Label + ' local');
+        Other := '';
+        Ok := TryVarParamTime(FR, Other);
+        Base := OutcomeTime(Ok, Other);
+        Observer.Observe(Label + ' var', Base);
+        Other := '';
+        Ok := TryLocalTime(FR, Other);
+        This := OutcomeTime(Ok, Other);
+        if This = Base then
+            Observer.Observe(Label + ' local', 'same as var')
+        else
+            Observer.Observe(Label + ' local', This);
+    end;
+
+    local procedure OutcomeTime(Ok: Boolean; Res: Text): Text
+    begin
+        if Ok then
+            exit('ok ' + Res);
+        exit('error ' + GetLastErrorCode() + ' | ' + GetLastErrorText());
     end;
 
     [TryFunction]
