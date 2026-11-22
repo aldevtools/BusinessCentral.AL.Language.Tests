@@ -4,7 +4,7 @@
 // Scope: in-scope
 // local object: the handlers that catch an error before they handle the page are what is under test
 // Fixtures used: Assert (60021); the CEM fixtures of CemFixtures.al (objects 99500..99512, codeunit 99512 sets the scene);
-//   test codeunits 97343 (Page.Run, PageHandlers) and 97344 (Page.RunModal, ModalPageHandlers)
+//   test codeunits 97343 (Page.Run, PageHandlers) and 97344 (Page.RunModal, ModalPageHandlers), codeunit 97347 (fails)
 // Probe (al-runner issue 8729): a handler that catches an error (asserterror, a TryFunction, two errors) and then handles
 //   the page as the pinned cells of CemPageHandlerTests.al, CemModalHandlerTests.al and CemDocumentTests.al do. The page
 //   closes as in the pinned cell of a handler that catches nothing: the caught error changes neither the triggers that run
@@ -12,16 +12,19 @@
 // Readings: how the call ended (GetLastErrorText and GetLastErrorCode after an asserterror around it, CEM_NO_ERROR when it
 //   came back), the triggers that ran (Cfg.Take()) and the rows afterwards (Help.Names()).
 // Cells:
-//   - Page.Run of the card by object id, the handler raises an error after it caught one with asserterror (:128), with a
-//     TryFunction (:135), after two caught errors (:142), and after none (:149, as CemPageHandlerTests.al
-//     CardStaticRun_HandlerError_NoError);
-//   - the same card, the handler caught an error with asserterror and returns (:156), invokes OK (:163), returns while
-//     OnQueryClosePage raises (:170);
-//   - Page.Run of the list by object id, the handler caught an error with asserterror and raises (:177) or returns (:184);
-//   - Page.RunModal of the card by object id, the handler caught an error with asserterror and raises (:301) or returns
-//     (:308), or caught nothing and raises (:315);
-//   - Page.RunModal of the list by object id, the handler caught an error with asserterror and raises (:322);
-//   - Page.RunModal of the document, the handler caught an error with asserterror (:329) or a TryFunction (:336) and raises.
+//   - Page.Run of the card by object id, the handler raises an error after it caught one with asserterror (:150), with a
+//     TryFunction (:157), after two caught errors (:164), with asserterror and then ClearLastError (:199), the error
+//     of Codeunit.Run (:206) and of JsonObject.ReadFrom (:213) with their result used, in a procedure of the handler (:220),
+//     and after none (:171, as CemPageHandlerTests.al CardStaticRun_HandlerError_NoError);
+//   - the same card, the handler caught an error with asserterror and returns (:178), invokes OK (:185), returns while
+//     OnQueryClosePage raises (:192);
+//   - Page.Run of the list by object id, the handler caught an error with asserterror and raises (:227) or returns (:234);
+//   - Page.RunModal of the card by object id, the handler caught an error with asserterror and raises (:370) or returns
+//     (:377), or caught nothing and raises (:384);
+//   - Page.RunModal of the list by object id, the handler caught an error with asserterror and raises (:391);
+//   - Page.RunModal of the document, the handler raises after it caught an error with asserterror (:398), a TryFunction
+//     (:405), asserterror and then ClearLastError (:412), Codeunit.Run (:419), JsonObject.ReadFrom (:426), or in a
+//     procedure of the handler (:433).
 // BC versions: 29.1 (local W1 container).
 
 // Every test binds only PageHandlers, as in CemPageHandlerTests.al.
@@ -38,8 +41,11 @@ codeunit 97343 "CEM Caught Run Tests"
         Catch: Integer;
 
     // What the handler catches before it handles the page: 0 nothing, 1 one error with asserterror, 2 one error with a
-    // TryFunction, 3 two errors with asserterror.
+    // TryFunction, 3 two errors with asserterror, 4 one error with asserterror and then ClearLastError, 5 the error of a
+    // codeunit run with Codeunit.Run, 6 the error of JsonObject.ReadFrom, 7 an error a procedure of the handler catches.
     local procedure CatchErrors()
+    var
+        Json: JsonObject;
     begin
         case Catch of
             1:
@@ -51,7 +57,23 @@ codeunit 97343 "CEM Caught Run Tests"
                     asserterror Error('CEM caught error');
                     asserterror Error('CEM second caught error');
                 end;
+            4:
+                begin
+                    asserterror Error('CEM caught error');
+                    ClearLastError();
+                end;
+            5:
+                if Codeunit.Run(Codeunit::"CEM Caught Failing") then;
+            6:
+                if Json.ReadFrom('x') then;
+            7:
+                CatchInAProcedure();
         end;
+    end;
+
+    local procedure CatchInAProcedure()
+    begin
+        asserterror Error('CEM caught error');
     end;
 
     [TryFunction]
@@ -173,6 +195,34 @@ codeunit 97343 "CEM Caught Run Tests"
     end;
 
     [Test]
+    [HandlerFunctions('CardCatches')]
+    procedure CardStaticRun_HandlerCaughtThenClearLastError_HandlerError()
+    begin
+        RunCard('none', 7, 4, 'CEM handler error', 'Dialog', 'Q-card OK; C-card; ');
+    end;
+
+    [Test]
+    [HandlerFunctions('CardCatches')]
+    procedure CardStaticRun_HandlerCaughtByCodeunitRun_HandlerError()
+    begin
+        RunCard('none', 7, 5, 'CEM handler error', 'Dialog', 'Q-card OK; C-card; ');
+    end;
+
+    [Test]
+    [HandlerFunctions('CardCatches')]
+    procedure CardStaticRun_HandlerCaughtByJsonReadFrom_HandlerError()
+    begin
+        RunCard('none', 7, 6, 'CEM handler error', 'Dialog', 'Q-card OK; C-card; ');
+    end;
+
+    [Test]
+    [HandlerFunctions('CardCatches')]
+    procedure CardStaticRun_HandlerCaughtInAProcedure_HandlerError()
+    begin
+        RunCard('none', 7, 7, 'CEM handler error', 'Dialog', 'Q-card OK; C-card; ');
+    end;
+
+    [Test]
     [HandlerFunctions('ListCatches')]
     procedure ListStaticRun_HandlerCaughtWithAssertError_HandlerError()
     begin
@@ -200,15 +250,34 @@ codeunit 97344 "CEM Caught RunModal Tests"
         Catch: Integer;
 
     // What the handler catches before it handles the page: 0 nothing, 1 one error with asserterror, 2 one error with a
-    // TryFunction.
+    // TryFunction, 4 one error with asserterror and then ClearLastError, 5 the error of a codeunit run with Codeunit.Run,
+    // 6 the error of JsonObject.ReadFrom, 7 an error a procedure of the handler catches.
     local procedure CatchErrors()
+    var
+        Json: JsonObject;
     begin
         case Catch of
             1:
                 asserterror Error('CEM caught error');
             2:
                 if TryRaise() then;
+            4:
+                begin
+                    asserterror Error('CEM caught error');
+                    ClearLastError();
+                end;
+            5:
+                if Codeunit.Run(Codeunit::"CEM Caught Failing") then;
+            6:
+                if Json.ReadFrom('x') then;
+            7:
+                CatchInAProcedure();
         end;
+    end;
+
+    local procedure CatchInAProcedure()
+    begin
+        asserterror Error('CEM caught error');
     end;
 
     [TryFunction]
@@ -336,5 +405,42 @@ codeunit 97344 "CEM Caught RunModal Tests"
     procedure DocumentStaticRunModal_HandlerCaughtWithTryFunction_HandlerError()
     begin
         RunModalDoc(7, 2, 'CEM handler error', 'Dialog', 'Q-doc LookupCancel; C-doc; ');
+    end;
+
+    [Test]
+    [HandlerFunctions('DocModalCatches')]
+    procedure DocumentStaticRunModal_HandlerCaughtThenClearLastError_HandlerError()
+    begin
+        RunModalDoc(7, 4, 'CEM handler error', 'Dialog', 'Q-doc LookupCancel; C-doc; ');
+    end;
+
+    [Test]
+    [HandlerFunctions('DocModalCatches')]
+    procedure DocumentStaticRunModal_HandlerCaughtByCodeunitRun_HandlerError()
+    begin
+        RunModalDoc(7, 5, 'CEM handler error', 'Dialog', 'Q-doc LookupCancel; C-doc; ');
+    end;
+
+    [Test]
+    [HandlerFunctions('DocModalCatches')]
+    procedure DocumentStaticRunModal_HandlerCaughtByJsonReadFrom_HandlerError()
+    begin
+        RunModalDoc(7, 6, 'CEM handler error', 'Dialog', 'Q-doc LookupCancel; C-doc; ');
+    end;
+
+    [Test]
+    [HandlerFunctions('DocModalCatches')]
+    procedure DocumentStaticRunModal_HandlerCaughtInAProcedure_HandlerError()
+    begin
+        RunModalDoc(7, 7, 'CEM handler error', 'Dialog', 'Q-doc LookupCancel; C-doc; ');
+    end;
+}
+
+// The codeunit a handler runs with Codeunit.Run: it fails.
+codeunit 97347 "CEM Caught Failing"
+{
+    trigger OnRun()
+    begin
+        Error('CEM caught error');
     end;
 }
