@@ -48,7 +48,7 @@ codeunit 75985 "FVC DateTime Shapes"
         FR := RR.Field(Rec.FieldNo(BigF));
         FR.Value := 1;
         Shapes(Observer, FR, '1');
-        FR.Value := 3000000000;
+        FR.Value := 3000000000L;
         Shapes(Observer, FR, '3e9');
         FR.Value := -1;
         Shapes(Observer, FR, 'neg1');
