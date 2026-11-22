@@ -1,10 +1,10 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/navapp/navapp-loadpackagedata-method
 // Scope: in-scope
-// Fixtures used: tests/al-language-xapp-a/Y88XaPackageData.al (tables 94680-94690, enum 94685, event subscribers 94691) with the data files TAB94680 and
-//   TAB94683-TAB94690.navxdata, the install codeunit 94682 in Y8XaInstallOrder.al, and the Y85 package data (tables 94441); Probe Observer (69160).
+// Fixtures used: tests/al-language-xapp-a/Y88XaPackageData.al (tables 94680-94693, enum 94685, event subscribers 94691) with the data files TAB94680 and
+//   TAB94683-TAB94693.navxdata, the install codeunit 94682 in Y8XaInstallOrder.al, and the Y85 package data (tables 94441); Probe Observer (69160).
 // Probe (writer Y88, needs-probe list of the al-runner navx lane): what NavApp.LoadPackageData does with table events, with a DateFormula it loaded
 //   (Format 0/1/2, CalcDate), and with values in the data file that the field cannot hold (undefined Option and Enum ordinals, the last Date and Decimal at the ends
-//   of the range). Loading from upgrade code cannot be observed: an upgrade codeunit does not run on the first install of the corpus app.
+//   of the range), and with a file whose header lists the column $systemId after the stored fields (al-runner issue 7366). Loading from upgrade code cannot be observed: an upgrade codeunit does not run on the first install of the corpus app.
 // BC versions: 27 - 29
 codeunit 94700 "LT Y88 Package Data"
 {
@@ -218,6 +218,41 @@ codeunit 94700 "LT Y88 Package Data"
         Observer.Observe('tiny rows', T);
         Observer.Expect('tiny load', 'decimal tiny -> ok;');
         Observer.Expect('tiny rows', 'C0=5;C1=0;C2=6;');
+        Observer.Verify();
+    end;
+
+    // al-runner issue 7366: the header lists the stored fields and then `$systemId`, one more name than the table has stored fields.
+    [Test]
+    procedure Y88_SystemIdColumn_DatabaseTable()
+    var
+        Row: Record "LT Y88 Pkg SysId Db";
+        Observer: Codeunit "Probe Observer";
+        T: Text;
+    begin
+        if Row.FindSet() then
+            repeat
+                T += Format(Row."Entry No.") + '=' + Row.Description + '/' + Format(Row.SystemId) + ';';
+            until Row.Next() = 0;
+        Observer.Observe('rows', T);
+        Observer.Expect('rows', '1=first/{00000000-0000-0000-0000-000000009201};2=second/{00000000-0000-0000-0000-000000009202};');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y88_SystemIdColumn_CompanyTable()
+    var
+        Row: Record "LT Y88 Pkg SysId Co";
+        Observer: Codeunit "Probe Observer";
+        T: Text;
+    begin
+        Observer.Observe('load', LogText('load', 'systemid company'));
+        if Row.FindSet() then
+            repeat
+                T += Row."No." + '=' + Row.Description + '/' + Format(Row.SystemId) + ';';
+            until Row.Next() = 0;
+        Observer.Observe('rows', T);
+        Observer.Expect('load', 'systemid company -> ok;');
+        Observer.Expect('rows', 'S1=one/{00000000-0000-0000-0000-000000009301};S2=two/{00000000-0000-0000-0000-000000009302};');
         Observer.Verify();
     end;
 }

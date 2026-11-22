@@ -876,6 +876,331 @@ codeunit 69451 "Probe Property Assign Forms"
         Observer.Expect('fieldref_value_assign', 'w');
         Observer.Verify();
     end;
+
+    // al-runner 7597: assignment forms of builtins the right side or the place decides, next to the call form: an overload set whose
+    // call without arguments picks an overload with one optional parameter (FindSet, FieldError, Split), Codeunit.Run (an optional `var`
+    // parameter), GlobalLanguage, a static member with its type prefix, a bare member in page code, and a field or variable that has the
+    // name of a method. Objects 96420 to 96422 are at the end of the file.
+    // Values measured on BC 27.5, 28.5 and 29.0 (corpus CI runs 42876663156, 42876712578, 42876759234; identical). The assignment form
+    // equals the call form in every cell, with two exceptions that are not calls at all: on a record whose table has a FIELD named Mark,
+    // `Mark := true` (bare in table code and on a record variable) writes the field and does not mark the row, while `Mark(true)` marks
+    // the row and leaves the field; and a variable named Sleep, Abs or WorkDate takes the assignment. The two page tests are measured on
+    // BC 27.5 only (see the comment in each).
+    local procedure AcOutcome(Ok: Boolean): Text
+    var
+        Result: Text;
+    begin
+        if Ok then
+            exit('ok');
+        Result := 'error:' + GetLastErrorText() + '|' + GetLastErrorCode();
+        ClearLastError();
+        exit(Result);
+    end;
+
+    [TryFunction]
+    local procedure AcFindSetAssign(var Row: Record "Probe Pf Row"; ForUpdate: Boolean)
+    begin
+        Row.FindSet := ForUpdate;
+    end;
+
+    [TryFunction]
+    local procedure AcFindSetCall(var Row: Record "Probe Pf Row"; ForUpdate: Boolean)
+    begin
+        Row.FindSet(ForUpdate);
+    end;
+
+    [Test]
+    procedure AssignCall_FindSet_RowsAndEmptyTable()
+    var
+        Row: Record "Probe Pf Row";
+        Observer: Codeunit "Probe Observer";
+        Ok: Boolean;
+    begin
+        Seed();
+        Clear(Row);
+        Ok := AcFindSetAssign(Row, true);
+        Observer.Observe('rows, assign true', AcOutcome(Ok) + ' ' + Format(Row.Id) + ' ' + Row.Txt);
+        Clear(Row);
+        Row.Ascending(false);
+        Ok := AcFindSetAssign(Row, false);
+        Observer.Observe('rows descending, assign false', AcOutcome(Ok) + ' ' + Format(Row.Id) + ' ' + Row.Txt);
+        Observer.Observe('next after assign', Format(Row.Next()) + ' ' + Format(Row.Id));
+        Row.Reset();
+        Row.DeleteAll();
+        Clear(Row);
+        Ok := AcFindSetAssign(Row, true);
+        Observer.Observe('empty, assign', AcOutcome(Ok));
+        Clear(Row);
+        Ok := AcFindSetCall(Row, true);
+        Observer.Observe('empty, call', AcOutcome(Ok));
+        Observer.Expect('rows, assign true', 'ok 1 row1');
+        Observer.Expect('rows descending, assign false', 'ok 3 row3');
+        Observer.Expect('next after assign', '1 2');
+        Observer.Expect('empty, assign', 'error:The Probe Pf Row table is empty.|DB:TableIsEmpty');
+        Observer.Expect('empty, call', 'error:The Probe Pf Row table is empty.|DB:TableIsEmpty');
+        Observer.Verify();
+    end;
+
+    [TryFunction]
+    local procedure AcFieldError(Shape: Integer)
+    var
+        RR: RecordRef;
+        FR: FieldRef;
+        Info: ErrorInfo;
+    begin
+        RR.Open(Database::"Probe Pf Row");
+        FR := RR.Field(2);
+        Info := ErrorInfo.Create('info text');
+        case Shape of
+            1:
+                FR.FieldError := 'must be probed';
+            2:
+                FR.FieldError('must be probed');
+            3:
+                FR.FieldError := Info;
+            4:
+                FR.FieldError(Info);
+        end;
+    end;
+
+    [Test]
+    procedure AssignCall_FieldRefFieldError_TextAndErrorInfo()
+    var
+        Observer: Codeunit "Probe Observer";
+        Ok: Boolean;
+    begin
+        Ok := AcFieldError(1);
+        Observer.Observe('text, assign', AcOutcome(Ok));
+        Ok := AcFieldError(2);
+        Observer.Observe('text, call', AcOutcome(Ok));
+        Ok := AcFieldError(3);
+        Observer.Observe('errorinfo, assign', AcOutcome(Ok));
+        Ok := AcFieldError(4);
+        Observer.Observe('errorinfo, call', AcOutcome(Ok));
+        Observer.Expect('text, assign', 'error:Txt must be probed in Probe Pf Row Id=''0''.|NCLCSRTS:TableErrorStr');
+        Observer.Expect('text, call', 'error:Txt must be probed in Probe Pf Row Id=''0''.|NCLCSRTS:TableErrorStr');
+        Observer.Expect('errorinfo, assign', 'error:Txt info text in Probe Pf Row Id=''0''.|NCLCSRTS:TableErrorStr');
+        Observer.Expect('errorinfo, call', 'error:Txt info text in Probe Pf Row Id=''0''.|NCLCSRTS:TableErrorStr');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure AssignCall_TextSplit_TextAndListOfText()
+    var
+        Observer: Codeunit "Probe Observer";
+        Separators: List of [Text];
+        Txt: Text;
+    begin
+        Txt := 'a,b;c';
+        Txt.Split := ',';
+        Observer.Observe('after text separator', Txt);
+        Separators.Add(',');
+        Separators.Add(';');
+        Txt.Split := Separators;
+        Observer.Observe('after list of separators', Txt);
+        Observer.Observe('call form parts', Format(Txt.Split(Separators).Count()));
+        Observer.Expect('after text separator', 'a,b;c');
+        Observer.Expect('after list of separators', 'a,b;c');
+        Observer.Expect('call form parts', '3');
+        Observer.Verify();
+    end;
+
+    [TryFunction]
+    local procedure AcRunAssign(var Row: Record "Probe Pf Row")
+    var
+        Runner: Codeunit "REC AssignCall Runner";
+    begin
+        Runner.Run := Row;
+    end;
+
+    [TryFunction]
+    local procedure AcRunCall(var Row: Record "Probe Pf Row")
+    var
+        Runner: Codeunit "REC AssignCall Runner";
+    begin
+        Runner.Run(Row);
+    end;
+
+    [Test]
+    procedure AssignCall_CodeunitRun_RecordArgument()
+    var
+        Row: Record "Probe Pf Row";
+        Observer: Codeunit "Probe Observer";
+        Ok: Boolean;
+    begin
+        Row.Id := 1;
+        Row.Txt := 'before';
+        Ok := AcRunAssign(Row);
+        Observer.Observe('assign', AcOutcome(Ok) + ' ' + Row.Txt);
+        Row.Id := 2;
+        Row.Txt := 'before';
+        Ok := AcRunCall(Row);
+        Observer.Observe('call', AcOutcome(Ok) + ' ' + Row.Txt);
+        Row.Id := 99;
+        Row.Txt := 'before';
+        Ok := AcRunAssign(Row);
+        Observer.Observe('OnRun raises, assign', AcOutcome(Ok) + ' ' + Row.Txt);
+        Row.Txt := 'before';
+        Ok := AcRunCall(Row);
+        Observer.Observe('OnRun raises, call', AcOutcome(Ok) + ' ' + Row.Txt);
+        Observer.Expect('assign', 'ok ran 1');
+        Observer.Expect('call', 'ok ran 2');
+        Observer.Expect('OnRun raises, assign', 'error:runner refuses 99|Dialog before');
+        Observer.Expect('OnRun raises, call', 'error:runner refuses 99|Dialog before');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure AssignCall_GlobalLanguage()
+    var
+        Observer: Codeunit "Probe Observer";
+        Saved: Integer;
+    begin
+        Saved := GlobalLanguage();
+        GlobalLanguage := 1031;
+        Observer.Observe('after assign 1031', Format(GlobalLanguage()));
+        GlobalLanguage(1033);
+        Observer.Observe('after call 1033', Format(GlobalLanguage()));
+        GlobalLanguage := 1031;
+        Observer.Observe('after a second assign 1031', Format(GlobalLanguage()));
+        GlobalLanguage := Saved;
+        Observer.Observe('restored', Format(GlobalLanguage() = Saved));
+        Observer.Expect('after assign 1031', '1031');
+        Observer.Expect('after call 1033', '1033');
+        Observer.Expect('after a second assign 1031', '1031');
+        Observer.Expect('restored', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure AssignCall_StaticMemberWithTypePrefix()
+    var
+        Publisher: Codeunit "ALT Event Publisher";
+        Sub: Codeunit "ALT Manual Event Sub";
+        BareSub: Codeunit "ALT Manual Event Sub";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Session.BindSubscription := Sub;
+        Publisher.TriggerBefore(1);
+        Observer.Observe('bound by Session.BindSubscription :=', Format(Sub.GetFireCount()));
+        Session.UnbindSubscription := Sub;
+        Publisher.TriggerBefore(2);
+        Observer.Observe('after Session.UnbindSubscription :=', Format(Sub.GetFireCount()));
+        BindSubscription := BareSub;
+        Publisher.TriggerBefore(3);
+        Observer.Observe('bound by BindSubscription :=', Format(BareSub.GetFireCount()) + ' ' + Format(BareSub.GetLastEntryNo()));
+        UnbindSubscription := BareSub;
+        Publisher.TriggerBefore(4);
+        Observer.Observe('after UnbindSubscription :=', Format(BareSub.GetFireCount()));
+        Observer.Expect('bound by Session.BindSubscription :=', '1');
+        Observer.Expect('after Session.UnbindSubscription :=', '1');
+        Observer.Expect('bound by BindSubscription :=', '1 3');
+        Observer.Expect('after UnbindSubscription :=', '1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure AssignCall_BarePageMembers_Caption()
+    var
+        Row: Record "Probe Pf Row";
+        Card: TestPage "REC AssignCall Card";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        Row.Get(1);
+        Card.OpenEdit();
+        Card.GoToRecord(Row);
+        Observer.Observe('caption at open', Card.Caption());
+        Card.BareCaption.Invoke();
+        Observer.Observe('bare Caption :=', Card.Shown.Value() + ' | ' + Card.Caption());
+        Card.CurrCaption.Invoke();
+        Observer.Observe('CurrPage.Caption :=', Card.Shown.Value() + ' | ' + Card.Caption());
+        Card.CallCaption.Invoke();
+        Observer.Observe('CurrPage.Caption()', Card.Shown.Value() + ' | ' + Card.Caption());
+        Card.Close();
+        Observer.Expect('caption at open', 'Designed Caption - 1');
+        Observer.Expect('bare Caption :=', 'bare y | bare y - 1');
+        Observer.Expect('CurrPage.Caption :=', 'curr x | curr x - 1');
+        Observer.Expect('CurrPage.Caption()', 'call z | call z - 1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure AssignCall_BarePageMembers_Update()
+    var
+        Row: Record "Probe Pf Row";
+        Card: TestPage "REC AssignCall Card";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        Row.Get(1);
+        Card.OpenEdit();
+        Card.GoToRecord(Row);
+        Card.AssignUpdateTrue.Invoke();
+        Row.Get(1);
+        Observer.Observe('CurrPage.Update := true', Row.Txt + ' | ' + Card.Txt.Value());
+        Card.CallUpdateTrue.Invoke();
+        Row.Get(1);
+        Observer.Observe('CurrPage.Update(true)', Row.Txt + ' | ' + Card.Txt.Value());
+        Card.BareUpdateFalse.Invoke();
+        Row.Get(1);
+        Observer.Observe('bare Update := false', Row.Txt + ' | ' + Card.Txt.Value());
+        Card.CallUpdateFalse.Invoke();
+        Row.Get(1);
+        Observer.Observe('CurrPage.Update(false)', Row.Txt + ' | ' + Card.Txt.Value());
+        Card.Close();
+        Observer.Expect('CurrPage.Update := true', 'assign-true | assign-true');
+        Observer.Expect('CurrPage.Update(true)', 'call-true | call-true');
+        Observer.Expect('bare Update := false', 'call-true | call-true');
+        Observer.Expect('CurrPage.Update(false)', 'call-true | call-true');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure AssignCall_FieldNamedLikeMethod()
+    var
+        Named: Record "REC AssignCall Named";
+        Assigned: Record "REC AssignCall Named";
+        Called: Record "REC AssignCall Named";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Named.Id := 1;
+        Observer.Observe('bare Mark := true in table code', Named.SetBare());
+        Assigned.Id := 2;
+        Assigned.Mark := true;
+        Observer.Observe('Assigned.Mark := true on a record variable', Assigned.FieldAndMark());
+        Called.Id := 3;
+        Called.Mark(true);
+        Observer.Observe('Called.Mark(true)', Called.FieldAndMark());
+        Observer.Expect('bare Mark := true in table code', 'field Yes marked No');
+        Observer.Expect('Assigned.Mark := true on a record variable', 'field Yes marked No');
+        Observer.Expect('Called.Mark(true)', 'field No marked Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure AssignCall_VariableNamedLikeBuiltin()
+    var
+        Observer: Codeunit "Probe Observer";
+        Sleep: Integer;
+        Abs: Integer;
+        WorkDate: Date;
+        Before: Date;
+    begin
+        Before := System.WorkDate();
+        Sleep := 5;
+        Abs := -1;
+        WorkDate := DMY2Date(3, 4, 2031);
+        Observer.Observe('Sleep', Format(Sleep));
+        Observer.Observe('Abs', Format(Abs));
+        Observer.Observe('WorkDate variable', Format(WorkDate, 0, 9));
+        Observer.Observe('System.WorkDate unchanged', Format(System.WorkDate() = Before));
+        Observer.Expect('Sleep', '5');
+        Observer.Expect('Abs', '-1');
+        Observer.Expect('WorkDate variable', '2031-04-03');
+        Observer.Expect('System.WorkDate unchanged', 'Yes');
+        Observer.Verify();
+    end;
 }
 
 codeunit 92290 "LT Y29 Assign Target"
@@ -903,5 +1228,139 @@ codeunit 92290 "LT Y29 Assign Target"
     begin
         SetCounter := Value + 1;
         exit(Value);
+    end;
+}
+
+// al-runner 7597 (the AssignCall_ tests of codeunit 69451).
+// local object: the codeunit's OnRun and TableNo, the page's own code (bare members act on the page) and the table's field named like a
+// method are the subject of the probe.
+codeunit 96420 "REC AssignCall Runner"
+{
+    TableNo = "Probe Pf Row";
+
+    trigger OnRun()
+    begin
+        if Rec.Id = 99 then
+            Error('runner refuses %1', Rec.Id);
+        Rec.Txt := 'ran ' + Format(Rec.Id);
+    end;
+}
+
+page 96421 "REC AssignCall Card"
+{
+    PageType = Card;
+    ApplicationArea = All;
+    SourceTable = "Probe Pf Row";
+    Caption = 'Designed Caption';
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            field(Id; Rec.Id) { }
+            field(Txt; Rec.Txt) { }
+            field(Shown; Shown) { }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(BareCaption)
+            {
+                trigger OnAction()
+                begin
+                    Caption := 'bare y';
+                    Shown := CurrPage.Caption();
+                end;
+            }
+            action(CurrCaption)
+            {
+                trigger OnAction()
+                begin
+                    CurrPage.Caption := 'curr x';
+                    Shown := CurrPage.Caption();
+                end;
+            }
+            action(CallCaption)
+            {
+                trigger OnAction()
+                begin
+                    CurrPage.Caption('call z');
+                    Shown := CurrPage.Caption();
+                end;
+            }
+            action(AssignUpdateTrue)
+            {
+                trigger OnAction()
+                begin
+                    Rec.Txt := 'assign-true';
+                    CurrPage.Update := true;
+                end;
+            }
+            action(CallUpdateTrue)
+            {
+                trigger OnAction()
+                begin
+                    Rec.Txt := 'call-true';
+                    CurrPage.Update(true);
+                end;
+            }
+            action(BareUpdateFalse)
+            {
+                trigger OnAction()
+                begin
+                    Rec.Txt := 'bare-false';
+                    Update := false;
+                end;
+            }
+            action(CallUpdateFalse)
+            {
+                trigger OnAction()
+                begin
+                    Rec.Txt := 'call-false';
+                    CurrPage.Update(false);
+                end;
+            }
+        }
+    }
+
+    var
+        Shown: Text;
+}
+
+table 96422 "REC AssignCall Named"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; Mark; Boolean) { }
+    }
+
+    keys
+    {
+        key(PK; Id) { Clustered = true; }
+    }
+
+    // Inside the table: the field Mark is written, or the method Mark(true) is called?
+    procedure SetBare(): Text
+    begin
+        Mark := true;
+        exit(FieldAndMark());
+    end;
+
+    // 'field <value of field 2> marked <Mark()>'.
+    procedure FieldAndMark(): Text
+    var
+        RecRef: RecordRef;
+        FieldValue: Boolean;
+    begin
+        RecRef.GetTable(Rec);
+        FieldValue := RecRef.Field(2).Value();
+        exit('field ' + Format(FieldValue) + ' marked ' + Format(Rec.Mark()));
     end;
 }
