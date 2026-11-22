@@ -22,7 +22,14 @@
 //   stored TARGET row shows whether the 2nd Modify was written ('second') or not.
 // Per cell: insert=<ok|fail> per Insert in order, raised=none or <code>/<text>, stored=<Code>=<Name> of every row in key order
 //   (read inside the asserterror block when nothing was raised, else after the rollback).
-// BC versions: 27, 28, 29
+// Cells Q1a, Q1b and Q2-Q7 (round 2) are described above their tests at the end of the codeunit.
+// Measured on BC 29.0 (all 16 cells in one run; asserted verbatim). Facts: the Modify after the failed Insert raises DB:RecordChanged
+//   when the buffer's version was read before this transaction wrote to the table (P1-P5, P7, P8, and Q3, where only ANOTHER table
+//   was written before the read). It is written when the same table was written in the transaction before the version reached the
+//   buffer: an uncommitted seed (Q1a, Q1b, Q4 even with a Commit after the read), a row X of the same table (Q2), a 2nd variable's
+//   Modify of the source row (Q5), or the buffer's own Insert (P6, Q6 even with a Commit after it; Q7 with its own Modify).
+//   asserterror around the 2nd call does not change the outcome (Q1a = Q1b).
+// BC versions: 29 measured; 27 and 28 by the corpus CI matrix
 
 table 87210 "REC MovedKey Row"
 {
@@ -173,7 +180,10 @@ codeunit 87211 "REC MovedKey Tests"
             Error(NoErrorTxt);
         end;
         CloseCell('P1');
-        Obs.Finish();
+        Obs.Expect('P1|insert', 'ok,fail');
+        Obs.Expect('P1|raised', 'DB:RecordChanged/The changes to the REC MovedKey Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Code=''TARGET''');
+        Obs.Expect('P1|stored', 'SOURCE=new');
+        Obs.Verify();
     end;
 
     [Test]
@@ -195,7 +205,10 @@ codeunit 87211 "REC MovedKey Tests"
             Error(NoErrorTxt);
         end;
         CloseCell('P2');
-        Obs.Finish();
+        Obs.Expect('P2|insert', 'ok,fail');
+        Obs.Expect('P2|raised', 'DB:RecordChanged/The changes to the REC MovedKey Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Code=''TARGET''');
+        Obs.Expect('P2|stored', 'SOURCE=new');
+        Obs.Verify();
     end;
 
     [Test]
@@ -217,7 +230,10 @@ codeunit 87211 "REC MovedKey Tests"
             Error(NoErrorTxt);
         end;
         CloseCell('P3');
-        Obs.Finish();
+        Obs.Expect('P3|insert', 'ok,fail');
+        Obs.Expect('P3|raised', 'DB:RecordChanged/The changes to the REC MovedKey Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Code=''TARGET''');
+        Obs.Expect('P3|stored', 'SOURCE=new');
+        Obs.Verify();
     end;
 
     [Test]
@@ -235,7 +251,10 @@ codeunit 87211 "REC MovedKey Tests"
             Error(NoErrorTxt);
         end;
         CloseCell('P4');
-        Obs.Finish();
+        Obs.Expect('P4|insert', 'ok,fail');
+        Obs.Expect('P4|raised', 'DB:RecordChanged/The changes to the REC MovedKey Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Code=''TARGET''');
+        Obs.Expect('P4|stored', 'SOURCE=new');
+        Obs.Verify();
     end;
 
     [Test]
@@ -254,7 +273,10 @@ codeunit 87211 "REC MovedKey Tests"
             Error(NoErrorTxt);
         end;
         CloseCell('P5');
-        Obs.Finish();
+        Obs.Expect('P5|insert', 'ok,fail');
+        Obs.Expect('P5|raised', 'DB:RecordChanged/The changes to the REC MovedKey Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Code=''TARGET''');
+        Obs.Expect('P5|stored', 'SOURCE=new');
+        Obs.Verify();
     end;
 
     [Test]
@@ -283,7 +305,10 @@ codeunit 87211 "REC MovedKey Tests"
             Error(NoErrorTxt);
         end;
         CloseCell('P6');
-        Obs.Finish();
+        Obs.Expect('P6|insert', 'ok,ok,fail');
+        Obs.Expect('P6|raised', 'none');
+        Obs.Expect('P6|stored', 'OWN=new SOURCE=new TARGET=second');
+        Obs.Verify();
     end;
 
     [Test]
@@ -303,7 +328,10 @@ codeunit 87211 "REC MovedKey Tests"
             Error(NoErrorTxt);
         end;
         CloseCell('P7');
-        Obs.Finish();
+        Obs.Expect('P7|insert', 'fail');
+        Obs.Expect('P7|raised', 'DB:RecordChanged/The changes to the REC MovedKey Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Code=''TARGET''');
+        Obs.Expect('P7|stored', 'SOURCE=new TARGET=old');
+        Obs.Verify();
     end;
 
     [Test]
@@ -322,7 +350,10 @@ codeunit 87211 "REC MovedKey Tests"
             Error(NoErrorTxt);
         end;
         CloseCell('P8');
-        Obs.Finish();
+        Obs.Expect('P8|insert', 'ok,fail');
+        Obs.Expect('P8|raised', 'DB:RecordChanged/The changes to the REC MovedKey Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Code=''TARGET''');
+        Obs.Expect('P8|stored', 'SOURCE=new TARGET=new');
+        Obs.Verify();
     end;
 
     // Round 2 (cells Q1-Q7, al-runner issue 8721): which version the check after a failed Insert counts. Shape as P1 unless stated:
@@ -373,7 +404,10 @@ codeunit 87211 "REC MovedKey Tests"
             Error(NoErrorTxt);
         end;
         CloseCell('Q1a');
-        Obs.Finish();
+        Obs.Expect('Q1a|insert', 'ok,fail');
+        Obs.Expect('Q1a|raised', 'none');
+        Obs.Expect('Q1a|stored', 'SOURCE=new TARGET=second');
+        Obs.Verify();
     end;
 
     [Test]
@@ -388,7 +422,10 @@ codeunit 87211 "REC MovedKey Tests"
         CopyTo(Src, 'TARGET');
         StoredInside := Stored();
         CloseUnguarded('Q1b');
-        Obs.Finish();
+        Obs.Expect('Q1b|insert', 'ok,fail');
+        Obs.Expect('Q1b|raised', 'none');
+        Obs.Expect('Q1b|stored', 'SOURCE=new TARGET=second');
+        Obs.Verify();
     end;
 
     [Test]
@@ -407,7 +444,10 @@ codeunit 87211 "REC MovedKey Tests"
             Error(NoErrorTxt);
         end;
         CloseCell('Q2');
-        Obs.Finish();
+        Obs.Expect('Q2|insert', 'ok,fail');
+        Obs.Expect('Q2|raised', 'none');
+        Obs.Expect('Q2|stored', 'SOURCE=new TARGET=second X=x');
+        Obs.Verify();
     end;
 
     [Test]
@@ -431,7 +471,10 @@ codeunit 87211 "REC MovedKey Tests"
         CloseCell('Q3');
         Side.DeleteAll();
         Commit();
-        Obs.Finish();
+        Obs.Expect('Q3|insert', 'ok,fail');
+        Obs.Expect('Q3|raised', 'DB:RecordChanged/The changes to the REC MovedKey Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Code=''TARGET''');
+        Obs.Expect('Q3|stored', 'SOURCE=new');
+        Obs.Verify();
     end;
 
     [Test]
@@ -450,7 +493,10 @@ codeunit 87211 "REC MovedKey Tests"
             Error(NoErrorTxt);
         end;
         CloseCell('Q4');
-        Obs.Finish();
+        Obs.Expect('Q4|insert', 'ok,fail');
+        Obs.Expect('Q4|raised', 'none');
+        Obs.Expect('Q4|stored', 'SOURCE=new TARGET=second');
+        Obs.Verify();
     end;
 
     [Test]
@@ -472,7 +518,10 @@ codeunit 87211 "REC MovedKey Tests"
             Error(NoErrorTxt);
         end;
         CloseCell('Q5');
-        Obs.Finish();
+        Obs.Expect('Q5|insert', 'ok,fail');
+        Obs.Expect('Q5|raised', 'none');
+        Obs.Expect('Q5|stored', 'SOURCE=modified TARGET=second');
+        Obs.Verify();
     end;
 
     [Test]
@@ -502,7 +551,10 @@ codeunit 87211 "REC MovedKey Tests"
             Error(NoErrorTxt);
         end;
         CloseCell('Q6');
-        Obs.Finish();
+        Obs.Expect('Q6|insert', 'ok,ok,fail');
+        Obs.Expect('Q6|raised', 'none');
+        Obs.Expect('Q6|stored', 'OWN=new SOURCE=new TARGET=second');
+        Obs.Verify();
     end;
 
     [Test]
@@ -533,7 +585,10 @@ codeunit 87211 "REC MovedKey Tests"
             Error(NoErrorTxt);
         end;
         CloseCell('Q7');
-        Obs.Finish();
+        Obs.Expect('Q7|insert', 'ok,ok,fail');
+        Obs.Expect('Q7|raised', 'none');
+        Obs.Expect('Q7|stored', 'OWN=ownmod SOURCE=new TARGET=second');
+        Obs.Verify();
     end;
 }
 
