@@ -1525,6 +1525,712 @@ codeunit 97589 "LT RFU Tests"
         Note('close', Log.Take());
         Note('stored', StoredRows());
     end;
+
+    // The read-only calls at a point of a cell (ReadAt): 1 before the SetValue on Name (or the action), 2 between it and the
+    // SetValue on Value, 3 after that, before First. Copies of RunIssueLines, RunLines, RunBoth, RunCurr and RunCard with
+    // the calls at that point.
+    // The test's read-only calls at one point of a cell: AssertEquals, Caption, Editable, Enabled, HideValue, ShowMandatory,
+    // ValidationErrorCount and Visible on both controls, and Caption, Editable and ValidationErrorCount on the page. The
+    // answers, then what the page logged meanwhile.
+    local procedure ControlReads(Caption: Text; Editable: Boolean; Enabled: Boolean; HideValue: Boolean; ShowMandatory: Boolean; Errors: Integer; Visible: Boolean): Text
+    begin
+        exit(StrSubstNo('%1/%2/%3/%4/%5/%6/%7;', Caption, Editable, Enabled, HideValue, ShowMandatory, Errors, Visible));
+    end;
+
+    local procedure PageReads(Caption: Text; Editable: Boolean; Errors: Integer): Text
+    begin
+        exit(StrSubstNo('%1/%2/%3', Caption, Editable, Errors));
+    end;
+
+    local procedure ReadsIssueLines(var Lines: TestPage "LT RFU Issue Lines"): Text
+    var
+        Result: Text;
+    begin
+        Lines.Name.AssertEquals(Lines.Name.Value());
+        Lines.Value.AssertEquals(Lines.Value.Value());
+        Result := ControlReads(Lines.Name.Caption(), Lines.Name.Editable(), Lines.Name.Enabled(), Lines.Name.HideValue(), Lines.Name.ShowMandatory(), Lines.Name.ValidationErrorCount(), Lines.Name.Visible());
+        Result += ControlReads(Lines.Value.Caption(), Lines.Value.Editable(), Lines.Value.Enabled(), Lines.Value.HideValue(), Lines.Value.ShowMandatory(), Lines.Value.ValidationErrorCount(), Lines.Value.Visible());
+        Result += PageReads(Lines.Caption(), Lines.Editable(), Lines.ValidationErrorCount());
+        exit(Result + ':' + Log.Take());
+    end;
+
+    local procedure RunReadsIssueLines(ReadAt: Integer)
+    var
+        Lines: TestPage "LT RFU Issue Lines";
+        Walk: Text;
+    begin
+        Lines.OpenEdit();
+        Lines.Last();
+        Note('open', Log.Take());
+        if ReadAt = 1 then
+            Note('reads', ReadsIssueLines(Lines));
+        Lines.Name.SetValue('C2');
+        Note('setname', Log.Take());
+        Note('shown', Lines.Name.Value() + '/' + Lines.Value.Value());
+        Note('filter', Lines.Filter.GetFilter("Group Code"));
+        if ReadAt = 2 then
+            Note('reads', ReadsIssueLines(Lines));
+        Lines.Value.SetValue('V');
+        Note('setvalue', Log.Take());
+        Note('shown2', Lines.Name.Value() + '/' + Lines.Value.Value());
+        if ReadAt = 3 then
+            Note('reads', ReadsIssueLines(Lines));
+        Lines.First();
+        Note('first', Lines.Name.Value() + ':' + Log.Take());
+        repeat
+            Walk += Lines.Name.Value() + ',';
+        until not Lines.Next();
+        Note('walk', Walk);
+        Log.Take();
+        Lines.Close();
+        Note('close', Log.Take());
+        Note('stored', StoredRows());
+    end;
+
+    local procedure ReadsLines(var Lines: TestPage "LT RFU Lines"): Text
+    var
+        Result: Text;
+    begin
+        Lines.Name.AssertEquals(Lines.Name.Value());
+        Lines.Value.AssertEquals(Lines.Value.Value());
+        Result := ControlReads(Lines.Name.Caption(), Lines.Name.Editable(), Lines.Name.Enabled(), Lines.Name.HideValue(), Lines.Name.ShowMandatory(), Lines.Name.ValidationErrorCount(), Lines.Name.Visible());
+        Result += ControlReads(Lines.Value.Caption(), Lines.Value.Editable(), Lines.Value.Enabled(), Lines.Value.HideValue(), Lines.Value.ShowMandatory(), Lines.Value.ValidationErrorCount(), Lines.Value.Visible());
+        Result += PageReads(Lines.Caption(), Lines.Editable(), Lines.ValidationErrorCount());
+        exit(Result + ':' + Log.Take());
+    end;
+
+    local procedure RunReadsLines(ByAction: Boolean; ReadAt: Integer)
+    var
+        Lines: TestPage "LT RFU Lines";
+        Walk: Text;
+    begin
+        Lines.OpenEdit();
+        Lines.Last();
+        Note('open', Log.Take());
+        if ReadAt = 1 then
+            Note('reads', ReadsLines(Lines));
+        if ByAction then
+            Lines.ChangeViewAction.Invoke()
+        else
+            Lines.Name.SetValue(Lines.Name.Value() + '2');
+        Note('setname', Log.Take());
+        Note('shown', Lines.Name.Value() + '/' + Lines.Value.Value());
+        Note('filter', Lines.Filter.GetFilter("Group Code"));
+        if ReadAt = 2 then
+            Note('reads', ReadsLines(Lines));
+        Lines.Value.SetValue('V');
+        Note('setvalue', Log.Take());
+        Note('shown2', Lines.Name.Value() + '/' + Lines.Value.Value());
+        if ReadAt = 3 then
+            Note('reads', ReadsLines(Lines));
+        Lines.First();
+        Note('first', Lines.Name.Value() + ':' + Log.Take());
+        repeat
+            Walk += Lines.Name.Value() + ',';
+        until not Lines.Next();
+        Note('walk', Walk);
+        Log.Take();
+        Lines.Close();
+        Note('close', Log.Take());
+        Note('stored', StoredRows());
+    end;
+
+    local procedure ReadsBoth(var Lines: TestPage "LT RFU Lines Both"): Text
+    var
+        Result: Text;
+    begin
+        Lines.Name.AssertEquals(Lines.Name.Value());
+        Lines.Value.AssertEquals(Lines.Value.Value());
+        Result := ControlReads(Lines.Name.Caption(), Lines.Name.Editable(), Lines.Name.Enabled(), Lines.Name.HideValue(), Lines.Name.ShowMandatory(), Lines.Name.ValidationErrorCount(), Lines.Name.Visible());
+        Result += ControlReads(Lines.Value.Caption(), Lines.Value.Editable(), Lines.Value.Enabled(), Lines.Value.HideValue(), Lines.Value.ShowMandatory(), Lines.Value.ValidationErrorCount(), Lines.Value.Visible());
+        Result += PageReads(Lines.Caption(), Lines.Editable(), Lines.ValidationErrorCount());
+        exit(Result + ':' + Log.Take());
+    end;
+
+    local procedure RunReadsBoth(ByAction: Boolean; ReadAt: Integer)
+    var
+        Lines: TestPage "LT RFU Lines Both";
+        Walk: Text;
+    begin
+        Lines.OpenEdit();
+        Lines.Last();
+        Note('open', Log.Take());
+        if ReadAt = 1 then
+            Note('reads', ReadsBoth(Lines));
+        if ByAction then
+            Lines.ChangeViewAction.Invoke()
+        else
+            Lines.Name.SetValue('C2');
+        Note('setname', Log.Take());
+        Note('shown', Lines.Name.Value() + '/' + Lines.Value.Value());
+        Note('filter', Lines.Filter.GetFilter("Group Code"));
+        if ReadAt = 2 then
+            Note('reads', ReadsBoth(Lines));
+        Lines.Value.SetValue('V');
+        Note('setvalue', Log.Take());
+        Note('shown2', Lines.Name.Value() + '/' + Lines.Value.Value());
+        if ReadAt = 3 then
+            Note('reads', ReadsBoth(Lines));
+        Lines.First();
+        Note('first', Lines.Name.Value() + ':' + Log.Take());
+        repeat
+            Walk += Lines.Name.Value() + ',';
+        until not Lines.Next();
+        Note('walk', Walk);
+        Log.Take();
+        Lines.Close();
+        Note('close', Log.Take());
+        Note('stored', StoredRows());
+    end;
+
+    local procedure ReadsCurr(var Lines: TestPage "LT RFU Lines Curr"): Text
+    var
+        Result: Text;
+    begin
+        Lines.Name.AssertEquals(Lines.Name.Value());
+        Lines.Value.AssertEquals(Lines.Value.Value());
+        Result := ControlReads(Lines.Name.Caption(), Lines.Name.Editable(), Lines.Name.Enabled(), Lines.Name.HideValue(), Lines.Name.ShowMandatory(), Lines.Name.ValidationErrorCount(), Lines.Name.Visible());
+        Result += ControlReads(Lines.Value.Caption(), Lines.Value.Editable(), Lines.Value.Enabled(), Lines.Value.HideValue(), Lines.Value.ShowMandatory(), Lines.Value.ValidationErrorCount(), Lines.Value.Visible());
+        Result += PageReads(Lines.Caption(), Lines.Editable(), Lines.ValidationErrorCount());
+        exit(Result + ':' + Log.Take());
+    end;
+
+    local procedure RunReadsCurr(ReadAt: Integer)
+    var
+        Lines: TestPage "LT RFU Lines Curr";
+        Walk: Text;
+    begin
+        Lines.OpenEdit();
+        Lines.Last();
+        Note('open', Log.Take());
+        if ReadAt = 1 then
+            Note('reads', ReadsCurr(Lines));
+        Lines.Name.SetValue('C2');
+        Note('setname', Log.Take());
+        Note('shown', Lines.Name.Value() + '/' + Lines.Value.Value());
+        Note('filter', Lines.Filter.GetFilter("Group Code"));
+        if ReadAt = 2 then
+            Note('reads', ReadsCurr(Lines));
+        Lines.Value.SetValue('V');
+        Note('setvalue', Log.Take());
+        Note('shown2', Lines.Name.Value() + '/' + Lines.Value.Value());
+        if ReadAt = 3 then
+            Note('reads', ReadsCurr(Lines));
+        Lines.First();
+        Note('first', Lines.Name.Value() + ':' + Log.Take());
+        repeat
+            Walk += Lines.Name.Value() + ',';
+        until not Lines.Next();
+        Note('walk', Walk);
+        Log.Take();
+        Lines.Close();
+        Note('close', Log.Take());
+        Note('stored', StoredRows());
+    end;
+
+    local procedure ReadsCard(var Card: TestPage "LT RFU Card"): Text
+    var
+        Result: Text;
+    begin
+        Card.Name.AssertEquals(Card.Name.Value());
+        Card.Value.AssertEquals(Card.Value.Value());
+        Result := ControlReads(Card.Name.Caption(), Card.Name.Editable(), Card.Name.Enabled(), Card.Name.HideValue(), Card.Name.ShowMandatory(), Card.Name.ValidationErrorCount(), Card.Name.Visible());
+        Result += ControlReads(Card.Value.Caption(), Card.Value.Editable(), Card.Value.Enabled(), Card.Value.HideValue(), Card.Value.ShowMandatory(), Card.Value.ValidationErrorCount(), Card.Value.Visible());
+        Result += PageReads(Card.Caption(), Card.Editable(), Card.ValidationErrorCount());
+        exit(Result + ':' + Log.Take());
+    end;
+
+    local procedure RunReadsCard(ByAction: Boolean; ReadAt: Integer)
+    var
+        Card: TestPage "LT RFU Card";
+        Walk: Text;
+    begin
+        Card.OpenEdit();
+        Card.Last();
+        Note('open', Log.Take());
+        if ReadAt = 1 then
+            Note('reads', ReadsCard(Card));
+        if ByAction then
+            Card.ChangeViewAction.Invoke()
+        else
+            Card.Name.SetValue('C2');
+        Note('setname', Log.Take());
+        Note('shown', Card.Name.Value() + '/' + Card.Value.Value());
+        Note('filter', Card.Filter.GetFilter("Group Code"));
+        if ReadAt = 2 then
+            Note('reads', ReadsCard(Card));
+        Card.Value.SetValue('V');
+        Note('setvalue', Log.Take());
+        Note('shown2', Card.Name.Value() + '/' + Card.Value.Value());
+        if ReadAt = 3 then
+            Note('reads', ReadsCard(Card));
+        Card.First();
+        Note('first', Card.Name.Value() + ':' + Log.Take());
+        repeat
+            Walk += Card.Name.Value() + ',';
+        until not Card.Next();
+        Note('walk', Walk);
+        Log.Take();
+        Card.Close();
+        Note('close', Log.Take());
+        Note('stored', StoredRows());
+    end;
+
+    // The cell :815 with the read-only calls before the SetValue on Name (or the action).
+    [Test]
+    procedure IssueList_ReadOnlyCalls_BeforeFirstStep()
+    begin
+        Initialize(1, 1);
+        RunReadsIssueLines(1);
+        Expect('open', 'P.AGR(A);P.AGR(B);P.AGR(C);P.AGR(A);');
+        Expect('reads', 'Name/Yes/Yes/No/No/0/Yes;Value/Yes/Yes/No/No/0/Yes;LT RFU Issue Lines/Yes/0:');
+        Expect('setname', 'P.AGR(C);T.V(C2);P.AGR(C);P.AGR(B);');
+        Expect('shown', 'C/');
+        Expect('filter', 'G1');
+        Expect('setvalue', 'P.AGR(C);P.AGR(C);P.AGR(B);');
+        Expect('shown2', 'C/');
+        Expect('first', 'B:');
+        Expect('walk', 'B,C,,');
+        Expect('close', '');
+        Expect('stored', 'A/,B/,C/,');
+    end;
+
+    // The cell :815 with the read-only calls between it and the SetValue on Value.
+    [Test]
+    procedure IssueList_ReadOnlyCalls_BetweenSteps()
+    begin
+        Initialize(1, 1);
+        RunReadsIssueLines(2);
+        Expect('open', 'P.AGR(A);P.AGR(B);P.AGR(C);P.AGR(A);');
+        Expect('reads', 'Name/Yes/Yes/No/No/0/Yes;Value/Yes/Yes/No/No/0/Yes;LT RFU Issue Lines/Yes/0:');
+        Expect('setname', 'P.AGR(C);T.V(C2);P.AGR(C);P.AGR(B);');
+        Expect('shown', 'C/');
+        Expect('filter', 'G1');
+        Expect('setvalue', 'P.AGR(C);P.AGR(C);P.AGR(B);');
+        Expect('shown2', 'C/');
+        Expect('first', 'B:');
+        Expect('walk', 'B,C,,');
+        Expect('close', '');
+        Expect('stored', 'A/,B/,C/,');
+    end;
+
+    // The cell :815 with the read-only calls after the SetValue on Value, before First.
+    [Test]
+    procedure IssueList_ReadOnlyCalls_AfterSteps()
+    begin
+        Initialize(1, 1);
+        RunReadsIssueLines(3);
+        Expect('open', 'P.AGR(A);P.AGR(B);P.AGR(C);P.AGR(A);');
+        Expect('reads', 'Name/Yes/Yes/No/No/0/Yes;Value/Yes/Yes/No/No/0/Yes;LT RFU Issue Lines/Yes/0:');
+        Expect('setname', 'P.AGR(C);T.V(C2);P.AGR(C);P.AGR(B);');
+        Expect('shown', 'C/');
+        Expect('filter', 'G1');
+        Expect('setvalue', 'P.AGR(C);P.AGR(C);P.AGR(B);');
+        Expect('shown2', 'C/');
+        Expect('first', 'B:');
+        Expect('walk', 'B,C,,');
+        Expect('close', '');
+        Expect('stored', 'A/,B/,C/,');
+    end;
+
+    // The cell :832 with the read-only calls before the SetValue on Name (or the action).
+    [Test]
+    procedure List_ReadOnlyCalls_BeforeFirstStep()
+    begin
+        Initialize(1, 1);
+        RunReadsLines(false, 1);
+        Expect('open', 'P.AGR(A);P.AGR(B);P.AGR(C);P.AGR(A);');
+        Expect('reads', 'Name/Yes/Yes/No/No/0/Yes;Value/Yes/Yes/No/No/0/Yes;LT RFU Lines/Yes/0:');
+        Expect('setname', 'P.AGR(C);T.V(C2);P.V(C2);P.AGR(C);P.AGR(B);');
+        Expect('shown', 'C/');
+        Expect('filter', 'G1');
+        Expect('setvalue', 'P.AGR(C);P.AGR(C);P.AGR(B);');
+        Expect('shown2', 'C/');
+        Expect('first', 'B:');
+        Expect('walk', 'B,C,,');
+        Expect('close', '');
+        Expect('stored', 'A/,B/,C/,');
+    end;
+
+    // The cell :832 with the read-only calls between it and the SetValue on Value.
+    [Test]
+    procedure List_ReadOnlyCalls_BetweenSteps()
+    begin
+        Initialize(1, 1);
+        RunReadsLines(false, 2);
+        Expect('open', 'P.AGR(A);P.AGR(B);P.AGR(C);P.AGR(A);');
+        Expect('reads', 'Name/Yes/Yes/No/No/0/Yes;Value/Yes/Yes/No/No/0/Yes;LT RFU Lines/Yes/0:');
+        Expect('setname', 'P.AGR(C);T.V(C2);P.V(C2);P.AGR(C);P.AGR(B);');
+        Expect('shown', 'C/');
+        Expect('filter', 'G1');
+        Expect('setvalue', 'P.AGR(C);P.AGR(C);P.AGR(B);');
+        Expect('shown2', 'C/');
+        Expect('first', 'B:');
+        Expect('walk', 'B,C,,');
+        Expect('close', '');
+        Expect('stored', 'A/,B/,C/,');
+    end;
+
+    // The cell :832 with the read-only calls after the SetValue on Value, before First.
+    [Test]
+    procedure List_ReadOnlyCalls_AfterSteps()
+    begin
+        Initialize(1, 1);
+        RunReadsLines(false, 3);
+        Expect('open', 'P.AGR(A);P.AGR(B);P.AGR(C);P.AGR(A);');
+        Expect('reads', 'Name/Yes/Yes/No/No/0/Yes;Value/Yes/Yes/No/No/0/Yes;LT RFU Lines/Yes/0:');
+        Expect('setname', 'P.AGR(C);T.V(C2);P.V(C2);P.AGR(C);P.AGR(B);');
+        Expect('shown', 'C/');
+        Expect('filter', 'G1');
+        Expect('setvalue', 'P.AGR(C);P.AGR(C);P.AGR(B);');
+        Expect('shown2', 'C/');
+        Expect('first', 'B:');
+        Expect('walk', 'B,C,,');
+        Expect('close', '');
+        Expect('stored', 'A/,B/,C/,');
+    end;
+
+    // The cell :1054 with the read-only calls before the SetValue on Name (or the action).
+    [Test]
+    procedure List_Action_ReadOnlyCalls_BeforeFirstStep()
+    begin
+        Initialize(1, 1);
+        RunReadsLines(true, 1);
+        Expect('open', 'P.AGR(A);P.AGR(B);P.AGR(C);P.AGR(A);');
+        Expect('reads', 'Name/Yes/Yes/No/No/0/Yes;Value/Yes/Yes/No/No/0/Yes;LT RFU Lines/Yes/0:');
+        Expect('setname', 'P.AGR(C);P.AGR(C);P.A(C);P.AGR(C);P.AGR(C);P.AGR(B);');
+        Expect('shown', 'C/');
+        Expect('filter', 'G1');
+        Expect('setvalue', 'P.AGR(C);P.AGR(C);P.AGR(B);');
+        Expect('shown2', 'C/');
+        Expect('first', 'B:');
+        Expect('walk', 'B,C,,');
+        Expect('close', '');
+        Expect('stored', 'A/,B/,C/,');
+    end;
+
+    // The cell :1054 with the read-only calls between it and the SetValue on Value.
+    [Test]
+    procedure List_Action_ReadOnlyCalls_BetweenSteps()
+    begin
+        Initialize(1, 1);
+        RunReadsLines(true, 2);
+        Expect('open', 'P.AGR(A);P.AGR(B);P.AGR(C);P.AGR(A);');
+        Expect('reads', 'Name/Yes/Yes/No/No/0/Yes;Value/Yes/Yes/No/No/0/Yes;LT RFU Lines/Yes/0:');
+        Expect('setname', 'P.AGR(C);P.AGR(C);P.A(C);P.AGR(C);P.AGR(C);P.AGR(B);');
+        Expect('shown', 'C/');
+        Expect('filter', 'G1');
+        Expect('setvalue', 'P.AGR(C);P.AGR(C);P.AGR(B);');
+        Expect('shown2', 'C/');
+        Expect('first', 'B:');
+        Expect('walk', 'B,C,,');
+        Expect('close', '');
+        Expect('stored', 'A/,B/,C/,');
+    end;
+
+    // The cell :1054 with the read-only calls after the SetValue on Value, before First.
+    [Test]
+    procedure List_Action_ReadOnlyCalls_AfterSteps()
+    begin
+        Initialize(1, 1);
+        RunReadsLines(true, 3);
+        Expect('open', 'P.AGR(A);P.AGR(B);P.AGR(C);P.AGR(A);');
+        Expect('reads', 'Name/Yes/Yes/No/No/0/Yes;Value/Yes/Yes/No/No/0/Yes;LT RFU Lines/Yes/0:');
+        Expect('setname', 'P.AGR(C);P.AGR(C);P.A(C);P.AGR(C);P.AGR(C);P.AGR(B);');
+        Expect('shown', 'C/');
+        Expect('filter', 'G1');
+        Expect('setvalue', 'P.AGR(C);P.AGR(C);P.AGR(B);');
+        Expect('shown2', 'C/');
+        Expect('first', 'B:');
+        Expect('walk', 'B,C,,');
+        Expect('close', '');
+        Expect('stored', 'A/,B/,C/,');
+    end;
+
+    // The cell :1105 with the read-only calls before the SetValue on Name (or the action).
+    [Test]
+    procedure ListBoth_ReadOnlyCalls_BeforeFirstStep()
+    begin
+        Initialize(1, 1);
+        RunReadsBoth(false, 1);
+        Expect('open', 'P.AGR(A);P.AGR(B);P.AGR(C);P.AGR(A);P.AGR(A);P.AGCR(A);P.AGCR();P.AGR(C);P.AGR(C);P.AGCR(C);');
+        Expect('reads', 'Name/Yes/Yes/No/No/0/Yes;Value/Yes/Yes/No/No/0/Yes;LT RFU Lines Both/Yes/0:');
+        Expect('setname', 'T.V(C2);P.V(C2);P.AGR(C);P.AGR(B);P.AGR(C);P.AGR(C);P.AGCR(C);');
+        Expect('shown', 'C/');
+        Expect('filter', 'G1');
+        Expect('setvalue', 'P.AGR(C);P.AGR(B);P.AGR(C);P.AGR(C);P.AGCR(C);');
+        Expect('shown2', 'C/');
+        Expect('first', 'B:P.AGR(B);P.AGR(B);P.AGCR(B);');
+        Expect('walk', 'B,C,,');
+        Expect('close', '');
+        Expect('stored', 'A/,B/,C/,');
+    end;
+
+    // The cell :1105 with the read-only calls between it and the SetValue on Value.
+    [Test]
+    procedure ListBoth_ReadOnlyCalls_BetweenSteps()
+    begin
+        Initialize(1, 1);
+        RunReadsBoth(false, 2);
+        Expect('open', 'P.AGR(A);P.AGR(B);P.AGR(C);P.AGR(A);P.AGR(A);P.AGCR(A);P.AGCR();P.AGR(C);P.AGR(C);P.AGCR(C);');
+        Expect('reads', 'Name/Yes/Yes/No/No/0/Yes;Value/Yes/Yes/No/No/0/Yes;LT RFU Lines Both/Yes/0:');
+        Expect('setname', 'T.V(C2);P.V(C2);P.AGR(C);P.AGR(B);P.AGR(C);P.AGR(C);P.AGCR(C);');
+        Expect('shown', 'C/');
+        Expect('filter', 'G1');
+        Expect('setvalue', 'P.AGR(C);P.AGR(B);P.AGR(C);P.AGR(C);P.AGCR(C);');
+        Expect('shown2', 'C/');
+        Expect('first', 'B:P.AGR(B);P.AGR(B);P.AGCR(B);');
+        Expect('walk', 'B,C,,');
+        Expect('close', '');
+        Expect('stored', 'A/,B/,C/,');
+    end;
+
+    // The cell :1105 with the read-only calls after the SetValue on Value, before First.
+    [Test]
+    procedure ListBoth_ReadOnlyCalls_AfterSteps()
+    begin
+        Initialize(1, 1);
+        RunReadsBoth(false, 3);
+        Expect('open', 'P.AGR(A);P.AGR(B);P.AGR(C);P.AGR(A);P.AGR(A);P.AGCR(A);P.AGCR();P.AGR(C);P.AGR(C);P.AGCR(C);');
+        Expect('reads', 'Name/Yes/Yes/No/No/0/Yes;Value/Yes/Yes/No/No/0/Yes;LT RFU Lines Both/Yes/0:');
+        Expect('setname', 'T.V(C2);P.V(C2);P.AGR(C);P.AGR(B);P.AGR(C);P.AGR(C);P.AGCR(C);');
+        Expect('shown', 'C/');
+        Expect('filter', 'G1');
+        Expect('setvalue', 'P.AGR(C);P.AGR(B);P.AGR(C);P.AGR(C);P.AGCR(C);');
+        Expect('shown2', 'C/');
+        Expect('first', 'B:P.AGR(B);P.AGR(B);P.AGCR(B);');
+        Expect('walk', 'B,C,,');
+        Expect('close', '');
+        Expect('stored', 'A/,B/,C/,');
+    end;
+
+    // The cell :1173 with the read-only calls before the SetValue on Name (or the action).
+    [Test]
+    procedure ListBoth_Action_ReadOnlyCalls_BeforeFirstStep()
+    begin
+        Initialize(1, 1);
+        RunReadsBoth(true, 1);
+        Expect('open', 'P.AGR(A);P.AGR(B);P.AGR(C);P.AGR(A);P.AGR(A);P.AGCR(A);P.AGCR();P.AGR(C);P.AGR(C);P.AGCR(C);');
+        Expect('reads', 'Name/Yes/Yes/No/No/0/Yes;Value/Yes/Yes/No/No/0/Yes;LT RFU Lines Both/Yes/0:');
+        Expect('setname', 'P.AGR(C);P.A(C);P.AGR(C);P.AGR(C);P.AGR(B);P.AGR(C);P.AGR(C);P.AGCR(C);');
+        Expect('shown', 'C/');
+        Expect('filter', 'G1');
+        Expect('setvalue', 'P.AGR(C);P.AGR(B);P.AGR(C);P.AGR(C);P.AGCR(C);');
+        Expect('shown2', 'C/');
+        Expect('first', 'B:P.AGR(B);P.AGR(B);P.AGCR(B);');
+        Expect('walk', 'B,C,,');
+        Expect('close', '');
+        Expect('stored', 'A/,B/,C/,');
+    end;
+
+    // The cell :1173 with the read-only calls between it and the SetValue on Value.
+    [Test]
+    procedure ListBoth_Action_ReadOnlyCalls_BetweenSteps()
+    begin
+        Initialize(1, 1);
+        RunReadsBoth(true, 2);
+        Expect('open', 'P.AGR(A);P.AGR(B);P.AGR(C);P.AGR(A);P.AGR(A);P.AGCR(A);P.AGCR();P.AGR(C);P.AGR(C);P.AGCR(C);');
+        Expect('reads', 'Name/Yes/Yes/No/No/0/Yes;Value/Yes/Yes/No/No/0/Yes;LT RFU Lines Both/Yes/0:');
+        Expect('setname', 'P.AGR(C);P.A(C);P.AGR(C);P.AGR(C);P.AGR(B);P.AGR(C);P.AGR(C);P.AGCR(C);');
+        Expect('shown', 'C/');
+        Expect('filter', 'G1');
+        Expect('setvalue', 'P.AGR(C);P.AGR(B);P.AGR(C);P.AGR(C);P.AGCR(C);');
+        Expect('shown2', 'C/');
+        Expect('first', 'B:P.AGR(B);P.AGR(B);P.AGCR(B);');
+        Expect('walk', 'B,C,,');
+        Expect('close', '');
+        Expect('stored', 'A/,B/,C/,');
+    end;
+
+    // The cell :1173 with the read-only calls after the SetValue on Value, before First.
+    [Test]
+    procedure ListBoth_Action_ReadOnlyCalls_AfterSteps()
+    begin
+        Initialize(1, 1);
+        RunReadsBoth(true, 3);
+        Expect('open', 'P.AGR(A);P.AGR(B);P.AGR(C);P.AGR(A);P.AGR(A);P.AGCR(A);P.AGCR();P.AGR(C);P.AGR(C);P.AGCR(C);');
+        Expect('reads', 'Name/Yes/Yes/No/No/0/Yes;Value/Yes/Yes/No/No/0/Yes;LT RFU Lines Both/Yes/0:');
+        Expect('setname', 'P.AGR(C);P.A(C);P.AGR(C);P.AGR(C);P.AGR(B);P.AGR(C);P.AGR(C);P.AGCR(C);');
+        Expect('shown', 'C/');
+        Expect('filter', 'G1');
+        Expect('setvalue', 'P.AGR(C);P.AGR(B);P.AGR(C);P.AGR(C);P.AGCR(C);');
+        Expect('shown2', 'C/');
+        Expect('first', 'B:P.AGR(B);P.AGR(B);P.AGCR(B);');
+        Expect('walk', 'B,C,,');
+        Expect('close', '');
+        Expect('stored', 'A/,B/,C/,');
+    end;
+
+    // The cell :1190 with the read-only calls before the SetValue on Name (or the action).
+    [Test]
+    procedure ListCurr_ReadOnlyCalls_BeforeFirstStep()
+    begin
+        Initialize(1, 1);
+        RunReadsCurr(1);
+        Expect('open', 'P.AGCR(A);P.AGCR();P.AGCR(C);');
+        Expect('reads', 'Name/Yes/Yes/No/No/0/Yes;Value/Yes/Yes/No/No/0/Yes;LT RFU Lines Curr/Yes/0:');
+        Expect('setname', 'T.V(C2);P.V(C2);P.AGCR(C);');
+        Expect('shown', 'C/');
+        Expect('filter', 'G1');
+        Expect('setvalue', 'P.AGCR(C);');
+        Expect('shown2', 'C/');
+        Expect('first', 'B:P.AGCR(B);');
+        Expect('walk', 'B,C,,');
+        Expect('close', '');
+        Expect('stored', 'A/,B/,C/,');
+    end;
+
+    // The cell :1190 with the read-only calls between it and the SetValue on Value.
+    [Test]
+    procedure ListCurr_ReadOnlyCalls_BetweenSteps()
+    begin
+        Initialize(1, 1);
+        RunReadsCurr(2);
+        Expect('open', 'P.AGCR(A);P.AGCR();P.AGCR(C);');
+        Expect('reads', 'Name/Yes/Yes/No/No/0/Yes;Value/Yes/Yes/No/No/0/Yes;LT RFU Lines Curr/Yes/0:');
+        Expect('setname', 'T.V(C2);P.V(C2);P.AGCR(C);');
+        Expect('shown', 'C/');
+        Expect('filter', 'G1');
+        Expect('setvalue', 'P.AGCR(C);');
+        Expect('shown2', 'C/');
+        Expect('first', 'B:P.AGCR(B);');
+        Expect('walk', 'B,C,,');
+        Expect('close', '');
+        Expect('stored', 'A/,B/,C/,');
+    end;
+
+    // The cell :1190 with the read-only calls after the SetValue on Value, before First.
+    [Test]
+    procedure ListCurr_ReadOnlyCalls_AfterSteps()
+    begin
+        Initialize(1, 1);
+        RunReadsCurr(3);
+        Expect('open', 'P.AGCR(A);P.AGCR();P.AGCR(C);');
+        Expect('reads', 'Name/Yes/Yes/No/No/0/Yes;Value/Yes/Yes/No/No/0/Yes;LT RFU Lines Curr/Yes/0:');
+        Expect('setname', 'T.V(C2);P.V(C2);P.AGCR(C);');
+        Expect('shown', 'C/');
+        Expect('filter', 'G1');
+        Expect('setvalue', 'P.AGCR(C);');
+        Expect('shown2', 'C/');
+        Expect('first', 'B:P.AGCR(B);');
+        Expect('walk', 'B,C,,');
+        Expect('close', '');
+        Expect('stored', 'A/,B/,C/,');
+    end;
+
+    // The cell :1258 with the read-only calls before the SetValue on Name (or the action).
+    [Test]
+    procedure Card_ReadOnlyCalls_BeforeFirstStep()
+    begin
+        Initialize(1, 1);
+        RunReadsCard(false, 1);
+        Expect('open', 'P.AGR(A);P.AGR(C);');
+        Expect('reads', 'Name/Yes/Yes/No/No/0/Yes;Value/Yes/Yes/No/No/0/Yes;LT RFU Card - G1 ∙ 3/Yes/0:');
+        Expect('setname', 'T.V(C2);P.V(C2);P.AGR(C);');
+        Expect('shown', 'C/');
+        Expect('filter', 'G1');
+        Expect('setvalue', 'P.AGR(C);');
+        Expect('shown2', 'C/');
+        Expect('first', 'B:P.AGR(B);');
+        Expect('walk', 'B,C,');
+        Expect('close', '');
+        Expect('stored', 'A/,B/,C/,');
+    end;
+
+    // The cell :1258 with the read-only calls between it and the SetValue on Value.
+    [Test]
+    procedure Card_ReadOnlyCalls_BetweenSteps()
+    begin
+        Initialize(1, 1);
+        RunReadsCard(false, 2);
+        Expect('open', 'P.AGR(A);P.AGR(C);');
+        Expect('reads', 'Name/Yes/Yes/No/No/0/Yes;Value/Yes/Yes/No/No/0/Yes;LT RFU Card - G1 ∙ 3/Yes/0:');
+        Expect('setname', 'T.V(C2);P.V(C2);P.AGR(C);');
+        Expect('shown', 'C/');
+        Expect('filter', 'G1');
+        Expect('setvalue', 'P.AGR(C);');
+        Expect('shown2', 'C/');
+        Expect('first', 'B:P.AGR(B);');
+        Expect('walk', 'B,C,');
+        Expect('close', '');
+        Expect('stored', 'A/,B/,C/,');
+    end;
+
+    // The cell :1258 with the read-only calls after the SetValue on Value, before First.
+    [Test]
+    procedure Card_ReadOnlyCalls_AfterSteps()
+    begin
+        Initialize(1, 1);
+        RunReadsCard(false, 3);
+        Expect('open', 'P.AGR(A);P.AGR(C);');
+        Expect('reads', 'Name/Yes/Yes/No/No/0/Yes;Value/Yes/Yes/No/No/0/Yes;LT RFU Card - G1 ∙ 3/Yes/0:');
+        Expect('setname', 'T.V(C2);P.V(C2);P.AGR(C);');
+        Expect('shown', 'C/');
+        Expect('filter', 'G1');
+        Expect('setvalue', 'P.AGR(C);');
+        Expect('shown2', 'C/');
+        Expect('first', 'B:P.AGR(B);');
+        Expect('walk', 'B,C,');
+        Expect('close', '');
+        Expect('stored', 'A/,B/,C/,');
+    end;
+
+    // The cell :1309 with the read-only calls before the SetValue on Name (or the action).
+    [Test]
+    procedure Card_Action_ReadOnlyCalls_BeforeFirstStep()
+    begin
+        Initialize(1, 1);
+        RunReadsCard(true, 1);
+        Expect('open', 'P.AGR(A);P.AGR(C);');
+        Expect('reads', 'Name/Yes/Yes/No/No/0/Yes;Value/Yes/Yes/No/No/0/Yes;LT RFU Card - G1 ∙ 3/Yes/0:');
+        Expect('setname', 'P.AGR(C);P.A(C);P.AGR(C);P.AGR(C);');
+        Expect('shown', 'C/');
+        Expect('filter', 'G1');
+        Expect('setvalue', 'P.AGR(C);');
+        Expect('shown2', 'C/');
+        Expect('first', 'B:P.AGR(B);');
+        Expect('walk', 'B,C,');
+        Expect('close', '');
+        Expect('stored', 'A/,B/,C/,');
+    end;
+
+    // The cell :1309 with the read-only calls between it and the SetValue on Value.
+    [Test]
+    procedure Card_Action_ReadOnlyCalls_BetweenSteps()
+    begin
+        Initialize(1, 1);
+        RunReadsCard(true, 2);
+        Expect('open', 'P.AGR(A);P.AGR(C);');
+        Expect('reads', 'Name/Yes/Yes/No/No/0/Yes;Value/Yes/Yes/No/No/0/Yes;LT RFU Card - G1 ∙ 3/Yes/0:');
+        Expect('setname', 'P.AGR(C);P.A(C);P.AGR(C);P.AGR(C);');
+        Expect('shown', 'C/');
+        Expect('filter', 'G1');
+        Expect('setvalue', 'P.AGR(C);');
+        Expect('shown2', 'C/');
+        Expect('first', 'B:P.AGR(B);');
+        Expect('walk', 'B,C,');
+        Expect('close', '');
+        Expect('stored', 'A/,B/,C/,');
+    end;
+
+    // The cell :1309 with the read-only calls after the SetValue on Value, before First.
+    [Test]
+    procedure Card_Action_ReadOnlyCalls_AfterSteps()
+    begin
+        Initialize(1, 1);
+        RunReadsCard(true, 3);
+        Expect('open', 'P.AGR(A);P.AGR(C);');
+        Expect('reads', 'Name/Yes/Yes/No/No/0/Yes;Value/Yes/Yes/No/No/0/Yes;LT RFU Card - G1 ∙ 3/Yes/0:');
+        Expect('setname', 'P.AGR(C);P.A(C);P.AGR(C);P.AGR(C);');
+        Expect('shown', 'C/');
+        Expect('filter', 'G1');
+        Expect('setvalue', 'P.AGR(C);');
+        Expect('shown2', 'C/');
+        Expect('first', 'B:P.AGR(B);');
+        Expect('walk', 'B,C,');
+        Expect('close', '');
+        Expect('stored', 'A/,B/,C/,');
+    end;
 }
 
 // The Card page of al-runner issue 8717, line for line: its Name control's OnValidate calls CurrPage.Update(false) without a
@@ -1645,5 +2351,76 @@ codeunit 97572 "LT RFU Edit Tests"
         Assert.AreEqual('', Log.Take(), 'close');
         Row.Get('R1');
         Assert.AreEqual('Alpha', Row.Name, 'stored after Close');
+    end;
+
+    // The test's read-only calls at one point of a cell: AssertEquals, Caption, Editable, Enabled, HideValue, ShowMandatory,
+    // ValidationErrorCount and Visible on both controls (No. and Name), and Caption, Editable and ValidationErrorCount on the page. The
+    // answers, then what the page logged meanwhile.
+    local procedure ControlReads(Caption: Text; Editable: Boolean; Enabled: Boolean; HideValue: Boolean; ShowMandatory: Boolean; Errors: Integer; Visible: Boolean): Text
+    begin
+        exit(StrSubstNo('%1/%2/%3/%4/%5/%6/%7;', Caption, Editable, Enabled, HideValue, ShowMandatory, Errors, Visible));
+    end;
+
+    local procedure PageReads(Caption: Text; Editable: Boolean; Errors: Integer): Text
+    begin
+        exit(StrSubstNo('%1/%2/%3', Caption, Editable, Errors));
+    end;
+
+    local procedure ReadsEditCard(var Card: TestPage "LT RFU Edit Card"): Text
+    var
+        Result: Text;
+    begin
+        Card."No.".AssertEquals(Card."No.".Value());
+        Card.Name.AssertEquals(Card.Name.Value());
+        Result := ControlReads(Card."No.".Caption(), Card."No.".Editable(), Card."No.".Enabled(), Card."No.".HideValue(), Card."No.".ShowMandatory(), Card."No.".ValidationErrorCount(), Card."No.".Visible());
+        Result += ControlReads(Card.Name.Caption(), Card.Name.Editable(), Card.Name.Enabled(), Card.Name.HideValue(), Card.Name.ShowMandatory(), Card.Name.ValidationErrorCount(), Card.Name.Visible());
+        Result += PageReads(Card.Caption(), Card.Editable(), Card.ValidationErrorCount());
+        exit(Result + ':' + Log.Take());
+    end;
+
+    // The cell :1632 with the read-only calls after GoToKey.
+    [Test]
+    procedure EditCard_ReadOnlyCalls_AfterGoToKey()
+    var
+        Row: Record "LT RFU Edit Row";
+        Card: TestPage "LT RFU Edit Card";
+        Reads: Text;
+    begin
+        Initialize();
+        Card.OpenEdit();
+        Card.GoToKey('R1');
+        Assert.AreEqual('AGR(Alpha);AGR(Alpha);', Log.Take(), 'open');
+        Reads := ReadsEditCard(Card);
+        Card.Name.SetValue('Beta');
+        Assert.AreEqual('AGR(Alpha);', Log.Take(), 'SetValue on Name');
+        Assert.AreEqual('Alpha', Card.Name.Value(), 'shown after the SetValue');
+        Card.Close();
+        Assert.AreEqual('', Log.Take(), 'close');
+        Row.Get('R1');
+        Assert.AreEqual('Alpha', Row.Name, 'stored after Close');
+        Assert.AreEqual('No./Yes/Yes/No/No/0/Yes;Name/Yes/Yes/No/No/0/Yes;LT RFU Edit Card - R1/Yes/0:', Reads, 'reads');
+    end;
+
+    // The cell :1632 with the read-only calls after the SetValue, before Close.
+    [Test]
+    procedure EditCard_ReadOnlyCalls_AfterSetValue()
+    var
+        Row: Record "LT RFU Edit Row";
+        Card: TestPage "LT RFU Edit Card";
+        Reads: Text;
+    begin
+        Initialize();
+        Card.OpenEdit();
+        Card.GoToKey('R1');
+        Assert.AreEqual('AGR(Alpha);AGR(Alpha);', Log.Take(), 'open');
+        Card.Name.SetValue('Beta');
+        Assert.AreEqual('AGR(Alpha);', Log.Take(), 'SetValue on Name');
+        Assert.AreEqual('Alpha', Card.Name.Value(), 'shown after the SetValue');
+        Reads := ReadsEditCard(Card);
+        Card.Close();
+        Assert.AreEqual('', Log.Take(), 'close');
+        Row.Get('R1');
+        Assert.AreEqual('Alpha', Row.Name, 'stored after Close');
+        Assert.AreEqual('No./Yes/Yes/No/No/0/Yes;Name/Yes/Yes/No/No/0/Yes;LT RFU Edit Card - R1/Yes/0:', Reads, 'reads');
     end;
 }
