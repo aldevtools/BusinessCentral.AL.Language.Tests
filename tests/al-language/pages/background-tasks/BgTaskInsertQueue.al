@@ -492,4 +492,742 @@ codeunit 97526 "IQ Tests"
         Assert.AreEqual(1, Counter.Rows, 'the test''s FlowField');
         Assert.AreEqual('a', Run(Host, 'get', K + 'A'), 'Get');
     end;
+    // The cells from here on (al-runner pull request 8498, review round 1; objects after this codeunit). Readings as above.
+    // - A worker that page code starts (CurrPage.EnqueueBackgroundTask) does not see a held-back row either (:548, :566).
+    // - The worker's FindLast, Find('-') with Next, SetLoadFields with Get, RecordRef.Count, CountApprox, GetBySystemId, a Query,
+    //   CalcSums and a Sum FlowField leave held-back rows out (:587, :606, :624, :640, :657).
+    // - An Insert into a table with an OnAfterInsertEvent subscriber is held back (:675); a read of the table inside the
+    //   subscriber lets it through (:691).
+    // - A FlowField of the test session lets the rows through and the count of five starts again (:708); so do the test
+    //   session's CountApprox, Query, GetBySystemId and the TableRelation check of a Validate (:730, :747, :765, :783).
+    local procedure AddAmount(No: Code[20]; Amount: Decimal)
+    var
+        AmountRow: Record "IQ Amount Row";
+    begin
+        AmountRow."No." := No;
+        AmountRow.Amount := Amount;
+        AmountRow.Insert();
+    end;
+
+    local procedure AddSubRow(No: Code[20]; Description: Text[50])
+    var
+        SubRow: Record "IQ Sub Row";
+    begin
+        SubRow."No." := No;
+        SubRow.Description := Description;
+        SubRow.Insert();
+    end;
+
+    // Inserts an IQ Other row and commits, so page 97528 opens on a row; nothing of IQ Row is held back yet.
+    local procedure AddHostRow(No: Code[20])
+    var
+        Other: Record "IQ Other";
+    begin
+        Other."No." := No;
+        Other.Insert();
+        Commit();
+    end;
+
+    // The worker codeunit 97537 run by the test, as Run does with 97524.
+    local procedure RunMore(var Host: TestPage "IQ Host"; Mode: Text; No: Text): Text
+    var
+        Parameters: Dictionary of [Text, Text];
+        Results: Dictionary of [Text, Text];
+        Seen: Text;
+    begin
+        Parameters.Add('No', No);
+        Parameters.Add('Mode', Mode);
+        Results := Host.RunPageBackgroundTask(Codeunit::"IQ Reader More", Parameters, false);
+        Results.Get('Seen', Seen);
+        exit(Seen);
+    end;
+
+    // Page 97528's own code starts the worker (CurrPage.EnqueueBackgroundTask in OnAfterGetCurrRecord) after the test inserted a
+    // row: the worker's Get does not find it.
+    [Test]
+    procedure BgTaskInsertQueue_Insert_PageEnqueuedTaskDoesNotFindIt()
+    var
+        TaskHost: TestPage "IQ Task Host";
+        IqMode: Codeunit "IQ Mode";
+        K: Code[20];
+    begin
+        K := NewKey();
+        AddHostRow(K);
+        AddRow(K + 'A', 'a');
+        IqMode.SetMode('get', K + 'A');
+        TaskHost.OpenView();
+        TaskHost.GoToKey(K);
+        IqMode.SetMode('', '');
+        Assert.AreEqual('-', TaskHost.Seen.Value(), 'page task');
+    end;
+
+    // The same after the test read the row: the page's worker finds it.
+    [Test]
+    procedure BgTaskInsertQueue_Insert_TestGet_PageEnqueuedTaskFindsIt()
+    var
+        TaskHost: TestPage "IQ Task Host";
+        IqMode: Codeunit "IQ Mode";
+        Row: Record "IQ Row";
+        K: Code[20];
+    begin
+        K := NewKey();
+        AddHostRow(K);
+        AddRow(K + 'A', 'a');
+        Row.Get(K + 'A');
+        IqMode.SetMode('get', K + 'A');
+        TaskHost.OpenView();
+        TaskHost.GoToKey(K);
+        IqMode.SetMode('', '');
+        Assert.AreEqual('a', TaskHost.Seen.Value(), 'page task');
+    end;
+
+    // A row the test read and new inserts before and after it: the worker's FindLast, and Find('-') with Next, leave the new ones
+    // out.
+    [Test]
+    procedure BgTaskInsertQueue_Inserts_TaskFindLastFindNextLeaveThemOut()
+    var
+        Host: TestPage "IQ Host";
+        Row: Record "IQ Row";
+        K: Code[20];
+    begin
+        K := NewKey();
+        AddRow(K + 'B', 'b');
+        Row.Get(K + 'B');
+        Host.OpenView();
+        AddRow(K + 'A', 'a');
+        AddRow(K + 'C', 'c');
+        Assert.AreEqual('b', RunMore(Host, 'last', K), 'FindLast');
+        Assert.AreEqual('b', RunMore(Host, 'findnext', K), 'Find and Next');
+    end;
+
+    // A row the test read and a new insert: the worker's RecordRef.Count counts the first only, its SetLoadFields and Get does not
+    // find the new one, and its CountApprox answers 1.
+    [Test]
+    procedure BgTaskInsertQueue_Insert_TaskRecordRefLoadFieldsCountApproxLeaveItOut()
+    var
+        Host: TestPage "IQ Host";
+        Row: Record "IQ Row";
+        K: Code[20];
+    begin
+        K := NewKey();
+        AddRow(K + 'A', 'a');
+        Row.Get(K + 'A');
+        Host.OpenView();
+        AddRow(K + 'B', 'b');
+        Assert.AreEqual('1', RunMore(Host, 'recref', K), 'RecordRef.Count');
+        Assert.AreEqual('-', RunMore(Host, 'loadfields', K + 'B'), 'SetLoadFields and Get');
+        Assert.AreEqual('1', RunMore(Host, 'countapprox', K), 'CountApprox');
+    end;
+
+    // The test inserts a row: the worker's GetBySystemId of it does not find it.
+    [Test]
+    procedure BgTaskInsertQueue_Insert_TaskGetBySystemIdDoesNotFindIt()
+    var
+        Host: TestPage "IQ Host";
+        Row: Record "IQ Row";
+        K: Code[20];
+    begin
+        K := NewKey();
+        Host.OpenView();
+        Row."No." := K + 'A';
+        Row.Description := 'a';
+        Row.Insert();
+        Assert.AreEqual('-', RunMore(Host, 'sysid', Format(Row.SystemId)), 'GetBySystemId');
+    end;
+
+    // A row the test read and a new insert: a Query the worker reads returns the first only.
+    [Test]
+    procedure BgTaskInsertQueue_Insert_TaskQueryLeavesItOut()
+    var
+        Host: TestPage "IQ Host";
+        Row: Record "IQ Row";
+        K: Code[20];
+    begin
+        K := NewKey();
+        AddRow(K + 'A', 'a');
+        Row.Get(K + 'A');
+        Host.OpenView();
+        AddRow(K + 'B', 'b');
+        Assert.AreEqual('1', RunMore(Host, 'query', K), 'Query');
+    end;
+
+    // A row the test read and a new insert into a table with a SumIndexField: the worker's CalcSums and a Sum FlowField leave the
+    // new one out.
+    [Test]
+    procedure BgTaskInsertQueue_Insert_TaskCalcSumsSumFlowFieldLeaveItOut()
+    var
+        Host: TestPage "IQ Host";
+        AmountRow: Record "IQ Amount Row";
+        K: Code[20];
+    begin
+        K := NewKey();
+        AddAmount(K + 'A', 1);
+        AmountRow.Get(K + 'A');
+        Host.OpenView();
+        AddAmount(K + 'B', 10);
+        Assert.AreEqual('1', RunMore(Host, 'sums', K), 'CalcSums');
+        Assert.AreEqual('1', RunMore(Host, 'sumflow', K), 'Sum FlowField');
+    end;
+
+    // An Insert into a table with an OnAfterInsertEvent subscriber that reads nothing of the table: the worker does not find the
+    // row.
+    [Test]
+    procedure BgTaskInsertQueue_SubscriberTable_Insert_TaskDoesNotFindIt()
+    var
+        Host: TestPage "IQ Host";
+        SubEvents: Codeunit "IQ Sub Events";
+        K: Code[20];
+    begin
+        K := NewKey();
+        Host.OpenView();
+        SubEvents.Reset(false);
+        AddSubRow(K + 'A', 'a');
+        Assert.AreEqual(1, SubEvents.GetCalls(), 'the subscriber ran');
+        Assert.AreEqual('-', RunMore(Host, 'getsub', K + 'A'), 'r');
+    end;
+
+    // The same subscriber reads the row the Insert stored (Get): the worker finds it.
+    [Test]
+    procedure BgTaskInsertQueue_SubscriberTable_SubscriberReadsRow_TaskFindsIt()
+    var
+        Host: TestPage "IQ Host";
+        SubEvents: Codeunit "IQ Sub Events";
+        K: Code[20];
+    begin
+        K := NewKey();
+        Host.OpenView();
+        SubEvents.Reset(true);
+        AddSubRow(K + 'A', 'a');
+        Assert.AreEqual(1, SubEvents.GetCalls(), 'the subscriber ran');
+        Assert.AreEqual('a', RunMore(Host, 'getsub', K + 'A'), 'r');
+    end;
+
+    // Three inserts, a FlowField of the test session that counts the rows, then two more inserts: the worker finds the first three
+    // and neither of the last two (the FlowField sent the queue and its count starts again).
+    [Test]
+    procedure BgTaskInsertQueue_ThreeInserts_TestFlowField_TwoInserts_TaskFindsTheFirstThree()
+    var
+        Host: TestPage "IQ Host";
+        Counter: Record "IQ Counter";
+        K: Code[20];
+    begin
+        K := NewKey();
+        Host.OpenView();
+        AddRow(K + 'A', 'a');
+        AddRow(K + 'B', 'b');
+        AddRow(K + 'C', 'c');
+        Counter.SetFilter("Prefix Filter", K + '*');
+        Counter.CalcFields(Rows);
+        AddRow(K + 'D', 'd');
+        AddRow(K + 'E', 'e');
+        Assert.AreEqual('c', Run(Host, 'get', K + 'C'), 'C');
+        Assert.AreEqual('-', Run(Host, 'get', K + 'D'), 'D');
+        Assert.AreEqual('-', Run(Host, 'get', K + 'E'), 'E');
+    end;
+
+    // The test inserts a row, then reads CountApprox of the table: the worker finds the row.
+    [Test]
+    procedure BgTaskInsertQueue_Insert_TestCountApprox_TaskFindsIt()
+    var
+        Host: TestPage "IQ Host";
+        Row: Record "IQ Row";
+        K: Code[20];
+    begin
+        K := NewKey();
+        Host.OpenView();
+        AddRow(K + 'A', 'a');
+        Row.SetFilter("No.", K + '*');
+        if Row.CountApprox() < 0 then
+            Error('negative');
+        Assert.AreEqual('a', Run(Host, 'get', K + 'A'), 'r');
+    end;
+
+    // The test inserts a row, then reads a Query over the table: the worker finds the row.
+    [Test]
+    procedure BgTaskInsertQueue_Insert_TestQuery_TaskFindsIt()
+    var
+        Host: TestPage "IQ Host";
+        IqRows: Query "IQ Rows";
+        K: Code[20];
+    begin
+        K := NewKey();
+        Host.OpenView();
+        AddRow(K + 'A', 'a');
+        IqRows.SetFilter(No, K + '*');
+        IqRows.Open();
+        Assert.IsTrue(IqRows.Read(), 'the test''s Query');
+        IqRows.Close();
+        Assert.AreEqual('a', Run(Host, 'get', K + 'A'), 'r');
+    end;
+
+    // The test inserts a row, then reads it with GetBySystemId: the worker finds the row.
+    [Test]
+    procedure BgTaskInsertQueue_Insert_TestGetBySystemId_TaskFindsIt()
+    var
+        Host: TestPage "IQ Host";
+        Row: Record "IQ Row";
+        Other: Record "IQ Row";
+        K: Code[20];
+    begin
+        K := NewKey();
+        Host.OpenView();
+        Row."No." := K + 'A';
+        Row.Description := 'a';
+        Row.Insert();
+        Assert.IsTrue(Other.GetBySystemId(Row.SystemId), 'the test''s GetBySystemId');
+        Assert.AreEqual('a', Run(Host, 'get', K + 'A'), 'r');
+    end;
+
+    // The test inserts a row, then validates a field whose TableRelation reads the table: the worker finds the row.
+    [Test]
+    procedure BgTaskInsertQueue_Insert_TestTableRelation_TaskFindsIt()
+    var
+        Host: TestPage "IQ Host";
+        Link: Record "IQ Link";
+        K: Code[20];
+    begin
+        K := NewKey();
+        Host.OpenView();
+        AddRow(K + 'A', 'a');
+        Link.Validate("Row No.", K + 'A');
+        Assert.AreEqual('a', Run(Host, 'get', K + 'A'), 'r');
+    end;
+
+    // The test inserts row A and reads it, then inserts row B and A again (a duplicate key: its error is deferred), and the
+    // worker reads B; a Commit ends the asserterror. Readings: what the worker's Get of B answers, whether the statement after
+    // it is reached, and the error the asserterror caught.
+    [Test]
+    procedure BgTaskInsertQueue_DuplicateInsertDeferred_TaskDoesNotFindTheOther_CommitRaises()
+    var
+        Host: TestPage "IQ Host";
+        Row: Record "IQ Row";
+        K: Code[20];
+        Seen: Text;
+        Reached: Text;
+    begin
+        K := NewKey();
+        Host.OpenView();
+        asserterror begin
+            AddRow(K + 'A', 'a');
+            Row.Get(K + 'A');
+            AddRow(K + 'B', 'b');
+            AddRow(K + 'A', 'a2');
+            Seen := Run(Host, 'get', K + 'B');
+            Reached := 'yes';
+            Commit();
+        end;
+        Assert.AreEqual('-', Seen, 'the worker''s Get of B');
+        Assert.AreEqual('yes', Reached, 'the statement after the worker');
+        Assert.IsTrue(StrPos(GetLastErrorText(), 'already exists') > 0, GetLastErrorText());
+    end;
+
+    // The cells from here on (al-runner pull request 8498, review round 2). Readings as at :800.
+    // - The same as :800, but the worker reads A, the key the duplicate Insert holds (:830), and the same without row B, so that
+    //   the queue holds only the duplicate (:855).
+    // - An Insert of the Date 1753-06-15, which its SQL column cannot hold (its error is deferred, record/filters/
+    //   SqlDateFloor1753.al), and the worker reads that row, a queued row and a row the test read (:879).
+    [Test]
+    procedure BgTaskInsertQueue_DuplicateInsertDeferred_TaskFindsTheDuplicatedKey_CommitRaises()
+    var
+        Host: TestPage "IQ Host";
+        Row: Record "IQ Row";
+        K: Code[20];
+        Seen: Text;
+        Reached: Text;
+    begin
+        K := NewKey();
+        Host.OpenView();
+        asserterror begin
+            AddRow(K + 'A', 'a');
+            Row.Get(K + 'A');
+            AddRow(K + 'B', 'b');
+            AddRow(K + 'A', 'a2');
+            Seen := Run(Host, 'get', K + 'A');
+            Reached := 'yes';
+            Commit();
+        end;
+        Assert.AreEqual('a', Seen, 'the worker''s Get of A');
+        Assert.AreEqual('yes', Reached, 'the statement after the worker');
+        Assert.IsTrue(StrPos(GetLastErrorText(), 'already exists') > 0, GetLastErrorText());
+    end;
+
+    [Test]
+    procedure BgTaskInsertQueue_OnlyDuplicateInsertDeferred_TaskFindsTheKey_CommitRaises()
+    var
+        Host: TestPage "IQ Host";
+        Row: Record "IQ Row";
+        K: Code[20];
+        Seen: Text;
+        Reached: Text;
+    begin
+        K := NewKey();
+        Host.OpenView();
+        asserterror begin
+            AddRow(K + 'A', 'a');
+            Row.Get(K + 'A');
+            AddRow(K + 'A', 'a2');
+            Seen := Run(Host, 'get', K + 'A');
+            Reached := 'yes';
+            Commit();
+        end;
+        Assert.AreEqual('a', Seen, 'the worker''s Get of A');
+        Assert.AreEqual('yes', Reached, 'the statement after the worker');
+        Assert.IsTrue(StrPos(GetLastErrorText(), 'already exists') > 0, GetLastErrorText());
+    end;
+
+    [Test]
+    procedure BgTaskInsertQueue_DateInsertDeferred_TaskGets_CommitRaises()
+    var
+        Host: TestPage "IQ Host";
+        DateRow: Record "IQ Date Row";
+        K: Code[20];
+        SeenD: Text;
+        SeenB: Text;
+        SeenA: Text;
+        Reached: Text;
+    begin
+        K := NewKey();
+        Host.OpenView();
+        asserterror begin
+            AddDateRow(K + 'A', 'a', 20240101D);
+            DateRow.Get(K + 'A');
+            AddDateRow(K + 'B', 'b', 20240101D);
+            AddDateRow(K + 'D', 'd', 17530615D);
+            SeenD := RunMore(Host, 'getdate', K + 'D');
+            SeenB := RunMore(Host, 'getdate', K + 'B');
+            SeenA := RunMore(Host, 'getdate', K + 'A');
+            Reached := 'yes';
+            Commit();
+        end;
+        Assert.AreEqual('-', SeenD, 'the worker''s Get of D');
+        Assert.AreEqual('-', SeenB, 'the worker''s Get of B');
+        Assert.AreEqual('a', SeenA, 'the worker''s Get of A');
+        Assert.AreEqual('yes', Reached, 'the statement after the worker');
+        Assert.IsTrue(StrPos(GetLastErrorText(), 'Cannot write the value 06/15/1753 to the field Day in the table IQ Date Row') > 0, GetLastErrorText());
+    end;
+
+    local procedure AddDateRow(No: Code[20]; Description: Text[50]; Day: Date)
+    var
+        DateRow: Record "IQ Date Row";
+    begin
+        DateRow."No." := No;
+        DateRow.Description := Description;
+        DateRow.Day := Day;
+        DateRow.Insert();
+    end;
+}
+
+// The objects of the cells from :548 on (al-runner pull request 8498, review round 1).
+
+table 97530 "IQ Amount Row"
+{
+    DataClassification = SystemMetadata;
+    ReplicateData = false;
+
+    fields
+    {
+        field(1; "No."; Code[20]) { }
+        field(2; Amount; Decimal) { }
+    }
+
+    keys
+    {
+        key(PK; "No.") { Clustered = true; SumIndexFields = Amount; }
+    }
+}
+
+table 97539 "IQ Sum Counter"
+{
+    DataClassification = SystemMetadata;
+    ReplicateData = false;
+
+    fields
+    {
+        field(1; "No."; Code[20]) { }
+        field(2; "Prefix Filter"; Code[20])
+        {
+            FieldClass = FlowFilter;
+        }
+        field(3; Amount; Decimal)
+        {
+            FieldClass = FlowField;
+            CalcFormula = sum("IQ Amount Row".Amount where("No." = field("Prefix Filter")));
+        }
+    }
+
+    keys
+    {
+        key(PK; "No.") { Clustered = true; }
+    }
+}
+
+// A table with an OnAfterInsertEvent subscriber (codeunit 97533).
+table 97532 "IQ Sub Row"
+{
+    DataClassification = SystemMetadata;
+    ReplicateData = false;
+
+    fields
+    {
+        field(1; "No."; Code[20]) { }
+        field(2; Description; Text[50]) { }
+    }
+
+    keys
+    {
+        key(PK; "No.") { Clustered = true; }
+    }
+}
+
+// A field whose TableRelation reads IQ Row.
+table 97534 "IQ Link"
+{
+    DataClassification = SystemMetadata;
+    ReplicateData = false;
+
+    fields
+    {
+        field(1; "No."; Code[20]) { }
+        field(2; "Row No."; Code[20])
+        {
+            TableRelation = "IQ Row";
+        }
+    }
+
+    keys
+    {
+        key(PK; "No.") { Clustered = true; }
+    }
+}
+
+query 97531 "IQ Rows"
+{
+    QueryType = Normal;
+
+    elements
+    {
+        dataitem(Row; "IQ Row")
+        {
+            column(No; "No.") { }
+            column(Description; Description) { }
+        }
+    }
+}
+
+// The subscriber of IQ Sub Row's OnAfterInsertEvent: it counts its calls and, when asked, reads the row the Insert stored.
+codeunit 97533 "IQ Sub Events"
+{
+    SingleInstance = true;
+
+    var
+        Calls: Integer;
+        ReadRow: Boolean;
+
+    procedure Reset(NewReadRow: Boolean)
+    begin
+        Calls := 0;
+        ReadRow := NewReadRow;
+    end;
+
+    procedure GetCalls(): Integer
+    begin
+        exit(Calls);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"IQ Sub Row", 'OnAfterInsertEvent', '', false, false)]
+    local procedure OnAfterInsertSubRow(var Rec: Record "IQ Sub Row"; RunTrigger: Boolean)
+    var
+        Other: Record "IQ Sub Row";
+    begin
+        Calls += 1;
+        if ReadRow then
+            if Other.Get(Rec."No.") then;
+    end;
+}
+
+// What the task of page 97528 reads: a mode and a key, set by the test.
+codeunit 97529 "IQ Mode"
+{
+    SingleInstance = true;
+
+    var
+        Mode: Text;
+        No: Text;
+
+    procedure SetMode(NewMode: Text; NewNo: Text)
+    begin
+        Mode := NewMode;
+        No := NewNo;
+    end;
+
+    procedure GetMode(): Text
+    begin
+        exit(Mode);
+    end;
+
+    procedure GetNo(): Text
+    begin
+        exit(No);
+    end;
+}
+
+// The worker of the reads from :548 on: FindLast, Find('-') with Next, SetLoadFields with Get, RecordRef.Count, CountApprox,
+// GetBySystemId, a Query, CalcSums, a Sum FlowField, a Get of IQ Sub Row, and a Get of IQ Date Row.
+codeunit 97537 "IQ Reader More"
+{
+    trigger OnRun()
+    var
+        Row: Record "IQ Row";
+        AmountRow: Record "IQ Amount Row";
+        SumCounter: Record "IQ Sum Counter";
+        SubRow: Record "IQ Sub Row";
+        DateRow: Record "IQ Date Row";
+        IqRows: Query "IQ Rows";
+        RecRef: RecordRef;
+        FRef: FieldRef;
+        Parameters: Dictionary of [Text, Text];
+        Results: Dictionary of [Text, Text];
+        No: Text;
+        Seen: Text;
+        Id: Guid;
+        N: Integer;
+    begin
+        Parameters := Page.GetBackgroundParameters();
+        Parameters.Get('No', No);
+        Seen := '-';
+        case Parameters.Get('Mode') of
+            'last':
+                begin
+                    Row.SetFilter("No.", No + '*');
+                    if Row.FindLast() then
+                        Seen := Row.Description;
+                end;
+            'findnext':
+                begin
+                    Row.SetFilter("No.", No + '*');
+                    Seen := '';
+                    if Row.Find('-') then
+                        repeat
+                            Seen += Row.Description;
+                        until Row.Next() = 0;
+                end;
+            'loadfields':
+                begin
+                    Row.SetLoadFields(Description);
+                    if Row.Get(No) then
+                        Seen := Row.Description;
+                end;
+            'recref':
+                begin
+                    RecRef.Open(Database::"IQ Row");
+                    FRef := RecRef.Field(1);
+                    FRef.SetFilter(No + '*');
+                    Seen := Format(RecRef.Count());
+                    RecRef.Close();
+                end;
+            'countapprox':
+                begin
+                    Row.SetFilter("No.", No + '*');
+                    Seen := Format(Row.CountApprox());
+                end;
+            'sysid':
+                begin
+                    Evaluate(Id, No);
+                    if Row.GetBySystemId(Id) then
+                        Seen := Row.Description;
+                end;
+            'query':
+                begin
+                    IqRows.SetFilter(No, No + '*');
+                    IqRows.Open();
+                    N := 0;
+                    while IqRows.Read() do
+                        N += 1;
+                    IqRows.Close();
+                    Seen := Format(N);
+                end;
+            'sums':
+                begin
+                    AmountRow.SetFilter("No.", No + '*');
+                    AmountRow.CalcSums(Amount);
+                    Seen := Format(AmountRow.Amount);
+                end;
+            'sumflow':
+                begin
+                    SumCounter.SetFilter("Prefix Filter", No + '*');
+                    SumCounter.CalcFields(Amount);
+                    Seen := Format(SumCounter.Amount);
+                end;
+            'getsub':
+                if SubRow.Get(No) then
+                    Seen := SubRow.Description;
+            'getdate':
+                if DateRow.Get(No) then
+                    Seen := DateRow.Description;
+        end;
+        Results.Add('Seen', Seen);
+        Page.SetBackgroundTaskResult(Results);
+    end;
+}
+
+// A page whose own code starts the worker: OnAfterGetCurrRecord enqueues it with the mode and key of codeunit 97529, and the page
+// shows the answer.
+page 97528 "IQ Task Host"
+{
+    PageType = Card;
+    SourceTable = "IQ Other";
+    ApplicationArea = All;
+    UsageCategory = Administration;
+
+    layout
+    {
+        area(Content)
+        {
+            field("No."; Rec."No.") { }
+            field(Seen; Seen)
+            {
+                Editable = false;
+            }
+        }
+    }
+
+    trigger OnAfterGetCurrRecord()
+    var
+        IqMode: Codeunit "IQ Mode";
+        Parameters: Dictionary of [Text, Text];
+        TaskId: Integer;
+    begin
+        if IqMode.GetMode() = '' then
+            exit;
+        Parameters.Add('No', IqMode.GetNo());
+        Parameters.Add('Mode', IqMode.GetMode());
+        CurrPage.EnqueueBackgroundTask(TaskId, Codeunit::"IQ Reader", Parameters);
+    end;
+
+    trigger OnPageBackgroundTaskCompleted(TaskId: Integer; Results: Dictionary of [Text, Text])
+    begin
+        Seen := CopyStr(Results.Get('Seen'), 1, MaxStrLen(Seen));
+    end;
+
+    var
+        Seen: Text[50];
+}
+
+// The table of the cell at :879: a Date field, no trigger, no Blob or AutoIncrement field.
+table 97535 "IQ Date Row"
+{
+    DataClassification = SystemMetadata;
+    ReplicateData = false;
+
+    fields
+    {
+        field(1; "No."; Code[20]) { }
+        field(2; Description; Text[50]) { }
+        field(3; Day; Date) { }
+    }
+
+    keys
+    {
+        key(PK; "No.") { Clustered = true; }
+    }
 }
