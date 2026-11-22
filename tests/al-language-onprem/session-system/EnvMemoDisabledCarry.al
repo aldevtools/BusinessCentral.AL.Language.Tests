@@ -15,6 +15,12 @@
 //   SetTestabilityPreview / SetTestabilityEarlyPreview, IsPreview and IsEarlyPreview do not exist in the BC 27 System Application
 //   (AL0132), so on BC 27 no flag can show a carry: those lines are guarded with BC28PLUS.
 //   IsSaaSInfrastructure is read only after the SaaS flag was set in the same test (its native value differs per tier).
+// BC result (BC 27.5, 28.5, 29.0 all measured; 28.5 and 29.0 identical): the testability flags in "Environment Information Impl."
+//   carry from a test codeunit to the next one in all four pairs (Disabled -> Disabled, Disabled -> Codeunit, Codeunit -> Disabled,
+//   Codeunit -> Codeunit): the reader's first IsPreview / IsEarlyPreview read Yes (control without any setter: No). RequiredTestIsolation
+//   of the setter or of the reader makes no difference. The reader's SetFlags(false) resets them (No). Within a codeunit the second
+//   test also sees the flags of the first. IsSaaS, IsSandbox and IsSaaSInfrastructure read Yes in every cell (see above).
+//   BC 27: Preview members do not exist; IsSaaS / IsSandbox read Yes everywhere, so no carry is observable there.
 // BC versions: 27 - 29
 codeunit 98964 "LT DM Env Probe"
 {
@@ -56,7 +62,13 @@ codeunit 98955 "LT DM Control Read"
         Observer: Codeunit "Probe Observer";
     begin
         EnvProbe.ObserveFlags(Observer, 'control');
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('control_is_preview', 'No');
+        Observer.Expect('control_is_early_preview', 'No');
+#endif
+        Observer.Expect('control_is_saas', 'Yes');
+        Observer.Expect('control_is_sandbox', 'Yes');
+        Observer.Verify();
     end;
 }
 
@@ -76,7 +88,14 @@ codeunit 98956 "LT DM Disabled Set"
         EnvProbe.SetFlags(true);
         Observer.Observe('after_set_is_saas_infrastructure', Format(EnvInfo.IsSaaSInfrastructure()));
         EnvProbe.ObserveFlags(Observer, 'after_set');
-        Observer.Finish();
+        Observer.Expect('after_set_is_saas_infrastructure', 'Yes');
+#if BC28PLUS
+        Observer.Expect('after_set_is_preview', 'Yes');
+        Observer.Expect('after_set_is_early_preview', 'Yes');
+#endif
+        Observer.Expect('after_set_is_saas', 'Yes');
+        Observer.Expect('after_set_is_sandbox', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -88,7 +107,14 @@ codeunit 98956 "LT DM Disabled Set"
     begin
         EnvProbe.ObserveFlags(Observer, 'next_test');
         Observer.Observe('next_test_is_saas_infrastructure', Format(EnvInfo.IsSaaSInfrastructure()));
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('next_test_is_preview', 'Yes');
+        Observer.Expect('next_test_is_early_preview', 'Yes');
+#endif
+        Observer.Expect('next_test_is_saas', 'Yes');
+        Observer.Expect('next_test_is_sandbox', 'Yes');
+        Observer.Expect('next_test_is_saas_infrastructure', 'Yes');
+        Observer.Verify();
     end;
 }
 
@@ -107,7 +133,19 @@ codeunit 98957 "LT DM Disabled Read"
         EnvProbe.ObserveFlags(Observer, 'next_codeunit');
         EnvProbe.SetFlags(false);
         EnvProbe.ObserveFlags(Observer, 'after_reset');
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('next_codeunit_is_preview', 'Yes');
+        Observer.Expect('next_codeunit_is_early_preview', 'Yes');
+#endif
+        Observer.Expect('next_codeunit_is_saas', 'Yes');
+        Observer.Expect('next_codeunit_is_sandbox', 'Yes');
+#if BC28PLUS
+        Observer.Expect('after_reset_is_preview', 'No');
+        Observer.Expect('after_reset_is_early_preview', 'No');
+#endif
+        Observer.Expect('after_reset_is_saas', 'Yes');
+        Observer.Expect('after_reset_is_sandbox', 'Yes');
+        Observer.Verify();
     end;
 }
 
@@ -125,7 +163,13 @@ codeunit 98958 "LT DM Disabled Set B"
     begin
         EnvProbe.SetFlags(true);
         EnvProbe.ObserveFlags(Observer, 'after_set');
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('after_set_is_preview', 'Yes');
+        Observer.Expect('after_set_is_early_preview', 'Yes');
+#endif
+        Observer.Expect('after_set_is_saas', 'Yes');
+        Observer.Expect('after_set_is_sandbox', 'Yes');
+        Observer.Verify();
     end;
 }
 
@@ -144,7 +188,19 @@ codeunit 98959 "LT DM Codeunit Read"
         EnvProbe.ObserveFlags(Observer, 'next_codeunit');
         EnvProbe.SetFlags(false);
         EnvProbe.ObserveFlags(Observer, 'after_reset');
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('next_codeunit_is_preview', 'Yes');
+        Observer.Expect('next_codeunit_is_early_preview', 'Yes');
+#endif
+        Observer.Expect('next_codeunit_is_saas', 'Yes');
+        Observer.Expect('next_codeunit_is_sandbox', 'Yes');
+#if BC28PLUS
+        Observer.Expect('after_reset_is_preview', 'No');
+        Observer.Expect('after_reset_is_early_preview', 'No');
+#endif
+        Observer.Expect('after_reset_is_saas', 'Yes');
+        Observer.Expect('after_reset_is_sandbox', 'Yes');
+        Observer.Verify();
     end;
 }
 
@@ -162,7 +218,13 @@ codeunit 98960 "LT DM Codeunit Set"
     begin
         EnvProbe.SetFlags(true);
         EnvProbe.ObserveFlags(Observer, 'after_set');
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('after_set_is_preview', 'Yes');
+        Observer.Expect('after_set_is_early_preview', 'Yes');
+#endif
+        Observer.Expect('after_set_is_saas', 'Yes');
+        Observer.Expect('after_set_is_sandbox', 'Yes');
+        Observer.Verify();
     end;
 }
 
@@ -181,7 +243,19 @@ codeunit 98961 "LT DM Disabled Read B"
         EnvProbe.ObserveFlags(Observer, 'next_codeunit');
         EnvProbe.SetFlags(false);
         EnvProbe.ObserveFlags(Observer, 'after_reset');
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('next_codeunit_is_preview', 'Yes');
+        Observer.Expect('next_codeunit_is_early_preview', 'Yes');
+#endif
+        Observer.Expect('next_codeunit_is_saas', 'Yes');
+        Observer.Expect('next_codeunit_is_sandbox', 'Yes');
+#if BC28PLUS
+        Observer.Expect('after_reset_is_preview', 'No');
+        Observer.Expect('after_reset_is_early_preview', 'No');
+#endif
+        Observer.Expect('after_reset_is_saas', 'Yes');
+        Observer.Expect('after_reset_is_sandbox', 'Yes');
+        Observer.Verify();
     end;
 }
 
@@ -199,7 +273,13 @@ codeunit 98962 "LT DM Codeunit Set B"
     begin
         EnvProbe.SetFlags(true);
         EnvProbe.ObserveFlags(Observer, 'after_set');
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('after_set_is_preview', 'Yes');
+        Observer.Expect('after_set_is_early_preview', 'Yes');
+#endif
+        Observer.Expect('after_set_is_saas', 'Yes');
+        Observer.Expect('after_set_is_sandbox', 'Yes');
+        Observer.Verify();
     end;
 }
 
@@ -218,6 +298,18 @@ codeunit 98963 "LT DM Codeunit Read B"
         EnvProbe.ObserveFlags(Observer, 'next_codeunit');
         EnvProbe.SetFlags(false);
         EnvProbe.ObserveFlags(Observer, 'after_reset');
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('next_codeunit_is_preview', 'Yes');
+        Observer.Expect('next_codeunit_is_early_preview', 'Yes');
+#endif
+        Observer.Expect('next_codeunit_is_saas', 'Yes');
+        Observer.Expect('next_codeunit_is_sandbox', 'Yes');
+#if BC28PLUS
+        Observer.Expect('after_reset_is_preview', 'No');
+        Observer.Expect('after_reset_is_early_preview', 'No');
+#endif
+        Observer.Expect('after_reset_is_saas', 'Yes');
+        Observer.Expect('after_reset_is_sandbox', 'Yes');
+        Observer.Verify();
     end;
 }
