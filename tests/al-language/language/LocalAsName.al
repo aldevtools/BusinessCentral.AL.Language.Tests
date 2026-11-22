@@ -1,13 +1,16 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-al-variables
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own codeunit 99761
+// Fixtures used: Probe Observer (codeunit 69160); own codeunits 99761 and 99762
 // Probe: al-runner issue 8629: the word Local (the procedure modifier) as the name of a variable or parameter, used unquoted in code
 // Facts: a variable named Local declared after a comma (Other, Local: Integer), a quoted declaration "Local", a parameter and a var
 // parameter named Local, and a global variable named Local all compile and work when the code names them unquoted: assignment, +=,
 // read in an expression, argument of a var parameter, for loop variable, case and if, array index, List methods, unary minus and not.
+// A procedure named Local compiles and is called unquoted: as a statement with and without parentheses, assigned, in an
+// expression, an if condition, an argument and exit, and through a codeunit variable with and without parentheses.
 // Local as the first unquoted name of a declaration, or as a named return value, does not compile (AL0104 'procedure' expected),
 // so this file never declares it that way.
-// Measured with the AL compilers of BC 27, 28 and 29: every shape here compiles. The expected values follow from the plain integer,
+// Measured with the AL compilers of BC 27, 28 and 29: every shape here compiles, and each call form of the procedure Local
+// compiles with the name quoted or unquoted. The expected values follow from the plain integer,
 // array, List and Boolean semantics; the corpus CI run on BC 27, 28 and 29 is the first run that checks them on BC.
 // BC versions: 27, 28, 29
 codeunit 99760 "LANG Local As Name Tests"
@@ -229,6 +232,21 @@ codeunit 99760 "LANG Local As Name Tests"
         Observer.Verify();
     end;
 
+    [Test]
+    procedure LocalAsName_Procedure_CalledUnquotedInEachForm_RunsEachCall()
+    var
+        Proc: Codeunit "LANG Local As Name Proc";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('call forms', Proc.CallForms());
+        Observer.Observe('codeunit variable call', Format(Proc.Local()));
+        Observer.Observe('codeunit variable bare', Format(Proc.Local));
+        Observer.Expect('call forms', '43,44,46,if,47,48,49,9');
+        Observer.Expect('codeunit variable call', '50');
+        Observer.Expect('codeunit variable bare', '51');
+        Observer.Verify();
+    end;
+
     local procedure Twice(Local: Integer): Integer
     begin
         exit(Local * 2);
@@ -271,5 +289,50 @@ codeunit 99761 "LANG Local As Name Globals"
     procedure GetOtherPlusLocal(): Integer
     begin
         exit(Other + Local);
+    end;
+}
+
+// local object: its procedure named Local, called unquoted in each form, is what LocalAsName_Procedure_CalledUnquotedInEachForm_RunsEachCall checks
+codeunit 99762 "LANG Local As Name Proc"
+{
+    var
+        Calls: Integer;
+
+    procedure Local(): Integer
+    begin
+        Calls += 1;
+        exit(40 + Calls);
+    end;
+
+    procedure CallForms(): Text
+    var
+        X: Integer;
+        Log: Text;
+    begin
+        Calls := 0;
+        Local();
+        Local;
+        X := Local();
+        Log := Format(X);
+        X := Local;
+        Log += ',' + Format(X);
+        Log += ',' + Format(Local() + 1);
+        if Local() > 0 then
+            Log += ',if';
+        Log += ',' + Format(Abs(Local()));
+        Log += ',' + Format(ExitCall());
+        Log += ',' + Format(ExitBare());
+        Log += ',' + Format(Calls);
+        exit(Log);
+    end;
+
+    local procedure ExitCall(): Integer
+    begin
+        exit(Local());
+    end;
+
+    local procedure ExitBare(): Integer
+    begin
+        exit(Local);
     end;
 }
