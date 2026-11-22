@@ -605,6 +605,10 @@ codeunit 87211 "REC MovedKey Tests"
     //   R9   P6 with a version from the buffer's own Modify after a Get of committed row OWN.
     //   R10  row X inserted, Src.Get, then the 2nd call through a RecordRef: GetTable(Src), key field set to TARGET,
     //        Insert(true) fails, Modify(true).
+    //   Measured on BC 29.0 (asserted verbatim): every R cell is written except R8, which raises DB:RecordChanged (a buffer filled
+    //   by TransferFields(Src) with the key included). LockTable counts like a write (R1, R1b), and so do Delete, DeleteAll and
+    //   ModifyAll of another row (R4, R5a, R5b). A FindFirst or FindSet read after a write (R2, R3), the same key changed after the
+    //   read (R6), a version from Rename (R7) or from the buffer's own Modify after a Get (R9), and a RecordRef (R10) are written too.
 
     local procedure SeedPlus(ExtraCode: Code[20]; ExtraName: Text[50])
     begin
@@ -629,7 +633,10 @@ codeunit 87211 "REC MovedKey Tests"
             Error(NoErrorTxt);
         end;
         CloseCell('R1');
-        Obs.Finish();
+        Obs.Expect('R1|insert', 'ok,fail');
+        Obs.Expect('R1|raised', 'none');
+        Obs.Expect('R1|stored', 'SOURCE=new TARGET=second');
+        Obs.Verify();
     end;
 
     [Test]
@@ -648,7 +655,10 @@ codeunit 87211 "REC MovedKey Tests"
             Error(NoErrorTxt);
         end;
         CloseCell('R1b');
-        Obs.Finish();
+        Obs.Expect('R1b|insert', 'ok,fail');
+        Obs.Expect('R1b|raised', 'none');
+        Obs.Expect('R1b|stored', 'SOURCE=new TARGET=second');
+        Obs.Verify();
     end;
 
     [Test]
@@ -668,7 +678,10 @@ codeunit 87211 "REC MovedKey Tests"
             Error(NoErrorTxt);
         end;
         CloseCell('R2');
-        Obs.Finish();
+        Obs.Expect('R2|insert', 'ok,fail');
+        Obs.Expect('R2|raised', 'none');
+        Obs.Expect('R2|stored', 'SOURCE=new TARGET=second X=x');
+        Obs.Verify();
     end;
 
     [Test]
@@ -689,7 +702,10 @@ codeunit 87211 "REC MovedKey Tests"
             Error(NoErrorTxt);
         end;
         CloseCell('R3');
-        Obs.Finish();
+        Obs.Expect('R3|insert', 'ok,fail');
+        Obs.Expect('R3|raised', 'none');
+        Obs.Expect('R3|stored', 'A=a SOURCE=new TARGET=second');
+        Obs.Verify();
     end;
 
     [Test]
@@ -710,7 +726,10 @@ codeunit 87211 "REC MovedKey Tests"
             Error(NoErrorTxt);
         end;
         CloseCell('R4');
-        Obs.Finish();
+        Obs.Expect('R4|insert', 'ok,fail');
+        Obs.Expect('R4|raised', 'none');
+        Obs.Expect('R4|stored', 'SOURCE=new TARGET=second');
+        Obs.Verify();
     end;
 
     [Test]
@@ -731,7 +750,10 @@ codeunit 87211 "REC MovedKey Tests"
             Error(NoErrorTxt);
         end;
         CloseCell('R5a');
-        Obs.Finish();
+        Obs.Expect('R5a|insert', 'ok,fail');
+        Obs.Expect('R5a|raised', 'none');
+        Obs.Expect('R5a|stored', 'SOURCE=new TARGET=second');
+        Obs.Verify();
     end;
 
     [Test]
@@ -752,7 +774,10 @@ codeunit 87211 "REC MovedKey Tests"
             Error(NoErrorTxt);
         end;
         CloseCell('R5b');
-        Obs.Finish();
+        Obs.Expect('R5b|insert', 'ok,fail');
+        Obs.Expect('R5b|raised', 'none');
+        Obs.Expect('R5b|stored', 'D=dm SOURCE=new TARGET=second');
+        Obs.Verify();
     end;
 
     [Test]
@@ -778,7 +803,10 @@ codeunit 87211 "REC MovedKey Tests"
             Error(NoErrorTxt);
         end;
         CloseCell('R6');
-        Obs.Finish();
+        Obs.Expect('R6|insert', 'fail');
+        Obs.Expect('R6|raised', 'none');
+        Obs.Expect('R6|stored', 'SOURCE=second X=x');
+        Obs.Verify();
     end;
 
     [Test]
@@ -806,7 +834,10 @@ codeunit 87211 "REC MovedKey Tests"
             Error(NoErrorTxt);
         end;
         CloseCell('R7');
-        Obs.Finish();
+        Obs.Expect('R7|insert', 'ok,fail');
+        Obs.Expect('R7|raised', 'none');
+        Obs.Expect('R7|stored', 'REN=old SOURCE=new TARGET=second');
+        Obs.Verify();
     end;
 
     [Test]
@@ -834,7 +865,10 @@ codeunit 87211 "REC MovedKey Tests"
             Error(NoErrorTxt);
         end;
         CloseCell('R8');
-        Obs.Finish();
+        Obs.Expect('R8|insert', 'ok,fail');
+        Obs.Expect('R8|raised', 'DB:RecordChanged/The changes to the REC MovedKey Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Code=''TARGET''');
+        Obs.Expect('R8|stored', 'SOURCE=new');
+        Obs.Verify();
     end;
 
     [Test]
@@ -863,7 +897,10 @@ codeunit 87211 "REC MovedKey Tests"
             Error(NoErrorTxt);
         end;
         CloseCell('R9');
-        Obs.Finish();
+        Obs.Expect('R9|insert', 'ok,fail');
+        Obs.Expect('R9|raised', 'none');
+        Obs.Expect('R9|stored', 'OWN=ownmod SOURCE=new TARGET=second');
+        Obs.Verify();
     end;
 
     [Test]
@@ -889,7 +926,10 @@ codeunit 87211 "REC MovedKey Tests"
             Error(NoErrorTxt);
         end;
         CloseCell('R10');
-        Obs.Finish();
+        Obs.Expect('R10|insert', 'ok,fail');
+        Obs.Expect('R10|raised', 'none');
+        Obs.Expect('R10|stored', 'SOURCE=new TARGET=second X=x');
+        Obs.Verify();
     end;
 }
 
