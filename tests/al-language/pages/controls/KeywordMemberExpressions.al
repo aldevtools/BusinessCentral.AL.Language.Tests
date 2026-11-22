@@ -10,10 +10,11 @@
 //   - On BC 27 and 28 a TestPage of a page whose control has `Visible = Rec."Exit" > 0;` raises "The identifier 'Exit'
 //     could not be found." when the test reads that control's Visible state, and when it closes the page; BC 29 gives the
 //     state. The page with the keyword Visible expressions (75683) and its test are BC 29 only.
-//   - Not compiling (must-not-compile 3500 to 3551): one of 32 words unquoted after `.` or `::` in a page control's Visible,
+//   - Not compiling (must-not-compile 3500 to 3555): one of 32 words unquoted after `.` or `::` in a page control's Visible,
 //     Editable, Enabled, CaptionClass, HideValue, ShowMandatory or QuickEntry, a page action's Visible or Enabled, a group's
 //     or part's Visible, a page's DataCaptionExpression, a control's or report column's source expression, and the same in
-//     page and report extensions, with AL0107 at the name first.
+//     page and report extensions, an action-area group's Visible, and the Visible of a page extension's `modify` of an action,
+//     a group or a part, with AL0107 at the name first.
 // local object: the member names in the expressions are under test.
 // BC versions: 27, 28, 29 (by the corpus CI matrix)
 

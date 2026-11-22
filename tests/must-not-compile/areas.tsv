@@ -1371,3 +1371,7 @@ stem	area
 3549-control-visible-scope-div	pages
 3550-control-source-scope-foreach	pages
 3551-report-column-source-scope-then	reports
+3552-action-area-group-visible-member-repeat	pages
+3553-pageextension-modify-action-visible-member-until	pages
+3554-pageextension-modify-group-visible-member-while	pages
+3555-pageextension-modify-part-visible-member-xor	pages
