@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-visible-property
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own table 75700, pages 75701, 75702, 75703 and 75705, test codeunit 75704
+// Fixtures used: Probe Observer (codeunit 69160); own table 75700, pages 75701, 75702, 75703, 75705 and 75706, test codeunit 75704
 // Probe (al-runner issue 8660): the Visible state a TestPage reads for a field control whose Visible expression names a field
 //   of the source record, by what the control's source is.
 // Facts:
@@ -8,7 +8,8 @@
 //     expression names a field of the source record (Rec.Amount > 0, Rec.Amount < 0, Rec.Flag, Amount > 0, ShowIt and
 //     (Rec.Amount >= 0)): the TestPage reads Yes, whatever the row holds.
 //   - BC 27 and 28: opening a TestPage of a page with such a control (OpenEdit, OpenView, OpenNew) raises "The identifier
-//     '<field>' could not be found.", naming the first field that the Visible of the first such control names.
+//     '<field>' could not be found." (code Expression:Argument), naming the first field that the Visible of the first such
+//     control names, after OnOpenPage and before OnAfterGetRecord.
 //   - A control bound to a field of the source record, or whose Visible expression names no field (a page variable, 1 = 0):
 //     the TestPage reads the value the expression had when the page opened, before its first row (No for Rec.Amount > 0 and
 //     for a variable that OnAfterGetRecord sets).
@@ -166,6 +167,28 @@ page 75705 "PGC Visible On Open Error"
         Error('OnOpenPage ran');
     end;
 }
+page 75706 "PGC Visible On Get Error"
+{
+    PageType = Card;
+    SourceTable = "PGC Visible Source Row";
+
+    layout
+    {
+        area(Content)
+        {
+            field(AmountPlusOne; Rec.Amount + 1)
+            {
+                ApplicationArea = All;
+                Visible = Rec.Amount > 0;
+            }
+        }
+    }
+
+    trigger OnAfterGetRecord()
+    begin
+        Error('OnAfterGetRecord ran');
+    end;
+}
 codeunit 75704 "PGC Visible Source Tests"
 {
     Subtype = Test;
@@ -216,9 +239,10 @@ codeunit 75704 "PGC Visible Source Tests"
         Observer.Verify();
     end;
 #else
-    // BC 27 and 28: opening a TestPage of a page with such a control raises "The identifier '<field>' could not be found.".
-    // Observed (Finish): its code per open mode, which field it names when several controls qualify (page 75702 has its
-    // Rec.Flag control first), and whether OnOpenPage runs before it (page 75705 raises in OnOpenPage).
+    // BC 27 and 28: opening a TestPage of a page with such a control raises "The identifier '<field>' could not be found."
+    // (code Expression:Argument) in OpenEdit, OpenView and OpenNew, naming the first field the Visible of the first such
+    // control names (page 75702 has its Rec.Flag control first). OnOpenPage runs before it (page 75705), OnAfterGetRecord
+    // does not (page 75706).
     [Test]
     procedure VisibleSource_ExpressionSourceNamingRecField_Before29_OpenErrors()
     var
@@ -242,7 +266,33 @@ codeunit 75704 "PGC Visible Source Tests"
         Observer.ObserveError('other sources open edit');
         asserterror OnOpen.OpenEdit();
         Observer.ObserveError('on open page error');
-        Observer.Finish();
+        Observer.Expect('open edit|text', 'The identifier ''Amount'' could not be found.');
+        Observer.Expect('open edit|code', 'Expression:Argument');
+        Observer.Expect('open view|text', 'The identifier ''Amount'' could not be found.');
+        Observer.Expect('open view|code', 'Expression:Argument');
+        Observer.Expect('open new|text', 'The identifier ''Amount'' could not be found.');
+        Observer.Expect('open new|code', 'Expression:Argument');
+        Observer.Expect('other sources open edit|text', 'The identifier ''Flag'' could not be found.');
+        Observer.Expect('other sources open edit|code', 'Expression:Argument');
+        Observer.Expect('on open page error|text', 'OnOpenPage ran');
+        Observer.Expect('on open page error|code', 'Dialog');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure VisibleSource_ExpressionSourceNamingRecField_Before29_ErrorBeforeOnAfterGetRecord()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Visible Source Row";
+        OnAfterGet: TestPage "PGC Visible On Get Error";
+    begin
+        Initialize();
+        InsertRow(Row);
+        asserterror OnAfterGet.OpenEdit();
+        Observer.ObserveError('on after get record error');
+        Observer.Expect('on after get record error|text', 'The identifier ''Amount'' could not be found.');
+        Observer.Expect('on after get record error|code', 'Expression:Argument');
+        Observer.Verify();
     end;
 #endif
 
