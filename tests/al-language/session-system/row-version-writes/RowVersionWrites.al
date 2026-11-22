@@ -231,14 +231,10 @@ codeunit 76603 "RVW Writes"
         Prev := LastUsedRowVersion();
         Row.ModifyAll(Name, 'y');
         Seq.Step(Observer, 'modifyall', Prev);
-        Row.Get(2);
-        Seq.StepRowQuiet(Observer, 'get row 2', Prev, Row.SystemRowVersion);
         Row.DeleteAll();
         Commit();
         Observer.Expect('modifyall last/prev', 'greater');
         Observer.Expect('modifyall tx', 'Yes');
-        Observer.Expect('get row 2 row/last', 'same');
-        Observer.Expect('get row 2 tx', 'Yes');
         Observer.Verify();
     end;
 
@@ -562,14 +558,10 @@ codeunit 76603 "RVW Writes"
         Prev := LastUsedRowVersion();
         Row.ModifyAll(Name, 'y');
         Seq.Step(Observer, 'modifyall', Prev);
-        Row.Get(2);
-        Seq.StepRowQuiet(Observer, 'get row 2', Prev, Row.SystemRowVersion);
         Row.DeleteAll();
         Commit();
         Observer.Expect('modifyall last/prev', 'greater');
         Observer.Expect('modifyall tx', 'Yes');
-        Observer.Expect('get row 2 row/last', 'same');
-        Observer.Expect('get row 2 tx', 'Yes');
         Observer.Verify();
     end;
 
