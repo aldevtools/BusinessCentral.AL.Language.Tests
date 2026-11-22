@@ -28,8 +28,8 @@
 //   - a rollback: asserterror (:983) and the end of an AutoRollback test (:1016, :1029) do not change what the next read answers;
 //     the test session's own Get answers like a worker read then, until it writes the table (:983);
 //   - another test codeunit: its read sees its own row (:1044, :1067).
-// A commit of a ModifyAll, DeleteAll or Truncate of another row of the table, SelectLatestVersion and a table with a Blob
-//   field: BQ Tests 11 (end of the file). GroupCount and PartialGet of BQ Tests 3 are in BQ Tests 3b.
+// A commit of a ModifyAll or DeleteAll of another row of the table (BQ Tests 12), SelectLatestVersion and a table with a Blob
+//   field (BQ Tests 11): the end of the file. GroupCount and PartialGet of BQ Tests 3 are in BQ Tests 3b.
 // BC versions: 29.1 (local W1 container).
 
 table 97500 "BQ Row"
@@ -6544,7 +6544,9 @@ codeunit 97577 "BQ Tests 3b"
 //     for the rows the test codeunit wrote, as the locking reads of corpus PR 1498 do, so no cell reads it here.)
 //   - A commit of a ModifyAll or a DeleteAll of another row of the table, then a change of the row the test does not read: BC
 //     27.5, 28.5 and 29.0 end the row's entry (for ModifyAll: the corpus CI of PR 1457), BC 29.1 keeps it; BQ Version tells
-//     them apart. The same after a Truncate is BQ Tests 12: a Truncate keeps its table locked for the rest of the test codeunit.
+//     them apart. These cells are in BQ Tests 12, so BQ Tests 11 needs no Base Application. (After a Truncate of another row
+//     the local 29.1 container answered the first read when the test changed the row by Get and Modify, which the Get alone
+//     answers (:500), and waited on a lock when it changed the row by ModifyAll; no cell.)
 table 97575 "BQ Blob Row"
 {
     DataClassification = SystemMetadata;
@@ -6650,16 +6652,6 @@ codeunit 97576 "BQ Tests 11"
         Row.Get(Group, LineNo);
         Row.Description := Description;
         Row.Modify();
-    end;
-
-    // Changes the line without reading it (ModifyAll).
-    local procedure WriteOnly(Group: Code[20]; LineNo: Integer; Description: Text[50])
-    var
-        Row: Record "BQ Row";
-    begin
-        Row.SetRange("Group", Group);
-        Row.SetRange("Line No.", LineNo);
-        Row.ModifyAll(Description, Description);
     end;
 
     // Inserts a row of BQ Blob Row with its Blob, then reads the table (as AddRow).
@@ -6919,6 +6911,67 @@ codeunit 97576 "BQ Tests 11"
         Assert.AreEqual('first', Run(Rows, Codeunit::"BQ Reader 11", 'blobdesc', K, 0), 'Get again');
         Rows.Close();
     end;
+}
+
+// The cells of BQ Tests 11 whose answer differs between BC versions: a commit of a ModifyAll or a DeleteAll of another row of
+// the table, then a change of the row the test does not read.
+codeunit 97579 "BQ Tests 12"
+{
+    Subtype = Test;
+
+    var
+        Assert: Codeunit Assert;
+        // No BQ Mode (a SingleInstance of BQ Tests): page 97519 starts no task of its own.
+
+    local procedure NewGroup(): Code[20]
+    begin
+        exit(CopyStr(DelChr(Format(CreateGuid()), '=', '{}-'), 1, 20));
+    end;
+
+    // Inserts a line, then reads the group (as AddRow of BQ Tests).
+    local procedure AddRow(Group: Code[20]; LineNo: Integer; Description: Text[50])
+    var
+        Row: Record "BQ Row";
+    begin
+        Row."Group" := Group;
+        Row."Line No." := LineNo;
+        Row.Description := Description;
+        Row.Insert();
+        Row.SetRange("Group", Group);
+        if Row.FindFirst() then;
+    end;
+
+    // Changes the line without reading it (ModifyAll).
+    local procedure WriteOnly(Group: Code[20]; LineNo: Integer; Description: Text[50])
+    var
+        Row: Record "BQ Row";
+    begin
+        Row.SetRange("Group", Group);
+        Row.SetRange("Line No.", LineNo);
+        Row.ModifyAll(Description, Description);
+    end;
+
+    local procedure OpenOn(var Rows: TestPage "BQ Plain Rows"; Group: Code[20])
+    begin
+        Rows.OpenView();
+        Rows.Filter.SetFilter("Group", Group);
+        Rows.First();
+    end;
+
+    local procedure Run(var Rows: TestPage "BQ Plain Rows"; Worker: Integer; Mode: Text; Group: Code[20]; LineNo: Integer): Text
+    var
+        Parameters: Dictionary of [Text, Text];
+        Results: Dictionary of [Text, Text];
+        Seen: Text;
+    begin
+        Parameters.Add('Group', Group);
+        Parameters.Add('Line', Format(LineNo));
+        Parameters.Add('Mode', Mode);
+        Results := Rows.RunPageBackgroundTask(Worker, Parameters, false);
+        Results.Get('Seen', Seen);
+        exit(Seen);
+    end;
+
 
     local procedure OtherRowBulkCommitted(Bulk: Text)
     var
@@ -6963,65 +7016,6 @@ codeunit 97576 "BQ Tests 11"
     procedure BgQueryCache_Run_Get_OtherRowDeleteAllCommitted_ThenChanged()
     begin
         OtherRowBulkCommitted('deleteall');
-    end;
-}
-
-// The Truncate cell of BQ Tests 11, alone in its test codeunit: a Truncate keeps the table locked to the worker's reads for the
-// rest of the test codeunit.
-codeunit 97579 "BQ Tests 12"
-{
-    Subtype = Test;
-
-    var
-        Assert: Codeunit Assert;
-
-    // Committed lines 1 and 2; Get of line 1; the test deletes line 2 by Truncate and commits, then changes line 1 (Get, Modify):
-    // BC 29.1 answers the first read, BC 27.5, 28.5 and 29.0 the change.
-    [Test]
-    procedure BgQueryCache_Run_Get_OtherRowTruncateCommitted_ThenChanged()
-    var
-        Rows: TestPage "BQ Plain Rows";
-        Row: Record "BQ Row";
-        Version: Codeunit "BQ Version";
-        Parameters: Dictionary of [Text, Text];
-        Results: Dictionary of [Text, Text];
-        G: Code[20];
-        Seen: Text;
-    begin
-        G := CopyStr(DelChr(Format(CreateGuid()), '=', '{}-'), 1, 20);
-        Row."Group" := G;
-        Row."Line No." := 1;
-        Row.Description := 'first';
-        Row.Insert();
-        Row."Line No." := 2;
-        Row.Description := 'other';
-        Row.Insert();
-        Commit();
-        Rows.OpenView();
-        Rows.Filter.SetFilter("Group", G);
-        Rows.First();
-        Parameters.Add('Group', G);
-        Parameters.Add('Line', '1');
-        Parameters.Add('Mode', 'get');
-        Results := Rows.RunPageBackgroundTask(Codeunit::"BQ Reader", Parameters, false);
-        Results.Get('Seen', Seen);
-        Assert.AreEqual('first', Seen, 'Get');
-        Row.Reset();
-        Row.SetRange("Group", G);
-        Row.SetRange("Line No.", 2);
-        Row.Truncate();
-        Commit();
-        Row.Reset();
-        Row.Get(G, 1);
-        Row.Description := 'second';
-        Row.Modify();
-        Results := Rows.RunPageBackgroundTask(Codeunit::"BQ Reader", Parameters, false);
-        Results.Get('Seen', Seen);
-        if Version.AtLeast(29, 1) then
-            Assert.AreEqual('first', Seen, 'Get after the commit, BC 29.1')
-        else
-            Assert.AreEqual('second', Seen, 'Get after the commit, BC 27.5 to 29.0');
-        Rows.Close();
     end;
 }
 
