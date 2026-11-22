@@ -79,7 +79,7 @@ codeunit 84549 "LT CH Report Leads"
         asserterror Report.RunModal(Report::"LT CH RP CloseError");
         Obs.ObserveError('runmodal');
         Obs.Observe('log', Log.Take());
-        Obs.Expect('runmodal|text', 'One or more errors occurred while closing the page.\n\nLT CH close error');
+        Obs.Expect('runmodal|text', 'One or more errors occurred while closing the page.\\LT CH close error');
         Obs.Expect('runmodal|code', 'TestWrapped');
         Obs.Expect('log', 'OnInitReport;handler;OnClosePage;');
         Obs.Verify();
@@ -93,7 +93,7 @@ codeunit 84549 "LT CH Report Leads"
         asserterror Report.Run(Report::"LT CH RP CloseError");
         Obs.ObserveError('run');
         Obs.Observe('log', Log.Take());
-        Obs.Expect('run|text', 'One or more errors occurred while closing the page.\n\nLT CH close error');
+        Obs.Expect('run|text', 'One or more errors occurred while closing the page.\\LT CH close error');
         Obs.Expect('run|code', 'TestWrapped');
         Obs.Expect('log', 'OnInitReport;handler;OnClosePage;');
         Obs.Verify();
@@ -108,7 +108,7 @@ codeunit 84549 "LT CH Report Leads"
         asserterror Report.RunModal(Report::"LT CH RP CloseError");
         Obs.ObserveError('runmodal');
         Obs.Observe('log', Log.Take());
-        Obs.Expect('runmodal|text', 'One or more errors occurred while closing the page.\n\nLT CH close error');
+        Obs.Expect('runmodal|text', 'One or more errors occurred while closing the page.\\LT CH close error');
         Obs.Expect('runmodal|code', 'TestWrapped');
         Obs.Expect('log', 'OnInitReport;handler;OnClosePage;');
         Obs.Verify();

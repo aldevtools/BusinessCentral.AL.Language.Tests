@@ -320,6 +320,110 @@ def given_cases():
           'prepare job does not use the input')
 
 
+def fixture_cases():
+    """Shared fixtures (CONTRIBUTING.md, standing rule 3): every in-place edit of a file under tests/<app>/_fixtures/ (a
+    change, a deletion, a move out) is a full run of kind fixture-edit; a new fixture file is selected as usual."""
+    fx = dict(BASE_FILES)
+    fx['tests/main/_fixtures/FxTab.al'] = ('table 50006 "Fx Tab"\n{\n    fields\n    {\n        field(1; "No."; Integer) { }\n'
+                                           '    }\n}\n')
+    fx['tests/main/FxUser.al'] = ('codeunit 50030 "Uses Fx"\n{\n    Subtype = Test;\n    [Test]\n    procedure A()\n'
+                                  '    var R: Record "Fx Tab";\n    begin end;\n}\n')
+    fx['tests/main/_fixtures/README.md'] = '# Fixtures\n'
+    tab = fx['tests/main/_fixtures/FxTab.al']
+    field = tab.replace('(1; "No."; Integer) { }\n', '(1; "No."; Integer) { }\n        field(2; Note; Text[20]) { }\n')
+    for name, changes in (('a field added', {'tests/main/_fixtures/FxTab.al': field}),
+                          ('a field type changed', {'tests/main/_fixtures/FxTab.al': tab.replace('Integer', 'Code[20]')}),
+                          ('only a comment added', {'tests/main/_fixtures/FxTab.al': tab + '// note\n'}),
+                          ('the file deleted', {'tests/main/_fixtures/FxTab.al': None}),
+                          ('the file moved out of _fixtures', {'tests/main/_fixtures/FxTab.al': None,
+                                                               'tests/main/FxTab.al': tab})):
+        r = make(changes, fx)
+        check('fixture edit, %s: full run of kind fixture-edit' % name, r['mode'] == 'full'
+              and 'fixture-edit' in r['reason_kinds'], [r['reason_kinds'], r['reasons']])
+    r = make({'tests/main/_fixtures/FxNew.al': 'table 50007 "Fx New"\n{\n}\n',
+              'tests/main/FxNewUser.al': ('codeunit 50031 "Uses Fx New"\n{\n    Subtype = Test;\n    [Test]\n'
+                                          '    procedure A()\n    var R: Record "Fx New";\n    begin end;\n}\n')}, fx)
+    check('a new fixture file is no in-place edit: selected as usual', r['mode'] == 'subset'
+          and ids(r, 'tests/main') == [50031], r.get('reasons') or r['apps'])
+    r = make({'tests/main/FxUser.al': fx['tests/main/FxUser.al'] + '\n', 'tests/main/_fixtures/README.md': '# Fixtures.\n'}, fx)
+    check('a user of a fixture and an ignored file under _fixtures: selected as usual', r['mode'] == 'subset'
+          and ids(r, 'tests/main') == [50030], r.get('reasons') or r['apps'])
+    return fx
+
+
+def reason_kinds():
+    for name, changes, kind in (('more than MAX_FILES', {'tests/main/gen/T%d.al' % i: 'codeunit %d "G%d"\n{\n}\n' % (50100 + i, i)
+                                                         for i in range(st.MAX_FILES + 1)}, 'file-cap'),
+                                ('CI file', {'.github/scripts/x.py': 'print(1)'}, 'ci-config'),
+                                ('docs only', {'README.md': '# changed\n'}, 'nothing-to-select'),
+                                ('empty diff', {}, 'no-changed-files')):
+        r = make(changes)
+        check('reason kind: %s is %s' % (name, kind), kind in r['reason_kinds']
+              and len(r['reason_kinds']) == len(r['reasons']), (r['reason_kinds'], r['reasons']))
+    r = make(touch('tests/main/T1.al'))
+    check('subset: no reason kinds', r['reason_kinds'] == [], r)
+
+
+def reuse_cases(fx):
+    """--check-reuse: a reused result of codeunit K from commit S stays valid at HEAD only when the selection of S..HEAD
+    is a subset without K; the file cap and "nothing to select" do not count."""
+    repo = tempfile.mkdtemp(prefix='repo-', dir=ROOT)
+    git(repo, 'init', '-q', '-b', 'main')
+
+    def commit(files, msg):
+        for p_, t in files.items():
+            f = Path(repo, p_)
+            f.parent.mkdir(parents=True, exist_ok=True)
+            f.write_bytes(t) if isinstance(t, bytes) else f.write_text(t)
+        git(repo, 'add', '-A')
+        git(repo, 'commit', '-q', '--allow-empty', '-m', msg)
+        return git(repo, 'rev-parse', 'HEAD')
+    s0 = commit(fx, 'base')
+    s1 = commit(touch('tests/main/Probe.Table.al'), 'table')
+    s2 = commit({'tests/main/gen/G%d.al' % i: ('codeunit %d "G%d"\n{\n    Subtype = Test;\n    [Test]\n'
+                                                '    procedure A() begin end;\n}\n') % (50200 + i, i)
+                 for i in range(st.MAX_FILES + 1)}, 'more test codeunits than MAX_FILES')
+    s3 = commit({'README.md': '# changed\n'}, 'docs')
+    s4 = commit({'.github/scripts/x.py': 'print(1)'}, 'ci')
+
+    def run(given, head):
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            code = st.main(['--repo', repo, '--check-reuse', json.dumps(given), '--head', head])
+        return code, buf.getvalue()
+    code, out = run({s0: {'tests/main': '50010'}}, s1)
+    check('check-reuse: a reused codeunit the span selects is refused', code == 1 and '50010' in out, out)
+    code, out = run({s0: {'tests/main': '50012,50030', 'tests/onprem': '60011'}}, s1)
+    check('check-reuse: codeunits the span does not select are kept', code == 0, out)
+    code, out = run({s1: {'tests/main': '50012'}}, s3)
+    check('check-reuse: more than MAX_FILES files in the span does not count', code == 0, out)
+    code, out = run({s0: {'tests/main': '50010'}}, s3)
+    check('check-reuse: the file cap does not hide a selected codeunit', code == 1 and '50010' in out, out)
+    code, out = run({s3: {'tests/main': '50012'}}, s3)
+    check('check-reuse: no changed files does not count', code == 0, out)
+    code, out = run({s2: {'tests/main': '50012'}}, s3)
+    check('check-reuse: nothing to select does not count', code == 0, out)
+    code, out = run({s3: {'tests/main': '50012'}}, s4)
+    check('check-reuse: a span with any other full-run reason is refused', code == 1 and 'ci-config' in out, out)
+    code, out = run({s0: {'tests/main': '50010,50011'}, s1: {'tests/main': '50012'}}, s3)
+    check('check-reuse: every refusal is printed', code == 1 and 'codeunit 50010' in out and 'codeunit 50011' in out
+          and out.count('refused:') == 2, out)
+    code, out = run('not json', s4)
+    check('check-reuse: an input that cannot be read is refused', code == 1, out)
+    code, out = run({s0: {'tests/mian': '50012'}}, s1)
+    check('check-reuse: an app dir that is no test app reading the selection is refused', code == 1
+          and 'tests/mian' in out, out)
+    code, out = run({s0: {'tests/main': '50012,59999'}}, s1)
+    check('check-reuse: an id that is no runnable test codeunit at HEAD is refused', code == 1
+          and '59999' in out and '50012' not in out, out)
+    code, out = run({s0: {'tests/main': '50012,59999'}}, s3)
+    check('check-reuse: an unknown id is refused also when the span is a full run of a kind that does not count',
+          code == 1 and '59999' in out, out)
+    one = st.Head(st.Git(repo), git(repo, 'rev-parse', s3))
+    a, b = st.select(st.Git(repo), s0, s3, False, loaded=one), st.select(st.Git(repo), s0, s3, False)
+    check('select with a loaded head gives the same result as without', a == b, (a, b))
+
+
 FAILED = []
 ROOT = tempfile.mkdtemp(prefix='select-tests-')
 
@@ -377,6 +481,8 @@ def main():
 
     subscribers()
     given_cases()
+    reason_kinds()
+    reuse_cases(fixture_cases())
 
     fulls = {
         'install codeunit': ({'tests/main/I.al': 'codeunit 50021 Inst\n{\n    Subtype = Install;\n}\n'}, 'Subtype = Install'),

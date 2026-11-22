@@ -9,9 +9,10 @@ name: BC leg (shards of one test app on one BC version)
 # "BC 29.0 / test" (the job `test` below). The second is the name the master ruleset requires, so the required checks
 # and the names the CI batcher and corpus_bump.sh read did not change when the legs were split into shards.
 #
-# ARTIFACT. Every shard uploads junit-test-results-<bc_version> (the name is fixed in bc-linux). With more than one shard
-# the job `test` merges them, uploads the merged file under the same name and deletes the shards' artifacts, so a run
-# keeps one artifact per leg holding one JUnit file, as before. A shard re-run ("Re-run failed jobs") uploads a new
+# ARTIFACT. Every shard uploads junit-test-results-<bc_version> (the name is fixed in bc-linux). The job `test` merges
+# them (also a single one), gives each <testsuite> its provenance properties (run, attempt, commit, BC build; provenance.py
+# stamp), uploads the result under the same name and deletes the shards' artifacts, so a run keeps one artifact per leg
+# holding one JUnit file, as before. A shard re-run ("Re-run failed jobs") uploads a new
 # artifact; the merge then takes the earlier merged file and replaces the re-run shard's codeunits with the new results.
 #
 # SKIPPED LEG. In a subset run (a pull request, or a dispatch with select_codeunits or select_base) a leg whose app has
@@ -34,7 +35,8 @@ on:
       preprocessor_symbols:   {type: string, default: ""}
       al_tool_version:        {type: string, default: ""}
       runtime_version:        {type: string, default: ""}
-      bc_artifact_url:        {type: string, default: ""}
+      # The build every shard of the leg runs (ci.yml prepare, provenance.py resolve); the stamp takes the build from it.
+      bc_artifact_url:        {type: string, required: true}
       sql_image:              {type: string, default: ""}
       timeout_minutes:        {type: number, default: 45}
       test_timeout_minutes:   {type: number, default: 30}
@@ -52,7 +54,7 @@ jobs:
       fail-fast: false
       matrix:
         shard: ${{ fromJson(inputs.shards != 'null' && inputs.shards || format('[{{"n":"1 of 1","range":"{0}"}}]', inputs.codeunit_range)) }}
-    # Workflow, scripts and (in ci.yml) runner images pinned to bc-linux cf9d0239 (bump of 2026-11-08): temporary-table Code/Text keys sort in the Windows punctuation order (#222, #224); Language Selection and Windows Language list the 248 Windows rows (#223, #225). Before, at 1a121fc: the boot stops when an app it
+    # Workflow, scripts and (in ci.yml) runner images pinned to bc-linux b6579272 (bump of 2026-11-10): the TestPage client layer writes CRLF so OnClosePage errors match Windows (#227, #228); installed test framework apps are kept when only the bc container is recreated (#229, #231). Before, at cf9d0239: temporary-table Code/Text keys sort in the Windows punctuation order (#222, #224); Language Selection and Windows Language list the 248 Windows rows (#223, #225). Before, at 1a121fc: the boot stops when an app it
     # publishes fails (#219, #220); callers can set service-tier settings (#218, #221). Before, workflow and scripts at 79d557f
     # (images at 65f6b26):
     # publish limit 1200 s with a timeout reported as such (#210, #206); test codeunits run in ID order (#213, #209);
@@ -62,9 +64,9 @@ jobs:
     # (#175, #181); MediaSet.ImportFile stores the bare file name (#176); Directory/DirectoryInfo listings match patterns
     # case-insensitively and list in name order (#183). Earlier: #165, #166, #167. The runner images in ci.yml carry
     # the same commit until 2026-11-03.
-    uses: aldevtools/MsDyn365Bc.On.Linux/.github/workflows/bc-test-from-source.yml@cf9d0239e3232efc263c5c5e5bec053e4ea72f08
+    uses: aldevtools/MsDyn365Bc.On.Linux/.github/workflows/bc-test-from-source.yml@b657927202fbffd543c38661255a2a532dbb62aa
     with:
-      bc_linux_ref:           "cf9d0239e3232efc263c5c5e5bec053e4ea72f08"
+      bc_linux_ref:           "b657927202fbffd543c38661255a2a532dbb62aa"
       runner_image:           ${{ inputs.runner_image }}
       bc_version:             ${{ inputs.bc_version }}
       bc_country:             ${{ inputs.bc_country }}
@@ -97,34 +99,33 @@ jobs:
         with:
           sparse-checkout: .github/scripts
       - id: merge
-        name: Merge the shards' JUnit
+        name: Merge the shards' JUnit and stamp their provenance
         env:
           GH_TOKEN: ${{ github.token }}
           NAME: junit-test-results-${{ inputs.bc_version }}
           TEST_APP_DIRS: ${{ inputs.test_app_dirs }}
           SHARDS: ${{ inputs.shards }}
+          BC_ARTIFACT_URL: ${{ inputs.bc_artifact_url }}
         run: |
           set -euo pipefail
           xml="junit-$(basename "$(printf '%s\n' "$TEST_APP_DIRS" | sed '/^$/d' | head -n 1)").xml"
           n=$(python3 -c 'import json,sys; s=sys.argv[1]; print(1 if s == "null" else len(json.loads(s)))' "$SHARDS")
           echo "xml=$xml" >> "$GITHUB_OUTPUT"
           [ "$n" -gt 0 ] || { echo "no shard planned: nothing to merge"; exit 0; }
-          mkdir -p shards merged
-          # This run's artifacts of this leg: the name is shared by every test app of the BC version, so keep those that
-          # hold this app's JUnit file. Oldest first: a later one (a re-run shard) wins in the merge.
-          gh api --paginate "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts?per_page=100" \
-            --jq ".artifacts[] | select(.name == \"$NAME\") | \"\(.created_at) \(.id)\"" | sort | while read -r _ id; do
-            d="shards/$id"; mkdir -p "$d"
-            gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$id/zip" > "$d/a.zip"
-            if unzip -o -q "$d/a.zip" "$xml" -d "$d" 2>/dev/null; then echo "$id" >> ids.txt; else rm -rf "$d"; fi
-          done
-          touch ids.txt
+          mkdir -p merged
+          # This run's artifacts of this leg, oldest first: a later one (a re-run shard) wins in the merge. The name is
+          # shared by every test app of the BC version, so only those that hold this app's JUnit file are kept.
+          bash .github/scripts/run-artifacts.sh "$NAME" shards "$xml" > folders.txt
+          sed 's/.*-//' folders.txt > ids.txt
           count=$(grep -c . ids.txt || true)
           echo "artifacts of this leg: $count (shards planned: $n)"
           if [ "$count" -eq 0 ]; then echo "::warning::no JUnit artifact of this leg"; exit 0; fi
-          if [ "$count" -eq 1 ] && [ "$n" -eq 1 ]; then echo "one shard: its artifact is the leg's artifact"; exit 0; fi
-          files=(); while read -r id; do files+=("shards/$id/$xml"); done < ids.txt
+          files=(); while read -r f; do files+=("shards/$f/$xml"); done < folders.txt
           python3 .github/scripts/ci-shards.py merge --out "merged/$xml" "${files[@]}"
+          # Where each codeunit's result came from (CONTRIBUTING.md, "BC build and result provenance"). A codeunit that
+          # an earlier attempt of this run stamped keeps its stamp.
+          python3 .github/scripts/provenance.py stamp --run "$GITHUB_RUN_ID" --attempt "$GITHUB_RUN_ATTEMPT" \
+            --commit "$GITHUB_SHA" --bc-artifact-url "$BC_ARTIFACT_URL" --app full "merged/$xml"
           python3 - "merged/$xml" <<'EOF' >> "$GITHUB_STEP_SUMMARY"
           import sys, xml.etree.ElementTree as ET
           r = ET.parse(sys.argv[1]).getroot()

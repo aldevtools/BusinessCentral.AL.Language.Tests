@@ -631,7 +631,7 @@ codeunit 84275 "LT CC Page Leads"
         Observer: Codeunit "Probe Observer";
     begin
         ErrCase('OnClosePage', 5, Observer);
-        Observer.Expect('step', 'error: One or more errors occurred while closing the page.\n\nLT CC failure in OnClosePage [TestWrapped]');
+        Observer.Expect('step', 'error: One or more errors occurred while closing the page.\\LT CC failure in OnClosePage [TestWrapped]');
         Observer.Expect('log', 'hit OnClosePage;');
         Observer.Expect('read_after', 'error: The TestPage is not open. [TestPageNotOpened]');
         Observer.Expect('close_after', 'error: The TestPage is not open. [TestPageNotOpened]');

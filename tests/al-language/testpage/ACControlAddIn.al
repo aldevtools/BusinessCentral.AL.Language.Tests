@@ -247,7 +247,7 @@ codeunit 77540 "LT AC ControlAddIn"
         Observer.Observe('log', Log.Dump());
 #if BC28PLUS
         // CI 2026-10-29 (Linux, 28.5 and 29.0).
-        Observer.Expect('close|text', 'One or more errors occurred while closing the page.\n\nThe control add-in on control Ctl on page LT TZ Addin Card has not been instantiated.');
+        Observer.Expect('close|text', 'One or more errors occurred while closing the page.\\The control add-in on control Ctl on page LT TZ Addin Card has not been instantiated.');
         Observer.Expect('close|code', 'TestWrapped');
         Observer.Expect('log', 'OnOpenPage | ext OnOpenPage | OnAfterGetRecord 1 | OnAfterGetCurrRecord 1 | OnClosePage');
         Observer.Verify();
