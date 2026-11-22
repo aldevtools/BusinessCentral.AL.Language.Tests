@@ -9,7 +9,7 @@ The simple data types: Date, Time, DateTime, Duration, Decimal, Integer, BigInte
 - `caption-class-events/`: CaptionClass and language change events (1 AL file).
 - `clear/`: Clear and ClearAll (1 AL file).
 - `date-time/`: Date, Time and DateTime, date formulas and date functions (96 AL files).
-- `decimal-integer/`: Decimal, Integer, BigInteger and rounding (21 AL files).
+- `decimal-integer/`: Decimal, Integer, BigInteger and rounding (24 AL files).
 - `duration/`: Duration and its arithmetic (16 AL files).
 - `enum-option/`: Enum and Option values, ordinals, names and conversions (21 AL files).
 - `guid/`: Guid (4 AL files).

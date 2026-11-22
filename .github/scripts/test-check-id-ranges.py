@@ -31,11 +31,19 @@ with tempfile.TemporaryDirectory() as d:
     app.mkdir(parents=True)
     (app / 'app.json').write_text('{"name": "Main", "idRanges": [{"from": 50000, "to": 50999}]}')
     (app / 'Tables.al').write_text('table 50001 "T One"\n{\n}\ntable 50002 "T Two"\n{\n}\npage 50001 "P One"\n{\n}\n'
-                                   'page 50002 "P Two"\n{\n}\ntable 50005 "T Five"\n{\n}\ntable 50009 "T Nine"\n{\n}\n')
+                                   'page 50002 "P Two"\n{\n}\ncodeunit 50001 "C One"\n{\n}\ncodeunit 50009 "C Nine"\n{\n}\ntable 50005 "T Five"\n{\n}\ntable 50009 "T Nine"\n{\n}\n')
     objects = chk.repository(root)
 
     def flagged(text, path='tests/main/X.al'):
         return [m for _, m in chk.find(path, text, objects)]
+
+    TT = 'R.SetRange("Object Type", R."Object Type"::Table); '
+    TC = 'R.SetRange("Object Type", R."Object Type"::Codeunit); '
+    NAMES = "R.SetFilter(\"Object Name\", '%%1|%%2|%%3|%%4', %s); "
+    RNG = 'R.SetRange("Object ID", 50002, 50005);'
+    NT = "R.SetFilter(\"Object Name\", '%1|%2', 'T One', 'T Nine'); "
+    NTC = "R.SetFilter(\"Object Name\", '%1|%2|%3|%4', 'T One', 'T Nine', 'C One', 'C Nine'); "
+    CNT = "Assert.AreEqual(1, R.Count(), ''); "
 
     cases = [
         ('AllObj, two literal bounds inside an idRange', codeunit('R.SetRange("Object ID", 50001, 50002);'), 1),
@@ -58,7 +66,7 @@ with tempfile.TemporaryDirectory() as d:
         ('Codeunit Metadata over a range of declared tables', codeunit('R.SetRange(ID, 50001, 50002);',
                                                                        'R: Record "CodeUnit Metadata";'), 1),
         ('a closed name list with a declared object below and one above the range', codeunit(
-            "R.SetFilter(\"Object Name\", '%1|%2|%3', 'T One', 'T Five', 'T Nine'); R.SetRange(\"Object ID\", 50002, 50005);"), 0),
+            TT + "R.SetFilter(\"Object Name\", '%1|%2|%3', 'T One', 'T Five', 'T Nine'); R.SetRange(\"Object ID\", 50002, 50005);"), 0),
         ('a closed name list whose names all lie inside the range', codeunit(
             "R.SetFilter(\"Object Name\", '%1|%2', 'T Two', 'T Five'); R.SetRange(\"Object ID\", 50002, 50005);"), 1),
         ('a closed name list with a name below the range only', codeunit(
@@ -66,7 +74,7 @@ with tempfile.TemporaryDirectory() as d:
         ('a closed name list of names no object has', codeunit(
             "R.SetFilter(\"Object Name\", '%1|%2', 'A', 'B'); R.SetRange(\"Object ID\", 50002, 50005);"), 1),
         ('a closed name list written in the filter text', codeunit(
-            "R.SetFilter(\"Object Name\", 'T One|T Nine'); R.SetRange(\"Object ID\", 50002, 50005);"), 0),
+            TT + "R.SetFilter(\"Object Name\", 'T One|T Nine'); R.SetRange(\"Object ID\", 50002, 50005);"), 0),
         ('a name filter with a wildcard', codeunit(
             "R.SetFilter(\"Object Name\", 'A*'); R.SetRange(\"Object ID\", 50001, 50005);"), 1),
         ('a single name by SetRange cannot lie on both sides', codeunit(
@@ -80,6 +88,93 @@ with tempfile.TemporaryDirectory() as d:
         ('Rec of a page on Page Metadata', 'page 50003 "L"\n{\n    SourceTable = "Page Metadata";\n\n'
                                            '    trigger OnOpenPage()\n    begin\n        Rec.SetRange(ID, 50001, 50009);\n'
                                            '    end;\n}\n', 1),
+        ('AllObj, type Table, a table below and a codeunit above only', codeunit(
+            TT + "R.SetFilter(\"Object Name\", '%1|%2', 'T One', 'C Nine'); " + RNG), 1),
+        ('AllObj, type Table, a table below and a table above', codeunit(
+            TT + "R.SetFilter(\"Object Name\", '%1|%2', 'T One', 'T Nine'); " + RNG), 0),
+        ('AllObj, types Table and Codeunit, both listed on both sides', codeunit(
+            TT + TC + NAMES % "'T One', 'T Nine', 'C One', 'C Nine'" + RNG), 0),
+        ('AllObj, types Table and Codeunit, no codeunit above', codeunit(
+            TT + TC + "R.SetFilter(\"Object Name\", '%1|%2|%3', 'T One', 'T Nine', 'C One'); " + RNG), 1),
+        ('AllObj, no filter on the object type', codeunit(
+            "R.SetFilter(\"Object Name\", '%1|%2', 'T One', 'T Nine'); " + RNG), 1),
+        ('AllObj, an object type no literal names', codeunit(
+            "R.SetRange(\"Object Type\", T); R.SetFilter(\"Object Name\", '%1|%2', 'T One', 'T Nine'); " + RNG), 1),
+        ('a name filter cleared by SetRange before the range', codeunit(
+            TT + "R.SetFilter(\"Object Name\", '%1|%2', 'T One', 'T Nine'); R.SetRange(\"Object Name\"); " + RNG), 1),
+        ('a name filter cleared by SetFilter before the range', codeunit(
+            TT + "R.SetFilter(\"Object Name\", '%1|%2', 'T One', 'T Nine'); R.SetFilter(\"Object Name\"); " + RNG), 1),
+        ('a name filter cleared by Reset before the range', codeunit(
+            "R.SetFilter(\"Object Name\", '%1|%2', 'T One', 'T Nine'); R.Reset(); " + TT + RNG), 1),
+        ('a name filter set again after the clear', codeunit(
+            TT + "R.SetFilter(\"Object Name\", 'A'); R.SetRange(\"Object Name\"); "
+            "R.SetFilter(\"Object Name\", '%1|%2', 'T One', 'T Nine'); " + RNG), 0),
+        ('a name filter cleared after the range', codeunit(
+            TT + "R.SetFilter(\"Object Name\", '%1|%2', 'T One', 'T Nine'); " + RNG + ' R.SetRange("Object Name");'), 0),
+        ('a name filter set after the range', codeunit(
+            TT + RNG + " R.SetFilter(\"Object Name\", '%1|%2', 'T One', 'T Nine');"), 0),
+        ('a Reset of another variable keeps the name filter', codeunit(
+            TT + "R.SetFilter(\"Object Name\", '%1|%2', 'T One', 'T Nine'); S.Reset(); " + RNG,
+            'R: Record AllObj; S: Record AllObj;'), 0),
+        # a name filter that is not in force when the range is read (review of PR 1446, probes C1-C15)
+        ('Reset without parentheses before the range', codeunit(NT + 'R.Reset; ' + TT + RNG + CNT), 1),
+        ('Clear(R) before the range', codeunit(NT + 'Clear(R); ' + TT + RNG + CNT), 1),
+        ("SetFilter(name, '') before the range", codeunit(TT + NT + "R.SetFilter(\"Object Name\", ''); " + RNG + CNT), 1),
+        ('the list replaced by a wildcard filter', codeunit(TT + NT + "R.SetFilter(\"Object Name\", 'A*'); " + RNG + CNT), 1),
+        ('the list replaced by a filter text that is no literal', codeunit(
+            TT + NT + 'R.SetFilter("Object Name", F); ' + RNG + CNT), 1),
+        ('the list replaced by a closed list inside the range', codeunit(
+            TT + NT + "R.SetFilter(\"Object Name\", '%1|%2', 'T Two', 'T Five'); " + RNG + CNT), 1),
+        ('the list replaced by SetRange(name, variable)', codeunit(TT + NT + 'R.SetRange("Object Name", N); ' + RNG + CNT), 1),
+        ('CopyFilters before the range', codeunit(TT + NT + 'R.CopyFilters(S); ' + RNG + CNT, 'R: Record AllObj; S: Record AllObj;'), 1),
+        ('Copy before the range', codeunit(TT + NT + 'R.Copy(S); ' + RNG + CNT, 'R: Record AllObj; S: Record AllObj;'), 1),
+        ("SetView('') before the range", codeunit(TT + NT + "R.SetView(''); " + TT + RNG + CNT), 1),
+        ('Reset() without a semicolon', codeunit(NT + 'if X then begin R.Reset() end; ' + TT + RNG + CNT), 1),
+        ('the name filter cleared after the range, then a read', codeunit(TT + NT + RNG + 'R.SetRange("Object Name"); ' + CNT), 1),
+        ('the name filter set after the read', codeunit(TT + RNG + CNT + NT), 1),
+        ('the name filter set after the range, cleared, then a read', codeunit(
+            TT + RNG + NT + 'R.SetRange("Object Name"); ' + CNT), 1),
+        ('a second range after a Reset', codeunit(TT + NT + RNG + CNT + 'R.Reset(); ' + TT + RNG + CNT), 1),
+        ('the name filter cleared after the range, then another id filter, then a read', codeunit(
+            TT + NT + RNG + 'R.SetRange("Object Name"); R.SetRange("Object ID", 99999998, 99999999); ' + CNT), 0),
+        ('the name filter cleared after the range, then Reset(), then a read', codeunit(
+            TT + NT + RNG + 'R.SetRange("Object Name"); R.Reset(); ' + CNT), 0),
+        ('a read between the name filter and the range', codeunit(TT + NT + CNT + RNG), 1),
+        ('the type filter cleared by SetRange between the name filter and the range', codeunit(
+            TT + NT + 'R.SetRange("Object Type"); ' + RNG + CNT), 1),
+        # the object types the test asserts on (probes T1-T9, K1-K11)
+        ("type filter '<>%1' Table", codeunit(
+            "R.SetFilter(\"Object Type\", '<>%1', R.\"Object Type\"::Table); " + NT + RNG + CNT), 1),
+        ('type range Table..Codeunit', codeunit(
+            'R.SetRange("Object Type", R."Object Type"::Table, R."Object Type"::Codeunit); ' + NTC + RNG + CNT), 1),
+        ("type filter '%1..%2'", codeunit("R.SetFilter(\"Object Type\", '%1..%2', R.\"Object Type\"::Table, "
+                                          "R.\"Object Type\"::Codeunit); " + NTC + RNG + CNT), 1),
+        ("type filter '%1|%2' with a variable", codeunit(
+            "R.SetFilter(\"Object Type\", '%1|%2', R.\"Object Type\"::Table, T); " + NT + RNG + CNT), 1),
+        ('type cleared after the range, read of every type', codeunit(
+            TT + NT + RNG + CNT + 'R.SetRange("Object Type"); ' + CNT), 1),
+        ('type as a number', codeunit('R.SetRange("Object Type", 1); ' + NT + RNG + CNT), 1),
+        ('type on another variable only', codeunit(
+            'S.SetRange("Object Type", S."Object Type"::Table); ' + NT + RNG + CNT, 'R: Record AllObj; S: Record AllObj;'), 1),
+        ('type cleared before the names', codeunit(TT + 'R.SetRange("Object Type"); ' + NT + RNG + CNT), 1),
+        ('type set only after the read', codeunit(NT + RNG + CNT + TT), 1),
+        ('type TableData is no declared kind', codeunit(
+            'R.SetRange("Object Type", R."Object Type"::TableData); ' + NT + RNG + CNT), 1),
+        ('type Codeunit replaced by Table, tables listed', codeunit(TC + TT + NT + RNG + CNT), 0),
+        ('type Codeunit, Reset, type Table, tables listed', codeunit(TC + 'R.Reset(); ' + TT + NT + RNG + CNT), 0),
+        ('type Table, then Reset, then names: no type filter in force', codeunit(
+            TT + 'R.Reset(); ' + NT + RNG + CNT), 1),
+        ('AllObjWithCaption, type Table, tables on both sides', codeunit(TT + NT + RNG + CNT, 'R: Record AllObjWithCaption;'), 0),
+        ('Table Metadata, name list, no type filter', codeunit(
+            "R.SetFilter(Name, '%1|%2', 'T One', 'T Nine'); R.SetRange(ID, 50002, 50005);", 'R: Record "Table Metadata";'), 0),
+        ("type filter '%1|%2' Table|Codeunit, both listed", codeunit(
+            "R.SetFilter(\"Object Type\", '%1|%2', R.\"Object Type\"::Table, R.\"Object Type\"::Codeunit); "
+            + NTC + RNG + CNT), 0),
+        ('type by quoted enum value', codeunit('R.SetRange("Object Type", R."Object Type"::"Table"); ' + NT + RNG + CNT), 0),
+        ('names, type Table, range, read, type Codeunit, read', codeunit(NTC + TT + RNG + CNT + TC + CNT), 0),
+        ('Rec of a page on AllObj', 'page 50003 "L"\n{\n    SourceTable = AllObj;\n\n    trigger OnOpenPage()\n    begin\n'
+                                   '        Rec.SetRange("Object Type", Rec."Object Type"::Table); Rec.SetFilter("Object Name", '
+                                   "'%1|%2', 'T One', 'T Nine'); Rec.SetRange(\"Object ID\", 50002, 50005);\n    end;\n}\n", 0),
     ]
     for name, text, want in cases:
         got = flagged(text)
