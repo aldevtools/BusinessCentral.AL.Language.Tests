@@ -3,7 +3,7 @@
 // Fixtures used: Probe Observer (codeunit 69160); own table 77800 (FC Coll Row, from FilterCollationNordic.al); own codeunit 77804 (Field App Package Id Platform)
 // Probe: from al-runner issue 8089 (Field."App Package ID" SetRange without TableNo). Observed on
 //   Windows BC containers 27.5, 28.5 and 29.0; every literal asserted below is what BC produced. The corpus CI matrix checks it on BC on Linux.
-// Facts: TODO
+// Facts: the App Package ID and App Runtime Package ID of the rows of the platform tables Object, Field, Table Metadata and AllObj are the null Guid and equal each other, those of a Base Application table and of an own table are not null (the own one is this app's id), and SetRange on App Package ID without a TableNo filter finds the own field and no platform row.
 // BC versions: 27, 28, 29
 
 codeunit 77804 "Field App Package Id Platform"
@@ -57,7 +57,15 @@ codeunit 77804 "Field App Package Id Platform"
         Observer.Observe('ownTable', Describe(Database::"FC Coll Row"));
         Observer.Observe('objectAllRowsShare', AllRowsShare(2000000001));
         Observer.Observe('ownAllRowsShare', AllRowsShare(Database::"FC Coll Row"));
-        Observer.Finish();
+        Observer.Expect('object', 'packageNull=Yes runtimeNull=Yes packageIsThisApp=No runtimeEqualsPackage=Yes');
+        Observer.Expect('field', 'packageNull=Yes runtimeNull=Yes packageIsThisApp=No runtimeEqualsPackage=Yes');
+        Observer.Expect('tableMetadata', 'packageNull=Yes runtimeNull=Yes packageIsThisApp=No runtimeEqualsPackage=Yes');
+        Observer.Expect('allObj', 'packageNull=Yes runtimeNull=Yes packageIsThisApp=No runtimeEqualsPackage=Yes');
+        Observer.Expect('baseAppShippingAgent', 'packageNull=No runtimeNull=No packageIsThisApp=No runtimeEqualsPackage=No');
+        Observer.Expect('ownTable', 'packageNull=No runtimeNull=No packageIsThisApp=Yes runtimeEqualsPackage=Yes');
+        Observer.Expect('objectAllRowsShare', 'Yes');
+        Observer.Expect('ownAllRowsShare', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -75,7 +83,9 @@ codeunit 77804 "Field App Package Id Platform"
         FieldRec.SetRange("App Package ID");
         FieldRec.SetRange("App Runtime Package ID", NullId);
         Observer.Observe('objectRowsWithNullRuntime', Format(FieldRec.Count() = Total));
-        Observer.Finish();
+        Observer.Expect('objectRowsWithNullPackage', 'Yes');
+        Observer.Expect('objectRowsWithNullRuntime', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -105,6 +115,10 @@ codeunit 77804 "Field App Package Id Platform"
         Observer.Observe('foundOtherPackage', Format(SawOtherPackage));
         FieldRec.SetRange(TableNo, 2000000001);
         Observer.Observe('objectRowsWithThisPackageEmpty', Format(FieldRec.IsEmpty()));
-        Observer.Finish();
+        Observer.Expect('foundOwnField', 'Yes');
+        Observer.Expect('foundPlatformRow', 'No');
+        Observer.Expect('foundOtherPackage', 'No');
+        Observer.Expect('objectRowsWithThisPackageEmpty', 'Yes');
+        Observer.Verify();
     end;
 }

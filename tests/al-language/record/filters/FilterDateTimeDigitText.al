@@ -3,7 +3,7 @@
 // Fixtures used: Probe Observer (codeunit 69160); own objects 77802-77803 (FC DT Row, Filter DateTime Digit Text)
 // Probe: from al-runner issue 8090 (DateTime SetFilter with '01012001'). Observed on
 //   Windows BC containers 27.5, 28.5 and 29.0; every literal asserted below is what BC produced. The corpus CI matrix checks it on BC on Linux.
-// Facts: TODO
+// Facts: a DateTime or Date filter written as 8 or 6 digits is read as day, month and year or month, day and year by the session's date order (and the language 1031 changes it); 8 digits that fit no order, or 9 digits, raise the error as asserted; the filter text GetFilter shows is asserted. The 4 and 2 digit forms depend on the current date and are not asserted.
 // BC versions: 27, 28, 29
 
 table 77802 "FC DT Row"
@@ -88,8 +88,6 @@ codeunit 77803 "Filter DateTime Digit Text"
         Observer.Observe('d8_31122000', Probe(Row, OnDate, '31122000'));
         Observer.Observe('d6_010101', Probe(Row, OnDate, '010101'));
         Observer.Observe('d6_120101', Probe(Row, OnDate, '120101'));
-        Observer.Observe('d4_0101', Probe(Row, OnDate, '0101'));
-        Observer.Observe('d2_01', Probe(Row, OnDate, '01'));
         Observer.Observe('range8', Probe(Row, OnDate, '01012001..02012001'));
         Observer.Observe('ge8', Probe(Row, OnDate, '>=01022001'));
         Observer.Observe('lt8', Probe(Row, OnDate, '<01012001'));
@@ -106,7 +104,20 @@ codeunit 77803 "Filter DateTime Digit Text"
     begin
         Seed(Row);
         ObserveAll(Observer, Row, false);
-        Observer.Finish();
+        Observer.Expect('d8_01012001', 'R1,R2,R3,|01/01/01 12:00 AM..01/01/01 11:59:59 PM');
+        Observer.Expect('d8_12012001', 'R5,|12/01/01 12:00 AM..12/01/01 11:59:59 PM');
+        Observer.Expect('d8_01122001', 'R6,|01/12/01 12:00 AM..01/12/01 11:59:59 PM');
+        Observer.Expect('d8_20010101', 'error: The filter "20010101" is not valid for the At field on the FC DT Row table. The value "20010101" can''t be evaluated into type DateTime.');
+        Observer.Expect('d8_31122000', 'error: The filter "31122000" is not valid for the At field on the FC DT Row table. The value "31122000" can''t be evaluated into type DateTime.');
+        Observer.Expect('d6_010101', 'R1,R2,R3,|01/01/01 12:00 AM..01/01/01 11:59:59 PM');
+        Observer.Expect('d6_120101', 'R5,|12/01/01 12:00 AM..12/01/01 11:59:59 PM');
+        Observer.Expect('range8', 'R1,R2,R3,R4,R6,R8,|01/01/01 12:00 AM..02/01/01 11:59:59 PM');
+        Observer.Expect('ge8', 'R4,R5,R6,R8,|>=01/02/01 12:00 AM');
+        Observer.Expect('lt8', 'R7,|<01/01/01 12:00 AM');
+        Observer.Expect('or8', 'R1,R2,R3,R5,|01/01/01 12:00 AM..01/01/01 11:59:59 PM|12/01/01 12:00 AM..12/01/01 11:59:59 PM');
+        Observer.Expect('d9_010120011', 'error: The filter "010120011" is not valid for the At field on the FC DT Row table. The value "010120011" can''t be evaluated into type DateTime.');
+        Observer.Expect('d8_13132001', 'error: The filter "13132001" is not valid for the At field on the FC DT Row table. The value "13132001" can''t be evaluated into type DateTime.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -117,7 +128,20 @@ codeunit 77803 "Filter DateTime Digit Text"
     begin
         Seed(Row);
         ObserveAll(Observer, Row, true);
-        Observer.Finish();
+        Observer.Expect('d8_01012001', 'R1,R2,R3,|01/01/01');
+        Observer.Expect('d8_12012001', 'R5,|12/01/01');
+        Observer.Expect('d8_01122001', 'R6,|01/12/01');
+        Observer.Expect('d8_20010101', 'error: The filter "20010101" is not valid for the D field on the FC DT Row table. The format of the Date ''20010101'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+        Observer.Expect('d8_31122000', 'error: The filter "31122000" is not valid for the D field on the FC DT Row table. The format of the Date ''31122000'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+        Observer.Expect('d6_010101', 'R1,R2,R3,|01/01/01');
+        Observer.Expect('d6_120101', 'R5,|12/01/01');
+        Observer.Expect('range8', 'R1,R2,R3,R4,R6,R8,|01/01/01..02/01/01');
+        Observer.Expect('ge8', 'R4,R5,R6,R8,|>=01/02/01');
+        Observer.Expect('lt8', 'R7,|<01/01/01');
+        Observer.Expect('or8', 'R1,R2,R3,R5,|01/01/01|12/01/01');
+        Observer.Expect('d9_010120011', 'error: The filter "010120011" is not valid for the D field on the FC DT Row table. The format of the Date ''010120011'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+        Observer.Expect('d8_13132001', 'error: The filter "13132001" is not valid for the D field on the FC DT Row table. The format of the Date ''13132001'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -135,6 +159,10 @@ codeunit 77803 "Filter DateTime Digit Text"
         Observer.Observe('d6_120101', Probe(Row, false, '120101'));
         Observer.Observe('range8', Probe(Row, false, '01012001..02012001'));
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('d8_01012001', 'R1,R2,R3,|01/01/01 12:00 AM..01/01/01 11:59:59 PM');
+        Observer.Expect('d8_12012001', 'R5,|12/01/01 12:00 AM..12/01/01 11:59:59 PM');
+        Observer.Expect('d6_120101', 'R5,|12/01/01 12:00 AM..12/01/01 11:59:59 PM');
+        Observer.Expect('range8', 'R1,R2,R3,R4,R6,R8,|01/01/01 12:00 AM..02/01/01 11:59:59 PM');
+        Observer.Verify();
     end;
 }

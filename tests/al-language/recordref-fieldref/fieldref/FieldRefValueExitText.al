@@ -3,7 +3,7 @@
 // Fixtures used: Probe Observer (codeunit 69160); own objects 77805-77807 (FC Opt Row, FC Opt Kind, FieldRef Value Exit Text)
 // Probe: from al-runner issue 8096 (exit(FieldRef.Value()) of an Option field from a Text procedure). Observed on
 //   Windows BC containers 27.5, 28.5 and 29.0; every literal asserted below is what BC produced. The corpus CI matrix checks it on BC on Linux.
-// Facts: TODO
+// Facts: exit(FieldRef.Value()) from procedures returning Text, Text[3], Code[10] and Integer for Option, Enum and other field types: the returned text (caption or member name) or the error, as asserted.
 // BC versions: 27, 28, 29
 
 table 77805 "FC Opt Row"
@@ -159,7 +159,10 @@ codeunit 77807 "FieldRef Value Exit Text"
         Observer.Observe('optionCaption', AllForms(RecRef.Field(Row.FieldNo(Kind))));
         Observer.Observe('optionPlain', AllForms(RecRef.Field(Row.FieldNo(Plain))));
         Observer.Observe('enum', AllForms(RecRef.Field(Row.FieldNo(EKind))));
-        Observer.Finish();
+        Observer.Expect('optionCaption', '1=Beta caption;2=error: The length of the string is 12, but it must be less than or equal to 3 characters. Value: Beta caption;3=error: The length of the string is 12, but it must be less than or equal to 10 characters. Value: Beta caption;4=1;5=Beta caption;6=Beta caption;7=error: The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.;');
+        Observer.Expect('optionPlain', '1=Green;2=error: The length of the string is 5, but it must be less than or equal to 3 characters. Value: Green;3=GREEN;4=1;5=Green;6=Green;7=error: The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.;');
+        Observer.Expect('enum', '1=Two caption;2=error: The length of the string is 11, but it must be less than or equal to 3 characters. Value: Two caption;3=error: The length of the string is 11, but it must be less than or equal to 10 characters. Value: Two caption;4=1;5=Two caption;6=Two caption;7=error: The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -175,7 +178,12 @@ codeunit 77807 "FieldRef Value Exit Text"
         Observer.Observe('date', AllForms(RecRef.Field(Row.FieldNo(Dt))));
         Observer.Observe('decimal', AllForms(RecRef.Field(Row.FieldNo(Amt))));
         Observer.Observe('code', AllForms(RecRef.Field(Row.FieldNo(Cd))));
-        Observer.Finish();
+        Observer.Expect('integer', '1=42;2=42;3=42;4=42;5=42;6=42;7=error: The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.;');
+        Observer.Expect('boolean', '1=Yes;2=Yes;3=YES;4=1;5=Yes;6=Yes;7=error: The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.;');
+        Observer.Expect('date', '1=03/15/24;2=error: The length of the string is 8, but it must be less than or equal to 3 characters. Value: 03/15/24;3=03/15/24;4=error: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Int32.;5=03/15/24;6=03/15/24;7=error: The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.;');
+        Observer.Expect('decimal', '1=1,234.5;2=error: The length of the string is 7, but it must be less than or equal to 3 characters. Value: 1,234.5;3=1,234.5;4=error: Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1234.5 to System.Int32.;5=1,234.5;6=1,234.5;7=error: The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.;');
+        Observer.Expect('code', '1=ABCDEFGH;2=error: The length of the string is 8, but it must be less than or equal to 3 characters. Value: ABCDEFGH;3=ABCDEFGH;4=error: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.Int32.;5=ABCDEFGH;6=ABCDEFGH;7=ABCDEFGH;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -192,6 +200,9 @@ codeunit 77807 "FieldRef Value Exit Text"
         Observer.Observe('variantEnum', VariantForm(V));
         V := 42;
         Observer.Observe('variantInteger', VariantForm(V));
-        Observer.Finish();
+        Observer.Expect('variantOptionField', 'error: The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('variantEnum', 'error: The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('variantInteger', 'error: The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Verify();
     end;
 }

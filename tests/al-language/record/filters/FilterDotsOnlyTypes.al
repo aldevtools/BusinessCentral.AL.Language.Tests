@@ -3,7 +3,7 @@
 // Fixtures used: Probe Observer (codeunit 69160); own objects 77811-77812 (FC Dots Row, Filter Dots Only Types)
 // Probe: from al-runner issue 8213, part 1 (SetFilter '..'). Observed on
 //   Windows BC containers 27.5, 28.5 and 29.0; every literal asserted below is what BC produced. The corpus CI matrix checks it on BC on Linux.
-// Facts: TODO
+// Facts: SetFilter with '..' alone (and in or / and combinations, with spaces) on a Code, Integer, BigInteger, Decimal, Date, Time, DateTime, Option, Boolean and Guid field raises the error 'Both sides of the range cannot be empty' with the code Filter:CSide; 'A..' and '..A' on a Code field are accepted.
 // BC versions: 27, 28, 29
 
 table 77811 "FC Dots Row"
@@ -118,7 +118,17 @@ codeunit 77812 "Filter Dots Only Types"
         Observer.Observe('option', ByRecord(8, '..'));
         Observer.Observe('boolean', ByRecord(9, '..'));
         Observer.Observe('guid', ByRecord(10, '..'));
-        Observer.Finish();
+        Observer.Expect('code', 'error: The filter ".." is not valid for the Code field on the FC Dots Row table. Both sides of the range (''..'') cannot be empty. | Filter:CSide');
+        Observer.Expect('integer', 'error: The filter ".." is not valid for the Num field on the FC Dots Row table. Both sides of the range (''..'') cannot be empty. | Filter:CSide');
+        Observer.Expect('bigInteger', 'error: The filter ".." is not valid for the Big field on the FC Dots Row table. Both sides of the range (''..'') cannot be empty. | Filter:CSide');
+        Observer.Expect('decimal', 'error: The filter ".." is not valid for the Amt field on the FC Dots Row table. Both sides of the range (''..'') cannot be empty. | Filter:CSide');
+        Observer.Expect('date', 'error: The filter ".." is not valid for the D field on the FC Dots Row table. Both sides of the range (''..'') cannot be empty. | Filter:CSide');
+        Observer.Expect('time', 'error: The filter ".." is not valid for the T field on the FC Dots Row table. Both sides of the range (''..'') cannot be empty. | Filter:CSide');
+        Observer.Expect('dateTime', 'error: The filter ".." is not valid for the DT field on the FC Dots Row table. Both sides of the range (''..'') cannot be empty. | Filter:CSide');
+        Observer.Expect('option', 'error: The filter ".." is not valid for the Opt field on the FC Dots Row table. Both sides of the range (''..'') cannot be empty. | Filter:CSide');
+        Observer.Expect('boolean', 'error: The filter ".." is not valid for the Flag field on the FC Dots Row table. Both sides of the range (''..'') cannot be empty. | Filter:CSide');
+        Observer.Expect('guid', 'error: The filter ".." is not valid for the G field on the FC Dots Row table. Both sides of the range (''..'') cannot be empty. | Filter:CSide');
+        Observer.Verify();
     end;
 
     [Test]
@@ -133,7 +143,13 @@ codeunit 77812 "Filter Dots Only Types"
         Observer.Observe('integerDotsOr2', ByRecord(2, '..|2'));
         Observer.Observe('codeAOpen', ByRecord(1, 'A..'));
         Observer.Observe('codeOpenB', ByRecord(1, '..A'));
-        Observer.Finish();
+        Observer.Expect('codeDotsOrB', 'error: The filter "..|B" is not valid for the Code field on the FC Dots Row table. Both sides of the range (''..'') cannot be empty. | Filter:CSide');
+        Observer.Expect('codeSpacedDots', 'error: The filter " .. " is not valid for the Code field on the FC Dots Row table. Both sides of the range (''..'') cannot be empty. | Filter:CSide');
+        Observer.Expect('codeDotsAndB', 'error: The filter "..&B" is not valid for the Code field on the FC Dots Row table. Both sides of the range (''..'') cannot be empty. | Filter:CSide');
+        Observer.Expect('integerDotsOr2', 'error: The filter "..|2" is not valid for the Num field on the FC Dots Row table. Both sides of the range (''..'') cannot be empty. | Filter:CSide');
+        Observer.Expect('codeAOpen', 'ok 2 |Code: A..');
+        Observer.Expect('codeOpenB', 'ok 1 |Code: ..A');
+        Observer.Verify();
     end;
 
     [Test]
@@ -145,6 +161,9 @@ codeunit 77812 "Filter Dots Only Types"
         Observer.Observe('code', ByFieldRef(1, '..'));
         Observer.Observe('integer', ByFieldRef(2, '..'));
         Observer.Observe('date', ByFieldRef(5, '..'));
-        Observer.Finish();
+        Observer.Expect('code', 'error: The filter ".." is not valid for the Code field on the FC Dots Row table. Both sides of the range (''..'') cannot be empty. | Filter:CSide');
+        Observer.Expect('integer', 'error: The filter ".." is not valid for the Num field on the FC Dots Row table. Both sides of the range (''..'') cannot be empty. | Filter:CSide');
+        Observer.Expect('date', 'error: The filter ".." is not valid for the D field on the FC Dots Row table. Both sides of the range (''..'') cannot be empty. | Filter:CSide');
+        Observer.Verify();
     end;
 }

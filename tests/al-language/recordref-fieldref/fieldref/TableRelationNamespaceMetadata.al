@@ -3,7 +3,7 @@
 // Fixtures used: Probe Observer (codeunit 69160); own objects 77808-77810 (FC Rel Group in FcRelTarget.al, FC Rel Holder, TableRelation Namespace Metadata)
 // Probe: from al-runner issues 8191 (relation target imported by using) and 8181 (TableRelation to Table Metadata). Observed on
 //   Windows BC containers 27.5, 28.5 and 29.0; every literal asserted below is what BC produced. The corpus CI matrix checks it on BC on Linux.
-// Facts: TODO
+// Facts: Validate on a TableRelation to an own table of another namespace (imported by using and fully qualified) and to Table Metadata accepts an existing key or a blank, and raises the not-found error with the code DB:PrimRecordNotFound otherwise; the same on a temporary record; the relation field target is reported as asserted.
 // BC versions: 27, 28, 29
 
 namespace ALLanguage.Coverage.FcRelHolder;
@@ -102,7 +102,17 @@ codeunit 77810 "TableRelation Namespace Meta"
         SeedGroups();
         Holder.DeleteAll();
         ObserveAll(Observer, Holder);
-        Observer.Finish();
+        Observer.Expect('usingExisting', 'ok');
+        Observer.Expect('usingMissing', 'error: The field Group of table FC Rel Holder contains a value (NOPE) that cannot be found in the related table (FC Rel Group). | DB:PrimRecordNotFound');
+        Observer.Expect('usingBlank', 'ok');
+        Observer.Expect('fullExisting', 'ok');
+        Observer.Expect('fullMissing', 'error: The field Group Full of table FC Rel Holder contains a value (NOPE) that cannot be found in the related table (FC Rel Group). | DB:PrimRecordNotFound');
+        Observer.Expect('metaOwnTable', 'ok');
+        Observer.Expect('metaPlatformTable', 'ok');
+        Observer.Expect('metaMissing', 'error: The field Table ID of table FC Rel Holder contains a value (1999999999) that cannot be found in the related table (Table Metadata). | DB:PrimRecordNotFound');
+        Observer.Expect('metaZero', 'ok');
+        Observer.Expect('metaCodeunitIdOnly', 'error: The field Table ID of table FC Rel Holder contains a value (77810) that cannot be found in the related table (Table Metadata). | DB:PrimRecordNotFound');
+        Observer.Verify();
     end;
 
     [Test]
@@ -113,7 +123,17 @@ codeunit 77810 "TableRelation Namespace Meta"
     begin
         SeedGroups();
         ObserveAll(Observer, Holder);
-        Observer.Finish();
+        Observer.Expect('usingExisting', 'ok');
+        Observer.Expect('usingMissing', 'error: The field Group of table FC Rel Holder contains a value (NOPE) that cannot be found in the related table (FC Rel Group). | DB:PrimRecordNotFound');
+        Observer.Expect('usingBlank', 'ok');
+        Observer.Expect('fullExisting', 'ok');
+        Observer.Expect('fullMissing', 'error: The field Group Full of table FC Rel Holder contains a value (NOPE) that cannot be found in the related table (FC Rel Group). | DB:PrimRecordNotFound');
+        Observer.Expect('metaOwnTable', 'ok');
+        Observer.Expect('metaPlatformTable', 'ok');
+        Observer.Expect('metaMissing', 'error: The field Table ID of table FC Rel Holder contains a value (1999999999) that cannot be found in the related table (Table Metadata). | DB:PrimRecordNotFound');
+        Observer.Expect('metaZero', 'ok');
+        Observer.Expect('metaCodeunitIdOnly', 'error: The field Table ID of table FC Rel Holder contains a value (77810) that cannot be found in the related table (Table Metadata). | DB:PrimRecordNotFound');
+        Observer.Verify();
     end;
 
     [Test]
@@ -126,6 +146,9 @@ codeunit 77810 "TableRelation Namespace Meta"
         Observer.Observe('usingRelation', Format(RecRef.Field(2).Relation() = Database::"FC Rel Group"));
         Observer.Observe('fullRelation', Format(RecRef.Field(3).Relation() = Database::"FC Rel Group"));
         Observer.Observe('metaRelation', Format(RecRef.Field(4).Relation() = Database::"Table Metadata"));
-        Observer.Finish();
+        Observer.Expect('usingRelation', 'Yes');
+        Observer.Expect('fullRelation', 'Yes');
+        Observer.Expect('metaRelation', 'Yes');
+        Observer.Verify();
     end;
 }

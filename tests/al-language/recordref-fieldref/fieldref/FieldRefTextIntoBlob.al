@@ -3,7 +3,7 @@
 // Fixtures used: Probe Observer (codeunit 69160); own table 77811 (FC Dots Row, from record/filters/FilterDotsOnlyTypes.al); own codeunit 77813 (FieldRef Text Into Blob)
 // Probe: from al-runner issue 8213, part 2 (Text into a Blob through a FieldRef). Observed on
 //   Windows BC containers 27.5, 28.5 and 29.0; every literal asserted below is what BC produced. The corpus CI matrix checks it on BC on Linux.
-// Facts: TODO
+// Facts: assigning Text through FieldRef.Value to a Blob field raises an error on every major; the text of the error differs: BC 27 'Invalid Conversion. Source: NavVariant, Destination: NavBLOB.', BC 28 and later 'The value ... can't be evaluated into type BLOB.' (guarded with #if BC28PLUS).
 // BC versions: 27, 28, 29
 
 codeunit 77813 "FieldRef Text Into Blob"
@@ -66,7 +66,32 @@ codeunit 77813 "FieldRef Text Into Blob"
         V := Txt;
         Observer.Observe('variantText', Unsaved(V));
         Observer.Observe('integer', Unsaved(42));
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('plain', 'error: The value "some text" can''t be evaluated into type BLOB. | Evaluate:Argument');
+#else
+        Observer.Expect('plain', 'error: Invalid Conversion. Source: NavVariant, Destination: NavBLOB. | Argument');
+#endif
+#if BC28PLUS
+        Observer.Expect('empty', 'error: The value "" can''t be evaluated into type BLOB. | Evaluate:Argument');
+#else
+        Observer.Expect('empty', 'error: Invalid Conversion. Source: NavVariant, Destination: NavBLOB. | Argument');
+#endif
+#if BC28PLUS
+        Observer.Expect('nonAscii', 'error: The value "Ærø å" can''t be evaluated into type BLOB. | Evaluate:Argument');
+#else
+        Observer.Expect('nonAscii', 'error: Invalid Conversion. Source: NavVariant, Destination: NavBLOB. | Argument');
+#endif
+#if BC28PLUS
+        Observer.Expect('variantText', 'error: The value "via variant" can''t be evaluated into type BLOB. | Evaluate:Argument');
+#else
+        Observer.Expect('variantText', 'error: Invalid Conversion. Source: NavVariant, Destination: NavBLOB. | Argument');
+#endif
+#if BC28PLUS
+        Observer.Expect('integer', 'error: The value "42" can''t be evaluated into type BLOB. | Evaluate:Argument');
+#else
+        Observer.Expect('integer', 'error: Invalid Conversion. Source: NavVariant, Destination: NavBLOB. | Argument');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -89,6 +114,11 @@ codeunit 77813 "FieldRef Text Into Blob"
             Observer.Observe('afterCalcFields', ReadBody(Row));
         end else
             Observer.Observe('assign', 'error: ' + GetLastErrorText());
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('assign', 'error: The value "stored text" can''t be evaluated into type BLOB.');
+#else
+        Observer.Expect('assign', 'error: Invalid Conversion. Source: NavVariant, Destination: NavBLOB.');
+#endif
+        Observer.Verify();
     end;
 }
