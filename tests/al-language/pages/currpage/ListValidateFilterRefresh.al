@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/page/page-update-method
 // Scope: in-scope
 // local object: the control's OnValidate and the action that change the page's view, and the page triggers that log, are what is under test
-// Fixtures used: shared Assert (60021); own tables 97581, 97570, log codeunit 97582, pages 97583 to 97588, 97571, tests 97589, 97572
+// Fixtures used: shared Assert (60021); own tables 97581, 97570, log codeunits 97582, 97573, pages 97583-97588, 97571, tests 97589, 97572
 // Probe (al-runner issue 8698): a page stands on the last of three rows A (group G0), B and C (group G1), opened with OpenEdit. SetValue
 //   on Name runs the table field's OnValidate, then the control's OnValidate, which sets a filter on Rec and calls CurrPage.Update(false).
 //   A SetValue on Value, whose OnValidate calls CurrPage.Update(false) too, follows; then First() and a walk with Next(), Close, and the
@@ -1545,6 +1545,28 @@ table 97570 "LT RFU Edit Row"
     }
 }
 
+codeunit 97573 "LT RFU Edit Log"
+{
+    SingleInstance = true;
+
+    var
+        Buffer: Text;
+
+    procedure Add(Entry: Text)
+    begin
+        Buffer += Entry + ';';
+    end;
+
+    procedure Take(): Text
+    var
+        Result: Text;
+    begin
+        Result := Buffer;
+        Buffer := '';
+        exit(Result);
+    end;
+}
+
 page 97571 "LT RFU Edit Card"
 {
     PageType = Card;
@@ -1581,7 +1603,7 @@ page 97571 "LT RFU Edit Card"
     end;
 
     var
-        Log: Codeunit "LT RFU Log";
+        Log: Codeunit "LT RFU Edit Log";
 }
 
 codeunit 97572 "LT RFU Edit Tests"
@@ -1591,7 +1613,7 @@ codeunit 97572 "LT RFU Edit Tests"
 
     var
         Assert: Codeunit Assert;
-        Log: Codeunit "LT RFU Log";
+        Log: Codeunit "LT RFU Edit Log";
 
     local procedure Initialize()
     var
@@ -1602,7 +1624,7 @@ codeunit 97572 "LT RFU Edit Tests"
         Row.Name := 'Alpha';
         Row.Insert();
         Commit();
-        Log.Setup(0, 0);
+        Log.Take();
     end;
 
     // Opened on its only row: SetValue on Name, whose OnValidate calls CurrPage.Update(false), then Close.
