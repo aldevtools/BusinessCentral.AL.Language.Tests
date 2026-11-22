@@ -47,6 +47,30 @@ codeunit 75981 "FVC Integer Field"
     end;
 
     [Test]
+    procedure IntField_To_DateTime_More1()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure IntField_To_DateTime_More2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure IntField_To_DateTime_More3()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.More();
+    end;
+
+    [Test]
     procedure IntField_To_Date()
     var
         Observer: Codeunit "Probe Observer";
@@ -80,6 +104,30 @@ codeunit 75981 "FVC Integer Field"
     end;
 
     [Test]
+    procedure IntField_To_Date_More1()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure IntField_To_Date_More2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure IntField_To_Date_More3()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.More();
+    end;
+
+    [Test]
     procedure IntField_To_Time()
     var
         Observer: Codeunit "Probe Observer";
@@ -110,6 +158,30 @@ codeunit 75981 "FVC Integer Field"
         if ToTime(FR, R) then Observer.Observe('1000', Format(R, 0, 9)) else Observer.ObserveError('1000');
         if ToViaTime(FR, R) then Observer.Observe('1000 via variant', Format(R, 0, 9)) else Observer.ObserveError('1000 via variant');
         Observer.Finish();
+    end;
+
+    [Test]
+    procedure IntField_To_Time_More1()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure IntField_To_Time_More2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure IntField_To_Time_More3()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.More();
     end;
 
     [Test]

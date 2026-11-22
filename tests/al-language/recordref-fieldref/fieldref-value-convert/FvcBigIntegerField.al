@@ -68,6 +68,30 @@ codeunit 75982 "FVC BigInteger Field"
     end;
 
     [Test]
+    procedure BigField_To_Date_More1()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure BigField_To_Date_More2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure BigField_To_Date_More3()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.More();
+    end;
+
+    [Test]
     procedure BigField_To_Time()
     var
         Observer: Codeunit "Probe Observer";
