@@ -1472,6 +1472,35 @@ codeunit 97589 "LT RFU Tests"
         Expect('stored', 'A/,B/,C/,');
     end;
 
+    // The issue's page with the reporter's steps: First() and then Close(), without a walk.
+    [Test]
+    procedure IssueList_FirstThenClose()
+    var
+        Lines: TestPage "LT RFU Issue Lines";
+    begin
+        Initialize(0, 0);
+        Lines.OpenEdit();
+        Lines.Last();
+        Note('open', Log.Take());
+        Lines.Name.SetValue('C2');
+        Note('setname', Log.Take());
+        Lines.Value.SetValue('V');
+        Note('setvalue', Log.Take());
+        Note('shown2', Lines.Name.Value() + '/' + Lines.Value.Value());
+        Lines.First();
+        Note('first', Lines.Name.Value() + ':' + Log.Take());
+        Lines.Close();
+        Note('close', Log.Take());
+        Note('stored', StoredRows());
+        Expect('open', 'P.AGR(A);P.AGR(B);P.AGR(C);P.AGR(A);');
+        Expect('setname', 'P.AGR(C);T.V(C2);P.AGR(C);P.AGR(B);');
+        Expect('setvalue', 'P.AGR(C);P.AGR(C);P.AGR(B);');
+        Expect('shown2', 'C/');
+        Expect('first', 'B:');
+        Expect('close', '');
+        Expect('stored', 'A/,B/,C/,');
+    end;
+
     // The steps of List_SetRangeKeepsRowUpdateFalse, then After: 0 Previous(), 1 a third SetValue on Value; then Close.
     local procedure RunLinesThen(After: Integer)
     var
