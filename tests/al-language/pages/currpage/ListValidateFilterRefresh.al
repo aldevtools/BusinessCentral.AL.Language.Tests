@@ -10,8 +10,8 @@
 //   no Update; a filter that keeps the row (SetRange or SetFilter on G1), one that drops it (SetRange on G0), Reset after a filter the
 //   test set, and no filter change; a List page with OnAfterGetRecord only (the issue's page, page 97583 keeps its code line for line),
 //   with OnAfterGetRecord and OnAfterGetCurrRecord, with OnAfterGetCurrRecord only and without row triggers; a Card page with
-//   OnAfterGetRecord only; the same change of view from an action instead of the OnValidate.
-//   Measured on a local BC 29.1 OnPrem w1 container; BC 27.5 and 28.5 are left to CI.
+//   OnAfterGetRecord only; the same change of view from an action; on page 97584 also the middle and the first row, Previous() or a
+//   third SetValue after the steps, then Close, a SetValue that fails first, and on page 97583 First() right after the first SetValue.
 // BC versions: 27, 28, 29
 
 table 97581 "LT RFU Line"
@@ -1320,5 +1320,180 @@ codeunit 97589 "LT RFU Tests"
         Expect('walk', 'B,C,');
         Expect('close', '');
         Expect('stored', 'A/,B/,C/,');
+    end;
+
+    // SetFilter on G1 with Update(true).
+    [Test]
+    procedure List_SetFilterKeepsRowUpdateTrue()
+    begin
+        Initialize(2, 2);
+        RunLines(false, 0);
+        Expect('open', 'P.AGR(A);P.AGR(B);P.AGR(C);P.AGR(A);');
+        Expect('setname', 'P.AGR(C);T.V(C2);P.V(C2);P.AGR(C2);P.AGR(B);');
+        Expect('shown', 'C2/');
+        Expect('filter', 'G1');
+        Expect('setvalue', 'P.AGR(C2);P.AGR(C2);P.AGR(B);');
+        Expect('shown2', 'C2/');
+        Expect('first', 'B:');
+        Expect('walk', 'B,C2,,');
+        Expect('close', '');
+        Expect('stored', 'A/,B/,C2/,');
+    end;
+
+    // Reset while the page holds no filter: the view stays as it is.
+    [Test]
+    procedure List_ResetWithoutFilterUpdateFalse()
+    begin
+        Initialize(3, 1);
+        RunLines(false, 0);
+        Expect('open', 'P.AGR(A);P.AGR(B);P.AGR(C);P.AGR(A);');
+        Expect('setname', 'P.AGR(C);T.V(C2);P.V(C2);P.AGR(C);P.AGR(B);P.AGR(A);');
+        Expect('shown', 'C/');
+        Expect('filter', '');
+        Expect('setvalue', 'P.AGR(C);P.AGR(C);P.AGR(B);P.AGR(A);');
+        Expect('shown2', 'C/');
+        Expect('first', 'A:');
+        Expect('walk', 'A,B,C,,');
+        Expect('close', '');
+        Expect('stored', 'A/,B/,C/,');
+    end;
+
+    // SetRange on G0, which drops C, without CurrPage.Update; the SetValue on Value then calls Update(false).
+    [Test]
+    procedure List_SetRangeDropsRowNoUpdate()
+    begin
+        Initialize(4, 0);
+        RunLines(false, 0);
+        Expect('open', 'P.AGR(A);P.AGR(B);P.AGR(C);P.AGR(A);');
+        Expect('setname', 'P.AGR(C);T.V(C2);P.V(C2);');
+        Expect('shown', 'C2/');
+        Expect('filter', 'G0');
+        Expect('setvalue', 'P.AGR(A);');
+        Expect('shown2', 'A/');
+        Expect('first', 'A:');
+        Expect('walk', 'A,,');
+        Expect('close', '');
+        Expect('stored', 'A/,B/,C/,');
+    end;
+
+    // After the steps of List_SetRangeKeepsRowUpdateFalse, Previous() instead of First().
+    [Test]
+    procedure List_PreviousAfterSetValues()
+    begin
+        Initialize(1, 1);
+        RunLinesThen(0);
+        Expect('open', 'P.AGR(A);P.AGR(B);P.AGR(C);P.AGR(A);');
+        Expect('setname', 'P.AGR(C);T.V(C2);P.V(C2);P.AGR(C);P.AGR(B);');
+        Expect('shown', 'C/');
+        Expect('setvalue', 'P.AGR(C);P.AGR(C);P.AGR(B);');
+        Expect('shown2', 'C/');
+        Expect('then', 'Yes:B:');
+        Expect('close', '');
+        Expect('stored', 'A/,B/,C/,');
+    end;
+
+    // After the steps of List_SetRangeKeepsRowUpdateFalse, a third SetValue, on Value again.
+    [Test]
+    procedure List_ThirdSetValue()
+    begin
+        Initialize(1, 1);
+        RunLinesThen(1);
+        Expect('open', 'P.AGR(A);P.AGR(B);P.AGR(C);P.AGR(A);');
+        Expect('setname', 'P.AGR(C);T.V(C2);P.V(C2);P.AGR(C);P.AGR(B);');
+        Expect('shown', 'C/');
+        Expect('setvalue', 'P.AGR(C);P.AGR(C);P.AGR(B);');
+        Expect('shown2', 'C/');
+        Expect('then', 'C/:P.AGR(C);P.AGR(C);P.AGR(B);');
+        Expect('close', 'P.AGR(C);');
+        Expect('stored', 'A/,B/,C/,');
+    end;
+
+    // A SetValue on Name that fails (longer than Text[30]), then the steps of List_SetRangeKeepsRowUpdateFalse.
+    [Test]
+    procedure List_TooLongName_ThenSetRangeKeepsRowUpdateFalse()
+    var
+        Lines: TestPage "LT RFU Lines";
+    begin
+        Initialize(1, 1);
+        Lines.OpenEdit();
+        Lines.Last();
+        Note('open', Log.Take());
+        asserterror Lines.Name.SetValue('C234567890123456789012345678901');
+        Note('error', Log.Take());
+        Lines.Name.SetValue('C2');
+        Note('setname', Log.Take());
+        Note('shown', Lines.Name.Value() + '/' + Lines.Value.Value());
+        Lines.Value.SetValue('V');
+        Note('setvalue', Log.Take());
+        Note('shown2', Lines.Name.Value() + '/' + Lines.Value.Value());
+        Lines.Close();
+        Note('close', Log.Take());
+        Note('stored', StoredRows());
+        Expect('open', 'P.AGR(A);P.AGR(B);P.AGR(C);P.AGR(A);');
+        Expect('error', 'P.AGR(C);');
+        Expect('setname', 'T.V(C2);P.V(C2);P.AGR(C);P.AGR(B);');
+        Expect('shown', 'C/');
+        Expect('setvalue', 'P.AGR(C);P.AGR(C);P.AGR(B);');
+        Expect('shown2', 'C/');
+        Expect('close', 'P.AGR(C);');
+        Expect('stored', 'A/,B/,C/,');
+    end;
+
+    // The issue's page: First() right after the SetValue on Name, without the SetValue on Value.
+    [Test]
+    procedure IssueList_FirstAfterSetName()
+    var
+        Lines: TestPage "LT RFU Issue Lines";
+        Walk: Text;
+    begin
+        Initialize(0, 0);
+        Lines.OpenEdit();
+        Lines.Last();
+        Note('open', Log.Take());
+        Lines.Name.SetValue('C2');
+        Note('setname', Log.Take());
+        Note('shown', Lines.Name.Value() + '/' + Lines.Value.Value());
+        Lines.First();
+        Note('first', Lines.Name.Value() + ':' + Log.Take());
+        repeat
+            Walk += Lines.Name.Value() + ',';
+        until not Lines.Next();
+        Note('walk', Walk);
+        Log.Take();
+        Lines.Close();
+        Note('close', Log.Take());
+        Note('stored', StoredRows());
+        Expect('open', 'P.AGR(A);P.AGR(B);P.AGR(C);P.AGR(A);');
+        Expect('setname', 'P.AGR(C);T.V(C2);P.AGR(C);P.AGR(B);');
+        Expect('shown', 'C/');
+        Expect('first', 'B:');
+        Expect('walk', 'B,C,,');
+        Expect('close', '');
+        Expect('stored', 'A/,B/,C/,');
+    end;
+
+    // The steps of List_SetRangeKeepsRowUpdateFalse, then After: 0 Previous(), 1 a third SetValue on Value; then Close.
+    local procedure RunLinesThen(After: Integer)
+    var
+        Lines: TestPage "LT RFU Lines";
+    begin
+        Lines.OpenEdit();
+        Lines.Last();
+        Note('open', Log.Take());
+        Lines.Name.SetValue('C2');
+        Note('setname', Log.Take());
+        Note('shown', Lines.Name.Value() + '/' + Lines.Value.Value());
+        Lines.Value.SetValue('V');
+        Note('setvalue', Log.Take());
+        Note('shown2', Lines.Name.Value() + '/' + Lines.Value.Value());
+        if After = 0 then
+            Note('then', Format(Lines.Previous()) + ':' + Lines.Name.Value() + ':' + Log.Take())
+        else begin
+            Lines.Value.SetValue('W');
+            Note('then', Lines.Name.Value() + '/' + Lines.Value.Value() + ':' + Log.Take());
+        end;
+        Lines.Close();
+        Note('close', Log.Take());
+        Note('stored', StoredRows());
     end;
 }
