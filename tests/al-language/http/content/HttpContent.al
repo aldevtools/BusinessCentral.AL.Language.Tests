@@ -484,4 +484,578 @@ codeunit 72020 "LT HtT Content Stream"
         Observer.Expect('text', 'second');
         Observer.Verify();
     end;
+
+    // Measured on BC 27.5, 28.5, and 29.1; CI checks BC 29.0.
+    local procedure Initialize()
+    begin
+        Observer.Discard();
+    end;
+
+    [TryFunction]
+    local procedure TryWriteStream(var Content: HttpContent; var Stream: InStream)
+    begin
+        Content.WriteFrom(Stream);
+    end;
+
+    local procedure ObserveStreamWrite(Name: Text; var Content: HttpContent)
+    var
+        TempBlob: Codeunit "Temp Blob";
+        OutS: OutStream;
+        InS: InStream;
+        Headers: HttpHeaders;
+        Values: array[2] of Text;
+        Body: Text;
+        Ok: Boolean;
+    begin
+        Content.GetHeaders(Headers);
+        Observer.Observe(Name + '|before', Format(Headers.Contains('Content-Type')));
+        TempBlob.CreateOutStream(OutS);
+        OutS.WriteText('stream body');
+        TempBlob.CreateInStream(InS);
+        ClearLastError();
+        Ok := TryWriteStream(Content, InS);
+        Observer.Observe(Name + '|ok', Format(Ok));
+        Observer.ObserveError(Name);
+        Content.GetHeaders(Headers);
+        Observer.Observe(Name + '|after', Format(Headers.Contains('Content-Type')));
+        if Headers.GetValues('Content-Type', Values) then
+            Observer.Observe(Name + '|type', Values[1])
+        else
+            Observer.Observe(Name + '|type', '<absent>');
+        Content.ReadAs(Body);
+        Observer.Observe(Name + '|body', Body);
+    end;
+
+    local procedure ObserveStreamCase(Scenario: Integer)
+    var
+        Content: HttpContent;
+        Copy: HttpContent;
+        Headers: HttpHeaders;
+        CopyHeaders: HttpHeaders;
+        Request: HttpRequestMessage;
+        Name: Text;
+    begin
+        if Scenario >= 2 then
+            Content.WriteFrom('before');
+        Content.GetHeaders(Headers);
+        if Scenario in [1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 14, 15] then
+            Headers.Remove('Content-Type');
+        case Scenario of
+            0:
+                Name := 'fresh';
+            1:
+                Name := 'freshRemoved';
+            2:
+                Name := 'writtenRemoved';
+            3:
+                begin
+                    Name := 'readded';
+                    Headers.Add('Content-Type', 'application/json');
+                end;
+            4:
+                begin
+                    Name := 'headersCleared';
+                    Headers.Clear();
+                end;
+            5:
+                begin
+                    Name := 'textRewritten';
+                    Content.WriteFrom('after remove');
+                end;
+            6:
+                begin
+                    Name := 'contentCleared';
+                    Content.Clear();
+                end;
+            7:
+                begin
+                    Name := 'copyRemoved';
+                    Copy := Content;
+                    ObserveStreamWrite(Name, Copy);
+                    exit;
+                end;
+            8:
+                begin
+                    Name := 'headersClearOnly';
+                    Headers.Clear();
+                end;
+            9:
+                begin
+                    Name := 'copyAfterSourceReadd';
+                    Copy := Content;
+                    Headers.Add('Content-Type', 'application/json');
+                    ObserveStreamWrite(Name, Copy);
+                    Observer.Observe(Name + '|sourceType', Format(Headers.Contains('Content-Type')));
+                    exit;
+                end;
+            10:
+                begin
+                    Name := 'sourceAfterCopyReadd';
+                    Copy := Content;
+                    Copy.GetHeaders(CopyHeaders);
+                    CopyHeaders.Add('Content-Type', 'application/json');
+                    ObserveStreamWrite(Name, Content);
+                    Observer.Observe(Name + '|copyType', Format(CopyHeaders.Contains('Content-Type')));
+                    exit;
+                end;
+            11:
+                begin
+                    Name := 'requestAssigned';
+                    Request.Content := Content;
+                    Copy := Request.Content;
+                    ObserveStreamWrite(Name, Copy);
+                    exit;
+                end;
+            12:
+                begin
+                    Name := 'rawReadded';
+                    Headers.TryAddWithoutValidation('Content-Type', 'application/json');
+                end;
+            13:
+                begin
+                    Name := 'freshHeadersClear';
+                    Content.Clear();
+                    Content.GetHeaders(Headers);
+                    Headers.Clear();
+                end;
+            14, 15:
+                begin
+                    if Scenario = 14 then
+                        Name := 'oldHeadersAfterRewrite'
+                    else
+                        Name := 'newHeadersAfterRewrite';
+                    Content.WriteFrom('after remove');
+                    if Scenario = 15 then
+                        Content.GetHeaders(Headers);
+                    Headers.Clear();
+                end;
+        end;
+        ObserveStreamWrite(Name, Content);
+    end;
+
+    local procedure ExpectStreamWrite(Name: Text; HadType: Boolean; TypeValue: Text)
+    begin
+        Observer.Expect(Name + '|before', Format(HadType));
+        Observer.Expect(Name + '|ok', 'Yes');
+        Observer.Expect(Name + '|text', '');
+        Observer.Expect(Name + '|code', '');
+        Observer.Expect(Name + '|after', Format(TypeValue <> '<absent>'));
+        Observer.Expect(Name + '|type', TypeValue);
+        Observer.Expect(Name + '|body', 'stream body');
+    end;
+
+    [TryFunction]
+    local procedure TryWriteResponseStream(var Response: HttpResponseMessage; var Stream: InStream)
+    begin
+        Response.Content.WriteFrom(Stream);
+    end;
+
+    local procedure ObserveResponseStreamCase(Scenario: Integer)
+    var
+        Response: HttpResponseMessage;
+        Content: HttpContent;
+        Headers: HttpHeaders;
+        TempBlob: Codeunit "Temp Blob";
+        OutS: OutStream;
+        InS: InStream;
+        Values: array[2] of Text;
+        Name: Text;
+        Body: Text;
+        Ok: Boolean;
+    begin
+        if Scenario > 0 then
+            Response.Content.WriteFrom('before');
+        Response.Content.GetHeaders(Headers);
+        case Scenario of
+            0:
+                Name := 'responseFresh';
+            1, 3, 4:
+                begin
+                    Headers.Remove('Content-Type');
+                    case Scenario of
+                        1:
+                            Name := 'responseRemoved';
+                        3:
+                            begin
+                                Name := 'responseReadded';
+                                Headers.Add('Content-Type', 'application/json');
+                            end;
+                        4:
+                            begin
+                                Name := 'responseCopyRemoved';
+                                Content := Response.Content;
+                                ObserveStreamWrite(Name, Content);
+                                exit;
+                            end;
+                    end;
+                end;
+            2:
+                begin
+                    Name := 'responseHeadersCleared';
+                    Headers.Clear();
+                end;
+        end;
+        Observer.Observe(Name + '|before', Format(Headers.Contains('Content-Type')));
+        TempBlob.CreateOutStream(OutS);
+        OutS.WriteText('stream body');
+        TempBlob.CreateInStream(InS);
+        ClearLastError();
+        Ok := TryWriteResponseStream(Response, InS);
+        Observer.Observe(Name + '|ok', Format(Ok));
+        Observer.ObserveError(Name);
+        Response.Content.GetHeaders(Headers);
+        Observer.Observe(Name + '|after', Format(Headers.Contains('Content-Type')));
+        if Headers.GetValues('Content-Type', Values) then
+            Observer.Observe(Name + '|type', Values[1])
+        else
+            Observer.Observe(Name + '|type', '<absent>');
+        Response.Content.ReadAs(Body);
+        Observer.Observe(Name + '|body', Body);
+    end;
+
+    [Test]
+    procedure HttpContent_WriteStream_FreshAndChangedTypesPreserved()
+    var
+        Scenario: Integer;
+    begin
+        Initialize();
+        for Scenario := 0 to 4 do
+            ObserveStreamCase(Scenario);
+        ExpectStreamWrite('fresh', true, 'text/plain; charset=utf-8');
+        ExpectStreamWrite('freshRemoved', false, '<absent>');
+        ExpectStreamWrite('writtenRemoved', false, '<absent>');
+        ExpectStreamWrite('readded', true, 'application/json');
+        ExpectStreamWrite('headersCleared', false, '<absent>');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure HttpContent_WriteStream_ResetAndCopyPreserveType()
+    var
+        Scenario: Integer;
+    begin
+        Initialize();
+        for Scenario := 5 to 8 do
+            ObserveStreamCase(Scenario);
+        ExpectStreamWrite('textRewritten', true, 'text/plain; charset=utf-8');
+        ExpectStreamWrite('contentCleared', true, 'text/plain; charset=utf-8');
+        ExpectStreamWrite('copyRemoved', false, '<absent>');
+        ExpectStreamWrite('headersClearOnly', false, '<absent>');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure HttpContent_WriteStream_CopiesPreserveIndependentTypes()
+    var
+        Scenario: Integer;
+    begin
+        Initialize();
+        for Scenario := 9 to 13 do
+            ObserveStreamCase(Scenario);
+        ExpectStreamWrite('copyAfterSourceReadd', false, '<absent>');
+        Observer.Expect('copyAfterSourceReadd|sourceType', 'Yes');
+        ExpectStreamWrite('sourceAfterCopyReadd', false, '<absent>');
+        Observer.Expect('sourceAfterCopyReadd|copyType', 'Yes');
+        ExpectStreamWrite('requestAssigned', false, '<absent>');
+        ExpectStreamWrite('rawReadded', true, 'application/json');
+        ExpectStreamWrite('freshHeadersClear', false, '<absent>');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure HttpContent_WriteStream_ResponseContentPreservesType()
+    var
+        Scenario: Integer;
+    begin
+        Initialize();
+        for Scenario := 0 to 4 do
+            ObserveResponseStreamCase(Scenario);
+        ExpectStreamWrite('responseFresh', false, '<absent>');
+        ExpectStreamWrite('responseRemoved', false, '<absent>');
+        ExpectStreamWrite('responseHeadersCleared', false, '<absent>');
+        ExpectStreamWrite('responseReadded', true, 'application/json');
+        ExpectStreamWrite('responseCopyRemoved', false, '<absent>');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure HttpContent_WriteStream_RewriteAndClearLeavesTypeAbsent()
+    var
+        Scenario: Integer;
+    begin
+        Initialize();
+        for Scenario := 14 to 15 do
+            ObserveStreamCase(Scenario);
+        ExpectStreamWrite('oldHeadersAfterRewrite', false, '<absent>');
+        ExpectStreamWrite('newHeadersAfterRewrite', false, '<absent>');
+        Observer.Verify();
+    end;
+
+    local procedure PrepareProbeStream(SourceState: Integer; var Blob: Codeunit "Temp Blob"; var Stream: InStream)
+    var
+        OutS: OutStream;
+        Consumed: Text;
+    begin
+        if SourceState = 3 then
+            exit;
+        if SourceState <> 0 then begin
+            Blob.CreateOutStream(OutS);
+            OutS.WriteText('stream body');
+        end;
+        Blob.CreateInStream(Stream);
+        case SourceState of
+            1:
+                Stream.ReadText(Consumed, 3);
+            2:
+                Stream.ReadText(Consumed);
+        end;
+    end;
+
+    local procedure ChangedType(var Headers: HttpHeaders; HeaderState: Integer)
+    begin
+        case HeaderState of
+            0:
+                Headers.Remove('Content-Type');
+            1:
+                begin
+                    Headers.Remove('Content-Type');
+                    Headers.Add('Content-Type', 'application/json');
+                end;
+            2:
+                Headers.Clear();
+        end;
+    end;
+
+    local procedure HeaderStateName(HeaderState: Integer): Text
+    begin
+        case HeaderState of
+            0:
+                exit('removed');
+            1:
+                exit('readded');
+            2:
+                exit('cleared');
+        end;
+    end;
+
+    local procedure SourceStateName(SourceState: Integer): Text
+    begin
+        case SourceState of
+            0:
+                exit('empty');
+            1:
+                exit('partial');
+            2:
+                exit('exhausted');
+            3:
+                exit('uninitialized');
+        end;
+    end;
+
+    local procedure ContentType(var Headers: HttpHeaders): Text
+    var
+        Values: array[2] of Text;
+    begin
+        if Headers.GetValues('Content-Type', Values) then
+            exit(Values[1]);
+        exit('<absent>');
+    end;
+
+    local procedure ExpectedStreamResult(HeaderState: Integer; SourceState: Integer): Text
+    var
+        ExpectedType: Text;
+        ExpectedBody: Text;
+    begin
+        ExpectedType := '<absent>';
+        if HeaderState = 1 then
+            ExpectedType := 'application/json';
+        case SourceState of
+            1:
+                ExpectedBody := 'eam body';
+            3:
+                exit(
+                    'No|NotInitialized|Microsoft.Dynamics.Nav.Runtime.NavInStream variable not initialized.|' +
+                    ExpectedType + '|' + ExpectedType + '|before body');
+        end;
+        exit('Yes|||' + ExpectedType + '|' + ExpectedType + '|' + ExpectedBody);
+    end;
+
+    local procedure ObserveStreamResult(Name: Text; Ok: Boolean; var Content: HttpContent; BeforeType: Text)
+    var
+        Headers: HttpHeaders;
+        Body: Text;
+        ErrorCode: Text;
+        ErrorText: Text;
+    begin
+        ErrorCode := GetLastErrorCode();
+        ErrorText := GetLastErrorText();
+        Content.GetHeaders(Headers);
+        Content.ReadAs(Body);
+        Observer.Observe(
+            Name,
+            Format(Ok) + '|' + ErrorCode + '|' + ErrorText + '|' + BeforeType + '|' + ContentType(Headers) + '|' + Body);
+    end;
+
+    [TryFunction]
+    local procedure TryWriteRequestContent(var Request: HttpRequestMessage; var Stream: InStream)
+    begin
+        Request.Content.WriteFrom(Stream);
+    end;
+
+    local procedure ObserveContentStreamState(HeaderState: Integer; SourceState: Integer)
+    var
+        Content: HttpContent;
+        Headers: HttpHeaders;
+        Blob: Codeunit "Temp Blob";
+        Stream: InStream;
+        Name: Text;
+        BeforeType: Text;
+        Ok: Boolean;
+    begin
+        Content.WriteFrom('before body');
+        Content.GetHeaders(Headers);
+        ChangedType(Headers, HeaderState);
+        BeforeType := ContentType(Headers);
+        Name := 'content|' + HeaderStateName(HeaderState) + '|' + SourceStateName(SourceState);
+        ClearLastError();
+        PrepareProbeStream(SourceState, Blob, Stream);
+        Ok := TryWriteStream(Content, Stream);
+        ObserveStreamResult(Name, Ok, Content, BeforeType);
+        Observer.Expect(Name, ExpectedStreamResult(HeaderState, SourceState));
+    end;
+
+    [TryFunction]
+    local procedure TryWriteResponseContent(var Response: HttpResponseMessage; var Stream: InStream)
+    begin
+        Response.Content.WriteFrom(Stream);
+    end;
+
+    local procedure ObserveResponseStreamState(HeaderState: Integer; SourceState: Integer)
+    var
+        Response: HttpResponseMessage;
+        Headers: HttpHeaders;
+        Blob: Codeunit "Temp Blob";
+        Stream: InStream;
+        Name: Text;
+        BeforeType: Text;
+        Ok: Boolean;
+    begin
+        Response.Content.WriteFrom('before body');
+        Response.Content.GetHeaders(Headers);
+        ChangedType(Headers, HeaderState);
+        BeforeType := ContentType(Headers);
+        PrepareProbeStream(SourceState, Blob, Stream);
+        Name := 'response|' + HeaderStateName(HeaderState) + '|' + SourceStateName(SourceState);
+        ClearLastError();
+        Ok := TryWriteResponseContent(Response, Stream);
+        // The content result shares the same fields as the response helper.
+        ObserveResponseResult(Name, Ok, Response, BeforeType);
+        Observer.Expect(Name, ExpectedStreamResult(HeaderState, SourceState));
+    end;
+
+    local procedure ObserveResponseResult(Name: Text; Ok: Boolean; var Response: HttpResponseMessage; BeforeType: Text)
+    var
+        Headers: HttpHeaders;
+        Body: Text;
+        ErrorCode: Text;
+        ErrorText: Text;
+    begin
+        ErrorCode := GetLastErrorCode();
+        ErrorText := GetLastErrorText();
+        Response.Content.GetHeaders(Headers);
+        Response.Content.ReadAs(Body);
+        Observer.Observe(
+            Name,
+            Format(Ok) + '|' + ErrorCode + '|' + ErrorText + '|' + BeforeType + '|' + ContentType(Headers) + '|' + Body);
+    end;
+
+    // Cross changed Content-Type headers with all four source states. Fresh content is covered by the existing stream tests;
+    // request content is exercised separately through the direct property call.
+    [Test]
+    procedure HttpContent_WriteStream_ChangedTypesAcrossStreamStates()
+    var
+        HeaderState: Integer;
+        SourceState: Integer;
+    begin
+        Initialize();
+        for HeaderState := 0 to 2 do
+            for SourceState := 0 to 3 do
+                ObserveContentStreamState(HeaderState, SourceState);
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure HttpResponseContent_WriteStream_ChangedTypesAcrossStreamStates()
+    var
+        HeaderState: Integer;
+        SourceState: Integer;
+    begin
+        Initialize();
+        for HeaderState := 0 to 2 do
+            for SourceState := 0 to 3 do
+                ObserveResponseStreamState(HeaderState, SourceState);
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure HttpRequestContent_WriteStream_FreshAndChangedHeaders()
+    var
+        Request: HttpRequestMessage;
+        Content: HttpContent;
+        Headers: HttpHeaders;
+        Blob: Codeunit "Temp Blob";
+        Stream: InStream;
+        Name: Text;
+        BeforeType: Text;
+        Ok: Boolean;
+        HeaderState: Integer;
+        ExpectedHeaderState: Integer;
+    begin
+        Initialize();
+        for HeaderState := 0 to 3 do begin
+            Clear(Request);
+            Clear(Content);
+            // Request.Content is uninitialized until a content value is assigned.
+            Content.WriteFrom('');
+            Content.GetHeaders(Headers);
+            Headers.Remove('Content-Type');
+            Request.Content := Content;
+            if HeaderState > 0 then
+                Request.Content.WriteFrom('before body');
+            Request.Content.GetHeaders(Headers);
+            if HeaderState > 0 then
+                ChangedType(Headers, HeaderState - 1);
+            BeforeType := ContentType(Headers);
+            Clear(Blob);
+            PrepareProbeStream(1, Blob, Stream);
+            if HeaderState = 0 then
+                Name := 'request|fresh'
+            else
+                Name := 'request|' + HeaderStateName(HeaderState - 1);
+            ClearLastError();
+            Ok := TryWriteRequestContent(Request, Stream);
+            ObserveRequestResult(Name, Ok, Request, BeforeType);
+            ExpectedHeaderState := 0;
+            if HeaderState > 0 then
+                ExpectedHeaderState := HeaderState - 1;
+            Observer.Expect(Name, ExpectedStreamResult(ExpectedHeaderState, 1));
+        end;
+        Observer.Verify();
+    end;
+
+    local procedure ObserveRequestResult(Name: Text; Ok: Boolean; var Request: HttpRequestMessage; BeforeType: Text)
+    var
+        Headers: HttpHeaders;
+        Body: Text;
+        ErrorCode: Text;
+        ErrorText: Text;
+    begin
+        ErrorCode := GetLastErrorCode();
+        ErrorText := GetLastErrorText();
+        Request.Content.GetHeaders(Headers);
+        Request.Content.ReadAs(Body);
+        Observer.Observe(
+            Name,
+            Format(Ok) + '|' + ErrorCode + '|' + ErrorText + '|' + BeforeType + '|' + ContentType(Headers) + '|' + Body);
+    end;
 }
