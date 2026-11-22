@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-visible-property
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own table 75700, pages 75701, 75702, 75703, 75705 and 75706, test codeunit 75704
+// Fixtures used: Probe Observer (codeunit 69160); own table 75700, pages 75701, 75702, 75703, 75705 to 75710, test codeunit 75704
 // Probe (al-runner issue 8660): the Visible state a TestPage reads for a field control whose Visible expression names a field
 //   of the source record, by what the control's source is.
 // Facts:
@@ -189,10 +189,94 @@ page 75706 "PGC Visible On Get Error"
         Error('OnAfterGetRecord ran');
     end;
 }
+page 75707 "PGC Visible Bound Elsewhere"
+{
+    PageType = Card;
+    SourceTable = "PGC Visible Source Row";
+
+    layout
+    {
+        area(Content)
+        {
+            field(AmountCtl; Rec.Amount)
+            {
+                ApplicationArea = All;
+            }
+            field(Total; Rec.Amount + 1)
+            {
+                ApplicationArea = All;
+                Visible = Rec.Amount > 0;
+            }
+        }
+    }
+}
+page 75708 "PGC Visible Bound First"
+{
+    PageType = Card;
+    SourceTable = "PGC Visible Source Row";
+
+    layout
+    {
+        area(Content)
+        {
+            field(IdCtl; Rec.Id)
+            {
+                ApplicationArea = All;
+                Visible = Rec.Flag;
+            }
+            field(Total; Rec.Amount + 1)
+            {
+                ApplicationArea = All;
+                Visible = Rec.Amount > 0;
+            }
+        }
+    }
+}
+page 75709 "PGC Visible Names Key"
+{
+    PageType = Card;
+    SourceTable = "PGC Visible Source Row";
+
+    layout
+    {
+        area(Content)
+        {
+            field(Total; Rec.Amount + 1)
+            {
+                ApplicationArea = All;
+                Visible = Rec.Id > 0;
+            }
+        }
+    }
+}
+page 75710 "PGC Visible One Bound"
+{
+    PageType = Card;
+    SourceTable = "PGC Visible Source Row";
+
+    layout
+    {
+        area(Content)
+        {
+            field(AmountCtl; Rec.Amount)
+            {
+                ApplicationArea = All;
+            }
+            field(Total; Rec.Amount + 1)
+            {
+                ApplicationArea = All;
+                Visible = (Rec.Amount > 0) and Rec.Flag;
+            }
+        }
+    }
+}
 codeunit 75704 "PGC Visible Source Tests"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+
+    var
+        ModalVisible: Text;
 
 #if BC29PLUS
     [Test]
@@ -317,6 +401,142 @@ codeunit 75704 "PGC Visible Source Tests"
         Observer.Expect('ExprVariable visible', 'No');
         Observer.Expect('ExprConstant visible', 'No');
         Observer.Verify();
+    end;
+
+    // Observed (Finish), al-runner PR 8667 review: whether another control that binds the named field changes the answer
+    // (pages 75707 to 75710), and the routes to page 75701 other than OpenEdit.
+    [Test]
+    procedure VisibleSource_Review_BoundElsewhere_Observe()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Visible Source Row";
+        Card: TestPage "PGC Visible Bound Elsewhere";
+    begin
+        Initialize();
+        InsertRow(Row);
+        Card.OpenEdit();
+        Card.GoToRecord(Row);
+        Observer.Observe('Total visible', Format(Card.Total.Visible()));
+        Observer.Observe('AmountCtl visible', Format(Card.AmountCtl.Visible()));
+        Card.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure VisibleSource_Review_BoundFirst_Observe()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Visible Source Row";
+        Card: TestPage "PGC Visible Bound First";
+    begin
+        Initialize();
+        InsertRow(Row);
+        Card.OpenEdit();
+        Card.GoToRecord(Row);
+        Observer.Observe('IdCtl visible', Format(Card.IdCtl.Visible()));
+        Observer.Observe('Total visible', Format(Card.Total.Visible()));
+        Card.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure VisibleSource_Review_NamesKey_Observe()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Visible Source Row";
+        Card: TestPage "PGC Visible Names Key";
+    begin
+        Initialize();
+        InsertRow(Row);
+        Card.OpenEdit();
+        Card.GoToRecord(Row);
+        Observer.Observe('Total visible', Format(Card.Total.Visible()));
+        Card.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure VisibleSource_Review_OneBound_Observe()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Visible Source Row";
+        Card: TestPage "PGC Visible One Bound";
+    begin
+        Initialize();
+        InsertRow(Row);
+        Card.OpenEdit();
+        Card.GoToRecord(Row);
+        Observer.Observe('Total visible', Format(Card.Total.Visible()));
+        Card.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure VisibleSource_Review_OpenView_Observe()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Visible Source Row";
+        Card: TestPage "PGC Visible Expr Source";
+    begin
+        Initialize();
+        InsertRow(Row);
+        Card.OpenView();
+        Card.GoToRecord(Row);
+        Observer.Observe('AmountPlusOne visible', Format(Card.AmountPlusOne.Visible()));
+        Card.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure VisibleSource_Review_OpenNew_Observe()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Visible Source Row";
+        Card: TestPage "PGC Visible Expr Source";
+    begin
+        Initialize();
+        InsertRow(Row);
+        Card.OpenNew();
+        Observer.Observe('AmountPlusOne visible', Format(Card.AmountPlusOne.Visible()));
+        Card.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure VisibleSource_Review_TrapPageRun_Observe()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Visible Source Row";
+        Card: TestPage "PGC Visible Expr Source";
+    begin
+        Initialize();
+        InsertRow(Row);
+        Card.Trap();
+        Page.Run(Page::"PGC Visible Expr Source", Row);
+        Observer.Observe('AmountPlusOne visible', Format(Card.AmountPlusOne.Visible()));
+        Card.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('ReadVisibleModalHandler')]
+    procedure VisibleSource_Review_ModalPageHandler_Observe()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Visible Source Row";
+    begin
+        Initialize();
+        InsertRow(Row);
+        ModalVisible := 'not run';
+        Page.RunModal(Page::"PGC Visible Expr Source", Row);
+        Observer.Observe('AmountPlusOne visible in handler', ModalVisible);
+        Observer.Finish();
+    end;
+
+    [ModalPageHandler]
+    procedure ReadVisibleModalHandler(var Card: TestPage "PGC Visible Expr Source")
+    begin
+        ModalVisible := Format(Card.AmountPlusOne.Visible());
     end;
 
     local procedure InsertRow(var Row: Record "PGC Visible Source Row")
