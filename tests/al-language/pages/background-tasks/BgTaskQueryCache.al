@@ -6325,3 +6325,147 @@ codeunit 97553 "BQ Tests 10"
         Assert.AreEqual('5 / 5', Reads('calcsumsfilter'), 'CalcSums with a filter outside the key');
     end;
 }
+
+// BQ Tests 9c (al-runner issue 8637, @ alone in a query; measured on a local BC 29.1 OnPrem w1 container): a query over table
+// 97548 reads the database, and @ alone keeps the rows whose value is empty there too, set on a Code or a Text column by
+// SetFilter or in the DataItemTableFilter. The source rows are K and empty.
+// Fixtures (the header's Fixtures used lines have no room): queries 97559, 97560 and 97561, test codeunit 97559.
+
+query 97559 "BQ Kind Columns"
+{
+    QueryType = Normal;
+
+    elements
+    {
+        dataitem(Source; "BQ Kind Source")
+        {
+            column(KindGroup; "Group") { }
+            column(Id; Id) { }
+            column(CodeKind; "Code Kind") { }
+            column(TextKind; "Text Kind") { }
+        }
+    }
+}
+
+query 97560 "BQ Kind Code At"
+{
+    QueryType = Normal;
+
+    elements
+    {
+        dataitem(Source; "BQ Kind Source")
+        {
+            DataItemTableFilter = "Code Kind" = filter('@');
+            column(KindGroup; "Group") { }
+            column(Id; Id) { }
+        }
+    }
+}
+
+query 97561 "BQ Kind Text At"
+{
+    QueryType = Normal;
+
+    elements
+    {
+        dataitem(Source; "BQ Kind Source")
+        {
+            DataItemTableFilter = "Text Kind" = filter('@');
+            column(KindGroup; "Group") { }
+            column(Id; Id) { }
+        }
+    }
+}
+
+codeunit 97559 "BQ Tests 9c"
+{
+    Subtype = Test;
+
+    var
+        Assert: Codeunit Assert;
+
+    // Rows 1 (K) and 2 (empty) of a new group, in the Code and the Text kind field.
+    local procedure NewGroup(): Code[20]
+    var
+        Source: Record "BQ Kind Source";
+    begin
+        Source."Group" := CopyStr(DelChr(Format(CreateGuid()), '=', '{}-'), 1, 18);
+        Source.Id := 1;
+        Source."Code Kind" := 'K';
+        Source."Text Kind" := 'K';
+        Source.Amount := 10;
+        Source.Insert();
+        Source.Id := 2;
+        Source."Code Kind" := '';
+        Source."Text Kind" := '';
+        Source.Amount := 5;
+        Source.Insert();
+        exit(Source."Group");
+    end;
+
+    [Test]
+    procedure QueryAtSignAlone_CodeColumn_KeepsTheEmptyValues()
+    var
+        Columns: Query "BQ Kind Columns";
+        N: Integer;
+    begin
+        Columns.SetRange(KindGroup, NewGroup());
+        Columns.SetFilter(CodeKind, '@');
+        Columns.Open();
+        while Columns.Read() do begin
+            N += 1;
+            Assert.AreEqual(2, Columns.Id, 'the row @ keeps');
+        end;
+        Columns.Close();
+        Assert.AreEqual(1, N, 'the rows @ keeps');
+    end;
+
+    [Test]
+    procedure QueryAtSignAlone_TextColumn_KeepsTheEmptyValues()
+    var
+        Columns: Query "BQ Kind Columns";
+        N: Integer;
+    begin
+        Columns.SetRange(KindGroup, NewGroup());
+        Columns.SetFilter(TextKind, '@');
+        Columns.Open();
+        while Columns.Read() do begin
+            N += 1;
+            Assert.AreEqual(2, Columns.Id, 'the row @ keeps');
+        end;
+        Columns.Close();
+        Assert.AreEqual(1, N, 'the rows @ keeps');
+    end;
+
+    [Test]
+    procedure QueryAtSignAlone_CodeDataItemTableFilter_KeepsTheEmptyValues()
+    var
+        CodeAt: Query "BQ Kind Code At";
+        N: Integer;
+    begin
+        CodeAt.SetRange(KindGroup, NewGroup());
+        CodeAt.Open();
+        while CodeAt.Read() do begin
+            N += 1;
+            Assert.AreEqual(2, CodeAt.Id, 'the row @ keeps');
+        end;
+        CodeAt.Close();
+        Assert.AreEqual(1, N, 'the rows @ keeps');
+    end;
+
+    [Test]
+    procedure QueryAtSignAlone_TextDataItemTableFilter_KeepsTheEmptyValues()
+    var
+        TextAt: Query "BQ Kind Text At";
+        N: Integer;
+    begin
+        TextAt.SetRange(KindGroup, NewGroup());
+        TextAt.Open();
+        while TextAt.Read() do begin
+            N += 1;
+            Assert.AreEqual(2, TextAt.Id, 'the row @ keeps');
+        end;
+        TextAt.Close();
+        Assert.AreEqual(1, N, 'the rows @ keeps');
+    end;
+}
