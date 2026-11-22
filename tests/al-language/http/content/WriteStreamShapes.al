@@ -128,6 +128,7 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         Txt: Text;
         Before: Text;
     begin
+        ClearLastError();
         Written(Content, 'x', Headers);
         Content.ReadAs(Txt);
         Headers.Remove('Content-Type');
@@ -147,6 +148,7 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         InS: InStream;
         Before: Text;
     begin
+        ClearLastError();
         Written(Content, 'x', Headers);
         Content.ReadAs(Read);
         Content.GetHeaders(Headers);
@@ -167,6 +169,7 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         Txt: Text;
         Before: Text;
     begin
+        ClearLastError();
         Written(Content, 'x', Headers);
         Content.ReadAs(Txt);
         Content.GetHeaders(Headers);
@@ -201,6 +204,7 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
     [Test]
     procedure S2_ReaddedTypes()
     begin
+        ClearLastError();
         ReaddedType('application/xml');
         ReaddedType('text/xml');
         ReaddedType('text/html; charset=utf-8');
@@ -222,6 +226,7 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         InS: InStream;
         Before: Text;
     begin
+        ClearLastError();
         Written(Content, 'x', Headers);
         Headers.Remove('Content-Type');
         Observer.Observe('add|ok', Format(TryAddHeader(Headers, 'X-A', 'v')));
@@ -246,6 +251,7 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         InS: InStream;
         Before: Text;
     begin
+        ClearLastError();
         Content.GetHeaders(Headers);
         Headers.Remove('Content-Type');
         Observer.Observe('add|ok', Format(TryAddHeader(Headers, 'Content-Type', 'application/json')));
@@ -264,6 +270,7 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         InS: InStream;
         Before: Text;
     begin
+        ClearLastError();
         Content.GetHeaders(Headers);
         Headers.Remove('Content-Type');
         Before := TypeOf(Content);
@@ -284,6 +291,7 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         InS: InStream;
         Before: Text;
     begin
+        ClearLastError();
         Written(Content, 'x', Headers);
         Content.ReadAs(Handed);
         Content.GetHeaders(Headers);
@@ -302,6 +310,7 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         Handed: InStream;
         Before: Text;
     begin
+        ClearLastError();
         Written(Content, 'x', Headers);
         Content.ReadAs(Handed);
         Content.GetHeaders(Headers);
@@ -323,6 +332,7 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         Secret: SecretText;
         Before: Text;
     begin
+        ClearLastError();
         Secret := SecretStrSubstNo('token');
         Written(Content, 'x', Headers);
         Headers.Remove('Content-Type');
@@ -348,6 +358,7 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         Ok: Boolean;
     begin
         ClearLastError();
+        ClearLastError();
         Ok := TryGetRequestHeaders(Request, Headers);
         Observer.Observe('getHeaders|ok', Format(Ok));
         Observer.ObserveError('getHeaders|err');
@@ -364,6 +375,7 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         Blob: Codeunit "Temp Blob";
         InS: InStream;
     begin
+        ClearLastError();
         Request.Content.WriteFrom('x');
         Request.Content.GetHeaders(Headers);
         Headers.Remove('Content-Type');
@@ -384,6 +396,7 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         Assigned: InStream;
         Before: Text;
     begin
+        ClearLastError();
         Written(Content, 'x', Headers);
         Headers.Remove('Content-Type');
         Before := TypeOf(Content);
@@ -403,6 +416,7 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         InS: InStream;
         Before: Text;
     begin
+        ClearLastError();
         Stream(Blob, InS, 'stream body');
         First.WriteFrom(InS);
         Written(Second, 'x', Headers);
@@ -421,6 +435,7 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         InS: InStream;
         Before: Text;
     begin
+        ClearLastError();
         Written(Content, 'x', Headers);
         Headers.Remove('Content-Type');
         Before := TypeOf(Content);
@@ -455,6 +470,7 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         InS: InStream;
         Before: Text;
     begin
+        ClearLastError();
         Source.WriteFrom('source body');
         Source.ReadAs(InS);
         Written(Content, 'x', Headers);
@@ -475,6 +491,7 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         InS2: InStream;
         Before: Text;
     begin
+        ClearLastError();
         Written(Content, 'x', Headers);
         Headers.Remove('Content-Type');
         Before := TypeOf(Content);
@@ -552,6 +569,7 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         Blob: Codeunit "Temp Blob";
         InS: InStream;
     begin
+        ClearLastError();
         Stream(Blob, InS, 'stream body');
         Content.WriteFrom(InS);
         StreamState('fresh', InS);
@@ -566,6 +584,7 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         InS: InStream;
         Consumed: Text;
     begin
+        ClearLastError();
         Stream(Blob, InS, 'stream body');
         InS.ReadText(Consumed, 3);
         Content.WriteFrom(InS);
@@ -582,6 +601,7 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         InS: InStream;
         Body: Text;
     begin
+        ClearLastError();
         Stream(Blob, InS, 'stream body');
         Content.WriteFrom(InS);
         Content.ReadAs(Body);
@@ -602,6 +622,7 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         Body: SecretText;
         Txt: Text;
     begin
+        ClearLastError();
         Secret := SecretStrSubstNo('secret body');
         Content.WriteFrom(Secret);
         Observer.Observe('before|isSecret', Format(Content.IsSecretContent()));
@@ -627,6 +648,7 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         Secret: SecretText;
         Txt: Text;
     begin
+        ClearLastError();
         Stream(Blob, InS, 'stream body');
         Content.WriteFrom(InS);
         Secret := SecretStrSubstNo('secret body');
@@ -664,6 +686,7 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
     [Test]
     procedure S10_ReadAsText_OtherCharsets()
     begin
+        ClearLastError();
         Observer.Observe('us-ascii', CharsetRead('us-ascii'));
         Observer.Observe('windows-1252', CharsetRead('windows-1252'));
         Observer.Observe('utf-32', CharsetRead('utf-32'));

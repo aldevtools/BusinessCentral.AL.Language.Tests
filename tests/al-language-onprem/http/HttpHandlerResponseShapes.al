@@ -130,6 +130,7 @@ codeunit 98064 "LT HtT Handler Response Shapes"
     var
         Response: HttpResponseMessage;
     begin
+        ClearLastError();
         Get(1, 'https://lt-hhr.invalid/', Response);
         ResponseCells(Response);
         Observer.Finish();
@@ -141,6 +142,7 @@ codeunit 98064 "LT HtT Handler Response Shapes"
     var
         Response: HttpResponseMessage;
     begin
+        ClearLastError();
         Get(2, 'https://lt-hhr.invalid/', Response);
         ResponseCells(Response);
         Observer.Finish();
@@ -152,6 +154,7 @@ codeunit 98064 "LT HtT Handler Response Shapes"
     var
         Response: HttpResponseMessage;
     begin
+        ClearLastError();
         Get(3, 'https://lt-hhr.invalid/', Response);
         ResponseCells(Response);
         Observer.Finish();
@@ -163,6 +166,7 @@ codeunit 98064 "LT HtT Handler Response Shapes"
     var
         Response: HttpResponseMessage;
     begin
+        ClearLastError();
         Get(4, 'http://localhost:1/x', Response);
         ResponseCells(Response);
         Observer.Finish();
@@ -174,6 +178,7 @@ codeunit 98064 "LT HtT Handler Response Shapes"
     var
         Response: HttpResponseMessage;
     begin
+        ClearLastError();
         Get(5, 'http://localhost:1/x', Response);
         ResponseCells(Response);
         Observer.Finish();
@@ -188,6 +193,7 @@ codeunit 98064 "LT HtT Handler Response Shapes"
         Response: HttpResponseMessage;
         Ok: Boolean;
     begin
+        ClearLastError();
         Mode := 6;
         Request.SetRequestUri('https://lt-hhr.invalid/');
         Request.Method := 'POST';
@@ -203,6 +209,7 @@ codeunit 98064 "LT HtT Handler Response Shapes"
     var
         Response: HttpResponseMessage;
     begin
+        ClearLastError();
         Get(7, 'https://lt-hhr.invalid/', Response);
         Observer.Finish();
     end;
