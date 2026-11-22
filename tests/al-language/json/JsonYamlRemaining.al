@@ -444,11 +444,11 @@ codeunit 75671 "YRM Json Yaml Remaining"
     end;
 
     // The documents From .. To of the list, each observed as '<document> => <result>'.
-    local procedure Cells(Prefix: Text; Docs: List of [Text]; From: Integer; To: Integer)
+    local procedure Cells(Prefix: Text; Docs: List of [Text]; FirstNo: Integer; LastNo: Integer)
     var
         i: Integer;
     begin
-        for i := From to To do
+        for i := FirstNo to LastNo do
             if i <= Docs.Count() then
                 Observer.Observe(Prefix + Format(i), Docs.Get(i) + ' => ' + Both(Doc(Docs.Get(i), ''), '', ''));
     end;
