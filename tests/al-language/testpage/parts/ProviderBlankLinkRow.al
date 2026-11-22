@@ -6,7 +6,8 @@
 //   value (Line Ref = 0, the Line No. of an empty Line). ProviderLinkedPartsMatrix.al pins the same chains with no such row (a decoy with
 //   Line Ref = 1 only). Hosts: Card (Provider in Content, linked part in FactBoxes; both shown and the Provider hidden), Document, ListPlus,
 //   and a Card whose page extension adds both parts to FactBoxes. Moves: GoToKey, GoToRecord and Next of the host onto a header without lines.
-// Expected (al-runner pages parts finding): the linked part shows no row; First on it answers No.
+// Facts (BC 27.5, 28.5 and 29.0 on Linux CI; BC 28.5 on Windows): with OpenView the linked part shows no row and First on it answers No, on every host
+//   and move. With OpenEdit (Card_OpenEdit_GoToKeyEmptyProvider) the part shows the row that holds the blank link value (Info 'zero') and First answers Yes.
 // local object: the host pages of ProviderLinkedPartsMatrix.al are the fixtures under test.
 // BC versions: 27, 28, 29
 
@@ -98,8 +99,8 @@ codeunit 65415 "LT PV Provider Blank Link"
         Observer.Observe('h2', 'detail=[' + Card.Detail.Info.Value + ']');
         Observer.Observe('first', Format(Card.Detail.First()) + ' detail=[' + Card.Detail.Info.Value + ']');
         Card.Close();
-        Observer.Expect('h2', 'detail=[]');
-        Observer.Expect('first', 'No detail=[]');
+        Observer.Expect('h2', 'detail=[zero]');
+        Observer.Expect('first', 'Yes detail=[zero]');
         Observer.Verify();
     end;
 
