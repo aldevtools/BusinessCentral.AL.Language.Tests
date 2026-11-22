@@ -160,7 +160,8 @@ codeunit 75982 "FVC BigInteger Field"
 #else
         Observer.Expect('neg1|code', 'Conversion');
 #endif
-        Observer.Expect('neg1 via variant|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue can');
+        Observer.Expect('neg1 via variant|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('neg1 via variant|code', 'TypeConversion');
         Observer.Verify();
     end;
 

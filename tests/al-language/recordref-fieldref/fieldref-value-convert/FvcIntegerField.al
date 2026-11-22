@@ -199,7 +199,32 @@ codeunit 75981 "FVC Integer Field"
 #else
         Observer.Expect('min|code', 'Conversion');
 #endif
-        Observer.Expect('min via variant|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectVal');
+        Observer.Expect('min via variant|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('min via variant|code', 'TypeConversion');
+#if BC28PLUS
+        Observer.Expect('neg1|text', 'The format of the Date ''-1'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+#else
+        Observer.Expect('neg1|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime.');
+#endif
+#if BC28PLUS
+        Observer.Expect('neg1|code', 'Evaluate:Conversion');
+#else
+        Observer.Expect('neg1|code', 'Conversion');
+#endif
+        Observer.Expect('neg1 via variant|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('neg1 via variant|code', 'TypeConversion');
+#if BC28PLUS
+        Observer.Expect('1000|text', 'The format of the Date ''1000'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+#else
+        Observer.Expect('1000|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime.');
+#endif
+#if BC28PLUS
+        Observer.Expect('1000|code', 'Evaluate:Conversion');
+#else
+        Observer.Expect('1000|code', 'Conversion');
+#endif
+        Observer.Expect('1000 via variant|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('1000 via variant|code', 'TypeConversion');
         Observer.Verify();
     end;
 
