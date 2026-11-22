@@ -13,7 +13,18 @@
 //   3. Double-quoted escapes \b \t \/ \x41 \0 \e \N \_ \L \P, a literal e acute, and an invalid one (\q).
 //   4. CRLF line ends combined with the punctuation cases of the 1519 matrix (': ', ' #', '- ', quotes) in seven
 //      scalar positions, compared with the same document in LF; and mixed LF/CRLF documents.
-// Results: see the assertions below.
+// Results (identical on BC 27.5, 28.5 and 29.0, no version guard needed):
+//   Tags: !!int, !!float and !!bool resolve to number, number and boolean; !!timestamp gives a date-time text;
+//   !!set, !!seq, !!binary and custom tags fail with YamlBadFormat.
+//   Merge key '<<' is not merged (the key '<<' stays); anchors and aliases copy the anchored value.
+//   A complex (collection) key becomes the key text '(Collection)'. A duplicate key: the last value wins, no error.
+//   A top-level document that is not a mapping returns false with InvalidJsonType; a second document ('---') is YamlBadFormat.
+//   Flow or block nesting of 100 levels or more is InvalidJsonData. Tab indentation is YamlBadFormat.
+//   Plain scalars yes, on, 0x.. and .inf stay text. A byte order mark stays in the first key when read from Text and is
+//   removed when read from an InStream.
+//   Block scalars: content indented 3 spaces works for |, >, |- and >+; a wrong indentation indicator is YamlBadFormat.
+//   Double-quoted escapes \b \t \/ \x41 \0 \e \N \_ \L \P \u00E9 are decoded; \q is YamlBadFormat.
+//   CRLF line ends: the per-cell result for each punctuation case is asserted (see the Expect lines of the Crlf tests).
 // BC versions: 27, 28, 29
 
 table 75670 "YRM Yaml Blob"
@@ -184,14 +195,30 @@ codeunit 75671 "YRM Json Yaml Remaining"
     procedure ReadFromYaml_SeqItem_Indent2()
     begin
         SeqCells('  ');
-        Observer.Finish();
+        Observer.Expect('map2', '{"k":[{"a":"1","b":"2"}]}');
+        Observer.Expect('map2-sib', '{"k":[{"a":"1","b":"2"}],"n":"1"}');
+        Observer.Expect('map-wide', '{"k":[{"a":"1","b":"2"}]}');
+        Observer.Expect('map-one', '{"k":[{"a":"1"}]}');
+        Observer.Expect('nest', '{"k":[["x"]]}');
+        Observer.Expect('nest2', '{"k":[["x","y"]]}');
+        Observer.Expect('nest-sib', '{"k":[["x","y"]],"n":"1"}');
+        Observer.Expect('nest-deep', '{"k":[[["x"]]]}');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYaml_SeqItem_Indent4()
     begin
         SeqCells('    ');
-        Observer.Finish();
+        Observer.Expect('map2', '{"k":[{"a":"1","b":"2"}]}');
+        Observer.Expect('map2-sib', '{"k":[{"a":"1","b":"2"}],"n":"1"}');
+        Observer.Expect('map-wide', '{"k":[{"a":"1","b":"2"}]}');
+        Observer.Expect('map-one', '{"k":[{"a":"1"}]}');
+        Observer.Expect('nest', '{"k":[["x"]]}');
+        Observer.Expect('nest2', '{"k":[["x","y"]]}');
+        Observer.Expect('nest-sib', '{"k":[["x","y"]],"n":"1"}');
+        Observer.Expect('nest-deep', '{"k":[[["x"]]]}');
+        Observer.Verify();
     end;
 
     local procedure MixedCells(Indent: Text)
@@ -210,14 +237,30 @@ codeunit 75671 "YRM Json Yaml Remaining"
     procedure ReadFromYaml_SeqItemMixed_Indent2()
     begin
         MixedCells('  ');
-        Observer.Finish();
+        Observer.Expect('plain-map', '{"k":["p",{"a":"1","b":"2"},"q"]}');
+        Observer.Expect('map-plain', '{"k":[{"a":"1","b":"2"},"p"]}');
+        Observer.Expect('plain-nest', '{"k":["p",["x","y"],"q"]}');
+        Observer.Expect('nest-plain', '{"k":[["x","y"],"p"]}');
+        Observer.Expect('map-nest', '{"k":[{"a":"1","b":"2"},["x"],"p"]}');
+        Observer.Expect('nest-map', '{"k":[["x"],{"a":"1","b":"2"}]}');
+        Observer.Expect('map-seqvalue', '{"k":[{"a":"1","b":["x"],"c":"3"}]}');
+        Observer.Expect('map-map-map', '{"k":[{"a":"1","b":"2"},{"c":"3","d":"4"}]}');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYaml_SeqItemMixed_Indent4()
     begin
         MixedCells('    ');
-        Observer.Finish();
+        Observer.Expect('plain-map', '{"k":["p",{"a":"1","b":"2"},"q"]}');
+        Observer.Expect('map-plain', '{"k":[{"a":"1","b":"2"},"p"]}');
+        Observer.Expect('plain-nest', '{"k":["p",["x","y"],"q"]}');
+        Observer.Expect('nest-plain', '{"k":[["x","y"],"p"]}');
+        Observer.Expect('map-nest', '{"k":[{"a":"1","b":"2"},["x"],"p"]}');
+        Observer.Expect('nest-map', '{"k":[["x"],{"a":"1","b":"2"}]}');
+        Observer.Expect('map-seqvalue', '{"k":[{"a":"1","b":["x"],"c":"3"}]}');
+        Observer.Expect('map-map-map', '{"k":[{"a":"1","b":"2"},{"c":"3","d":"4"}]}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -227,7 +270,11 @@ codeunit 75671 "YRM Json Yaml Remaining"
         Cell('top-nest', '- - x', '');
         Cell('top-plain', '- p~- q', '');
         Cell('top-nested-in-map', 'o:~  k:~    - a: 1~      b: 2~    - - x~  r: 2~n: 1', '');
-        Observer.Finish();
+        Observer.Expect('top-map', 'FInvalidJsonType:JSON tokens of type ''Array'' are not supported by this implementation.');
+        Observer.Expect('top-nest', 'FInvalidJsonType:JSON tokens of type ''Array'' are not supported by this implementation.');
+        Observer.Expect('top-plain', 'FInvalidJsonType:JSON tokens of type ''Array'' are not supported by this implementation.');
+        Observer.Expect('top-nested-in-map', '{"o":{"k":[{"a":"1","b":"2"},["x"]],"r":"2"},"n":"1"}');
+        Observer.Verify();
     end;
 
     // ---- 2. block scalars ----
@@ -249,28 +296,60 @@ codeunit 75671 "YRM Json Yaml Remaining"
     procedure ReadFromYaml_Block3_Literal()
     begin
         BlockCells('|');
-        Observer.Finish();
+        Observer.Expect('3-3', '{"q":"x\ny\n","n":"1"}');
+        Observer.Expect('3-5', '{"q":"x\n  y\n","n":"1"}');
+        Observer.Expect('3-blank-3', '{"q":"x\n\ny\n","n":"1"}');
+        Observer.Expect('3-2', 'FYamlBadFormat');
+        Observer.Expect('3-end-blank2', '{"q":"x\n","n":"1"}');
+        Observer.Expect('3-nested', '{"o":{"q":"x\ny\n","r":"2"},"n":"1"}');
+        Observer.Expect('3-listmap', '{"k":[{"m":"x\ny\n","r":"2"}]}');
+        Observer.Expect('3-last', '{"q":"x\ny"}');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYaml_Block3_Folded()
     begin
         BlockCells('>');
-        Observer.Finish();
+        Observer.Expect('3-3', '{"q":"x y\n","n":"1"}');
+        Observer.Expect('3-5', '{"q":"x\n  y\n","n":"1"}');
+        Observer.Expect('3-blank-3', '{"q":"x\ny\n","n":"1"}');
+        Observer.Expect('3-2', 'FYamlBadFormat');
+        Observer.Expect('3-end-blank2', '{"q":"x\n","n":"1"}');
+        Observer.Expect('3-nested', '{"o":{"q":"x y\n","r":"2"},"n":"1"}');
+        Observer.Expect('3-listmap', '{"k":[{"m":"x y\n","r":"2"}]}');
+        Observer.Expect('3-last', '{"q":"x y"}');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYaml_Block3_LiteralStrip()
     begin
         BlockCells('|-');
-        Observer.Finish();
+        Observer.Expect('3-3', '{"q":"x\ny","n":"1"}');
+        Observer.Expect('3-5', '{"q":"x\n  y","n":"1"}');
+        Observer.Expect('3-blank-3', '{"q":"x\n\ny","n":"1"}');
+        Observer.Expect('3-2', 'FYamlBadFormat');
+        Observer.Expect('3-end-blank2', '{"q":"x","n":"1"}');
+        Observer.Expect('3-nested', '{"o":{"q":"x\ny","r":"2"},"n":"1"}');
+        Observer.Expect('3-listmap', '{"k":[{"m":"x\ny","r":"2"}]}');
+        Observer.Expect('3-last', '{"q":"x\ny"}');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYaml_Block3_FoldedKeep()
     begin
         BlockCells('>+');
-        Observer.Finish();
+        Observer.Expect('3-3', '{"q":"x y\n","n":"1"}');
+        Observer.Expect('3-5', '{"q":"x\n  y\n","n":"1"}');
+        Observer.Expect('3-blank-3', '{"q":"x\ny\n","n":"1"}');
+        Observer.Expect('3-2', 'FYamlBadFormat');
+        Observer.Expect('3-end-blank2', '{"q":"x\n\n\n","n":"1"}');
+        Observer.Expect('3-nested', '{"o":{"q":"x y\n","r":"2"},"n":"1"}');
+        Observer.Expect('3-listmap', '{"k":[{"m":"x y\n","r":"2"}]}');
+        Observer.Expect('3-last', '{"q":"x y"}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -297,7 +376,28 @@ codeunit 75671 "YRM Json Yaml Remaining"
         Cell('lit2-blank-first', 'q: |2~~    x~n: 1', '');
         Cell('lit0', 'q: |0~  x~n: 1', '');
         Cell('lit10', 'q: |10~  x~n: 1', '');
-        Observer.Finish();
+        Observer.Expect('lit2-at4', '{"q":"  x\n  y\n","n":"1"}');
+        Observer.Expect('lit2-at2', '{"q":"x\ny\n","n":"1"}');
+        Observer.Expect('lit2-at3', '{"q":" x\n y\n","n":"1"}');
+        Observer.Expect('lit2-at4-then2', '{"q":"  x\ny\n","n":"1"}');
+        Observer.Expect('lit1-at1', '{"q":"x\ny\n","n":"1"}');
+        Observer.Expect('lit1-at3', '{"q":"  x\n  y\n","n":"1"}');
+        Observer.Expect('lit3-at3', '{"q":"x\ny\n","n":"1"}');
+        Observer.Expect('lit3-at5', '{"q":"  x\n  y\n","n":"1"}');
+        Observer.Expect('lit2strip-at4', '{"q":"  x\n  y","n":"1"}');
+        Observer.Expect('lit2keep-at4', '{"q":"  x\n  y\n\n","n":"1"}');
+        Observer.Expect('lit-strip2-at4', '{"q":"  x\n  y","n":"1"}');
+        Observer.Expect('lit-keep2-at4', '{"q":"  x\n  y\n\n","n":"1"}');
+        Observer.Expect('fold2-at4', '{"q":"  x\n  y\n","n":"1"}');
+        Observer.Expect('fold2strip-at4', '{"q":"  x\n  y","n":"1"}');
+        Observer.Expect('fold2keep-at4', '{"q":"  x\n  y\n\n","n":"1"}');
+        Observer.Expect('lit2-nested-at6', '{"o":{"q":"  x\n  y\n","r":"2"},"n":"1"}');
+        Observer.Expect('lit2-nested-at4', '{"o":{"q":"x\ny\n","r":"2"},"n":"1"}');
+        Observer.Expect('lit2-listmap-at8', '{"k":[{"m":"  x\n  y\n","r":"2"}]}');
+        Observer.Expect('lit2-blank-first', '{"q":"\n  x\n","n":"1"}');
+        Observer.Expect('lit0', 'FYamlBadFormat');
+        Observer.Expect('lit10', 'FYamlBadFormat');
+        Observer.Verify();
     end;
 
     // ---- 3. double-quoted escapes ----
@@ -318,7 +418,33 @@ codeunit 75671 "YRM Json Yaml Remaining"
     begin
         EscCells('top', 'q: "a{X}b"~n: 1');
         Cell('top[literal-e-acute]', 'q: "a{E}b"~n: 1', '');
-        Observer.Finish();
+        Observer.Expect('top[b]', '{"q":"a\bb","n":"1"}');
+        Observer.Expect('top[t]', '{"q":"a\tb","n":"1"}');
+        Observer.Expect('top[/]', '{"q":"a/b","n":"1"}');
+        Observer.Expect('top[x41]', '{"q":"aAb","n":"1"}');
+        Observer.Expect('top[0]', '{"q":"a\u0000b","n":"1"}');
+        Observer.Expect('top[e]', '{"q":"a\u001bb","n":"1"}');
+        Observer.Expect('top[N]', '{"q":"a\u0085b","n":"1"}');
+        Observer.Expect('top[_]', '{"q":"a<U+00A0>b","n":"1"}');
+        Observer.Expect('top[L]', '{"q":"a\u2028b","n":"1"}');
+        Observer.Expect('top[P]', '{"q":"a\u2029b","n":"1"}');
+        Observer.Expect('top[q]', 'FYamlBadFormat');
+        Observer.Expect('top[xE9]', '{"q":"a<U+00E9>b","n":"1"}');
+        Observer.Expect('top[u00E9]', '{"q":"a<U+00E9>b","n":"1"}');
+        Observer.Expect('top[a]', '{"q":"a\u0007b","n":"1"}');
+        Observer.Expect('top[r]', '{"q":"a\rb","n":"1"}');
+        Observer.Expect('top[n]', '{"q":"a\nb","n":"1"}');
+        Observer.Expect('top[v]', '{"q":"a\u000bb","n":"1"}');
+        Observer.Expect('top[f]', '{"q":"a\fb","n":"1"}');
+        Observer.Expect('top["]', '{"q":"a\"b","n":"1"}');
+        Observer.Expect('top[{\}]', '{"q":"a\\b","n":"1"}');
+        Observer.Expect('top[ ]', '{"q":"a b","n":"1"}');
+        Observer.Expect('top[x4]', '{"q":"aK","n":"1"}');
+        Observer.Expect('top[x]', 'FYamlBadFormat');
+        Observer.Expect('top[u12]', 'FYamlBadFormat');
+        Observer.Expect('top[1]', 'FYamlBadFormat');
+        Observer.Expect('top[literal-e-acute]', '{"q":"a<U+00E9>b","n":"1"}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -326,7 +452,31 @@ codeunit 75671 "YRM Json Yaml Remaining"
     begin
         EscCells('list', 'k:~  - "a{X}b"~  - c');
         Cell('list[literal-e-acute]', 'k:~  - "a{E}b"~  - c', '');
-        Observer.Finish();
+        Observer.Expect('list[b]', '{"k":["a\bb","c"]}');
+        Observer.Expect('list[t]', '{"k":["a\tb","c"]}');
+        Observer.Expect('list[/]', '{"k":["a/b","c"]}');
+        Observer.Expect('list[x41]', '{"k":["aAb","c"]}');
+        Observer.Expect('list[0]', '{"k":["a\u0000b","c"]}');
+        Observer.Expect('list[e]', '{"k":["a\u001bb","c"]}');
+        Observer.Expect('list[N]', '{"k":["a\u0085b","c"]}');
+        Observer.Expect('list[_]', '{"k":["a<U+00A0>b","c"]}');
+        Observer.Expect('list[L]', '{"k":["a\u2028b","c"]}');
+        Observer.Expect('list[P]', '{"k":["a\u2029b","c"]}');
+        Observer.Expect('list[q]', 'FYamlBadFormat');
+        Observer.Expect('list[xE9]', '{"k":["a<U+00E9>b","c"]}');
+        Observer.Expect('list[u00E9]', '{"k":["a<U+00E9>b","c"]}');
+        Observer.Expect('list[a]', '{"k":["a\u0007b","c"]}');
+        Observer.Expect('list[r]', '{"k":["a\rb","c"]}');
+        Observer.Expect('list[n]', '{"k":["a\nb","c"]}');
+        Observer.Expect('list[v]', '{"k":["a\u000bb","c"]}');
+        Observer.Expect('list[f]', '{"k":["a\fb","c"]}');
+        Observer.Expect('list[ ]', '{"k":["a b","c"]}');
+        Observer.Expect('list[x4]', '{"k":["aK","c"]}');
+        Observer.Expect('list[x]', 'FYamlBadFormat');
+        Observer.Expect('list[u12]', 'FYamlBadFormat');
+        Observer.Expect('list[1]', 'FYamlBadFormat');
+        Observer.Expect('list[literal-e-acute]', '{"k":["a<U+00E9>b","c"]}');
+        Observer.Verify();
     end;
 
     // ---- 4. CRLF ----
@@ -374,49 +524,84 @@ codeunit 75671 "YRM Json Yaml Remaining"
     procedure ReadFromYaml_Crlf_PlainTop()
     begin
         CrlfMatrix('q: {V}~n: 1', '$.q', '{V}');
-        Observer.Finish();
+        Observer.Expect('[: ]', 'S FYamlBadFormat | M FYamlBadFormat | E FYamlBadFormat | W FYamlBadFormat');
+        Observer.Expect('[ #]', 'S {"q":null,"n":"1"} | M {"q":"a","n":"1"} | E {"q":"ab","n":"1"} | W {"q":"a","n":"1"}');
+        Observer.Expect('[- ]', 'S FYamlBadFormat | M ok | E {"q":"ab-","n":"1"} | W ok');
+        Observer.Expect('["]', 'S FYamlBadFormat | M ok | E ok | W ok');
+        Observer.Expect('['']', 'S FYamlBadFormat | M ok | E ok | W ok');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYaml_Crlf_PlainListItem()
     begin
         CrlfMatrix('k:~  - {V}~  - c', '$.k[0]', '{V}');
-        Observer.Finish();
+        Observer.Expect('[: ]', 'S FYamlBadFormat | M {"k":[{"a":"b"},"c"]} | E {"k":[{"ab":null},"c"]} | W {"k":[{"a":"b"},"c"]}');
+        Observer.Expect('[ #]', 'S {"k":[null,"c"]} | M {"k":["a","c"]} | E {"k":["ab","c"]} | W {"k":["a","c"]}');
+        Observer.Expect('[- ]', 'S {"k":[["ab"],"c"]} | M ok | E {"k":["ab-","c"]} | W ok');
+        Observer.Expect('["]', 'S FYamlBadFormat | M ok | E ok | W ok');
+        Observer.Expect('['']', 'S FYamlBadFormat | M ok | E ok | W ok');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYaml_Crlf_PlainListMap()
     begin
         CrlfMatrix('k:~  - m: {V}~    r: 2~  - c', '$.k[0].m', '{V}');
-        Observer.Finish();
+        Observer.Expect('[: ]', 'S FYamlBadFormat | M FYamlBadFormat | E FYamlBadFormat | W FYamlBadFormat');
+        Observer.Expect('[ #]', 'S {"k":[{"m":null,"r":"2"},"c"]} | M {"k":[{"m":"a","r":"2"},"c"]} | E {"k":[{"m":"ab","r":"2"},"c"]} | W {"k":[{"m":"a","r":"2"},"c"]}');
+        Observer.Expect('[- ]', 'S FYamlBadFormat | M ok | E {"k":[{"m":"ab-","r":"2"},"c"]} | W ok');
+        Observer.Expect('["]', 'S FYamlBadFormat | M ok | E ok | W ok');
+        Observer.Expect('['']', 'S FYamlBadFormat | M ok | E ok | W ok');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYaml_Crlf_FoldedStrip()
     begin
         CrlfMatrix('q: >-~  {V}~  {V}~n: 1', '$.q', '{V} {V}');
-        Observer.Finish();
+        Observer.Expect('[: ]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[ #]', 'S {"q":"#ab #ab","n":"1"} | M ok | E ok | W ok');
+        Observer.Expect('[- ]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('["]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('['']', 'S ok | M ok | E ok | W ok');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYaml_Crlf_Literal()
     begin
         CrlfMatrix('q: |~  {V}~  {V}~n: 1', '$.q', '{V}~{V}~');
-        Observer.Finish();
+        Observer.Expect('[: ]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[ #]', 'S {"q":"#ab\n#ab\n","n":"1"} | M ok | E ok | W ok');
+        Observer.Expect('[- ]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('["]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('['']', 'S ok | M ok | E ok | W ok');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYaml_Crlf_DoubleQuoted()
     begin
         CrlfMatrix('q: "{V}"~n: 1', '$.q', '{V}');
-        Observer.Finish();
+        Observer.Expect('[: ]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[ #]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[- ]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('["]', 'S FYamlBadFormat | M FYamlBadFormat | E FYamlBadFormat | W FYamlBadFormat');
+        Observer.Expect('['']', 'S ok | M ok | E ok | W ok');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYaml_Crlf_SingleQuoted()
     begin
         CrlfMatrix('q: ''{V}''~n: 1', '$.q', '{V}');
-        Observer.Finish();
+        Observer.Expect('[: ]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[ #]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('[- ]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('["]', 'S ok | M ok | E ok | W ok');
+        Observer.Expect('['']', 'S FYamlBadFormat | M FYamlBadFormat | E FYamlBadFormat | W FYamlBadFormat');
+        Observer.Verify();
     end;
 
     [Test]
@@ -435,7 +620,20 @@ codeunit 75671 "YRM Json Yaml Remaining"
         Cell('lone-cr-in-block', 'q: |~  a{R}  b~n: 1', '');
         Cell('trailing-cr', 'q: a{R}', '');
         Cell('comment-crlf', '# c^q: a # d^n: 1', '');
-        Observer.Finish();
+        Observer.Expect('all-crlf', '{"q":"a","n":"1","o":{"r":"2","s":"3"},"k":["x","y"]}');
+        Observer.Expect('all-lf', '{"q":"a","n":"1","o":{"r":"2","s":"3"},"k":["x","y"]}');
+        Observer.Expect('mixed-map', '{"q":"a","n":"1","o":{"r":"2","s":"3"},"k":["x","y"]}');
+        Observer.Expect('mixed-folded', '{"q":"a b c","n":"1"}');
+        Observer.Expect('mixed-literal', '{"q":"a\nb\nc\n","n":"1"}');
+        Observer.Expect('mixed-listmap', '{"k":[{"m":"v","r":"2"},"c"]}');
+        Observer.Expect('plain-multiline', '{"q":"a b c","n":"1"}');
+        Observer.Expect('blank-crlf', '{"q":"a","n":"1"}');
+        Observer.Expect('blank-mixed', '{"q":"a","n":"1"}');
+        Observer.Expect('lone-cr', '{"q":"a","n":"1"}');
+        Observer.Expect('lone-cr-in-block', '{"q":"a\nb\n","n":"1"}');
+        Observer.Expect('trailing-cr', '{"q":"a"}');
+        Observer.Expect('comment-crlf', '{"q":"a","n":"1"}');
+        Observer.Verify();
     end;
     // The first 240 characters of the result: for large or deep documents.
     local procedure CellShort(Name: Text; Src: Text)
@@ -474,7 +672,17 @@ codeunit 75671 "YRM Json Yaml Remaining"
         D.AddRange('q: [a, b]', 'q: [a, [b, c]]', 'q: []', 'q: [a, b,]', 'q: [ "a,b", ''c'' ]', 'q: [a: 1]', 'q: [a,~  b]', 'q: [a b, c]',
             'q: [a, # c~  b]', 'q: [1, 2]~n: 1', 'k:~  - [a, b]~  - c', 'q: [a, b] x', 'q: [a, b', 'q: [,]', 'q: [a, , b]', 'q: [ ]');
         Cells('fs', D, 1, 10);
-        Observer.Finish();
+        Observer.Expect('fs1', 'q: [a, b] => {"q":["a","b"]}');
+        Observer.Expect('fs2', 'q: [a, [b, c]] => {"q":["a",["b","c"]]}');
+        Observer.Expect('fs3', 'q: [] => {"q":[]}');
+        Observer.Expect('fs4', 'q: [a, b,] => {"q":["a","b"]}');
+        Observer.Expect('fs5', 'q: [ "a,b", ''c'' ] => {"q":["a,b","c"]}');
+        Observer.Expect('fs6', 'q: [a: 1] => {"q":[{"a":"1"}]}');
+        Observer.Expect('fs7', 'q: [a,~  b] => {"q":["a","b"]}');
+        Observer.Expect('fs8', 'q: [a b, c] => {"q":["a b","c"]}');
+        Observer.Expect('fs9', 'q: [a, # c~  b] => {"q":["a","b"]}');
+        Observer.Expect('fs10', 'q: [1, 2]~n: 1 => {"q":["1","2"],"n":"1"}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -485,7 +693,13 @@ codeunit 75671 "YRM Json Yaml Remaining"
         D.AddRange('q: [a, b]', 'q: [a, [b, c]]', 'q: []', 'q: [a, b,]', 'q: [ "a,b", ''c'' ]', 'q: [a: 1]', 'q: [a,~  b]', 'q: [a b, c]',
             'q: [a, # c~  b]', 'q: [1, 2]~n: 1', 'k:~  - [a, b]~  - c', 'q: [a, b] x', 'q: [a, b', 'q: [,]', 'q: [a, , b]', 'q: [ ]');
         Cells('fs', D, 11, 20);
-        Observer.Finish();
+        Observer.Expect('fs11', 'k:~  - [a, b]~  - c => {"k":[["a","b"],"c"]}');
+        Observer.Expect('fs12', 'q: [a, b] x => FYamlBadFormat');
+        Observer.Expect('fs13', 'q: [a, b => FYamlBadFormat');
+        Observer.Expect('fs14', 'q: [,] => FYamlBadFormat');
+        Observer.Expect('fs15', 'q: [a, , b] => FYamlBadFormat');
+        Observer.Expect('fs16', 'q: [ ] => {"q":[]}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -496,7 +710,17 @@ codeunit 75671 "YRM Json Yaml Remaining"
         D.AddRange('q: {a: 1, b: 2}', 'q: {}', 'q: {a: [1, 2], b: {c: d}}', 'q: {a, b}', 'q: {a: 1,}', 'q: {a: 1,~  b: 2}', 'q: {"a b": 1}',
             'q: {a: }', 'q: {a:1}', 'q: {a: 1, a: 2}', 'q: {? a : 1}', 'q: {a: 1} x', 'q: {a: 1', 'q: { }', 'o:~  q: {a: 1}~  r: [b]', 'k:~  - {a: 1}~  - {b: 2}');
         Cells('fm', D, 1, 10);
-        Observer.Finish();
+        Observer.Expect('fm1', 'q: {a: 1, b: 2} => {"q":{"a":"1","b":"2"}}');
+        Observer.Expect('fm2', 'q: {} => {"q":{}}');
+        Observer.Expect('fm3', 'q: {a: [1, 2], b: {c: d}} => {"q":{"a":["1","2"],"b":{"c":"d"}}}');
+        Observer.Expect('fm4', 'q: {a, b} => {"q":{"a":null,"b":null}}');
+        Observer.Expect('fm5', 'q: {a: 1,} => {"q":{"a":"1"}}');
+        Observer.Expect('fm6', 'q: {a: 1,~  b: 2} => {"q":{"a":"1","b":"2"}}');
+        Observer.Expect('fm7', 'q: {"a b": 1} => {"q":{"a b":"1"}}');
+        Observer.Expect('fm8', 'q: {a: } => {"q":{"a":null}}');
+        Observer.Expect('fm9', 'q: {a:1} => {"q":{"a:1":null}}');
+        Observer.Expect('fm10', 'q: {a: 1, a: 2} => {"q":{"a":"2"}}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -507,7 +731,13 @@ codeunit 75671 "YRM Json Yaml Remaining"
         D.AddRange('q: {a: 1, b: 2}', 'q: {}', 'q: {a: [1, 2], b: {c: d}}', 'q: {a, b}', 'q: {a: 1,}', 'q: {a: 1,~  b: 2}', 'q: {"a b": 1}',
             'q: {a: }', 'q: {a:1}', 'q: {a: 1, a: 2}', 'q: {? a : 1}', 'q: {a: 1} x', 'q: {a: 1', 'q: { }', 'o:~  q: {a: 1}~  r: [b]', 'k:~  - {a: 1}~  - {b: 2}');
         Cells('fm', D, 11, 20);
-        Observer.Finish();
+        Observer.Expect('fm11', 'q: {? a : 1} => {"q":{"a":"1"}}');
+        Observer.Expect('fm12', 'q: {a: 1} x => FYamlBadFormat');
+        Observer.Expect('fm13', 'q: {a: 1 => FYamlBadFormat');
+        Observer.Expect('fm14', 'q: { } => {"q":{}}');
+        Observer.Expect('fm15', 'o:~  q: {a: 1}~  r: [b] => {"o":{"q":{"a":"1"},"r":["b"]}}');
+        Observer.Expect('fm16', 'k:~  - {a: 1}~  - {b: 2} => {"k":[{"a":"1"},{"b":"2"}]}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -517,7 +747,17 @@ codeunit 75671 "YRM Json Yaml Remaining"
     begin
         D.AddRange('{a: 1}', '[a]', 'a', '', '{~}', 'null', '# c', '---', '---~', '---~q: a', 'q: a~...', '...', '"a"', '''a''', '{a: 1, b: [c]}', '|~  x', '1', '{}', '[]');
         Cells('tl', D, 1, 10);
-        Observer.Finish();
+        Observer.Expect('tl1', '{a: 1} => {"a":"1"}');
+        Observer.Expect('tl2', '[a] => FInvalidJsonType:JSON tokens of type ''Array'' are not supported by this implementation.');
+        Observer.Expect('tl3', 'a => FInvalidJsonType:JSON tokens of type ''String'' are not supported by this implementation.');
+        Observer.Expect('tl4', ' => FInvalidJsonType:JSON tokens of type ''Null'' are not supported by this implementation.');
+        Observer.Expect('tl5', '{~} => FInvalidJsonType:JSON tokens of type ''Null'' are not supported by this implementation.');
+        Observer.Expect('tl6', 'null => FInvalidJsonType:JSON tokens of type ''Null'' are not supported by this implementation.');
+        Observer.Expect('tl7', '# c => FInvalidJsonType:JSON tokens of type ''Null'' are not supported by this implementation.');
+        Observer.Expect('tl8', '--- => FInvalidJsonType:JSON tokens of type ''Null'' are not supported by this implementation.');
+        Observer.Expect('tl9', '---~ => FInvalidJsonType:JSON tokens of type ''Null'' are not supported by this implementation.');
+        Observer.Expect('tl10', '---~q: a => {"q":"a"}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -527,7 +767,16 @@ codeunit 75671 "YRM Json Yaml Remaining"
     begin
         D.AddRange('{a: 1}', '[a]', 'a', '', '{~}', 'null', '# c', '---', '---~', '---~q: a', 'q: a~...', '...', '"a"', '''a''', '{a: 1, b: [c]}', '|~  x', '1', '{}', '[]');
         Cells('tl', D, 11, 20);
-        Observer.Finish();
+        Observer.Expect('tl11', 'q: a~... => {"q":"a"}');
+        Observer.Expect('tl12', '... => FInvalidJsonType:JSON tokens of type ''Null'' are not supported by this implementation.');
+        Observer.Expect('tl13', '"a" => FInvalidJsonType:JSON tokens of type ''String'' are not supported by this implementation.');
+        Observer.Expect('tl14', '''a'' => FInvalidJsonType:JSON tokens of type ''String'' are not supported by this implementation.');
+        Observer.Expect('tl15', '{a: 1, b: [c]} => {"a":"1","b":["c"]}');
+        Observer.Expect('tl16', '|~  x => FInvalidJsonType:JSON tokens of type ''String'' are not supported by this implementation.');
+        Observer.Expect('tl17', '1 => FInvalidJsonType:JSON tokens of type ''String'' are not supported by this implementation.');
+        Observer.Expect('tl18', '{} => {}');
+        Observer.Expect('tl19', '[] => FInvalidJsonType:JSON tokens of type ''Array'' are not supported by this implementation.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -539,7 +788,17 @@ codeunit 75671 "YRM Json Yaml Remaining"
             'k:~  - &x a~  - *x', '*x : 1', 'a: &x *x', 'a: &x', 'a: &x~b: 2', 'a: &x &y 1', 'a: &x 1~a2: &x 2~b: *x', 'a: &x~  c: 1~b:~  <<: *x~  c: 2',
             'a: &x~  c: 1~b:~  c: 2~  <<: *x', '<<: {a: 1}', 'b: {<<: *x}', 'a: &x {c: 1}~b: {<<: *x, d: 2}');
         Cells('an', D, 1, 10);
-        Observer.Finish();
+        Observer.Expect('an1', 'a: &x 1~b: *x => {"a":"1","b":"1"}');
+        Observer.Expect('an2', 'a: &x [1, 2]~b: *x => {"a":["1","2"],"b":["1","2"]}');
+        Observer.Expect('an3', 'a: &x~  c: 1~b: *x => {"a":{"c":"1"},"b":{"c":"1"}}');
+        Observer.Expect('an4', 'b: *x => FYamlBadFormat');
+        Observer.Expect('an5', 'a: &x~  c: 1~b:~  <<: *x~  d: 2 => {"a":{"c":"1"},"b":{"<<":{"c":"1"},"d":"2"}}');
+        Observer.Expect('an6', 'a: &x~  c: 1~b: &y~  e: 2~f:~  <<: [*x, *y] => {"a":{"c":"1"},"b":{"e":"2"},"f":{"<<":[{"c":"1"},{"e":"2"}]}}');
+        Observer.Expect('an7', 'k:~  - &x a~  - *x => {"k":["a","a"]}');
+        Observer.Expect('an8', '*x : 1 => FYamlBadFormat');
+        Observer.Expect('an9', 'a: &x *x => FYamlBadFormat');
+        Observer.Expect('an10', 'a: &x => {"a":null}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -551,7 +810,15 @@ codeunit 75671 "YRM Json Yaml Remaining"
             'k:~  - &x a~  - *x', '*x : 1', 'a: &x *x', 'a: &x', 'a: &x~b: 2', 'a: &x &y 1', 'a: &x 1~a2: &x 2~b: *x', 'a: &x~  c: 1~b:~  <<: *x~  c: 2',
             'a: &x~  c: 1~b:~  c: 2~  <<: *x', '<<: {a: 1}', 'b: {<<: *x}', 'a: &x {c: 1}~b: {<<: *x, d: 2}');
         Cells('an', D, 11, 20);
-        Observer.Finish();
+        Observer.Expect('an11', 'a: &x~b: 2 => {"a":null,"b":"2"}');
+        Observer.Expect('an12', 'a: &x &y 1 => FYamlBadFormat');
+        Observer.Expect('an13', 'a: &x 1~a2: &x 2~b: *x => {"a":"1","a2":"2","b":"2"}');
+        Observer.Expect('an14', 'a: &x~  c: 1~b:~  <<: *x~  c: 2 => {"a":{"c":"1"},"b":{"<<":{"c":"1"},"c":"2"}}');
+        Observer.Expect('an15', 'a: &x~  c: 1~b:~  c: 2~  <<: *x => {"a":{"c":"1"},"b":{"c":"2","<<":{"c":"1"}}}');
+        Observer.Expect('an16', '<<: {a: 1} => {"<<":{"a":"1"}}');
+        Observer.Expect('an17', 'b: {<<: *x} => FYamlBadFormat');
+        Observer.Expect('an18', 'a: &x {c: 1}~b: {<<: *x, d: 2} => {"a":{"c":"1"},"b":{"<<":{"c":"1"},"d":"2"}}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -563,7 +830,17 @@ codeunit 75671 "YRM Json Yaml Remaining"
             'q: !<tag:yaml.org,2002:str> x', 'q: !!binary aGk=', 'q: !!set {a, b}', 'q: !!str', '!!str q: 1', 'q: !', 'q: !!timestamp 2001-12-14',
             'q: !e!foo x', '%TAG !e! tag:x,2000:~---~q: !e!foo x', 'q: !!str |~  x', 'q: !!map~  a: 1', 'q: !!seq~  - a', 'k:~  - !!str 1', 'q: !!int abc', 'q: !!str &x a', 'q: &x !!str a');
         Cells('tg', D, 1, 10);
-        Observer.Finish();
+        Observer.Expect('tg1', 'q: !!str 123 => {"q":"123"}');
+        Observer.Expect('tg2', 'q: !!int "1" => {"q":1}');
+        Observer.Expect('tg3', 'q: !!float 1 => {"q":1.0}');
+        Observer.Expect('tg4', 'q: !!bool yes => {"q":true}');
+        Observer.Expect('tg5', 'q: !!null "" => FYamlBadFormat');
+        Observer.Expect('tg6', 'q: !!seq [a] => FYamlBadFormat');
+        Observer.Expect('tg7', 'q: !!map {a: 1} => {"q":{"a":"1"}}');
+        Observer.Expect('tg8', 'q: !custom x => FYamlBadFormat');
+        Observer.Expect('tg9', 'q: !<tag:yaml.org,2002:str> x => {"q":"x"}');
+        Observer.Expect('tg10', 'q: !!binary aGk= => FYamlBadFormat');
+        Observer.Verify();
     end;
 
     [Test]
@@ -575,7 +852,17 @@ codeunit 75671 "YRM Json Yaml Remaining"
             'q: !<tag:yaml.org,2002:str> x', 'q: !!binary aGk=', 'q: !!set {a, b}', 'q: !!str', '!!str q: 1', 'q: !', 'q: !!timestamp 2001-12-14',
             'q: !e!foo x', '%TAG !e! tag:x,2000:~---~q: !e!foo x', 'q: !!str |~  x', 'q: !!map~  a: 1', 'q: !!seq~  - a', 'k:~  - !!str 1', 'q: !!int abc', 'q: !!str &x a', 'q: &x !!str a');
         Cells('tg', D, 11, 20);
-        Observer.Finish();
+        Observer.Expect('tg11', 'q: !!set {a, b} => FYamlBadFormat');
+        Observer.Expect('tg12', 'q: !!str => {"q":null}');
+        Observer.Expect('tg13', '!!str q: 1 => {"q":"1"}');
+        Observer.Expect('tg14', 'q: ! => FYamlBadFormat');
+        Observer.Expect('tg15', 'q: !!timestamp 2001-12-14 => {"q":"2001-12-14T00:00:00"}');
+        Observer.Expect('tg16', 'q: !e!foo x => FYamlBadFormat');
+        Observer.Expect('tg17', '%TAG !e! tag:x,2000:~---~q: !e!foo x => FYamlBadFormat');
+        Observer.Expect('tg18', 'q: !!str |~  x => {"q":"x"}');
+        Observer.Expect('tg19', 'q: !!map~  a: 1 => {"q":{"a":"1"}}');
+        Observer.Expect('tg20', 'q: !!seq~  - a => FYamlBadFormat');
+        Observer.Verify();
     end;
 
     [Test]
@@ -587,7 +874,11 @@ codeunit 75671 "YRM Json Yaml Remaining"
             'q: !<tag:yaml.org,2002:str> x', 'q: !!binary aGk=', 'q: !!set {a, b}', 'q: !!str', '!!str q: 1', 'q: !', 'q: !!timestamp 2001-12-14',
             'q: !e!foo x', '%TAG !e! tag:x,2000:~---~q: !e!foo x', 'q: !!str |~  x', 'q: !!map~  a: 1', 'q: !!seq~  - a', 'k:~  - !!str 1', 'q: !!int abc', 'q: !!str &x a', 'q: &x !!str a');
         Cells('tg', D, 21, 30);
-        Observer.Finish();
+        Observer.Expect('tg21', 'k:~  - !!str 1 => {"k":["1"]}');
+        Observer.Expect('tg22', 'q: !!int abc => FYamlBadFormat');
+        Observer.Expect('tg23', 'q: !!str &x a => {"q":"a"}');
+        Observer.Expect('tg24', 'q: &x !!str a => {"q":"a"}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -598,7 +889,17 @@ codeunit 75671 "YRM Json Yaml Remaining"
         D.AddRange('---~q: a', 'q: a~---~r: b', '---~q: a~---~r: b', '--- # c~q: a', '--- |~  x', '---~...', '%YAML 1.2~---~q: a', '%YAML 1.1~---~q: a', '%YAML 1.3~---~q: a',
             '%FOO bar~---~q: a', '%YAML 1.2~q: a', '--- q: a', '---q: a', 'q: a~...~', 'q: a~...~---~r: b', 'q: a~... # c', '--- !!map~q: a', '---~---', '--- &x~q: a', 'q: ---', 'q: ...', 'q: a~--- b');
         Cells('dc', D, 1, 10);
-        Observer.Finish();
+        Observer.Expect('dc1', '---~q: a => {"q":"a"}');
+        Observer.Expect('dc2', 'q: a~---~r: b => FYamlBadFormat');
+        Observer.Expect('dc3', '---~q: a~---~r: b => FYamlBadFormat');
+        Observer.Expect('dc4', '--- # c~q: a => {"q":"a"}');
+        Observer.Expect('dc5', '--- |~  x => FInvalidJsonType:JSON tokens of type ''String'' are not supported by this implementation.');
+        Observer.Expect('dc6', '---~... => FInvalidJsonType:JSON tokens of type ''Null'' are not supported by this implementation.');
+        Observer.Expect('dc7', '%YAML 1.2~---~q: a => {"q":"a"}');
+        Observer.Expect('dc8', '%YAML 1.1~---~q: a => {"q":"a"}');
+        Observer.Expect('dc9', '%YAML 1.3~---~q: a => {"q":"a"}');
+        Observer.Expect('dc10', '%FOO bar~---~q: a => {"q":"a"}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -609,7 +910,17 @@ codeunit 75671 "YRM Json Yaml Remaining"
         D.AddRange('---~q: a', 'q: a~---~r: b', '---~q: a~---~r: b', '--- # c~q: a', '--- |~  x', '---~...', '%YAML 1.2~---~q: a', '%YAML 1.1~---~q: a', '%YAML 1.3~---~q: a',
             '%FOO bar~---~q: a', '%YAML 1.2~q: a', '--- q: a', '---q: a', 'q: a~...~', 'q: a~...~---~r: b', 'q: a~... # c', '--- !!map~q: a', '---~---', '--- &x~q: a', 'q: ---', 'q: ...', 'q: a~--- b');
         Cells('dc', D, 11, 20);
-        Observer.Finish();
+        Observer.Expect('dc11', '%YAML 1.2~q: a => FYamlBadFormat');
+        Observer.Expect('dc12', '--- q: a => FYamlBadFormat');
+        Observer.Expect('dc13', '---q: a => {"---q":"a"}');
+        Observer.Expect('dc14', 'q: a~...~ => {"q":"a"}');
+        Observer.Expect('dc15', 'q: a~...~---~r: b => FYamlBadFormat');
+        Observer.Expect('dc16', 'q: a~... # c => {"q":"a"}');
+        Observer.Expect('dc17', '--- !!map~q: a => {"q":"a"}');
+        Observer.Expect('dc18', '---~--- => FYamlBadFormat');
+        Observer.Expect('dc19', '--- &x~q: a => {"q":"a"}');
+        Observer.Expect('dc20', 'q: --- => {"q":"---"}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -620,7 +931,9 @@ codeunit 75671 "YRM Json Yaml Remaining"
         D.AddRange('---~q: a', 'q: a~---~r: b', '---~q: a~---~r: b', '--- # c~q: a', '--- |~  x', '---~...', '%YAML 1.2~---~q: a', '%YAML 1.1~---~q: a', '%YAML 1.3~---~q: a',
             '%FOO bar~---~q: a', '%YAML 1.2~q: a', '--- q: a', '---q: a', 'q: a~...~', 'q: a~...~---~r: b', 'q: a~... # c', '--- !!map~q: a', '---~---', '--- &x~q: a', 'q: ---', 'q: ...', 'q: a~--- b');
         Cells('dc', D, 21, 30);
-        Observer.Finish();
+        Observer.Expect('dc21', 'q: ... => {"q":"..."}');
+        Observer.Expect('dc22', 'q: a~--- b => FYamlBadFormat');
+        Observer.Verify();
     end;
 
     [Test]
@@ -631,7 +944,17 @@ codeunit 75671 "YRM Json Yaml Remaining"
         D.AddRange('? a~: b', '? [a, b]~: c', '? a~? b', '? |~  x~: 1', '[a, b]: c', '{a: b}: c', '? a', '"a b": 1', '''a'': 1', '? - a~  - b~: c', '1: a', 'null: a', '{~}: a', 'true: a',
             'a b: 1', '"a: b": 1', 'a#b: 1', ': a', '? {~}~: a', '"a": 1~a: 2', '? a~: b~c: d', '? a : b', '"": 1', '''a''''b'': 1', '"a{\}nb": 1', '? a~  b~: c', '*x : 1', '!!str a: 1');
         Cells('ck', D, 1, 10);
-        Observer.Finish();
+        Observer.Expect('ck1', '? a~: b => {"a":"b"}');
+        Observer.Expect('ck2', '? [a, b]~: c => {"(Collection)":"c"}');
+        Observer.Expect('ck3', '? a~? b => {"a":null,"b":null}');
+        Observer.Expect('ck4', '? |~  x~: 1 => {"x\n":"1"}');
+        Observer.Expect('ck5', '[a, b]: c => {"(Collection)":"c"}');
+        Observer.Expect('ck6', '{a: b}: c => {"(Collection)":"c"}');
+        Observer.Expect('ck7', '? a => {"a":null}');
+        Observer.Expect('ck8', '"a b": 1 => {"a b":"1"}');
+        Observer.Expect('ck9', '''a'': 1 => {"a":"1"}');
+        Observer.Expect('ck10', '? - a~  - b~: c => {"(Collection)":"c"}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -642,7 +965,17 @@ codeunit 75671 "YRM Json Yaml Remaining"
         D.AddRange('? a~: b', '? [a, b]~: c', '? a~? b', '? |~  x~: 1', '[a, b]: c', '{a: b}: c', '? a', '"a b": 1', '''a'': 1', '? - a~  - b~: c', '1: a', 'null: a', '{~}: a', 'true: a',
             'a b: 1', '"a: b": 1', 'a#b: 1', ': a', '? {~}~: a', '"a": 1~a: 2', '? a~: b~c: d', '? a : b', '"": 1', '''a''''b'': 1', '"a{\}nb": 1', '? a~  b~: c', '*x : 1', '!!str a: 1');
         Cells('ck', D, 11, 20);
-        Observer.Finish();
+        Observer.Expect('ck11', '1: a => {"1":"a"}');
+        Observer.Expect('ck12', 'null: a => {"null":"a"}');
+        Observer.Expect('ck13', '{~}: a => {"~":"a"}');
+        Observer.Expect('ck14', 'true: a => {"true":"a"}');
+        Observer.Expect('ck15', 'a b: 1 => {"a b":"1"}');
+        Observer.Expect('ck16', '"a: b": 1 => {"a: b":"1"}');
+        Observer.Expect('ck17', 'a#b: 1 => {"a#b":"1"}');
+        Observer.Expect('ck18', ': a => FYamlBadFormat');
+        Observer.Expect('ck19', '? {~}~: a => {"~":"a"}');
+        Observer.Expect('ck20', '"a": 1~a: 2 => {"a":"2"}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -653,7 +986,15 @@ codeunit 75671 "YRM Json Yaml Remaining"
         D.AddRange('? a~: b', '? [a, b]~: c', '? a~? b', '? |~  x~: 1', '[a, b]: c', '{a: b}: c', '? a', '"a b": 1', '''a'': 1', '? - a~  - b~: c', '1: a', 'null: a', '{~}: a', 'true: a',
             'a b: 1', '"a: b": 1', 'a#b: 1', ': a', '? {~}~: a', '"a": 1~a: 2', '? a~: b~c: d', '? a : b', '"": 1', '''a''''b'': 1', '"a{\}nb": 1', '? a~  b~: c', '*x : 1', '!!str a: 1');
         Cells('ck', D, 21, 30);
-        Observer.Finish();
+        Observer.Expect('ck21', '? a~: b~c: d => {"a":"b","c":"d"}');
+        Observer.Expect('ck22', '? a : b => {"(Collection)":null}');
+        Observer.Expect('ck23', '"": 1 => {"":"1"}');
+        Observer.Expect('ck24', '''a''''b'': 1 => {"a''b":"1"}');
+        Observer.Expect('ck25', '"a{\}nb": 1 => {"a\nb":"1"}');
+        Observer.Expect('ck26', '? a~  b~: c => {"a b":"c"}');
+        Observer.Expect('ck27', '*x : 1 => FYamlBadFormat');
+        Observer.Expect('ck28', '!!str a: 1 => {"a":"1"}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -665,7 +1006,17 @@ codeunit 75671 "YRM Json Yaml Remaining"
             'q: "a{\}~  b"', 'q: "a {\}~   b"', 'q: "a~~b"', 'q: "a  ~  b"', 'q: ''a  ~  b''', 'q: a  b', 'q: a   ', 'q: "a', 'q: ''a', 'q: "a" b', 'q: ''a'' b', 'k:~  - "a~    b"~  - c',
             'q:~  a~  b', 'q:~  "a"', 'q:~  ''a''', 'q:~  a~n: 1', 'q:~~  a');
         Cells('ml', D, 1, 10);
-        Observer.Finish();
+        Observer.Expect('ml1', 'q: a~  b~  c => {"q":"a b c"}');
+        Observer.Expect('ml2', 'q: a~~  b => {"q":"a\nb"}');
+        Observer.Expect('ml3', 'q: a~  b~n: 1 => {"q":"a b","n":"1"}');
+        Observer.Expect('ml4', 'k:~  - a~    b~  - c => {"k":["a b","c"]}');
+        Observer.Expect('ml5', 'q: ''a~  b'' => {"q":"a b"}');
+        Observer.Expect('ml6', 'q: ''a~~  b'' => {"q":"a\nb"}');
+        Observer.Expect('ml7', 'q: ''a ''''b'''''' => {"q":"a ''b''"}');
+        Observer.Expect('ml8', 'q: '''' => {"q":""}');
+        Observer.Expect('ml9', 'q: "" => {"q":""}');
+        Observer.Expect('ml10', 'q: "a~  b" => {"q":"a b"}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -677,7 +1028,17 @@ codeunit 75671 "YRM Json Yaml Remaining"
             'q: "a{\}~  b"', 'q: "a {\}~   b"', 'q: "a~~b"', 'q: "a  ~  b"', 'q: ''a  ~  b''', 'q: a  b', 'q: a   ', 'q: "a', 'q: ''a', 'q: "a" b', 'q: ''a'' b', 'k:~  - "a~    b"~  - c',
             'q:~  a~  b', 'q:~  "a"', 'q:~  ''a''', 'q:~  a~n: 1', 'q:~~  a');
         Cells('ml', D, 11, 20);
-        Observer.Finish();
+        Observer.Expect('ml11', 'q: "a{\}~  b" => {"q":"ab"}');
+        Observer.Expect('ml12', 'q: "a {\}~   b" => {"q":"a b"}');
+        Observer.Expect('ml13', 'q: "a~~b" => FYamlBadFormat');
+        Observer.Expect('ml14', 'q: "a  ~  b" => {"q":"a b"}');
+        Observer.Expect('ml15', 'q: ''a  ~  b'' => {"q":"a b"}');
+        Observer.Expect('ml16', 'q: a  b => {"q":"a  b"}');
+        Observer.Expect('ml17', 'q: a    => {"q":"a"}');
+        Observer.Expect('ml18', 'q: "a => FYamlBadFormat');
+        Observer.Expect('ml19', 'q: ''a => FYamlBadFormat');
+        Observer.Expect('ml20', 'q: "a" b => FYamlBadFormat');
+        Observer.Verify();
     end;
 
     [Test]
@@ -689,7 +1050,14 @@ codeunit 75671 "YRM Json Yaml Remaining"
             'q: "a{\}~  b"', 'q: "a {\}~   b"', 'q: "a~~b"', 'q: "a  ~  b"', 'q: ''a  ~  b''', 'q: a  b', 'q: a   ', 'q: "a', 'q: ''a', 'q: "a" b', 'q: ''a'' b', 'k:~  - "a~    b"~  - c',
             'q:~  a~  b', 'q:~  "a"', 'q:~  ''a''', 'q:~  a~n: 1', 'q:~~  a');
         Cells('ml', D, 21, 30);
-        Observer.Finish();
+        Observer.Expect('ml21', 'q: ''a'' b => FYamlBadFormat');
+        Observer.Expect('ml22', 'k:~  - "a~    b"~  - c => {"k":["a b","c"]}');
+        Observer.Expect('ml23', 'q:~  a~  b => {"q":"a b"}');
+        Observer.Expect('ml24', 'q:~  "a" => {"q":"a"}');
+        Observer.Expect('ml25', 'q:~  ''a'' => {"q":"a"}');
+        Observer.Expect('ml26', 'q:~  a~n: 1 => {"q":"a","n":"1"}');
+        Observer.Expect('ml27', 'q:~~  a => {"q":"a"}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -701,7 +1069,17 @@ codeunit 75671 "YRM Json Yaml Remaining"
             'q: |  # c~  x', 'q: | x~  y', 'q: >-~~  x', 'q: |~  a{T}b', 'q: |~    x~  y', 'q: |~  x~ y', 'q: |~  x{S}{S}~  y', 'q: |{S}{S}~  x', 'q: |-~  x~', 'q: |+~  x', 'q: |q~  x',
             'q: |~', 'q: |', 'q: >~  a~  b~~  c', 'q: >~  a~   b~  c', 'q: |~{T}x');
         Cells('bl', D, 1, 10);
-        Observer.Finish();
+        Observer.Expect('bl1', 'q: |+~  x~~~n: 1 => {"q":"x\n\n\n","n":"1"}');
+        Observer.Expect('bl2', 'q: >+~  x~~~n: 1 => {"q":"x\n\n\n","n":"1"}');
+        Observer.Expect('bl3', 'q: >-~  a~~  b~n: 1 => {"q":"a\nb","n":"1"}');
+        Observer.Expect('bl4', 'q: >~  a~    b~  c~n: 1 => {"q":"a\n  b\nc\n","n":"1"}');
+        Observer.Expect('bl5', 'q: |~n: 1 => {"q":"","n":"1"}');
+        Observer.Expect('bl6', 'q: >~n: 1 => {"q":"","n":"1"}');
+        Observer.Expect('bl7', 'q: |~~~n: 1 => {"q":"","n":"1"}');
+        Observer.Expect('bl8', 'q: |~  - x => {"q":"- x"}');
+        Observer.Expect('bl9', 'q: |~  # c~  x => {"q":"# c\nx"}');
+        Observer.Expect('bl10', 'q: |  # c~  x => {"q":"x"}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -713,7 +1091,17 @@ codeunit 75671 "YRM Json Yaml Remaining"
             'q: |  # c~  x', 'q: | x~  y', 'q: >-~~  x', 'q: |~  a{T}b', 'q: |~    x~  y', 'q: |~  x~ y', 'q: |~  x{S}{S}~  y', 'q: |{S}{S}~  x', 'q: |-~  x~', 'q: |+~  x', 'q: |q~  x',
             'q: |~', 'q: |', 'q: >~  a~  b~~  c', 'q: >~  a~   b~  c', 'q: |~{T}x');
         Cells('bl', D, 11, 20);
-        Observer.Finish();
+        Observer.Expect('bl11', 'q: | x~  y => FYamlBadFormat');
+        Observer.Expect('bl12', 'q: >-~~  x => {"q":"\nx"}');
+        Observer.Expect('bl13', 'q: |~  a{T}b => {"q":"a\tb"}');
+        Observer.Expect('bl14', 'q: |~    x~  y => FYamlBadFormat');
+        Observer.Expect('bl15', 'q: |~  x~ y => FYamlBadFormat');
+        Observer.Expect('bl16', 'q: |~  x{S}{S}~  y => {"q":"x  \ny"}');
+        Observer.Expect('bl17', 'q: |{S}{S}~  x => {"q":"x"}');
+        Observer.Expect('bl18', 'q: |-~  x~ => {"q":"x"}');
+        Observer.Expect('bl19', 'q: |+~  x => {"q":"x"}');
+        Observer.Expect('bl20', 'q: |q~  x => FYamlBadFormat');
+        Observer.Verify();
     end;
 
     [Test]
@@ -725,7 +1113,12 @@ codeunit 75671 "YRM Json Yaml Remaining"
             'q: |  # c~  x', 'q: | x~  y', 'q: >-~~  x', 'q: |~  a{T}b', 'q: |~    x~  y', 'q: |~  x~ y', 'q: |~  x{S}{S}~  y', 'q: |{S}{S}~  x', 'q: |-~  x~', 'q: |+~  x', 'q: |q~  x',
             'q: |~', 'q: |', 'q: >~  a~  b~~  c', 'q: >~  a~   b~  c', 'q: |~{T}x');
         Cells('bl', D, 21, 30);
-        Observer.Finish();
+        Observer.Expect('bl21', 'q: |~ => {"q":""}');
+        Observer.Expect('bl22', 'q: | => {"q":""}');
+        Observer.Expect('bl23', 'q: >~  a~  b~~  c => {"q":"a b\nc"}');
+        Observer.Expect('bl24', 'q: >~  a~   b~  c => {"q":"a\n b\nc"}');
+        Observer.Expect('bl25', 'q: |~{T}x => FYamlBadFormat');
+        Observer.Verify();
     end;
 
     [Test]
@@ -737,7 +1130,17 @@ codeunit 75671 "YRM Json Yaml Remaining"
             'q: a~  # c~n: 1', 'o:~  # c~  q: a', 'o: # c~  q: a', 'k: # c~  - a', 'q: "a" # c', 'q: ''a'' # c', 'q: [a] # c', 'q: {a: 1} # c', 'q: |~  x~# c~n: 1', 'q: |~  x~  # c', 'q: a{T}# c',
             'q: a{T}b', 'q:{T}a', 'k:~  -{T}a', '{T}q: a', 'q: a{T}', '# c{T}d~q: a', '  # c~q: a', 'q: a~ # c~n: 1', '#', '#~q: a');
         Cells('cm', D, 1, 10);
-        Observer.Finish();
+        Observer.Expect('cm1', '# c~q: a => {"q":"a"}');
+        Observer.Expect('cm2', 'q: a # c => {"q":"a"}');
+        Observer.Expect('cm3', 'q: # c~  a => {"q":"a"}');
+        Observer.Expect('cm4', 'q:   # c~  r: 1 => {"q":{"r":"1"}}');
+        Observer.Expect('cm5', 'k:~  - a # c~  # d~  - b => {"k":["a","b"]}');
+        Observer.Expect('cm6', 'q: a #c => {"q":"a"}');
+        Observer.Expect('cm7', 'q: a# c => {"q":"a# c"}');
+        Observer.Expect('cm8', 'q: a  # c => {"q":"a"}');
+        Observer.Expect('cm9', '# c => FInvalidJsonType:JSON tokens of type ''Null'' are not supported by this implementation.');
+        Observer.Expect('cm10', 'q: a~# c => {"q":"a"}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -749,7 +1152,17 @@ codeunit 75671 "YRM Json Yaml Remaining"
             'q: a~  # c~n: 1', 'o:~  # c~  q: a', 'o: # c~  q: a', 'k: # c~  - a', 'q: "a" # c', 'q: ''a'' # c', 'q: [a] # c', 'q: {a: 1} # c', 'q: |~  x~# c~n: 1', 'q: |~  x~  # c', 'q: a{T}# c',
             'q: a{T}b', 'q:{T}a', 'k:~  -{T}a', '{T}q: a', 'q: a{T}', '# c{T}d~q: a', '  # c~q: a', 'q: a~ # c~n: 1', '#', '#~q: a');
         Cells('cm', D, 11, 20);
-        Observer.Finish();
+        Observer.Expect('cm11', 'q: a~# c~n: 1 => {"q":"a","n":"1"}');
+        Observer.Expect('cm12', 'q: a~  # c~n: 1 => {"q":"a","n":"1"}');
+        Observer.Expect('cm13', 'o:~  # c~  q: a => {"o":{"q":"a"}}');
+        Observer.Expect('cm14', 'o: # c~  q: a => {"o":{"q":"a"}}');
+        Observer.Expect('cm15', 'k: # c~  - a => {"k":["a"]}');
+        Observer.Expect('cm16', 'q: "a" # c => {"q":"a"}');
+        Observer.Expect('cm17', 'q: ''a'' # c => {"q":"a"}');
+        Observer.Expect('cm18', 'q: [a] # c => {"q":["a"]}');
+        Observer.Expect('cm19', 'q: {a: 1} # c => {"q":{"a":"1"}}');
+        Observer.Expect('cm20', 'q: |~  x~# c~n: 1 => {"q":"x\n","n":"1"}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -761,7 +1174,17 @@ codeunit 75671 "YRM Json Yaml Remaining"
             'q: a~  # c~n: 1', 'o:~  # c~  q: a', 'o: # c~  q: a', 'k: # c~  - a', 'q: "a" # c', 'q: ''a'' # c', 'q: [a] # c', 'q: {a: 1} # c', 'q: |~  x~# c~n: 1', 'q: |~  x~  # c', 'q: a{T}# c',
             'q: a{T}b', 'q:{T}a', 'k:~  -{T}a', '{T}q: a', 'q: a{T}', '# c{T}d~q: a', '  # c~q: a', 'q: a~ # c~n: 1', '#', '#~q: a');
         Cells('cm', D, 21, 30);
-        Observer.Finish();
+        Observer.Expect('cm21', 'q: |~  x~  # c => {"q":"x\n# c"}');
+        Observer.Expect('cm22', 'q: a{T}# c => {"q":"a"}');
+        Observer.Expect('cm23', 'q: a{T}b => {"q":"a\tb"}');
+        Observer.Expect('cm24', 'q:{T}a => {"q":"a"}');
+        Observer.Expect('cm25', 'k:~  -{T}a => {"k":["a"]}');
+        Observer.Expect('cm26', '{T}q: a => {"q":"a"}');
+        Observer.Expect('cm27', 'q: a{T} => {"q":"a"}');
+        Observer.Expect('cm28', '# c{T}d~q: a => {"q":"a"}');
+        Observer.Expect('cm29', '  # c~q: a => {"q":"a"}');
+        Observer.Expect('cm30', 'q: a~ # c~n: 1 => {"q":"a","n":"1"}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -773,7 +1196,9 @@ codeunit 75671 "YRM Json Yaml Remaining"
             'q: a~  # c~n: 1', 'o:~  # c~  q: a', 'o: # c~  q: a', 'k: # c~  - a', 'q: "a" # c', 'q: ''a'' # c', 'q: [a] # c', 'q: {a: 1} # c', 'q: |~  x~# c~n: 1', 'q: |~  x~  # c', 'q: a{T}# c',
             'q: a{T}b', 'q:{T}a', 'k:~  -{T}a', '{T}q: a', 'q: a{T}', '# c{T}d~q: a', '  # c~q: a', 'q: a~ # c~n: 1', '#', '#~q: a');
         Cells('cm', D, 31, 40);
-        Observer.Finish();
+        Observer.Expect('cm31', '# => FInvalidJsonType:JSON tokens of type ''Null'' are not supported by this implementation.');
+        Observer.Expect('cm32', '#~q: a => {"q":"a"}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -784,7 +1209,17 @@ codeunit 75671 "YRM Json Yaml Remaining"
         D.AddRange('q:', 'q: {~}', 'q: null', 'q: Null', 'q: NULL', 'q: nUll', 'q: ""', 'q: ''''', 'q: !!null', 'q:~n: 1', 'k:~  - {~}~  - null~  -~  - ''''', 'q: nul', '{~}: 1', 'q: ~x', 'q: ~ ',
             'q:   ', 'q: ~~', 'k:', 'k:~  -', 'k:~  - ', 'o:~  q:', 'o:~  q:~n: 1', 'q: [{~}, null, ]', 'q: {a: {~}, b: null, c: }');
         Cells('nl', D, 1, 10);
-        Observer.Finish();
+        Observer.Expect('nl1', 'q: => {"q":null}');
+        Observer.Expect('nl2', 'q: {~} => {"q":null}');
+        Observer.Expect('nl3', 'q: null => {"q":null}');
+        Observer.Expect('nl4', 'q: Null => {"q":null}');
+        Observer.Expect('nl5', 'q: NULL => {"q":null}');
+        Observer.Expect('nl6', 'q: nUll => {"q":"nUll"}');
+        Observer.Expect('nl7', 'q: "" => {"q":""}');
+        Observer.Expect('nl8', 'q: '''' => {"q":""}');
+        Observer.Expect('nl9', 'q: !!null => FYamlBadFormat');
+        Observer.Expect('nl10', 'q:~n: 1 => {"q":null,"n":"1"}');
+        Observer.Verify();
     end;
 
     local procedure ScalarCells(Prefix: Text; Items: List of [Text])
@@ -803,7 +1238,17 @@ codeunit 75671 "YRM Json Yaml Remaining"
         D.AddRange('q:', 'q: {~}', 'q: null', 'q: Null', 'q: NULL', 'q: nUll', 'q: ""', 'q: ''''', 'q: !!null', 'q:~n: 1', 'k:~  - {~}~  - null~  -~  - ''''', 'q: nul', '{~}: 1', 'q: ~x', 'q: ~ ',
             'q:   ', 'q: ~~', 'k:', 'k:~  -', 'k:~  - ', 'o:~  q:', 'o:~  q:~n: 1', 'q: [{~}, null, ]', 'q: {a: {~}, b: null, c: }');
         Cells('nl', D, 11, 20);
-        Observer.Finish();
+        Observer.Expect('nl11', 'k:~  - {~}~  - null~  -~  - '''' => {"k":[null,null,null,""]}');
+        Observer.Expect('nl12', 'q: nul => {"q":"nul"}');
+        Observer.Expect('nl13', '{~}: 1 => {"~":"1"}');
+        Observer.Expect('nl14', 'q: ~x => FYamlBadFormat');
+        Observer.Expect('nl15', 'q: ~  => {"q":null}');
+        Observer.Expect('nl16', 'q:    => {"q":null}');
+        Observer.Expect('nl17', 'q: ~~ => {"q":null}');
+        Observer.Expect('nl18', 'k: => {"k":null}');
+        Observer.Expect('nl19', 'k:~  - => {"k":[null]}');
+        Observer.Expect('nl20', 'k:~  -  => {"k":[null]}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -814,7 +1259,11 @@ codeunit 75671 "YRM Json Yaml Remaining"
         D.AddRange('q:', 'q: {~}', 'q: null', 'q: Null', 'q: NULL', 'q: nUll', 'q: ""', 'q: ''''', 'q: !!null', 'q:~n: 1', 'k:~  - {~}~  - null~  -~  - ''''', 'q: nul', '{~}: 1', 'q: ~x', 'q: ~ ',
             'q:   ', 'q: ~~', 'k:', 'k:~  -', 'k:~  - ', 'o:~  q:', 'o:~  q:~n: 1', 'q: [{~}, null, ]', 'q: {a: {~}, b: null, c: }');
         Cells('nl', D, 21, 30);
-        Observer.Finish();
+        Observer.Expect('nl21', 'o:~  q: => {"o":{"q":null}}');
+        Observer.Expect('nl22', 'o:~  q:~n: 1 => {"o":{"q":null},"n":"1"}');
+        Observer.Expect('nl23', 'q: [{~}, null, ] => {"q":[null,null]}');
+        Observer.Expect('nl24', 'q: {a: {~}, b: null, c: } => {"q":{"a":null,"b":null,"c":null}}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -824,7 +1273,33 @@ codeunit 75671 "YRM Json Yaml Remaining"
     begin
         L.AddRange('yes', 'no', 'Yes', 'No', 'YES', 'NO', 'y', 'n', 'Y', 'N', 'on', 'off', 'On', 'Off', 'ON', 'OFF', 'true', 'false', 'True', 'False', 'TRUE', 'FALSE', 'tRue', 'fALSE', 't', 'f');
         ScalarCells('b', L);
-        Observer.Finish();
+        Observer.Expect('b[yes]', '{"q":"yes"}');
+        Observer.Expect('b[no]', '{"q":"no"}');
+        Observer.Expect('b[Yes]', '{"q":"Yes"}');
+        Observer.Expect('b[No]', '{"q":"No"}');
+        Observer.Expect('b[YES]', '{"q":"YES"}');
+        Observer.Expect('b[NO]', '{"q":"NO"}');
+        Observer.Expect('b[y]', '{"q":"y"}');
+        Observer.Expect('b[n]', '{"q":"n"}');
+        Observer.Expect('b[Y]', '{"q":"Y"}');
+        Observer.Expect('b[N]', '{"q":"N"}');
+        Observer.Expect('b[on]', '{"q":"on"}');
+        Observer.Expect('b[off]', '{"q":"off"}');
+        Observer.Expect('b[On]', '{"q":"On"}');
+        Observer.Expect('b[Off]', '{"q":"Off"}');
+        Observer.Expect('b[ON]', '{"q":"ON"}');
+        Observer.Expect('b[OFF]', '{"q":"OFF"}');
+        Observer.Expect('b[true]', '{"q":"true"}');
+        Observer.Expect('b[false]', '{"q":"false"}');
+        Observer.Expect('b[True]', '{"q":"True"}');
+        Observer.Expect('b[False]', '{"q":"False"}');
+        Observer.Expect('b[TRUE]', '{"q":"TRUE"}');
+        Observer.Expect('b[FALSE]', '{"q":"FALSE"}');
+        Observer.Expect('b[tRue]', '{"q":"tRue"}');
+        Observer.Expect('b[fALSE]', '{"q":"fALSE"}');
+        Observer.Expect('b[t]', '{"q":"t"}');
+        Observer.Expect('b[f]', '{"q":"f"}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -835,7 +1310,30 @@ codeunit 75671 "YRM Json Yaml Remaining"
         L.AddRange('0', '1', '-1', '+1', '007', '0x1F', '0X1f', '0o17', '0b101', '017', '1_000', '1,000', '0x', '-0', '+0', '00', '12345678901234567890', '-9223372036854775808', '9223372036854775808',
             '0xFFFFFFFFFFFFFFFF', '0o', '08', '1 000');
         ScalarCells('i', L);
-        Observer.Finish();
+        Observer.Expect('i[0]', '{"q":"0"}');
+        Observer.Expect('i[1]', '{"q":"1"}');
+        Observer.Expect('i[-1]', '{"q":"-1"}');
+        Observer.Expect('i[+1]', '{"q":"+1"}');
+        Observer.Expect('i[007]', '{"q":"007"}');
+        Observer.Expect('i[0x1F]', '{"q":"0x1F"}');
+        Observer.Expect('i[0X1f]', '{"q":"0X1f"}');
+        Observer.Expect('i[0o17]', '{"q":"0o17"}');
+        Observer.Expect('i[0b101]', '{"q":"0b101"}');
+        Observer.Expect('i[017]', '{"q":"017"}');
+        Observer.Expect('i[1_000]', '{"q":"1_000"}');
+        Observer.Expect('i[1,000]', '{"q":"1,000"}');
+        Observer.Expect('i[0x]', '{"q":"0x"}');
+        Observer.Expect('i[-0]', '{"q":"-0"}');
+        Observer.Expect('i[+0]', '{"q":"+0"}');
+        Observer.Expect('i[00]', '{"q":"00"}');
+        Observer.Expect('i[12345678901234567890]', '{"q":"12345678901234567890"}');
+        Observer.Expect('i[-9223372036854775808]', '{"q":"-9223372036854775808"}');
+        Observer.Expect('i[9223372036854775808]', '{"q":"9223372036854775808"}');
+        Observer.Expect('i[0xFFFFFFFFFFFFFFFF]', '{"q":"0xFFFFFFFFFFFFFFFF"}');
+        Observer.Expect('i[0o]', '{"q":"0o"}');
+        Observer.Expect('i[08]', '{"q":"08"}');
+        Observer.Expect('i[1 000]', '{"q":"1 000"}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -846,7 +1344,36 @@ codeunit 75671 "YRM Json Yaml Remaining"
         L.AddRange('1.5', '.5', '5.', '1e3', '1E3', '1.5e+3', '-1.5E-3', '.inf', '-.inf', '+.inf', '.Inf', '.INF', '.NaN', '.nan', '.NAN', 'inf', 'nan', 'NaN', '1e', '12:30:45', '1:30', '2001-12-14',
             '2001-12-14t21:59:43.10-05:00', '2001-12-14 21:59:43.10 -5', '0.1.2', '1.0', '-0.0', '1e400', '3.14159265358979323846264338327950288');
         ScalarCells('f', L);
-        Observer.Finish();
+        Observer.Expect('f[1.5]', '{"q":"1.5"}');
+        Observer.Expect('f[.5]', '{"q":".5"}');
+        Observer.Expect('f[5.]', '{"q":"5."}');
+        Observer.Expect('f[1e3]', '{"q":"1e3"}');
+        Observer.Expect('f[1E3]', '{"q":"1E3"}');
+        Observer.Expect('f[1.5e+3]', '{"q":"1.5e+3"}');
+        Observer.Expect('f[-1.5E-3]', '{"q":"-1.5E-3"}');
+        Observer.Expect('f[.inf]', '{"q":".inf"}');
+        Observer.Expect('f[-.inf]', '{"q":"-.inf"}');
+        Observer.Expect('f[+.inf]', '{"q":"+.inf"}');
+        Observer.Expect('f[.Inf]', '{"q":".Inf"}');
+        Observer.Expect('f[.INF]', '{"q":".INF"}');
+        Observer.Expect('f[.NaN]', '{"q":".NaN"}');
+        Observer.Expect('f[.nan]', '{"q":".nan"}');
+        Observer.Expect('f[.NAN]', '{"q":".NAN"}');
+        Observer.Expect('f[inf]', '{"q":"inf"}');
+        Observer.Expect('f[nan]', '{"q":"nan"}');
+        Observer.Expect('f[NaN]', '{"q":"NaN"}');
+        Observer.Expect('f[1e]', '{"q":"1e"}');
+        Observer.Expect('f[12:30:45]', '{"q":"12:30:45"}');
+        Observer.Expect('f[1:30]', '{"q":"1:30"}');
+        Observer.Expect('f[2001-12-14]', '{"q":"2001-12-14"}');
+        Observer.Expect('f[2001-12-14t21:59:43.10-05:00]', '{"q":"2001-12-14t21:59:43.10-05:00"}');
+        Observer.Expect('f[2001-12-14 21:59:43.10 -5]', '{"q":"2001-12-14 21:59:43.10 -5"}');
+        Observer.Expect('f[0.1.2]', '{"q":"0.1.2"}');
+        Observer.Expect('f[1.0]', '{"q":"1.0"}');
+        Observer.Expect('f[-0.0]', '{"q":"-0.0"}');
+        Observer.Expect('f[1e400]', '{"q":"1e400"}');
+        Observer.Expect('f[3.14159265358979323846264338327950288]', '{"q":"3.14159265358979323846264338327950288"}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -857,7 +1384,17 @@ codeunit 75671 "YRM Json Yaml Remaining"
         D.AddRange('{B}q: a', 'q: a{B}', 'q: {B}a', '{B}---~q: a', 'q:{T}a', 'q: a{T}', 'q: a{T}b', 'k:~{T}- a', 'k:~  -{T}a', 'k:~  -{T}{T}a', 'o:~{T}q: a', 'q: a   ', 'q:   a', 'q:   ~n: 1',
             '---   ~q: a', 'q: |   ~  x', 'q: |~  x   ~  y   ', 'q: a~~~~', '~~~q: a', '   ', '{T}', 'q: a{0}b', '{0}', 'q: a{S}{S}{S}~n: 1{S}', 'q: a~{S}', 'q: a~{T}');
         Cells('bt', D, 1, 10);
-        Observer.Finish();
+        Observer.Expect('bt1', '{B}q: a => T {"<U+FEFF>q":"a"} | S {"q":"a"}');
+        Observer.Expect('bt2', 'q: a{B} => {"q":"a<U+FEFF>"}');
+        Observer.Expect('bt3', 'q: {B}a => {"q":"<U+FEFF>a"}');
+        Observer.Expect('bt4', '{B}---~q: a => T FYamlBadFormat | S {"q":"a"}');
+        Observer.Expect('bt5', 'q:{T}a => {"q":"a"}');
+        Observer.Expect('bt6', 'q: a{T} => {"q":"a"}');
+        Observer.Expect('bt7', 'q: a{T}b => {"q":"a\tb"}');
+        Observer.Expect('bt8', 'k:~{T}- a => FYamlBadFormat');
+        Observer.Expect('bt9', 'k:~  -{T}a => {"k":["a"]}');
+        Observer.Expect('bt10', 'k:~  -{T}{T}a => {"k":["a"]}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -868,7 +1405,17 @@ codeunit 75671 "YRM Json Yaml Remaining"
         D.AddRange('{B}q: a', 'q: a{B}', 'q: {B}a', '{B}---~q: a', 'q:{T}a', 'q: a{T}', 'q: a{T}b', 'k:~{T}- a', 'k:~  -{T}a', 'k:~  -{T}{T}a', 'o:~{T}q: a', 'q: a   ', 'q:   a', 'q:   ~n: 1',
             '---   ~q: a', 'q: |   ~  x', 'q: |~  x   ~  y   ', 'q: a~~~~', '~~~q: a', '   ', '{T}', 'q: a{0}b', '{0}', 'q: a{S}{S}{S}~n: 1{S}', 'q: a~{S}', 'q: a~{T}');
         Cells('bt', D, 11, 20);
-        Observer.Finish();
+        Observer.Expect('bt11', 'o:~{T}q: a => FYamlBadFormat');
+        Observer.Expect('bt12', 'q: a    => {"q":"a"}');
+        Observer.Expect('bt13', 'q:   a => {"q":"a"}');
+        Observer.Expect('bt14', 'q:   ~n: 1 => {"q":null,"n":"1"}');
+        Observer.Expect('bt15', '---   ~q: a => {"q":"a"}');
+        Observer.Expect('bt16', 'q: |   ~  x => {"q":"x"}');
+        Observer.Expect('bt17', 'q: |~  x   ~  y    => {"q":"x   \ny   "}');
+        Observer.Expect('bt18', 'q: a~~~~ => {"q":"a"}');
+        Observer.Expect('bt19', '~~~q: a => {"q":"a"}');
+        Observer.Expect('bt20', '    => FInvalidJsonType:JSON tokens of type ''Null'' are not supported by this implementation.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -879,7 +1426,13 @@ codeunit 75671 "YRM Json Yaml Remaining"
         D.AddRange('{B}q: a', 'q: a{B}', 'q: {B}a', '{B}---~q: a', 'q:{T}a', 'q: a{T}', 'q: a{T}b', 'k:~{T}- a', 'k:~  -{T}a', 'k:~  -{T}{T}a', 'o:~{T}q: a', 'q: a   ', 'q:   a', 'q:   ~n: 1',
             '---   ~q: a', 'q: |   ~  x', 'q: |~  x   ~  y   ', 'q: a~~~~', '~~~q: a', '   ', '{T}', 'q: a{0}b', '{0}', 'q: a{S}{S}{S}~n: 1{S}', 'q: a~{S}', 'q: a~{T}');
         Cells('bt', D, 21, 30);
-        Observer.Finish();
+        Observer.Expect('bt21', '{T} => FInvalidJsonType:JSON tokens of type ''Null'' are not supported by this implementation.');
+        Observer.Expect('bt22', 'q: a{0}b => {"q":"ab"}');
+        Observer.Expect('bt23', '{0} => FInvalidJsonType:JSON tokens of type ''Null'' are not supported by this implementation.');
+        Observer.Expect('bt24', 'q: a{S}{S}{S}~n: 1{S} => {"q":"a","n":"1"}');
+        Observer.Expect('bt25', 'q: a~{S} => {"q":"a"}');
+        Observer.Expect('bt26', 'q: a~{T} => FYamlBadFormat');
+        Observer.Verify();
     end;
 
     [Test]
@@ -890,7 +1443,17 @@ codeunit 75671 "YRM Json Yaml Remaining"
         D.AddRange('a: 1~a: 2', 'o:~  a: 1~  a: 2', 'q: {a: 1, a: 2}', 'a: 1~"a": 2', 'a: 1~''a'': 2', 'k:~  - a: 1~    a: 2', 'a: 1~b: 2~a: 3', 'a: 1~A: 2', 'a: {~}~a: 1', 'a:~a: 1',
             'a: &x 1~a: *x', '<<: {a: 1}~<<: {b: 2}', '1: a~"1": b', 'a: 1~a b: 2~a: 3');
         Cells('dk', D, 1, 10);
-        Observer.Finish();
+        Observer.Expect('dk1', 'a: 1~a: 2 => {"a":"2"}');
+        Observer.Expect('dk2', 'o:~  a: 1~  a: 2 => {"o":{"a":"2"}}');
+        Observer.Expect('dk3', 'q: {a: 1, a: 2} => {"q":{"a":"2"}}');
+        Observer.Expect('dk4', 'a: 1~"a": 2 => {"a":"2"}');
+        Observer.Expect('dk5', 'a: 1~''a'': 2 => {"a":"2"}');
+        Observer.Expect('dk6', 'k:~  - a: 1~    a: 2 => {"k":[{"a":"2"}]}');
+        Observer.Expect('dk7', 'a: 1~b: 2~a: 3 => {"a":"3","b":"2"}');
+        Observer.Expect('dk8', 'a: 1~A: 2 => {"a":"1","A":"2"}');
+        Observer.Expect('dk9', 'a: {~}~a: 1 => {"a":"1"}');
+        Observer.Expect('dk10', 'a:~a: 1 => {"a":"1"}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -901,7 +1464,11 @@ codeunit 75671 "YRM Json Yaml Remaining"
         D.AddRange('a: 1~a: 2', 'o:~  a: 1~  a: 2', 'q: {a: 1, a: 2}', 'a: 1~"a": 2', 'a: 1~''a'': 2', 'k:~  - a: 1~    a: 2', 'a: 1~b: 2~a: 3', 'a: 1~A: 2', 'a: {~}~a: 1', 'a:~a: 1',
             'a: &x 1~a: *x', '<<: {a: 1}~<<: {b: 2}', '1: a~"1": b', 'a: 1~a b: 2~a: 3');
         Cells('dk', D, 11, 20);
-        Observer.Finish();
+        Observer.Expect('dk11', 'a: &x 1~a: *x => {"a":"1"}');
+        Observer.Expect('dk12', '<<: {a: 1}~<<: {b: 2} => {"<<":{"b":"2"}}');
+        Observer.Expect('dk13', '1: a~"1": b => {"1":"b"}');
+        Observer.Expect('dk14', 'a: 1~a b: 2~a: 3 => {"a":"3","a b":"2"}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -918,7 +1485,18 @@ codeunit 75671 "YRM Json Yaml Remaining"
         CellShort('seq-depth100', 'k:~' + RepeatText('- ', 100) + 'x');
         CellShort('longvalue-5000', 'q: ' + RepeatText('abcde', 1000));
         CellShort('longvalue-100000', 'q: ' + RepeatText('abcdefghij', 10000));
-        Observer.Finish();
+        Observer.Expect('flowseq-depth10', '{"q":[[[[[[[[[["x"]]]]]]]]]]}');
+        Observer.Expect('flowseq-depth50', '{"q":[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["x"]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]}');
+        Observer.Expect('flowseq-depth100', 'FInvalidJsonData:The data does not represent a valid JSON token.');
+        Observer.Expect('flowseq-depth300', 'FInvalidJsonData:The data does not represent a valid JSON token.');
+        Observer.Expect('flowmap-depth50', '{"q":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":');
+        Observer.Expect('flowmap-depth100', 'FInvalidJsonData:The data does not represent a valid JSON token.');
+        Observer.Expect('seq-depth10', '{"k":[[[[[[[[[["x"]]]]]]]]]]}');
+        Observer.Expect('seq-depth50', '{"k":[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["x"]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]}');
+        Observer.Expect('seq-depth100', 'FInvalidJsonData:The data does not represent a valid JSON token.');
+        Observer.Expect('longvalue-5000', '{"q":"abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcd');
+        Observer.Expect('longvalue-100000', '{"q":"abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcd');
+        Observer.Verify();
     end;
 
     [Test]
@@ -939,7 +1517,12 @@ codeunit 75671 "YRM Json Yaml Remaining"
             Res := Both(Doc, '', '');
             Observer.Observe('map-depth' + Format(Depth), CopyStr(Res, 1, 60) + ' len=' + Format(StrLen(Res)));
         end;
-        Observer.Finish();
+        Observer.Expect('map-depth10', '{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"x":"1"}} len=69');
+        Observer.Expect('map-depth20', '{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a": len=129');
+        Observer.Expect('map-depth50', '{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a": len=309');
+        Observer.Expect('map-depth100', 'FInvalidJsonData:The data does not represent a valid JSON to len=64');
+        Observer.Expect('map-depth200', 'FInvalidJsonData:The data does not represent a valid JSON to len=64');
+        Observer.Verify();
     end;
 
     [Test]
@@ -957,7 +1540,10 @@ codeunit 75671 "YRM Json Yaml Remaining"
         Observer.Observe('keys2000-stream', CopyStr(Res, 1, 80) + ' count=' + Format(JO.Keys().Count()));
         Res := Result(RepeatText('k', 3000) + ': 1', false, '', '');
         Observer.Observe('long-key', CopyStr(Res, 1, 20) + ' len=' + Format(StrLen(Res)));
-        Observer.Finish();
+        Observer.Expect('keys2000-text', 'ok count=2000');
+        Observer.Expect('keys2000-stream', 'ok count=2000');
+        Observer.Expect('long-key', 'FYamlBadFormat len=14');
+        Observer.Verify();
     end;
 
     [Test]
@@ -968,7 +1554,17 @@ codeunit 75671 "YRM Json Yaml Remaining"
         D.AddRange('  q: a', 'q: a~ r: b', 'o:~  q: a~ r: b', 'o:~  q: a~   r: b', 'o:~    q: a~  r: b', 'o:~ q: a~   r: b', 'o:~  q: a~r: b~  s: c', 'q:a', 'q: - a', 'q: a: b', '"q": a', '''q'': a',
             'q: a~  b: c', 'o:~  q: a~  q2:~    r: b', 'k:~- a~- b', 'k:~- a~  - b', 'k:~  - a~   - b', 'k:~  - a~ - b', 'k:~  - a~- b~n: 1', 'k:~- a~n: 1', 'q: a~r', 'q: a~r:', 'q a', 'q: a~  # c~  b');
         Cells('in', D, 1, 10);
-        Observer.Finish();
+        Observer.Expect('in1', '  q: a => {"q":"a"}');
+        Observer.Expect('in2', 'q: a~ r: b => FYamlBadFormat');
+        Observer.Expect('in3', 'o:~  q: a~ r: b => FYamlBadFormat');
+        Observer.Expect('in4', 'o:~  q: a~   r: b => FYamlBadFormat');
+        Observer.Expect('in5', 'o:~    q: a~  r: b => FYamlBadFormat');
+        Observer.Expect('in6', 'o:~ q: a~   r: b => FYamlBadFormat');
+        Observer.Expect('in7', 'o:~  q: a~r: b~  s: c => FYamlBadFormat');
+        Observer.Expect('in8', 'q:a => FInvalidJsonType:JSON tokens of type ''String'' are not supported by this implementation.');
+        Observer.Expect('in9', 'q: - a => FYamlBadFormat');
+        Observer.Expect('in10', 'q: a: b => FYamlBadFormat');
+        Observer.Verify();
     end;
 
     [Test]
@@ -979,7 +1575,17 @@ codeunit 75671 "YRM Json Yaml Remaining"
         D.AddRange('  q: a', 'q: a~ r: b', 'o:~  q: a~ r: b', 'o:~  q: a~   r: b', 'o:~    q: a~  r: b', 'o:~ q: a~   r: b', 'o:~  q: a~r: b~  s: c', 'q:a', 'q: - a', 'q: a: b', '"q": a', '''q'': a',
             'q: a~  b: c', 'o:~  q: a~  q2:~    r: b', 'k:~- a~- b', 'k:~- a~  - b', 'k:~  - a~   - b', 'k:~  - a~ - b', 'k:~  - a~- b~n: 1', 'k:~- a~n: 1', 'q: a~r', 'q: a~r:', 'q a', 'q: a~  # c~  b');
         Cells('in', D, 11, 20);
-        Observer.Finish();
+        Observer.Expect('in11', '"q": a => {"q":"a"}');
+        Observer.Expect('in12', '''q'': a => {"q":"a"}');
+        Observer.Expect('in13', 'q: a~  b: c => FYamlBadFormat');
+        Observer.Expect('in14', 'o:~  q: a~  q2:~    r: b => {"o":{"q":"a","q2":{"r":"b"}}}');
+        Observer.Expect('in15', 'k:~- a~- b => {"k":["a","b"]}');
+        Observer.Expect('in16', 'k:~- a~  - b => {"k":["a - b"]}');
+        Observer.Expect('in17', 'k:~  - a~   - b => {"k":["a - b"]}');
+        Observer.Expect('in18', 'k:~  - a~ - b => FYamlBadFormat');
+        Observer.Expect('in19', 'k:~  - a~- b~n: 1 => FYamlBadFormat');
+        Observer.Expect('in20', 'k:~- a~n: 1 => {"k":["a"],"n":"1"}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -990,7 +1596,11 @@ codeunit 75671 "YRM Json Yaml Remaining"
         D.AddRange('  q: a', 'q: a~ r: b', 'o:~  q: a~ r: b', 'o:~  q: a~   r: b', 'o:~    q: a~  r: b', 'o:~ q: a~   r: b', 'o:~  q: a~r: b~  s: c', 'q:a', 'q: - a', 'q: a: b', '"q": a', '''q'': a',
             'q: a~  b: c', 'o:~  q: a~  q2:~    r: b', 'k:~- a~- b', 'k:~- a~  - b', 'k:~  - a~   - b', 'k:~  - a~ - b', 'k:~  - a~- b~n: 1', 'k:~- a~n: 1', 'q: a~r', 'q: a~r:', 'q a', 'q: a~  # c~  b');
         Cells('in', D, 21, 30);
-        Observer.Finish();
+        Observer.Expect('in21', 'q: a~r => FYamlBadFormat');
+        Observer.Expect('in22', 'q: a~r: => {"q":"a","r":null}');
+        Observer.Expect('in23', 'q a => FInvalidJsonType:JSON tokens of type ''String'' are not supported by this implementation.');
+        Observer.Expect('in24', 'q: a~  # c~  b => FYamlBadFormat');
+        Observer.Verify();
     end;
 
 }
