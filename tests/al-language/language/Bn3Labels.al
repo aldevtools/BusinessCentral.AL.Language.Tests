@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-al-simple-statements
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own table 83851, codeunits 83852 and 83853
+// Fixtures used: Probe Observer (codeunit 69160); own table 83851, codeunits 83852, 83853 and 83880
 // Probe: corpus #664 item 40 (microsoft/AL issue 2229): the word Labels (a report section keyword) as a field, procedure, parameter and variable name
 // Facts: Labels as table field name, procedure name, parameter name, global and local variable name: the code compiles and runs
 // Facts (writer QT): the 22 keywords alc accepts as variable names (If, Repeat, For, Div, Mod, ...) work as variables and parameters
@@ -168,5 +168,94 @@ codeunit 83853 "LT BN3 Labels Tests"
         Observer.Expect('div mod', '4|2');
         Observer.Expect('keyword parameters', '28654321');
         Observer.Verify();
+    end;
+
+    // al-runner issue 8539: the compiler rejects 18 words as the first unquoted name of a variable declaration (Actions, Area,
+    // ChartPart, CueGroup, Event, Extends, False, FieldAttribute, FieldElement, FieldGroups, Key, PageExtension, ProfileExtension,
+    // TableElement, TableExtension, TextAttribute, TextElement, True): must-not-compile cases 3222-3277. With an attribute such as
+    // [NonDebuggable] in front of the declaration, 15 of them (not Event, True, False) compile as variable names, in a procedure and
+    // in a global var section; and after a comma (Other, Local) the word Local compiles. These tests pin the shapes that compile.
+    // Measured with the AL compilers of BC 27.4, 28.5 and 29.1.
+
+    [Test]
+    procedure KeywordVar_NonDebuggableKey_ProcedureVar_HoldsValue()
+    var
+        [NonDebuggable]
+        Key: Text;
+        Observer: Codeunit "Probe Observer";
+    begin
+        "Key" := 'key value';
+        Observer.Observe('key', "Key");
+        Observer.Expect('key', 'key value');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure KeywordVar_NonDebuggableArea_ProcedureVar_HoldsValue()
+    var
+        [NonDebuggable]
+        Area: Text;
+        Observer: Codeunit "Probe Observer";
+    begin
+        "Area" := 'area value';
+        Observer.Observe('area', "Area");
+        Observer.Expect('area', 'area value');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure KeywordVar_NonDebuggableTextElement_ProcedureVar_HoldsValue()
+    var
+        [NonDebuggable]
+        TextElement: Text;
+        Observer: Codeunit "Probe Observer";
+    begin
+        "TextElement" := 'text element value';
+        Observer.Observe('text element', "TextElement");
+        Observer.Expect('text element', 'text element value');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure KeywordVar_NonDebuggableKey_GlobalVar_HoldsValue()
+    var
+        Globals: Codeunit "LANG KeywordVar Globals";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Globals.SetKey('global key value');
+        Observer.Observe('global key', Globals.GetKey());
+        Observer.Expect('global key', 'global key value');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure KeywordVar_LocalAfterComma_ProcedureVar_HoldsValue()
+    var
+        Other, Local: Integer;
+        Observer: Codeunit "Probe Observer";
+    begin
+        Other := 40;
+        "Local" := 2;
+        Observer.Observe('other plus local', Format(Other + "Local"));
+        Observer.Expect('other plus local', '42');
+        Observer.Verify();
+    end;
+}
+
+// local object: its global var section, a [NonDebuggable] variable named Key, is what KeywordVar_NonDebuggableKey_GlobalVar_HoldsValue checks
+codeunit 83880 "LANG KeywordVar Globals"
+{
+    var
+        [NonDebuggable]
+        Key: Text;
+
+    procedure SetKey(Value: Text)
+    begin
+        "Key" := Value;
+    end;
+
+    procedure GetKey(): Text
+    begin
+        exit("Key");
     end;
 }
