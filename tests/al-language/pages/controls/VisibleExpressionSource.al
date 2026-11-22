@@ -7,11 +7,13 @@
 //   - BC 29: a control whose source is an expression (Rec.Amount + 1), a page variable or a constant, and whose Visible
 //     expression names a field of the source record (Rec.Amount > 0, Rec.Amount < 0, Rec.Flag, Amount > 0, ShowIt and
 //     (Rec.Amount >= 0), the primary key Rec.Id > 0): the TestPage reads Yes, whatever the row holds, also when another
-//     control binds that field, after OpenEdit, OpenView and OpenNew, a Trap of Page.Run and in a ModalPageHandler.
+//     control binds that field, after OpenEdit, OpenView and OpenNew, a Trap of Page.Run and in a ModalPageHandler (of a
+//     Page.RunModal statement, with a field argument, through the table's lookup page, and with its return value used).
 //   - BC 27 and 28: opening a TestPage of a page with such a control (OpenEdit, OpenView, OpenNew) raises "The identifier
 //     '<field>' could not be found." (code Expression:Argument), naming the first field that the Visible of the first such
 //     control names, after OnOpenPage and before OnAfterGetRecord; a control bound to a field before it does not count, and
-//     another control binding the field changes nothing. Page.Run of a trapped page raises it too.
+//     another control binding the field changes nothing. Page.Run of a trapped page raises it too, and each modal route
+//     raises it before its handler runs. With no handler, every version gives Unhandled UI first.
 //   - A control bound to a field of the source record, or whose Visible expression names no field (a page variable, 1 = 0):
 //     the TestPage reads the value the expression had when the page opened, before its first row (No for Rec.Amount > 0 and
 //     for a variable that OnAfterGetRecord sets).
@@ -496,6 +498,53 @@ codeunit 75704 "PGC Visible Source Tests"
         Observer.Expect('AmountPlusOne visible in handler', 'Yes');
         Observer.Verify();
     end;
+    [Test]
+    [HandlerFunctions('ReadVisibleModalHandler')]
+    procedure VisibleSource_ModalFieldArgument_ReadsYes()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Visible Source Row";
+    begin
+        Initialize();
+        InsertRow(Row);
+        ModalVisible := 'not run';
+        Page.RunModal(Page::"PGC Visible Expr Source", Row, Row.FieldNo(Amount));
+        Observer.Observe('field argument visible in handler', ModalVisible);
+        Observer.Expect('field argument visible in handler', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    [HandlerFunctions('ReadLookupVisibleHandler')]
+    procedure VisibleSource_ModalTableLookupPage_ReadsYes()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Visible Lookup Row";
+    begin
+        InitializeLookup(Row);
+        ModalVisible := 'not run';
+        Page.RunModal(0, Row);
+        Observer.Observe('table lookup page visible in handler', ModalVisible);
+        Observer.Expect('table lookup page visible in handler', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    [HandlerFunctions('ReadVisibleModalHandler')]
+    procedure VisibleSource_ModalReturnUsed_ReadsYes()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Visible Source Row";
+    begin
+        Initialize();
+        InsertRow(Row);
+        ModalVisible := 'not run';
+        Observer.Observe('return used action', Format(Page.RunModal(Page::"PGC Visible Expr Source", Row)));
+        Observer.Observe('return used visible in handler', ModalVisible);
+        Observer.Expect('return used action', 'LookupCancel');
+        Observer.Expect('return used visible in handler', 'Yes');
+        Observer.Verify();
+    end;
 #else
     // BC 27 and 28: opening a TestPage of a page with such a control raises "The identifier '<field>' could not be found."
     // (code Expression:Argument) in OpenEdit, OpenView and OpenNew, naming the first field the Visible of the first such
@@ -578,6 +627,9 @@ codeunit 75704 "PGC Visible Source Tests"
         Observer.Verify();
     end;
 
+    // BC 27 and 28 (round 2, observe run 45063694119): a ModalPageHandler with a field argument, through the table's lookup
+    // page (Page.RunModal(0, Rec)) and with the return value used raise "The identifier 'Amount' could not be found." at the
+    // modal open too, before the handler runs; a test cannot hold that, since the handler never runs.
     [Test]
     procedure VisibleSource_ExpressionSourceNamingRecField_Before29_ErrorBeforeOnAfterGetRecord()
     var
@@ -618,55 +670,9 @@ codeunit 75704 "PGC Visible Source Tests"
         Observer.Verify();
     end;
 
-    // Observed (Finish), round 2 (al-runner PR 8667 follow-up): a static Page.RunModal with a field argument, Page.RunModal(0,
-    // Rec) through the table's LookupPageId, and a RunModal whose return value is used, each with a ModalPageHandler that reads
-    // the Visible; and each modal shape with no handler under asserterror, for the error the open gives.
+    // Every version: with no handler, each modal shape fails with the test framework's Unhandled UI error first.
     [Test]
-    [HandlerFunctions('ReadVisibleModalHandler')]
-    procedure VisibleSource_Round2_ModalFieldArgument_Observe()
-    var
-        Observer: Codeunit "Probe Observer";
-        Row: Record "PGC Visible Source Row";
-    begin
-        Initialize();
-        InsertRow(Row);
-        ModalVisible := 'not run';
-        Page.RunModal(Page::"PGC Visible Expr Source", Row, Row.FieldNo(Amount));
-        Observer.Observe('field argument visible in handler', ModalVisible);
-        Observer.Finish();
-    end;
-
-    [Test]
-    [HandlerFunctions('ReadLookupVisibleHandler')]
-    procedure VisibleSource_Round2_ModalTableLookupPage_Observe()
-    var
-        Observer: Codeunit "Probe Observer";
-        Row: Record "PGC Visible Lookup Row";
-    begin
-        InitializeLookup(Row);
-        ModalVisible := 'not run';
-        Page.RunModal(0, Row);
-        Observer.Observe('table lookup page visible in handler', ModalVisible);
-        Observer.Finish();
-    end;
-
-    [Test]
-    [HandlerFunctions('ReadVisibleModalHandler')]
-    procedure VisibleSource_Round2_ModalReturnUsed_Observe()
-    var
-        Observer: Codeunit "Probe Observer";
-        Row: Record "PGC Visible Source Row";
-    begin
-        Initialize();
-        InsertRow(Row);
-        ModalVisible := 'not run';
-        Observer.Observe('return used action', Format(Page.RunModal(Page::"PGC Visible Expr Source", Row)));
-        Observer.Observe('return used visible in handler', ModalVisible);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure VisibleSource_Round2_ModalNoHandler_Observe()
+    procedure VisibleSource_ModalNoHandler_UnhandledUi()
     var
         Observer: Codeunit "Probe Observer";
         Row: Record "PGC Visible Source Row";
@@ -681,7 +687,13 @@ codeunit 75704 "PGC Visible Source Tests"
         InitializeLookup(LookupRow);
         asserterror Page.RunModal(0, LookupRow);
         Observer.ObserveError('modal table lookup page no handler');
-        Observer.Finish();
+        Observer.Expect('modal no handler|text', 'Unhandled UI: ModalPage 75701');
+        Observer.Expect('modal no handler|code', 'MissingUIHandler');
+        Observer.Expect('modal field argument no handler|text', 'Unhandled UI: ModalPage 75701');
+        Observer.Expect('modal field argument no handler|code', 'MissingUIHandler');
+        Observer.Expect('modal table lookup page no handler|text', 'Unhandled UI: ModalPage 75712');
+        Observer.Expect('modal table lookup page no handler|code', 'MissingUIHandler');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]
