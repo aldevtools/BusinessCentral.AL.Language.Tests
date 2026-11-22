@@ -200,6 +200,7 @@ codeunit 99473 "LT AZ Lek Tests"
     var
         Observer: Codeunit "Probe Observer";
         Exc: DotNet LtAzExc;
+        PlatformBuild: Codeunit "ALT Platform Build";
     begin
         RunMode(2, Exc, Observer, 'deep');
         Observer.Observe('deep_tostring', Exc.ToString());
@@ -208,11 +209,14 @@ codeunit 99473 "LT AZ Lek Tests"
         Observer.Expect('deep_text', 'LT AZ deep error');
         Observer.Expect('deep_class', 'Microsoft.Dynamics.Nav.Types.Exceptions.NavNCLDialogException');
         Observer.Expect('deep_message', 'LT AZ deep error');
-        // BC 29 adds the ValueTaskExtensions frame between the two codeunits; BC 27.5 and 28.5 do not.
+        // BC 29 and the .NET 10 builds of 27.5 and 28.5 add the ValueTaskExtensions frame between the two codeunits; the .NET 8 builds do not.
 #if BC29PLUS
         Observer.Expect('deep_tostring', 'Microsoft.Dynamics.Nav.Types.Exceptions.NavNCLDialogException: LT AZ deep error\n   at Microsoft.Dynamics.Nav.BusinessApplication.Codeunit99471.Raise()\n   at Microsoft.Dynamics.Nav.Types.ValueTaskExtensions.ManualResetValueTaskSource`1.GetResult(Int16 token)\n   at Microsoft.Dynamics.Nav.BusinessApplication.Codeunit99472.OnRunAsync(INavRecordHandle εrec)\n   at Microsoft.Dynamics.Nav.Runtime.NavCodeunit.DoRunAsync(DataError errorLevel, NavRecord record)');
 #else
-        Observer.Expect('deep_tostring', 'Microsoft.Dynamics.Nav.Types.Exceptions.NavNCLDialogException: LT AZ deep error\n   at Microsoft.Dynamics.Nav.BusinessApplication.Codeunit99471.Raise()\n   at Microsoft.Dynamics.Nav.BusinessApplication.Codeunit99472.OnRunAsync(INavRecordHandle εrec)\n   at Microsoft.Dynamics.Nav.Runtime.NavCodeunit.DoRunAsync(DataError errorLevel, NavRecord record)');
+        if PlatformBuild.IsNet10Build() then
+            Observer.Expect('deep_tostring', 'Microsoft.Dynamics.Nav.Types.Exceptions.NavNCLDialogException: LT AZ deep error\n   at Microsoft.Dynamics.Nav.BusinessApplication.Codeunit99471.Raise()\n   at Microsoft.Dynamics.Nav.Types.ValueTaskExtensions.ManualResetValueTaskSource`1.GetResult(Int16 token)\n   at Microsoft.Dynamics.Nav.BusinessApplication.Codeunit99472.OnRunAsync(INavRecordHandle εrec)\n   at Microsoft.Dynamics.Nav.Runtime.NavCodeunit.DoRunAsync(DataError errorLevel, NavRecord record)')
+        else
+            Observer.Expect('deep_tostring', 'Microsoft.Dynamics.Nav.Types.Exceptions.NavNCLDialogException: LT AZ deep error\n   at Microsoft.Dynamics.Nav.BusinessApplication.Codeunit99471.Raise()\n   at Microsoft.Dynamics.Nav.BusinessApplication.Codeunit99472.OnRunAsync(INavRecordHandle εrec)\n   at Microsoft.Dynamics.Nav.Runtime.NavCodeunit.DoRunAsync(DataError errorLevel, NavRecord record)');
 #endif
         Observer.Verify();
     end;
