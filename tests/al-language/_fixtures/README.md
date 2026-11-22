@@ -19,6 +19,7 @@ A new topic gets a line here in the same pull request (standing rule 8 in CONTRI
 ## Objects
 
 - codeunit 50302 "LT UR Install Low"
+- codeunit 50997 "ALT Platform Build" (tells the .NET 8 and .NET 10 builds of BC 27.5 and 28.5 apart at run time)
 - codeunit 60014 "ALT Event Publisher"
 - codeunit 60015 "ALT Event Subscriber"
 - codeunit 60016 "ALT Table Event Subscriber"

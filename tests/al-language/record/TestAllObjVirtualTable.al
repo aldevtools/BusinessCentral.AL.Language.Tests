@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-table-object
 // Scope: in-scope
-// Fixtures used: ALT Relation Parent (60028), ALT Relation Parent B (60030),
+// Fixtures used: ALT Relation Parent (60028), ALT Relation Child (60029), ALT Relation Parent B (60030),
 //                ALT Event Mutation Control (codeunit 60030), ALT Captioned (60830),
 //                ALT Card Page (60017), ALT List Page (60016),
 //                ALT Profile RC SameApp (page 60904), Install Seeder (codeunit 60618),
@@ -12,7 +12,9 @@
 //                EEM Status Ext (enumextension 60881 over EEM Status 60880),
 //                TP CurrFieldNo Job Ext (tableextension 60390 over Job),
 //                Spaced Action Base Ext (pageextension 60245 over Item Attribute Values),
-//                TP Precompiled Capture Ext (pageextension 60735 over Item Attribute)
+//                TP Precompiled Capture Ext (pageextension 60735 over Item Attribute),
+//                ALT Separator Captioned (60026), ALT Global Trigger Sub (codeunit 60025),
+//                ALT Event Mutation Sub (codeunit 60031)
 // BC versions: 27.5+
 //
 // Pins the built-in "AllObj" (2000000038) and "AllObjWithCaption" (2000000058) system
@@ -187,13 +189,22 @@ codeunit 60802 "Test AllObj Virtual Table"
         Initialize();
 
         // Tables 60028, 60029 and 60030 are three consecutive fixture tables, so the count is
-        // a concrete number rather than "more than zero".
+        // a concrete number rather than "more than zero". The name filter lists the objects the
+        // counts are about, so an object that another file adds in 60028..60030 does not change
+        // them (CONTRIBUTING.md, standing rule 10). It also lists, per object type, one object
+        // below and one above the range: tables ALT Separator Captioned (60026) and ALT Captioned
+        // (60830), codeunits ALT Global Trigger Sub (60025) and ALT Event Mutation Sub (60031).
+        // The counts 3 and 1 hold only when the range excludes those rows on both sides.
+        AllObj.SetFilter(
+            "Object Name", '%1|%2|%3|%4|%5|%6|%7|%8',
+            'ALT Relation Parent', 'ALT Relation Child', 'ALT Relation Parent B', 'ALT Event Mutation Control',
+            'ALT Separator Captioned', 'ALT Captioned', 'ALT Global Trigger Sub', 'ALT Event Mutation Sub');
         AllObj.SetRange("Object Type", AllObj."Object Type"::Table);
         AllObj.SetRange("Object ID", 60028, 60030);
         Assert.AreEqual(3, AllObj.Count(), 'The Table rows for object ids 60028..60030 are exactly three.');
 
-        // The same id range under Object Type::Codeunit selects only 60030, the one codeunit
-        // in that span -- so the Object Type half of the filter is doing work.
+        // The same id range under Object Type::Codeunit selects only 60030: the listed codeunits
+        // 60025 and 60031 lie outside the range -- and the Object Type half of the filter is doing work.
         AllObj.SetRange("Object Type", AllObj."Object Type"::Codeunit);
         Assert.AreEqual(1, AllObj.Count(), 'Exactly one codeunit is declared in the id range 60028..60030.');
         Assert.IsTrue(AllObj.FindFirst(), 'FindFirst must succeed for the one codeunit in the range.');
@@ -201,7 +212,9 @@ codeunit 60802 "Test AllObj Virtual Table"
             'ALT Event Mutation Control', AllObj."Object Name",
             'The one codeunit in the id range 60028..60030 is ALT Event Mutation Control.');
 
-        // And a range no object of that type occupies selects nothing.
+        // And a range no object of that type occupies selects nothing. No app may declare an id
+        // there, so this range needs no name filter.
+        AllObj.SetRange("Object Name");
         AllObj.SetRange("Object ID", 99999998, 99999999);
         Assert.AreEqual(0, AllObj.Count(), 'A range no object occupies must select no rows.');
         Assert.IsTrue(AllObj.IsEmpty(), 'IsEmpty must be true for a range no object occupies.');

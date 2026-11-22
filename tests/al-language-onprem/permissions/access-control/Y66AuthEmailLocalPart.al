@@ -87,9 +87,13 @@ codeunit 98720 "LT Y66 Auth Email Local Part"
         Observer.Verify();
     end;
 
-    // BC 29 refuses two addresses BC 27 and 28 accept: a..b@example.com and a@example..com (CI OnPrem legs).
+    // BC 29 refuses two addresses the .NET 8 builds of BC 27.5 and 28.5 accept: a..b@example.com and a@example..com (CI OnPrem legs). The
+    // .NET 10 builds of 27.5 and 28.5 refuse a..b@example.com too (corpus CI and Windows nightly, 2026-11-17; only the first mismatch is
+    // reported, so a@example..com on those builds is measured by the CI run of this change).
     [Test]
     procedure Y66_AuthEmail_VersionDependent()
+    var
+        PlatformBuild: Codeunit "ALT Platform Build";
     begin
         Cleanup();
         Probe(7, 'a..b@example.com');
@@ -106,7 +110,10 @@ codeunit 98720 "LT Y66 Auth Email Local Part"
 #if BC29PLUS
         Observer.Expect('7 a..b@example.com', 'E You must specify a valid email address.|CannotSpecifyAuthenticationEmail');
 #else
-        Observer.Expect('7 a..b@example.com', 'ok|a..b@example.com');
+        if PlatformBuild.IsNet10Build() then
+            Observer.Expect('7 a..b@example.com', 'E You must specify a valid email address.|CannotSpecifyAuthenticationEmail')
+        else
+            Observer.Expect('7 a..b@example.com', 'ok|a..b@example.com');
 #endif
         Observer.Expect('8 .a@example.com', 'E You must specify a valid email address.|CannotSpecifyAuthenticationEmail');
         Observer.Expect('9 a.@example.com', 'ok|a.@example.com');
@@ -118,7 +125,10 @@ codeunit 98720 "LT Y66 Auth Email Local Part"
 #if BC29PLUS
         Observer.Expect('28 a@example..com', 'E You must specify a valid email address.|CannotSpecifyAuthenticationEmail');
 #else
-        Observer.Expect('28 a@example..com', 'ok|a@example..com');
+        if PlatformBuild.IsNet10Build() then
+            Observer.Expect('28 a@example..com', 'E You must specify a valid email address.|CannotSpecifyAuthenticationEmail')
+        else
+            Observer.Expect('28 a@example..com', 'ok|a@example..com');
 #endif
         Observer.Expect('29 a@exämple.com', 'ok|a@exämple.com');
         Observer.Verify();

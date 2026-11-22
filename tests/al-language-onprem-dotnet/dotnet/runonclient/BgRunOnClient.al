@@ -424,6 +424,7 @@ codeunit 99490 "LT BG RunOnClient"
     var
         Observer: Codeunit "Probe Observer";
         Step: Text;
+        PlatformBuild: Codeunit "ALT Platform Build";
     begin
         Step := 'untouched';
         if Y16TryServerToClient(Step) then
@@ -443,7 +444,10 @@ codeunit 99490 "LT BG RunOnClient"
 #if BC29PLUS
         Observer.Expect('server to client|text', 'Cannot serialize an instance of the following .NET Framework object: assembly System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e, type System.Text.StringBuilder.');
 #else
-        Observer.Expect('server to client|text', 'Cannot serialize an instance of the following .NET Framework object: assembly System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e, type System.Text.StringBuilder.');
+        if PlatformBuild.IsNet10Build() then
+            Observer.Expect('server to client|text', 'Cannot serialize an instance of the following .NET Framework object: assembly System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e, type System.Text.StringBuilder.')
+        else
+            Observer.Expect('server to client|text', 'Cannot serialize an instance of the following .NET Framework object: assembly System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e, type System.Text.StringBuilder.');
 #endif
         Observer.Expect('server to client|code', 'DotNetCreate');
         Observer.Expect('client to server', 'ok [assigned isnull=Yes]');
