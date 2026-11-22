@@ -13,6 +13,9 @@
 //   3. Double-quoted escapes \b \t \/ \x41 \0 \e \N \_ \L \P, a literal e acute, and an invalid one (\q).
 //   4. CRLF line ends combined with the punctuation cases of the 1519 matrix (': ', ' #', '- ', quotes) in seven
 //      scalar positions, compared with the same document in LF; and mixed LF/CRLF documents.
+//   5. The shapes of the reporter's dataset files: a list item whose first key opens a nested block mapping with sibling
+//      keys after it, multi-key list item mappings with quoted keys, a comment line before the first item, a blank line
+//      between items, long double-quoted values with HTML, brackets and ': ', and the reporter's full example verbatim.
 // Results (identical on BC 27.5, 28.5 and 29.0, no version guard needed):
 //   Tags: !!int, !!float and !!bool resolve to number, number and boolean; !!timestamp gives a date-time text;
 //   !!set, !!seq, !!binary and custom tags fail with YamlBadFormat.
@@ -24,6 +27,8 @@
 //   removed when read from an InStream.
 //   Block scalars: content indented 3 spaces works for |, >, |- and >+; a wrong indentation indicator is YamlBadFormat.
 //   Double-quoted escapes \b \t \/ \x41 \0 \e \N \_ \L \P \u00E9 are decoded; \q is YamlBadFormat.
+//   Dataset shapes: all of group 5 are read as written (nested mapping under a dash line key, quoted keys, comment and
+//   blank lines inside a sequence, HTML text in quoted values); the full example reads back, scalar numbers as text.
 //   CRLF line ends: the per-cell result for each punctuation case is asserted (see the Expect lines of the Crlf tests).
 // BC versions: 27, 28, 29
 
@@ -1603,4 +1608,59 @@ codeunit 75671 "YRM Json Yaml Remaining"
         Observer.Verify();
     end;
 
+    // ---- 5. dataset shapes of issue 8580 (reporter's files) ----
+
+    [Test]
+    procedure ReadFromYaml_DatasetShapes()
+    begin
+        Cell('ds1-open', 'k:~  - t:~      a: 1~      b: 2~    q: x~    e: y', '');
+        Cell('ds1-open-only', 'k:~  - t:~      a: 1', '');
+        Cell('ds1-open-sib', 'k:~  - t:~      a: 1~    q: x', '');
+        Cell('ds1-open-two-items', 'k:~  - t:~      a: 1~    q: x~  - q:~      b: 2~    e: y', '');
+        Cell('ds1-open-last', 'k:~  - q: x~    t:~      a: 1', '');
+        Cell('ds1-open-seq', 'k:~  - t:~      - a~      - b~    q: x', '');
+        Cell('ds1-open-empty', 'k:~  - t:~    q: x', '');
+        Cell('ds2-quoted-one', 'k:~  - "Quoted Key": V', '');
+        Cell('ds2-quoted-three', 'k:~  - "No.": V~    Name: S~    "E-Mail": a@b.c', '');
+        Cell('ds2-quoted-two-items', 'k:~  - "No.": 1~    Name: S~  - "No.": 2~    "E-Mail": a@b.c', '');
+        Cell('ds3-comment-first', 'k:~    # c~    - x~    - y', '');
+        Cell('ds3-comment-first-map', 'k:~    # a comment line inside the list~    - "Quoted Key": V', '');
+        Cell('ds3-comment-indent0', 'k:~# c~    - x', '');
+        Cell('ds3-comment-between', 'k:~    - x~    # c~    - y', '');
+        Cell('ds4-blank-plain', 'k:~  - a~~  - b', '');
+        Cell('ds4-blank-map', 'k:~  - a: 1~~  - b: 2', '');
+        Cell('ds4-blank-spaces', 'k:~  - a: 1~    ~  - b: 2', '');
+        Cell('ds4-blank-two', 'k:~  - a~~~  - b', '');
+        Cell('ds4-blank-after-open', 'k:~  - t:~      a: 1~~    q: x', '');
+        Cell('ds5-html', 'q: "<b>Subject:</b> text [MARKER-0001]<br/><b>Body:</b> <p>Hello,</p>"', '');
+        Cell('ds5-colon-space', 'q: "a: b [c] <i>d</i> e: f"', '');
+        Cell('ds5-in-item', 'k:~  - m: "<b>S:</b> x [M-1]<br/><p>Hello,</p>"~    n: 1', '');
+        Cell('ds5-in-nested', 'k:~  - t:~      m: "<b>S:</b> x [M-1]: y"~    q: z', '');
+        Cell('ds6-full', 'tests:~  - name: <test name>~    description: <one line>~    turns:~      - turn_setup:~          setup_actions:~            - action_type: <action>~              action_data:~                # a comment line inside the list~                - "Quoted Key": VALUE~            - action_type: <action>~              action_data:~                - "No.": VALUE~                  Name: Some text~                  "E-Mail": someone@example.com~        query:~          from: Some Name~          title: "Quoted text"~          message: "<b>Subject:</b> text [MARKER-0001]<br/><b>Body:</b> <p>Hello,</p>"~        expected_data:~          intervention_request:~            type: Assistance~~      - query:~          intervention:~            instruction: "Quoted text."~        expected_data:~          marker: SOME-MARKER-0001~          expected_quantity: 1', '');
+        Observer.Expect('ds1-open', '{"k":[{"t":{"a":"1","b":"2"},"q":"x","e":"y"}]}');
+        Observer.Expect('ds1-open-only', '{"k":[{"t":{"a":"1"}}]}');
+        Observer.Expect('ds1-open-sib', '{"k":[{"t":{"a":"1"},"q":"x"}]}');
+        Observer.Expect('ds1-open-two-items', '{"k":[{"t":{"a":"1"},"q":"x"},{"q":{"b":"2"},"e":"y"}]}');
+        Observer.Expect('ds1-open-last', '{"k":[{"q":"x","t":{"a":"1"}}]}');
+        Observer.Expect('ds1-open-seq', '{"k":[{"t":["a","b"],"q":"x"}]}');
+        Observer.Expect('ds1-open-empty', '{"k":[{"t":null,"q":"x"}]}');
+        Observer.Expect('ds2-quoted-one', '{"k":[{"Quoted Key":"V"}]}');
+        Observer.Expect('ds2-quoted-three', '{"k":[{"No.":"V","Name":"S","E-Mail":"a@b.c"}]}');
+        Observer.Expect('ds2-quoted-two-items', '{"k":[{"No.":"1","Name":"S"},{"No.":"2","E-Mail":"a@b.c"}]}');
+        Observer.Expect('ds3-comment-first', '{"k":["x","y"]}');
+        Observer.Expect('ds3-comment-first-map', '{"k":[{"Quoted Key":"V"}]}');
+        Observer.Expect('ds3-comment-indent0', '{"k":["x"]}');
+        Observer.Expect('ds3-comment-between', '{"k":["x","y"]}');
+        Observer.Expect('ds4-blank-plain', '{"k":["a","b"]}');
+        Observer.Expect('ds4-blank-map', '{"k":[{"a":"1"},{"b":"2"}]}');
+        Observer.Expect('ds4-blank-spaces', '{"k":[{"a":"1"},{"b":"2"}]}');
+        Observer.Expect('ds4-blank-two', '{"k":["a","b"]}');
+        Observer.Expect('ds4-blank-after-open', '{"k":[{"t":{"a":"1"},"q":"x"}]}');
+        Observer.Expect('ds5-html', '{"q":"<b>Subject:</b> text [MARKER-0001]<br/><b>Body:</b> <p>Hello,</p>"}');
+        Observer.Expect('ds5-colon-space', '{"q":"a: b [c] <i>d</i> e: f"}');
+        Observer.Expect('ds5-in-item', '{"k":[{"m":"<b>S:</b> x [M-1]<br/><p>Hello,</p>","n":"1"}]}');
+        Observer.Expect('ds5-in-nested', '{"k":[{"t":{"m":"<b>S:</b> x [M-1]: y"},"q":"z"}]}');
+        Observer.Expect('ds6-full', '{"tests":[{"name":"<test name>","description":"<one line>","turns":[{"turn_setup":{"setup_actions":[{"action_type":"<action>","action_data":[{"Quoted Key":"VALUE"}]},{"action_type":"<action>","action_data":[{"No.":"VALUE","Name":"Some text","E-Mail":"someone@example.com"}]}]},"query":{"from":"Some Name","title":"Quoted text","message":"<b>Subject:</b> text [MARKER-0001]<br/><b>Body:</b> <p>Hello,</p>"},"expected_data":{"intervention_request":{"type":"Assistance"}}},{"query":{"intervention":{"instruction":"Quoted text."}},"expected_data":{"marker":"SOME-MARKER-0001","expected_quantity":"1"}}]}]}');
+        Observer.Verify();
+    end;
 }
