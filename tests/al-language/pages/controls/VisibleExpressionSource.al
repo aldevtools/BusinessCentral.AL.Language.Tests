@@ -4,9 +4,11 @@
 // Probe (al-runner issue 8660): the Visible state a TestPage reads for a field control whose Visible expression names a field
 //   of the source record, by what the control's source is.
 // Facts:
-//   - A control whose source is an expression (Rec.Amount + 1), a page variable or a constant, and whose Visible expression
-//     names a field of the source record (Rec.Amount > 0, Rec.Amount < 0, Rec.Flag, Amount > 0, ShowIt and (Rec.Amount >= 0)):
-//     the TestPage reads Yes, whatever the row holds.
+//   - BC 29: a control whose source is an expression (Rec.Amount + 1), a page variable or a constant, and whose Visible
+//     expression names a field of the source record (Rec.Amount > 0, Rec.Amount < 0, Rec.Flag, Amount > 0, ShowIt and
+//     (Rec.Amount >= 0)): the TestPage reads Yes, whatever the row holds.
+//   - BC 27 and 28: a TestPage of a page with such a control raises "The identifier 'Amount' could not be found." (the BC
+//     27.5 CI of this file); the tests under `#if not BC29PLUS` pin the step that raises it.
 //   - A control bound to a field of the source record, or whose Visible expression names no field (a page variable, 1 = 0):
 //     the TestPage reads the value the expression had when the page opened, before its first row (No for Rec.Amount > 0 and
 //     for a variable that OnAfterGetRecord sets).
@@ -147,6 +149,7 @@ codeunit 75704 "PGC Visible Source Tests"
     Subtype = Test;
     TestPermissions = Disabled;
 
+#if BC29PLUS
     [Test]
     procedure VisibleSource_ExpressionSourceNamingRecField_ReadsYes()
     var
@@ -190,6 +193,75 @@ codeunit 75704 "PGC Visible Source Tests"
         Observer.Expect('ConstSource visible', 'Yes');
         Observer.Verify();
     end;
+#else
+    // BC 27 and 28: which step of a TestPage of page 75701 raises "The identifier 'Amount' could not be found.", one step per
+    // test (the steps before it run plain).
+    [Test]
+    procedure VisibleSource_ExpressionSourceNamingRecField_Before29_OpenEdit()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Visible Source Row";
+        Card: TestPage "PGC Visible Expr Source";
+    begin
+        Initialize();
+        InsertRow(Row);
+        asserterror Card.OpenEdit();
+        Observer.Observe('open error', GetLastErrorText());
+        Observer.Expect('open error', IdentifierNotFoundTxt);
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure VisibleSource_ExpressionSourceNamingRecField_Before29_GoToRecord()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Visible Source Row";
+        Card: TestPage "PGC Visible Expr Source";
+    begin
+        Initialize();
+        InsertRow(Row);
+        Card.OpenEdit();
+        asserterror Card.GoToRecord(Row);
+        Observer.Observe('goto error', GetLastErrorText());
+        Observer.Expect('goto error', IdentifierNotFoundTxt);
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure VisibleSource_ExpressionSourceNamingRecField_Before29_VisibleRead()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Visible Source Row";
+        Card: TestPage "PGC Visible Expr Source";
+        Shown: Boolean;
+    begin
+        Initialize();
+        InsertRow(Row);
+        Card.OpenEdit();
+        Card.GoToRecord(Row);
+        asserterror Shown := Card.AmountPlusOne.Visible();
+        Observer.Observe('visible error', GetLastErrorText());
+        Observer.Expect('visible error', IdentifierNotFoundTxt);
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure VisibleSource_ExpressionSourceNamingRecField_Before29_CloseWithoutRead()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Visible Source Row";
+        Card: TestPage "PGC Visible Expr Source";
+    begin
+        Initialize();
+        InsertRow(Row);
+        Card.OpenEdit();
+        Card.GoToRecord(Row);
+        asserterror Card.Close();
+        Observer.Observe('close error', GetLastErrorText());
+        Observer.Expect('close error', IdentifierNotFoundTxt);
+        Observer.Verify();
+    end;
+#endif
 
     [Test]
     procedure VisibleSource_FieldSourceOrNoRecField_ReadsOpenTimeValue()
@@ -228,4 +300,7 @@ codeunit 75704 "PGC Visible Source Tests"
     begin
         Row.DeleteAll();
     end;
+
+    var
+        IdentifierNotFoundTxt: Label 'The identifier ''Amount'' could not be found.', Locked = true;
 }
