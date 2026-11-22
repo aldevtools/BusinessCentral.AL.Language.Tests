@@ -66,14 +66,15 @@ codeunit 75621 "YU8 Json Yaml Utf8"
     end;
 
     // Src tokens: '~' line feed, '^' carriage return + line feed, {S} U+00A7, {E} U+00E9, {U} U+00FC, {O} U+00F8, {R} U+20AC,
-    // {M} U+1F600 (surrogate pair), {C} 'e' + U+0301, {A} U+00A0, {N} U+0085, {L} U+2028, {P} U+2029, {B} U+FEFF, {K} U+0080.
+    // {M} U+1F600 (surrogate pair), {C} 'e' + U+0301, {A} U+00A0, {N} U+0085, {L} U+2028, {P} U+2029, {B} U+FEFF, {K} U+0080,
+    // {\} a backslash (Chr(92); the YAML escapes are built with it, so that no tool on the way unescapes them before YAML does).
     local procedure Doc(Src: Text): Text
     begin
         Src := Src.Replace('^', Chr(13) + Chr(10)).Replace('~', Chr(10));
         Src := Src.Replace('{S}', Chr(167)).Replace('{E}', Chr(233)).Replace('{U}', Chr(252)).Replace('{O}', Chr(248));
         Src := Src.Replace('{R}', Chr(8364)).Replace('{M}', Chr(55357) + Chr(56832)).Replace('{C}', 'e' + Chr(769));
         Src := Src.Replace('{A}', Chr(160)).Replace('{N}', Chr(133)).Replace('{L}', Chr(8232)).Replace('{P}', Chr(8233));
-        Src := Src.Replace('{B}', Chr(65279)).Replace('{K}', Chr(128));
+        Src := Src.Replace('{B}', Chr(65279)).Replace('{K}', Chr(128)).Replace('{\}', Chr(92));
         exit(Src);
     end;
 
@@ -289,25 +290,26 @@ codeunit 75621 "YU8 Json Yaml Utf8"
     [Test]
     procedure ReadFromYaml_Utf8DoubleQuotedEscapes_Read()
     begin
-        Cell('u-upper', 'q: "a§b"', 0, 'a{S}b');
-        Cell('u-lower', 'q: "aéb"', 0, 'a{E}b');
-        Cell('x', 'q: "a\xA7b"', 0, 'a{S}b');
-        Cell('u-euro', 'q: "a€b"', 0, 'a{R}b');
-        Cell('U-emoji', 'q: "a\U0001F600b"', 0, 'a{M}b');
-        Cell('u-pair', 'q: "a😀b"', 0, 'a{M}b');
-        Cell('u-comb', 'q: "aéb"', 0, 'a{C}b');
+        Cell('u-upper', 'q: "a{\}u00A7b"', 0, 'a{S}b');
+        Cell('u-lower', 'q: "a{\}u00e9b"', 0, 'a{E}b');
+        Cell('x', 'q: "a{\}xA7b"', 0, 'a{S}b');
+        Cell('u-euro', 'q: "a{\}u20ACb"', 0, 'a{R}b');
+        Cell('U-emoji', 'q: "a{\}U0001F600b"', 0, 'a{M}b');
+        Cell('u-pair', 'q: "a{\}uD83D{\}uDE00b"', 0, 'a{M}b');
+        Cell('u-comb', 'q: "ae{\}u0301b"', 0, 'a{C}b');
         Observer.Finish();
     end;
 
     [Test]
     procedure ReadFromYaml_Utf8DoubleQuotedNamedEscapes_Read()
     begin
-        Cell('N', 'q: "a\Nb"', 0, 'a{N}b');
-        Cell('nbsp', 'q: "a\_b"', 0, 'a{A}b');
-        Cell('L', 'q: "a\Lb"', 0, 'a{L}b');
-        Cell('P', 'q: "a\Pb"', 0, 'a{P}b');
-        Cell('sq-literal', 'q: ''a§b''', 0, 'a§b');
-        Cell('plain-literal', 'q: a§b', 0, 'a§b');
+        Cell('N', 'q: "a{\}Nb"', 0, 'a{N}b');
+        Cell('nbsp', 'q: "a{\}_b"', 0, 'a{A}b');
+        Cell('L', 'q: "a{\}Lb"', 0, 'a{L}b');
+        Cell('P', 'q: "a{\}Pb"', 0, 'a{P}b');
+        Cell('sq-literal', 'q: ''a{\}u00A7b''', 0, 'a{\}u00A7b');
+        Cell('plain-literal', 'q: a{\}u00A7b', 0, 'a{\}u00A7b');
+        Cell('folded-literal', 'q: >-~  a{\}u00A7b~n: 1', 0, 'a{\}u00A7b');
         Observer.Finish();
     end;
 
