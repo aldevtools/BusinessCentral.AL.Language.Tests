@@ -85,13 +85,8 @@ codeunit 98064 "LT HtT Handler Response Shapes"
                 end;
             6:
                 begin
-                    Request.GetHeaders(Headers);
-                    Cell('handler|requestHeaders', Headers);
-                    Request.Content.GetHeaders(Headers);
-                    Cell('handler|requestContentHeaders', Headers);
-                    Observer.Observe('handler|requestContent|type', ContentType(Headers));
-                    Request.Content.ReadAs(Body);
-                    Observer.Observe('handler|requestContent|body', Body);
+                    Observer.Observe('handler|requestType', Format(Request.RequestType));
+                    Observer.Observe('handler|requestPath', Request.Path);
                 end;
             7:
                 begin
