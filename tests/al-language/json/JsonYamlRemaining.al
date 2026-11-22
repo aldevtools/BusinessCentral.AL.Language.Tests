@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/jsonobject/jsonobject-readfromyaml-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160), own table 75670 "YRM Yaml Blob"
+// Fixtures used: Probe Observer (codeunit 69160), own table 79891 "YRM Yaml Blob"
 // Probe: AL Runner issue 8580 (AI eval datasets in .yaml app resources); follows corpus PRs 1515 (non-ASCII) and 1519
 //   (punctuation matrix) and the runner fix PR 8711. Measures YAML shapes the runner still refuses.
 //   Written against local BC 27.5, 28.5 and 29.0 service tiers; every literal asserted below is what those tiers produced.
@@ -32,7 +32,7 @@
 //   CRLF line ends: the per-cell result for each punctuation case is asserted (see the Expect lines of the Crlf tests).
 // BC versions: 27, 28, 29
 
-table 75670 "YRM Yaml Blob"
+table 79891 "YRM Yaml Blob"
 {
     DataClassification = SystemMetadata;
 
@@ -48,7 +48,7 @@ table 75670 "YRM Yaml Blob"
     }
 }
 
-codeunit 75671 "YRM Json Yaml Remaining"
+codeunit 79892 "YRM Json Yaml Remaining"
 {
     Subtype = Test;
     TestPermissions = Disabled;
