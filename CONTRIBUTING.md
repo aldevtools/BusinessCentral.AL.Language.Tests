@@ -134,10 +134,15 @@ batch, and the old rules "one claim per codeunit" and "never define an object in
     test again only when it names a changed object, and results of tests that did not run are reused. So a test that counts
     the rows of `AllObj`, `Table Metadata`, `CodeUnit Metadata` or a similar table over an id range keeps an old result when
     another pull request adds an object in that range. Filter single ids, or add a filter on the name field with a fixed list
-    of names (`SetFilter("Object Name", '%1|%2', ...)`). Keep at least one listed object below the low bound and one above
-    the high bound, so the range still has to exclude a listed row on each side. A range is fine when an object of the table's kind already exists at
+    of names (`SetFilter("Object Name", '%1|%2', ...)`). Keep, for every object type the test asserts on, at least one listed
+    object of that type below the low bound and one above the high bound, so the range still has to exclude a listed row of
+    each type on each side. For `AllObj` and `AllObjWithCaption` the types are the literal `Object Type` filter in force
+    at the range (`SetRange` with one value, or `SetFilter` of `%n` joined by `|` with literal values); without one, or
+    with `TableData`, the range is flagged. The name list must be in force when the range is read: not cleared, replaced or
+    reset in between, and not set after the read. A range is fine when an object of the table's kind already exists at
     every id in it, or when it lies outside every app's `idRanges`. `.github/scripts/check-id-ranges.py` checks this in the
-    `Object IDs must be unique and in range` job.
+    `Object IDs must be unique and in range` job. It does not check yet: filters on app package ids, and ranges set through
+    `RecordRef.Field(n).SetRange`.
 
 ---
 
