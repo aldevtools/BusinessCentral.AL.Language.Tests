@@ -27,12 +27,6 @@ report 75480 "SAE Word Labels"
         }
     }
 
-    labels
-    {
-        TitleLbl = 'Title';
-        BodyLbl = 'Body';
-    }
-
     rendering
     {
         layout(SAEWordLabels)
@@ -40,6 +34,12 @@ report 75480 "SAE Word Labels"
             Type = Word;
             LayoutFile = './reports/saveas-empty-items/SAEWordLabels.docx';
         }
+    }
+
+    labels
+    {
+        TitleLbl = 'Title';
+        BodyLbl = 'Body';
     }
 }
 
