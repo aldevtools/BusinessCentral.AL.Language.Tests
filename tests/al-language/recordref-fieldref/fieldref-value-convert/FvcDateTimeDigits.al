@@ -43,6 +43,10 @@ codeunit 75987 "FVC DateTime Digits"
         Observer.Expect('20260115 local', 'same as var');
         Observer.Expect('20260115 byval', 'same as var');
         Observer.Expect('20260115 named', 'same as var');
+        Observer.Expect('20260115 plain var', 'same as var');
+        Observer.Expect('20260115 plain local', 'same as var');
+        Observer.Expect('20260115 plain byval', 'same as var');
+        Observer.Expect('20260115 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('20260115120000 var', 'error Evaluate:Conversion | The value "20260115120000" can''t be evaluated into type DateTime.');
 #else
@@ -51,6 +55,10 @@ codeunit 75987 "FVC DateTime Digits"
         Observer.Expect('20260115120000 local', 'same as var');
         Observer.Expect('20260115120000 byval', 'same as var');
         Observer.Expect('20260115120000 named', 'same as var');
+        Observer.Expect('20260115120000 plain var', 'same as var');
+        Observer.Expect('20260115120000 plain local', 'same as var');
+        Observer.Expect('20260115120000 plain byval', 'same as var');
+        Observer.Expect('20260115120000 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('202601151200 var', 'error Evaluate:Conversion | The value "202601151200" can''t be evaluated into type DateTime.');
 #else
@@ -59,6 +67,10 @@ codeunit 75987 "FVC DateTime Digits"
         Observer.Expect('202601151200 local', 'same as var');
         Observer.Expect('202601151200 byval', 'same as var');
         Observer.Expect('202601151200 named', 'same as var');
+        Observer.Expect('202601151200 plain var', 'same as var');
+        Observer.Expect('202601151200 plain local', 'same as var');
+        Observer.Expect('202601151200 plain byval', 'same as var');
+        Observer.Expect('202601151200 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('120000 var', 'error Evaluate:Conversion | The value "120000" can''t be evaluated into type DateTime.');
 #else
@@ -67,6 +79,10 @@ codeunit 75987 "FVC DateTime Digits"
         Observer.Expect('120000 local', 'same as var');
         Observer.Expect('120000 byval', 'same as var');
         Observer.Expect('120000 named', 'same as var');
+        Observer.Expect('120000 plain var', 'same as var');
+        Observer.Expect('120000 plain local', 'same as var');
+        Observer.Expect('120000 plain byval', 'same as var');
+        Observer.Expect('120000 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('1200 var', 'error Evaluate:Conversion | The value "1200" can''t be evaluated into type DateTime.');
 #else
@@ -75,6 +91,10 @@ codeunit 75987 "FVC DateTime Digits"
         Observer.Expect('1200 local', 'same as var');
         Observer.Expect('1200 byval', 'same as var');
         Observer.Expect('1200 named', 'same as var');
+        Observer.Expect('1200 plain var', 'same as var');
+        Observer.Expect('1200 plain local', 'same as var');
+        Observer.Expect('1200 plain byval', 'same as var');
+        Observer.Expect('1200 plain named', 'same as var');
         Observer.Verify();
     end;
 
@@ -107,6 +127,10 @@ codeunit 75987 "FVC DateTime Digits"
         Observer.Expect('0115 local', 'same as var');
         Observer.Expect('0115 byval', 'same as var');
         Observer.Expect('0115 named', 'same as var');
+        Observer.Expect('0115 plain var', 'same as var');
+        Observer.Expect('0115 plain local', 'same as var');
+        Observer.Expect('0115 plain byval', 'same as var');
+        Observer.Expect('0115 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('01152026 var', 'error Evaluate:Conversion | The value "01152026" can''t be evaluated into type DateTime.');
 #else
@@ -115,6 +139,10 @@ codeunit 75987 "FVC DateTime Digits"
         Observer.Expect('01152026 local', 'same as var');
         Observer.Expect('01152026 byval', 'same as var');
         Observer.Expect('01152026 named', 'same as var');
+        Observer.Expect('01152026 plain var', 'same as var');
+        Observer.Expect('01152026 plain local', 'same as var');
+        Observer.Expect('01152026 plain byval', 'same as var');
+        Observer.Expect('01152026 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('260115 var', 'error Evaluate:Conversion | The value "260115" can''t be evaluated into type DateTime.');
 #else
@@ -123,6 +151,10 @@ codeunit 75987 "FVC DateTime Digits"
         Observer.Expect('260115 local', 'same as var');
         Observer.Expect('260115 byval', 'same as var');
         Observer.Expect('260115 named', 'same as var');
+        Observer.Expect('260115 plain var', 'same as var');
+        Observer.Expect('260115 plain local', 'same as var');
+        Observer.Expect('260115 plain byval', 'same as var');
+        Observer.Expect('260115 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('1 var', 'error Evaluate:Conversion | The value "1" can''t be evaluated into type DateTime.');
 #else
@@ -131,6 +163,10 @@ codeunit 75987 "FVC DateTime Digits"
         Observer.Expect('1 local', 'same as var');
         Observer.Expect('1 byval', 'same as var');
         Observer.Expect('1 named', 'same as var');
+        Observer.Expect('1 plain var', 'same as var');
+        Observer.Expect('1 plain local', 'same as var');
+        Observer.Expect('1 plain byval', 'same as var');
+        Observer.Expect('1 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('0 var', 'error Evaluate:Conversion | The value "0" can''t be evaluated into type DateTime.');
 #else
@@ -139,6 +175,10 @@ codeunit 75987 "FVC DateTime Digits"
         Observer.Expect('0 local', 'same as var');
         Observer.Expect('0 byval', 'same as var');
         Observer.Expect('0 named', 'same as var');
+        Observer.Expect('0 plain var', 'same as var');
+        Observer.Expect('0 plain local', 'same as var');
+        Observer.Expect('0 plain byval', 'same as var');
+        Observer.Expect('0 plain named', 'same as var');
         Observer.Verify();
     end;
 
@@ -171,6 +211,10 @@ codeunit 75987 "FVC DateTime Digits"
         Observer.Expect('20260115 local', 'same as var');
         Observer.Expect('20260115 byval', 'same as var');
         Observer.Expect('20260115 named', 'same as var');
+        Observer.Expect('20260115 plain var', 'same as var');
+        Observer.Expect('20260115 plain local', 'same as var');
+        Observer.Expect('20260115 plain byval', 'same as var');
+        Observer.Expect('20260115 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('20260115120000 var', 'error Evaluate:Conversion | The value "20260115120000" can''t be evaluated into type DateTime.');
 #else
@@ -179,6 +223,10 @@ codeunit 75987 "FVC DateTime Digits"
         Observer.Expect('20260115120000 local', 'same as var');
         Observer.Expect('20260115120000 byval', 'same as var');
         Observer.Expect('20260115120000 named', 'same as var');
+        Observer.Expect('20260115120000 plain var', 'same as var');
+        Observer.Expect('20260115120000 plain local', 'same as var');
+        Observer.Expect('20260115120000 plain byval', 'same as var');
+        Observer.Expect('20260115120000 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('202601151200 var', 'error Evaluate:Conversion | The value "202601151200" can''t be evaluated into type DateTime.');
 #else
@@ -187,6 +235,10 @@ codeunit 75987 "FVC DateTime Digits"
         Observer.Expect('202601151200 local', 'same as var');
         Observer.Expect('202601151200 byval', 'same as var');
         Observer.Expect('202601151200 named', 'same as var');
+        Observer.Expect('202601151200 plain var', 'same as var');
+        Observer.Expect('202601151200 plain local', 'same as var');
+        Observer.Expect('202601151200 plain byval', 'same as var');
+        Observer.Expect('202601151200 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('120000 var', 'error Evaluate:Conversion | The value "120000" can''t be evaluated into type DateTime.');
 #else
@@ -195,6 +247,10 @@ codeunit 75987 "FVC DateTime Digits"
         Observer.Expect('120000 local', 'same as var');
         Observer.Expect('120000 byval', 'same as var');
         Observer.Expect('120000 named', 'same as var');
+        Observer.Expect('120000 plain var', 'same as var');
+        Observer.Expect('120000 plain local', 'same as var');
+        Observer.Expect('120000 plain byval', 'same as var');
+        Observer.Expect('120000 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('1200 var', 'error Evaluate:Conversion | The value "1200" can''t be evaluated into type DateTime.');
 #else
@@ -203,6 +259,10 @@ codeunit 75987 "FVC DateTime Digits"
         Observer.Expect('1200 local', 'same as var');
         Observer.Expect('1200 byval', 'same as var');
         Observer.Expect('1200 named', 'same as var');
+        Observer.Expect('1200 plain var', 'same as var');
+        Observer.Expect('1200 plain local', 'same as var');
+        Observer.Expect('1200 plain byval', 'same as var');
+        Observer.Expect('1200 plain named', 'same as var');
         Observer.Verify();
     end;
 
@@ -235,6 +295,10 @@ codeunit 75987 "FVC DateTime Digits"
         Observer.Expect('0115 local', 'same as var');
         Observer.Expect('0115 byval', 'same as var');
         Observer.Expect('0115 named', 'same as var');
+        Observer.Expect('0115 plain var', 'same as var');
+        Observer.Expect('0115 plain local', 'same as var');
+        Observer.Expect('0115 plain byval', 'same as var');
+        Observer.Expect('0115 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('01152026 var', 'error Evaluate:Conversion | The value "01152026" can''t be evaluated into type DateTime.');
 #else
@@ -243,6 +307,10 @@ codeunit 75987 "FVC DateTime Digits"
         Observer.Expect('01152026 local', 'same as var');
         Observer.Expect('01152026 byval', 'same as var');
         Observer.Expect('01152026 named', 'same as var');
+        Observer.Expect('01152026 plain var', 'same as var');
+        Observer.Expect('01152026 plain local', 'same as var');
+        Observer.Expect('01152026 plain byval', 'same as var');
+        Observer.Expect('01152026 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('260115 var', 'error Evaluate:Conversion | The value "260115" can''t be evaluated into type DateTime.');
 #else
@@ -251,6 +319,10 @@ codeunit 75987 "FVC DateTime Digits"
         Observer.Expect('260115 local', 'same as var');
         Observer.Expect('260115 byval', 'same as var');
         Observer.Expect('260115 named', 'same as var');
+        Observer.Expect('260115 plain var', 'same as var');
+        Observer.Expect('260115 plain local', 'same as var');
+        Observer.Expect('260115 plain byval', 'same as var');
+        Observer.Expect('260115 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('1 var', 'error Evaluate:Conversion | The value "1" can''t be evaluated into type DateTime.');
 #else
@@ -259,6 +331,10 @@ codeunit 75987 "FVC DateTime Digits"
         Observer.Expect('1 local', 'same as var');
         Observer.Expect('1 byval', 'same as var');
         Observer.Expect('1 named', 'same as var');
+        Observer.Expect('1 plain var', 'same as var');
+        Observer.Expect('1 plain local', 'same as var');
+        Observer.Expect('1 plain byval', 'same as var');
+        Observer.Expect('1 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('0 var', 'error Evaluate:Conversion | The value "0" can''t be evaluated into type DateTime.');
 #else
@@ -267,6 +343,10 @@ codeunit 75987 "FVC DateTime Digits"
         Observer.Expect('0 local', 'same as var');
         Observer.Expect('0 byval', 'same as var');
         Observer.Expect('0 named', 'same as var');
+        Observer.Expect('0 plain var', 'same as var');
+        Observer.Expect('0 plain local', 'same as var');
+        Observer.Expect('0 plain byval', 'same as var');
+        Observer.Expect('0 plain named', 'same as var');
         Observer.Verify();
     end;
 
@@ -293,18 +373,30 @@ codeunit 75987 "FVC DateTime Digits"
         Observer.Expect('20260115 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
 #endif
         Observer.Expect('20260115 local', 'same as var');
+        Observer.Expect('20260115 plain var', 'same as var');
+        Observer.Expect('20260115 plain local', 'same as var');
+        Observer.Expect('20260115 plain byval', 'same as var');
+        Observer.Expect('20260115 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('20260115120000 var', 'error Evaluate:Conversion | The format of the Date ''20260115120000'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
 #else
         Observer.Expect('20260115120000 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
 #endif
         Observer.Expect('20260115120000 local', 'same as var');
+        Observer.Expect('20260115120000 plain var', 'same as var');
+        Observer.Expect('20260115120000 plain local', 'same as var');
+        Observer.Expect('20260115120000 plain byval', 'same as var');
+        Observer.Expect('20260115120000 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('202601151200 var', 'error Evaluate:Conversion | The format of the Date ''202601151200'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
 #else
         Observer.Expect('202601151200 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
 #endif
         Observer.Expect('202601151200 local', 'same as var');
+        Observer.Expect('202601151200 plain var', 'same as var');
+        Observer.Expect('202601151200 plain local', 'same as var');
+        Observer.Expect('202601151200 plain byval', 'same as var');
+        Observer.Expect('202601151200 plain named', 'same as var');
         Observer.Verify();
     end;
 
@@ -331,18 +423,30 @@ codeunit 75987 "FVC DateTime Digits"
         Observer.Expect('120000 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
 #endif
         Observer.Expect('120000 local', 'same as var');
+        Observer.Expect('120000 plain var', 'same as var');
+        Observer.Expect('120000 plain local', 'same as var');
+        Observer.Expect('120000 plain byval', 'same as var');
+        Observer.Expect('120000 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('1200 var', 'error Evaluate:Conversion | The format of the Date ''1200'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
 #else
         Observer.Expect('1200 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
 #endif
         Observer.Expect('1200 local', 'same as var');
+        Observer.Expect('1200 plain var', 'same as var');
+        Observer.Expect('1200 plain local', 'same as var');
+        Observer.Expect('1200 plain byval', 'same as var');
+        Observer.Expect('1200 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('0115 var', 'error Evaluate:Conversion | The format of the Date ''0115'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
 #else
         Observer.Expect('0115 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
 #endif
         Observer.Expect('0115 local', 'same as var');
+        Observer.Expect('0115 plain var', 'same as var');
+        Observer.Expect('0115 plain local', 'same as var');
+        Observer.Expect('0115 plain byval', 'same as var');
+        Observer.Expect('0115 plain named', 'same as var');
         Observer.Verify();
     end;
 
@@ -369,18 +473,30 @@ codeunit 75987 "FVC DateTime Digits"
         Observer.Expect('01152026 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
 #endif
         Observer.Expect('01152026 local', 'same as var');
+        Observer.Expect('01152026 plain var', 'same as var');
+        Observer.Expect('01152026 plain local', 'same as var');
+        Observer.Expect('01152026 plain byval', 'same as var');
+        Observer.Expect('01152026 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('260115 var', 'error Evaluate:Conversion | The format of the Date ''260115'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
 #else
         Observer.Expect('260115 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
 #endif
         Observer.Expect('260115 local', 'same as var');
+        Observer.Expect('260115 plain var', 'same as var');
+        Observer.Expect('260115 plain local', 'same as var');
+        Observer.Expect('260115 plain byval', 'same as var');
+        Observer.Expect('260115 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('1 var', 'error Evaluate:Conversion | The format of the Date ''1'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
 #else
         Observer.Expect('1 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
 #endif
         Observer.Expect('1 local', 'same as var');
+        Observer.Expect('1 plain var', 'same as var');
+        Observer.Expect('1 plain local', 'same as var');
+        Observer.Expect('1 plain byval', 'same as var');
+        Observer.Expect('1 plain named', 'same as var');
         Observer.Verify();
     end;
 
@@ -403,6 +519,10 @@ codeunit 75987 "FVC DateTime Digits"
         Observer.Expect('0 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
 #endif
         Observer.Expect('0 local', 'same as var');
+        Observer.Expect('0 plain var', 'same as var');
+        Observer.Expect('0 plain local', 'same as var');
+        Observer.Expect('0 plain byval', 'same as var');
+        Observer.Expect('0 plain named', 'same as var');
         Observer.Verify();
     end;
 
@@ -433,30 +553,50 @@ codeunit 75987 "FVC DateTime Digits"
         Observer.Expect('20260115 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
 #endif
         Observer.Expect('20260115 local', 'same as var');
+        Observer.Expect('20260115 plain var', 'same as var');
+        Observer.Expect('20260115 plain local', 'same as var');
+        Observer.Expect('20260115 plain byval', 'same as var');
+        Observer.Expect('20260115 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('20260115120000 var', 'error Evaluate:Conversion | The value "20260115120000" can''t be evaluated into type Time.');
 #else
         Observer.Expect('20260115120000 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
 #endif
         Observer.Expect('20260115120000 local', 'same as var');
+        Observer.Expect('20260115120000 plain var', 'same as var');
+        Observer.Expect('20260115120000 plain local', 'same as var');
+        Observer.Expect('20260115120000 plain byval', 'same as var');
+        Observer.Expect('20260115120000 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('202601151200 var', 'error Evaluate:Conversion | The value "202601151200" can''t be evaluated into type Time.');
 #else
         Observer.Expect('202601151200 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
 #endif
         Observer.Expect('202601151200 local', 'same as var');
+        Observer.Expect('202601151200 plain var', 'same as var');
+        Observer.Expect('202601151200 plain local', 'same as var');
+        Observer.Expect('202601151200 plain byval', 'same as var');
+        Observer.Expect('202601151200 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('120000 var', 'error Evaluate:Conversion | The value "120000" can''t be evaluated into type Time.');
 #else
         Observer.Expect('120000 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
 #endif
         Observer.Expect('120000 local', 'same as var');
+        Observer.Expect('120000 plain var', 'same as var');
+        Observer.Expect('120000 plain local', 'same as var');
+        Observer.Expect('120000 plain byval', 'same as var');
+        Observer.Expect('120000 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('1200 var', 'error Evaluate:Conversion | The value "1200" can''t be evaluated into type Time.');
 #else
         Observer.Expect('1200 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
 #endif
         Observer.Expect('1200 local', 'same as var');
+        Observer.Expect('1200 plain var', 'same as var');
+        Observer.Expect('1200 plain local', 'same as var');
+        Observer.Expect('1200 plain byval', 'same as var');
+        Observer.Expect('1200 plain named', 'same as var');
         Observer.Verify();
     end;
 
@@ -487,30 +627,50 @@ codeunit 75987 "FVC DateTime Digits"
         Observer.Expect('0115 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
 #endif
         Observer.Expect('0115 local', 'same as var');
+        Observer.Expect('0115 plain var', 'same as var');
+        Observer.Expect('0115 plain local', 'same as var');
+        Observer.Expect('0115 plain byval', 'same as var');
+        Observer.Expect('0115 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('01152026 var', 'error Evaluate:Conversion | The value "01152026" can''t be evaluated into type Time.');
 #else
         Observer.Expect('01152026 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
 #endif
         Observer.Expect('01152026 local', 'same as var');
+        Observer.Expect('01152026 plain var', 'same as var');
+        Observer.Expect('01152026 plain local', 'same as var');
+        Observer.Expect('01152026 plain byval', 'same as var');
+        Observer.Expect('01152026 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('260115 var', 'error Evaluate:Conversion | The value "260115" can''t be evaluated into type Time.');
 #else
         Observer.Expect('260115 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
 #endif
         Observer.Expect('260115 local', 'same as var');
+        Observer.Expect('260115 plain var', 'same as var');
+        Observer.Expect('260115 plain local', 'same as var');
+        Observer.Expect('260115 plain byval', 'same as var');
+        Observer.Expect('260115 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('1 var', 'error Evaluate:Conversion | The value "1" can''t be evaluated into type Time.');
 #else
         Observer.Expect('1 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
 #endif
         Observer.Expect('1 local', 'same as var');
+        Observer.Expect('1 plain var', 'same as var');
+        Observer.Expect('1 plain local', 'same as var');
+        Observer.Expect('1 plain byval', 'same as var');
+        Observer.Expect('1 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('0 var', 'error Evaluate:Conversion | The value "0" can''t be evaluated into type Time.');
 #else
         Observer.Expect('0 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
 #endif
         Observer.Expect('0 local', 'same as var');
+        Observer.Expect('0 plain var', 'same as var');
+        Observer.Expect('0 plain local', 'same as var');
+        Observer.Expect('0 plain byval', 'same as var');
+        Observer.Expect('0 plain named', 'same as var');
         Observer.Verify();
     end;
 
@@ -537,18 +697,30 @@ codeunit 75987 "FVC DateTime Digits"
         Observer.Expect('20260115 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
 #endif
         Observer.Expect('20260115 local', 'same as var');
+        Observer.Expect('20260115 plain var', 'same as var');
+        Observer.Expect('20260115 plain local', 'same as var');
+        Observer.Expect('20260115 plain byval', 'same as var');
+        Observer.Expect('20260115 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('20260115120000 var', 'error Evaluate:Conversion | The format of the Date ''20260115120000'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
 #else
         Observer.Expect('20260115120000 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
 #endif
         Observer.Expect('20260115120000 local', 'same as var');
+        Observer.Expect('20260115120000 plain var', 'same as var');
+        Observer.Expect('20260115120000 plain local', 'same as var');
+        Observer.Expect('20260115120000 plain byval', 'same as var');
+        Observer.Expect('20260115120000 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('202601151200 var', 'error Evaluate:Conversion | The format of the Date ''202601151200'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
 #else
         Observer.Expect('202601151200 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
 #endif
         Observer.Expect('202601151200 local', 'same as var');
+        Observer.Expect('202601151200 plain var', 'same as var');
+        Observer.Expect('202601151200 plain local', 'same as var');
+        Observer.Expect('202601151200 plain byval', 'same as var');
+        Observer.Expect('202601151200 plain named', 'same as var');
         Observer.Verify();
     end;
 
@@ -575,18 +747,30 @@ codeunit 75987 "FVC DateTime Digits"
         Observer.Expect('120000 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
 #endif
         Observer.Expect('120000 local', 'same as var');
+        Observer.Expect('120000 plain var', 'same as var');
+        Observer.Expect('120000 plain local', 'same as var');
+        Observer.Expect('120000 plain byval', 'same as var');
+        Observer.Expect('120000 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('1200 var', 'error Evaluate:Conversion | The format of the Date ''1200'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
 #else
         Observer.Expect('1200 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
 #endif
         Observer.Expect('1200 local', 'same as var');
+        Observer.Expect('1200 plain var', 'same as var');
+        Observer.Expect('1200 plain local', 'same as var');
+        Observer.Expect('1200 plain byval', 'same as var');
+        Observer.Expect('1200 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('0115 var', 'error Evaluate:Conversion | The format of the Date ''0115'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
 #else
         Observer.Expect('0115 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
 #endif
         Observer.Expect('0115 local', 'same as var');
+        Observer.Expect('0115 plain var', 'same as var');
+        Observer.Expect('0115 plain local', 'same as var');
+        Observer.Expect('0115 plain byval', 'same as var');
+        Observer.Expect('0115 plain named', 'same as var');
         Observer.Verify();
     end;
 
@@ -613,18 +797,30 @@ codeunit 75987 "FVC DateTime Digits"
         Observer.Expect('01152026 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
 #endif
         Observer.Expect('01152026 local', 'same as var');
+        Observer.Expect('01152026 plain var', 'same as var');
+        Observer.Expect('01152026 plain local', 'same as var');
+        Observer.Expect('01152026 plain byval', 'same as var');
+        Observer.Expect('01152026 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('260115 var', 'error Evaluate:Conversion | The format of the Date ''260115'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
 #else
         Observer.Expect('260115 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
 #endif
         Observer.Expect('260115 local', 'same as var');
+        Observer.Expect('260115 plain var', 'same as var');
+        Observer.Expect('260115 plain local', 'same as var');
+        Observer.Expect('260115 plain byval', 'same as var');
+        Observer.Expect('260115 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('1 var', 'error Evaluate:Conversion | The format of the Date ''1'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
 #else
         Observer.Expect('1 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
 #endif
         Observer.Expect('1 local', 'same as var');
+        Observer.Expect('1 plain var', 'same as var');
+        Observer.Expect('1 plain local', 'same as var');
+        Observer.Expect('1 plain byval', 'same as var');
+        Observer.Expect('1 plain named', 'same as var');
         Observer.Verify();
     end;
 
@@ -647,6 +843,10 @@ codeunit 75987 "FVC DateTime Digits"
         Observer.Expect('0 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
 #endif
         Observer.Expect('0 local', 'same as var');
+        Observer.Expect('0 plain var', 'same as var');
+        Observer.Expect('0 plain local', 'same as var');
+        Observer.Expect('0 plain byval', 'same as var');
+        Observer.Expect('0 plain named', 'same as var');
         Observer.Verify();
     end;
 
@@ -677,30 +877,50 @@ codeunit 75987 "FVC DateTime Digits"
         Observer.Expect('20260115 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
 #endif
         Observer.Expect('20260115 local', 'same as var');
+        Observer.Expect('20260115 plain var', 'same as var');
+        Observer.Expect('20260115 plain local', 'same as var');
+        Observer.Expect('20260115 plain byval', 'same as var');
+        Observer.Expect('20260115 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('20260115120000 var', 'error Evaluate:Conversion | The value "20260115120000" can''t be evaluated into type Time.');
 #else
         Observer.Expect('20260115120000 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
 #endif
         Observer.Expect('20260115120000 local', 'same as var');
+        Observer.Expect('20260115120000 plain var', 'same as var');
+        Observer.Expect('20260115120000 plain local', 'same as var');
+        Observer.Expect('20260115120000 plain byval', 'same as var');
+        Observer.Expect('20260115120000 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('202601151200 var', 'error Evaluate:Conversion | The value "202601151200" can''t be evaluated into type Time.');
 #else
         Observer.Expect('202601151200 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
 #endif
         Observer.Expect('202601151200 local', 'same as var');
+        Observer.Expect('202601151200 plain var', 'same as var');
+        Observer.Expect('202601151200 plain local', 'same as var');
+        Observer.Expect('202601151200 plain byval', 'same as var');
+        Observer.Expect('202601151200 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('120000 var', 'error Evaluate:Conversion | The value "120000" can''t be evaluated into type Time.');
 #else
         Observer.Expect('120000 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
 #endif
         Observer.Expect('120000 local', 'same as var');
+        Observer.Expect('120000 plain var', 'same as var');
+        Observer.Expect('120000 plain local', 'same as var');
+        Observer.Expect('120000 plain byval', 'same as var');
+        Observer.Expect('120000 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('1200 var', 'error Evaluate:Conversion | The value "1200" can''t be evaluated into type Time.');
 #else
         Observer.Expect('1200 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
 #endif
         Observer.Expect('1200 local', 'same as var');
+        Observer.Expect('1200 plain var', 'same as var');
+        Observer.Expect('1200 plain local', 'same as var');
+        Observer.Expect('1200 plain byval', 'same as var');
+        Observer.Expect('1200 plain named', 'same as var');
         Observer.Verify();
     end;
 
@@ -731,30 +951,50 @@ codeunit 75987 "FVC DateTime Digits"
         Observer.Expect('0115 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
 #endif
         Observer.Expect('0115 local', 'same as var');
+        Observer.Expect('0115 plain var', 'same as var');
+        Observer.Expect('0115 plain local', 'same as var');
+        Observer.Expect('0115 plain byval', 'same as var');
+        Observer.Expect('0115 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('01152026 var', 'error Evaluate:Conversion | The value "01152026" can''t be evaluated into type Time.');
 #else
         Observer.Expect('01152026 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
 #endif
         Observer.Expect('01152026 local', 'same as var');
+        Observer.Expect('01152026 plain var', 'same as var');
+        Observer.Expect('01152026 plain local', 'same as var');
+        Observer.Expect('01152026 plain byval', 'same as var');
+        Observer.Expect('01152026 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('260115 var', 'error Evaluate:Conversion | The value "260115" can''t be evaluated into type Time.');
 #else
         Observer.Expect('260115 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
 #endif
         Observer.Expect('260115 local', 'same as var');
+        Observer.Expect('260115 plain var', 'same as var');
+        Observer.Expect('260115 plain local', 'same as var');
+        Observer.Expect('260115 plain byval', 'same as var');
+        Observer.Expect('260115 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('1 var', 'error Evaluate:Conversion | The value "1" can''t be evaluated into type Time.');
 #else
         Observer.Expect('1 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
 #endif
         Observer.Expect('1 local', 'same as var');
+        Observer.Expect('1 plain var', 'same as var');
+        Observer.Expect('1 plain local', 'same as var');
+        Observer.Expect('1 plain byval', 'same as var');
+        Observer.Expect('1 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('0 var', 'error Evaluate:Conversion | The value "0" can''t be evaluated into type Time.');
 #else
         Observer.Expect('0 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
 #endif
         Observer.Expect('0 local', 'same as var');
+        Observer.Expect('0 plain var', 'same as var');
+        Observer.Expect('0 plain local', 'same as var');
+        Observer.Expect('0 plain byval', 'same as var');
+        Observer.Expect('0 plain named', 'same as var');
         Observer.Verify();
     end;
 
@@ -777,6 +1017,10 @@ codeunit 75987 "FVC DateTime Digits"
         Other := '';
         Ok := TryNamedReturn(FR, Other);
         Report(Observer, Label + ' named', Base, Outcome(Ok, Other));
+        Report(Observer, Label + ' plain var', Base, PlainVar(FR));
+        Report(Observer, Label + ' plain local', Base, PlainLocal(FR));
+        Report(Observer, Label + ' plain byval', Base, PlainByValue(FR));
+        Report(Observer, Label + ' plain named', Base, PlainNamed(FR));
     end;
 
     local procedure Outcome(Ok: Boolean; Res: Text): Text
@@ -858,6 +1102,10 @@ codeunit 75987 "FVC DateTime Digits"
             Observer.Observe(Label + ' local', 'same as var')
         else
             Observer.Observe(Label + ' local', Got);
+        Report(Observer, Label + ' plain var', Base, PlainVarDate(FR));
+        Report(Observer, Label + ' plain local', Base, PlainLocalDate(FR));
+        Report(Observer, Label + ' plain byval', Base, PlainByValueDate(FR));
+        Report(Observer, Label + ' plain named', Base, PlainNamedDate(FR));
     end;
 
     local procedure OutcomeDate(Ok: Boolean; Res: Text): Text
@@ -908,6 +1156,10 @@ codeunit 75987 "FVC DateTime Digits"
             Observer.Observe(Label + ' local', 'same as var')
         else
             Observer.Observe(Label + ' local', Got);
+        Report(Observer, Label + ' plain var', Base, PlainVarTime(FR));
+        Report(Observer, Label + ' plain local', Base, PlainLocalTime(FR));
+        Report(Observer, Label + ' plain byval', Base, PlainByValueTime(FR));
+        Report(Observer, Label + ' plain named', Base, PlainNamedTime(FR));
     end;
 
     local procedure OutcomeTime(Ok: Boolean; Res: Text): Text
@@ -938,5 +1190,126 @@ codeunit 75987 "FVC DateTime Digits"
     begin
         L := FR.Value;
         Res := Format(L, 0, 9);
+    end;
+
+    local procedure PlainVar(var FR: FieldRef): Text
+    var
+        P: DateTime;
+    begin
+        asserterror FillVar(FR, P);
+        exit(Outcome(false, ''));
+    end;
+
+    local procedure PlainLocal(var FR: FieldRef): Text
+    begin
+        asserterror PlainLocalBody(FR);
+        exit(Outcome(false, ''));
+    end;
+
+    local procedure PlainLocalBody(var FR: FieldRef)
+    var
+        L: DateTime;
+    begin
+        L := FR.Value;
+    end;
+
+    local procedure PlainByValue(var FR: FieldRef): Text
+    begin
+        asserterror FillByValue(FR, 0DT);
+        exit(Outcome(false, ''));
+    end;
+
+    local procedure PlainNamed(var FR: FieldRef): Text
+    begin
+        asserterror NamedReturn(FR);
+        exit(Outcome(false, ''));
+    end;
+
+    local procedure PlainVarDate(var FR: FieldRef): Text
+    var
+        P: Date;
+    begin
+        asserterror FillVarDate(FR, P);
+        exit(OutcomeDate(false, ''));
+    end;
+
+    local procedure PlainLocalDate(var FR: FieldRef): Text
+    begin
+        asserterror PlainLocalBodyDate(FR);
+        exit(OutcomeDate(false, ''));
+    end;
+
+    local procedure PlainLocalBodyDate(var FR: FieldRef)
+    var
+        L: Date;
+    begin
+        L := FR.Value;
+    end;
+
+    local procedure PlainByValueDate(var FR: FieldRef): Text
+    begin
+        asserterror FillByValueDate(FR, 0D);
+        exit(OutcomeDate(false, ''));
+    end;
+
+    local procedure FillByValueDate(var FR: FieldRef; R: Date): Text
+    begin
+        R := FR.Value;
+        exit(Format(R, 0, 9));
+    end;
+
+    local procedure PlainNamedDate(var FR: FieldRef): Text
+    begin
+        asserterror NamedReturnDate(FR);
+        exit(OutcomeDate(false, ''));
+    end;
+
+    local procedure NamedReturnDate(var FR: FieldRef) R: Date
+    begin
+        R := FR.Value;
+    end;
+
+    local procedure PlainVarTime(var FR: FieldRef): Text
+    var
+        P: Time;
+    begin
+        asserterror FillVarTime(FR, P);
+        exit(OutcomeTime(false, ''));
+    end;
+
+    local procedure PlainLocalTime(var FR: FieldRef): Text
+    begin
+        asserterror PlainLocalBodyTime(FR);
+        exit(OutcomeTime(false, ''));
+    end;
+
+    local procedure PlainLocalBodyTime(var FR: FieldRef)
+    var
+        L: Time;
+    begin
+        L := FR.Value;
+    end;
+
+    local procedure PlainByValueTime(var FR: FieldRef): Text
+    begin
+        asserterror FillByValueTime(FR, 0T);
+        exit(OutcomeTime(false, ''));
+    end;
+
+    local procedure FillByValueTime(var FR: FieldRef; R: Time): Text
+    begin
+        R := FR.Value;
+        exit(Format(R, 0, 9));
+    end;
+
+    local procedure PlainNamedTime(var FR: FieldRef): Text
+    begin
+        asserterror NamedReturnTime(FR);
+        exit(OutcomeTime(false, ''));
+    end;
+
+    local procedure NamedReturnTime(var FR: FieldRef) R: Time
+    begin
+        R := FR.Value;
     end;
 }

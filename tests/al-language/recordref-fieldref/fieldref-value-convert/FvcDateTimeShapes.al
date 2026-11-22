@@ -43,6 +43,10 @@ codeunit 75985 "FVC DateTime Shapes"
         Observer.Expect('0 local', 'same as var');
         Observer.Expect('0 byval', 'same as var');
         Observer.Expect('0 named', 'same as var');
+        Observer.Expect('0 plain var', 'same as var');
+        Observer.Expect('0 plain local', 'same as var');
+        Observer.Expect('0 plain byval', 'same as var');
+        Observer.Expect('0 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('1 var', 'error Evaluate:Conversion | The value "1" can''t be evaluated into type DateTime.');
 #else
@@ -51,6 +55,10 @@ codeunit 75985 "FVC DateTime Shapes"
         Observer.Expect('1 local', 'same as var');
         Observer.Expect('1 byval', 'same as var');
         Observer.Expect('1 named', 'same as var');
+        Observer.Expect('1 plain var', 'same as var');
+        Observer.Expect('1 plain local', 'same as var');
+        Observer.Expect('1 plain byval', 'same as var');
+        Observer.Expect('1 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('1000 var', 'error Evaluate:Conversion | The value "1000" can''t be evaluated into type DateTime.');
 #else
@@ -59,6 +67,10 @@ codeunit 75985 "FVC DateTime Shapes"
         Observer.Expect('1000 local', 'same as var');
         Observer.Expect('1000 byval', 'same as var');
         Observer.Expect('1000 named', 'same as var');
+        Observer.Expect('1000 plain var', 'same as var');
+        Observer.Expect('1000 plain local', 'same as var');
+        Observer.Expect('1000 plain byval', 'same as var');
+        Observer.Expect('1000 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('neg1 var', 'error Evaluate:Conversion | The value "-1" can''t be evaluated into type DateTime.');
 #else
@@ -67,6 +79,10 @@ codeunit 75985 "FVC DateTime Shapes"
         Observer.Expect('neg1 local', 'same as var');
         Observer.Expect('neg1 byval', 'same as var');
         Observer.Expect('neg1 named', 'same as var');
+        Observer.Expect('neg1 plain var', 'same as var');
+        Observer.Expect('neg1 plain local', 'same as var');
+        Observer.Expect('neg1 plain byval', 'same as var');
+        Observer.Expect('neg1 plain named', 'same as var');
         Observer.Verify();
     end;
 
@@ -95,6 +111,10 @@ codeunit 75985 "FVC DateTime Shapes"
         Observer.Expect('1 local', 'same as var');
         Observer.Expect('1 byval', 'same as var');
         Observer.Expect('1 named', 'same as var');
+        Observer.Expect('1 plain var', 'same as var');
+        Observer.Expect('1 plain local', 'same as var');
+        Observer.Expect('1 plain byval', 'same as var');
+        Observer.Expect('1 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('3e9 var', 'error Evaluate:Conversion | The value "3000000000" can''t be evaluated into type DateTime.');
 #else
@@ -103,6 +123,10 @@ codeunit 75985 "FVC DateTime Shapes"
         Observer.Expect('3e9 local', 'same as var');
         Observer.Expect('3e9 byval', 'same as var');
         Observer.Expect('3e9 named', 'same as var');
+        Observer.Expect('3e9 plain var', 'same as var');
+        Observer.Expect('3e9 plain local', 'same as var');
+        Observer.Expect('3e9 plain byval', 'same as var');
+        Observer.Expect('3e9 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('neg1 var', 'error Evaluate:Conversion | The value "-1" can''t be evaluated into type DateTime.');
 #else
@@ -111,6 +135,10 @@ codeunit 75985 "FVC DateTime Shapes"
         Observer.Expect('neg1 local', 'same as var');
         Observer.Expect('neg1 byval', 'same as var');
         Observer.Expect('neg1 named', 'same as var');
+        Observer.Expect('neg1 plain var', 'same as var');
+        Observer.Expect('neg1 plain local', 'same as var');
+        Observer.Expect('neg1 plain byval', 'same as var');
+        Observer.Expect('neg1 plain named', 'same as var');
         Observer.Verify();
     end;
 
@@ -141,6 +169,10 @@ codeunit 75985 "FVC DateTime Shapes"
         Observer.Expect('neg half local', 'same as var');
         Observer.Expect('neg half byval', 'same as var');
         Observer.Expect('neg half named', 'same as var');
+        Observer.Expect('neg half plain var', 'same as var');
+        Observer.Expect('neg half plain local', 'same as var');
+        Observer.Expect('neg half plain byval', 'same as var');
+        Observer.Expect('neg half plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('many decimals var', 'error Evaluate:Conversion | The value "0.123456789" can''t be evaluated into type DateTime.');
 #else
@@ -149,6 +181,10 @@ codeunit 75985 "FVC DateTime Shapes"
         Observer.Expect('many decimals local', 'same as var');
         Observer.Expect('many decimals byval', 'same as var');
         Observer.Expect('many decimals named', 'same as var');
+        Observer.Expect('many decimals plain var', 'same as var');
+        Observer.Expect('many decimals plain local', 'same as var');
+        Observer.Expect('many decimals plain byval', 'same as var');
+        Observer.Expect('many decimals plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('999.99 var', 'error Evaluate:Conversion | The value "999.99" can''t be evaluated into type DateTime.');
 #else
@@ -157,6 +193,10 @@ codeunit 75985 "FVC DateTime Shapes"
         Observer.Expect('999.99 local', 'same as var');
         Observer.Expect('999.99 byval', 'same as var');
         Observer.Expect('999.99 named', 'same as var');
+        Observer.Expect('999.99 plain var', 'same as var');
+        Observer.Expect('999.99 plain local', 'same as var');
+        Observer.Expect('999.99 plain byval', 'same as var');
+        Observer.Expect('999.99 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('1.5 var', 'error Evaluate:Conversion | The value "1.5" can''t be evaluated into type DateTime.');
 #else
@@ -165,6 +205,10 @@ codeunit 75985 "FVC DateTime Shapes"
         Observer.Expect('1.5 local', 'same as var');
         Observer.Expect('1.5 byval', 'same as var');
         Observer.Expect('1.5 named', 'same as var');
+        Observer.Expect('1.5 plain var', 'same as var');
+        Observer.Expect('1.5 plain local', 'same as var');
+        Observer.Expect('1.5 plain byval', 'same as var');
+        Observer.Expect('1.5 plain named', 'same as var');
         Observer.Verify();
     end;
 
@@ -197,6 +241,10 @@ codeunit 75985 "FVC DateTime Shapes"
         Observer.Expect('1000.5 local', 'same as var');
         Observer.Expect('1000.5 byval', 'same as var');
         Observer.Expect('1000.5 named', 'same as var');
+        Observer.Expect('1000.5 plain var', 'same as var');
+        Observer.Expect('1000.5 plain local', 'same as var');
+        Observer.Expect('1000.5 plain byval', 'same as var');
+        Observer.Expect('1000.5 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('zero var', 'error Evaluate:Conversion | The value "0" can''t be evaluated into type DateTime.');
 #else
@@ -205,6 +253,10 @@ codeunit 75985 "FVC DateTime Shapes"
         Observer.Expect('zero local', 'same as var');
         Observer.Expect('zero byval', 'same as var');
         Observer.Expect('zero named', 'same as var');
+        Observer.Expect('zero plain var', 'same as var');
+        Observer.Expect('zero plain local', 'same as var');
+        Observer.Expect('zero plain byval', 'same as var');
+        Observer.Expect('zero plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('one var', 'error Evaluate:Conversion | The value "1" can''t be evaluated into type DateTime.');
 #else
@@ -213,6 +265,10 @@ codeunit 75985 "FVC DateTime Shapes"
         Observer.Expect('one local', 'same as var');
         Observer.Expect('one byval', 'same as var');
         Observer.Expect('one named', 'same as var');
+        Observer.Expect('one plain var', 'same as var');
+        Observer.Expect('one plain local', 'same as var');
+        Observer.Expect('one plain byval', 'same as var');
+        Observer.Expect('one plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('five var', 'error Evaluate:Conversion | The value "5" can''t be evaluated into type DateTime.');
 #else
@@ -221,6 +277,10 @@ codeunit 75985 "FVC DateTime Shapes"
         Observer.Expect('five local', 'same as var');
         Observer.Expect('five byval', 'same as var');
         Observer.Expect('five named', 'same as var');
+        Observer.Expect('five plain var', 'same as var');
+        Observer.Expect('five plain local', 'same as var');
+        Observer.Expect('five plain byval', 'same as var');
+        Observer.Expect('five plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('neg 1000.25 var', 'error Evaluate:Conversion | The value "-1,000.25" can''t be evaluated into type DateTime.');
 #else
@@ -229,6 +289,10 @@ codeunit 75985 "FVC DateTime Shapes"
         Observer.Expect('neg 1000.25 local', 'same as var');
         Observer.Expect('neg 1000.25 byval', 'same as var');
         Observer.Expect('neg 1000.25 named', 'same as var');
+        Observer.Expect('neg 1000.25 plain var', 'same as var');
+        Observer.Expect('neg 1000.25 plain local', 'same as var');
+        Observer.Expect('neg 1000.25 plain byval', 'same as var');
+        Observer.Expect('neg 1000.25 plain named', 'same as var');
         Observer.Verify();
     end;
 
@@ -261,6 +325,10 @@ codeunit 75985 "FVC DateTime Shapes"
         Observer.Expect('1 ms local', 'same as var');
         Observer.Expect('1 ms byval', 'same as var');
         Observer.Expect('1 ms named', 'same as var');
+        Observer.Expect('1 ms plain var', 'same as var');
+        Observer.Expect('1 ms plain local', 'same as var');
+        Observer.Expect('1 ms plain byval', 'same as var');
+        Observer.Expect('1 ms plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('65000 var', 'error Evaluate:Conversion | The value "1 minute 5 seconds" can''t be evaluated into type DateTime.');
 #else
@@ -269,6 +337,10 @@ codeunit 75985 "FVC DateTime Shapes"
         Observer.Expect('65000 local', 'same as var');
         Observer.Expect('65000 byval', 'same as var');
         Observer.Expect('65000 named', 'same as var');
+        Observer.Expect('65000 plain var', 'same as var');
+        Observer.Expect('65000 plain local', 'same as var');
+        Observer.Expect('65000 plain byval', 'same as var');
+        Observer.Expect('65000 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('65001 var', 'error Evaluate:Conversion | The value "1 minute 5 seconds 1 millisecond" can''t be evaluated into type DateTime.');
 #else
@@ -277,6 +349,10 @@ codeunit 75985 "FVC DateTime Shapes"
         Observer.Expect('65001 local', 'same as var');
         Observer.Expect('65001 byval', 'same as var');
         Observer.Expect('65001 named', 'same as var');
+        Observer.Expect('65001 plain var', 'same as var');
+        Observer.Expect('65001 plain local', 'same as var');
+        Observer.Expect('65001 plain byval', 'same as var');
+        Observer.Expect('65001 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('0 var', 'error Evaluate:Conversion | The value "" can''t be evaluated into type DateTime.');
 #else
@@ -285,6 +361,10 @@ codeunit 75985 "FVC DateTime Shapes"
         Observer.Expect('0 local', 'same as var');
         Observer.Expect('0 byval', 'same as var');
         Observer.Expect('0 named', 'same as var');
+        Observer.Expect('0 plain var', 'same as var');
+        Observer.Expect('0 plain local', 'same as var');
+        Observer.Expect('0 plain byval', 'same as var');
+        Observer.Expect('0 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('neg1 var', 'error Evaluate:Conversion | The value "-1 millisecond" can''t be evaluated into type DateTime.');
 #else
@@ -293,6 +373,10 @@ codeunit 75985 "FVC DateTime Shapes"
         Observer.Expect('neg1 local', 'same as var');
         Observer.Expect('neg1 byval', 'same as var');
         Observer.Expect('neg1 named', 'same as var');
+        Observer.Expect('neg1 plain var', 'same as var');
+        Observer.Expect('neg1 plain local', 'same as var');
+        Observer.Expect('neg1 plain byval', 'same as var');
+        Observer.Expect('neg1 plain named', 'same as var');
         Observer.Verify();
     end;
 
@@ -323,6 +407,10 @@ codeunit 75985 "FVC DateTime Shapes"
         Observer.Expect('1000 local', 'same as var');
         Observer.Expect('1000 byval', 'same as var');
         Observer.Expect('1000 named', 'same as var');
+        Observer.Expect('1000 plain var', 'same as var');
+        Observer.Expect('1000 plain local', 'same as var');
+        Observer.Expect('1000 plain byval', 'same as var');
+        Observer.Expect('1000 plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('1 day 2h 3m var', 'error Evaluate:Conversion | The value "1 day 2 hours 3 minutes" can''t be evaluated into type DateTime.');
 #else
@@ -331,6 +419,10 @@ codeunit 75985 "FVC DateTime Shapes"
         Observer.Expect('1 day 2h 3m local', 'same as var');
         Observer.Expect('1 day 2h 3m byval', 'same as var');
         Observer.Expect('1 day 2h 3m named', 'same as var');
+        Observer.Expect('1 day 2h 3m plain var', 'same as var');
+        Observer.Expect('1 day 2h 3m plain local', 'same as var');
+        Observer.Expect('1 day 2h 3m plain byval', 'same as var');
+        Observer.Expect('1 day 2h 3m plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('1 day var', 'error Evaluate:Conversion | The value "1 day" can''t be evaluated into type DateTime.');
 #else
@@ -339,6 +431,10 @@ codeunit 75985 "FVC DateTime Shapes"
         Observer.Expect('1 day local', 'same as var');
         Observer.Expect('1 day byval', 'same as var');
         Observer.Expect('1 day named', 'same as var');
+        Observer.Expect('1 day plain var', 'same as var');
+        Observer.Expect('1 day plain local', 'same as var');
+        Observer.Expect('1 day plain byval', 'same as var');
+        Observer.Expect('1 day plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('2h var', 'error Evaluate:Conversion | The value "2 hours" can''t be evaluated into type DateTime.');
 #else
@@ -347,6 +443,10 @@ codeunit 75985 "FVC DateTime Shapes"
         Observer.Expect('2h local', 'same as var');
         Observer.Expect('2h byval', 'same as var');
         Observer.Expect('2h named', 'same as var');
+        Observer.Expect('2h plain var', 'same as var');
+        Observer.Expect('2h plain local', 'same as var');
+        Observer.Expect('2h plain byval', 'same as var');
+        Observer.Expect('2h plain named', 'same as var');
         Observer.Verify();
     end;
 
@@ -373,6 +473,10 @@ codeunit 75985 "FVC DateTime Shapes"
         Observer.Expect('true local', 'same as var');
         Observer.Expect('true byval', 'same as var');
         Observer.Expect('true named', 'same as var');
+        Observer.Expect('true plain var', 'same as var');
+        Observer.Expect('true plain local', 'same as var');
+        Observer.Expect('true plain byval', 'same as var');
+        Observer.Expect('true plain named', 'same as var');
 #if BC28PLUS
         Observer.Expect('false var', 'error Evaluate:Conversion | The value "No" can''t be evaluated into type DateTime.');
 #else
@@ -381,6 +485,10 @@ codeunit 75985 "FVC DateTime Shapes"
         Observer.Expect('false local', 'same as var');
         Observer.Expect('false byval', 'same as var');
         Observer.Expect('false named', 'same as var');
+        Observer.Expect('false plain var', 'same as var');
+        Observer.Expect('false plain local', 'same as var');
+        Observer.Expect('false plain byval', 'same as var');
+        Observer.Expect('false plain named', 'same as var');
         Observer.Verify();
     end;
 
@@ -403,6 +511,10 @@ codeunit 75985 "FVC DateTime Shapes"
         Other := '';
         Ok := TryNamedReturn(FR, Other);
         Report(Observer, Label + ' named', Base, Outcome(Ok, Other));
+        Report(Observer, Label + ' plain var', Base, PlainVar(FR));
+        Report(Observer, Label + ' plain local', Base, PlainLocal(FR));
+        Report(Observer, Label + ' plain byval', Base, PlainByValue(FR));
+        Report(Observer, Label + ' plain named', Base, PlainNamed(FR));
     end;
 
     local procedure Outcome(Ok: Boolean; Res: Text): Text
@@ -464,5 +576,38 @@ codeunit 75985 "FVC DateTime Shapes"
     local procedure NamedReturn(var FR: FieldRef) R: DateTime
     begin
         R := FR.Value;
+    end;
+
+    local procedure PlainVar(var FR: FieldRef): Text
+    var
+        P: DateTime;
+    begin
+        asserterror FillVar(FR, P);
+        exit(Outcome(false, ''));
+    end;
+
+    local procedure PlainLocal(var FR: FieldRef): Text
+    begin
+        asserterror PlainLocalBody(FR);
+        exit(Outcome(false, ''));
+    end;
+
+    local procedure PlainLocalBody(var FR: FieldRef)
+    var
+        L: DateTime;
+    begin
+        L := FR.Value;
+    end;
+
+    local procedure PlainByValue(var FR: FieldRef): Text
+    begin
+        asserterror FillByValue(FR, 0DT);
+        exit(Outcome(false, ''));
+    end;
+
+    local procedure PlainNamed(var FR: FieldRef): Text
+    begin
+        asserterror NamedReturn(FR);
+        exit(Outcome(false, ''));
     end;
 }
