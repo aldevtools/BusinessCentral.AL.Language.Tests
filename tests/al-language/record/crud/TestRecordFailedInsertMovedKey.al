@@ -591,7 +591,7 @@ codeunit 87211 "REC MovedKey Tests"
         Obs.Verify();
     end;
 
-    // Round 3 (cells R1-R10, observe-only, al-runner issue 8721): shapes after the open transaction locked, deleted or otherwise
+    // Round 3 (cells R1-R10, al-runner issue 8721): shapes after the open transaction locked, deleted or otherwise
     //   wrote the table, or where the version reached the buffer another way. Shape as Q2 unless stated: committed seed, the
     //   table written before the read, Src read, CopyTo creates TARGET, Src.Name := 'second' in memory, the 2nd call in asserterror.
     //   R1   Src.LockTable(), then Src.Get (no other write). R1b the same with the seed NOT committed.
