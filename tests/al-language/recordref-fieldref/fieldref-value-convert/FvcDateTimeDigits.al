@@ -5,6 +5,8 @@
 // Facts: FieldRef.Value of a Text or Code field holding a digit string assigned to a DateTime, Date or Time (runner issue 8662).
 //   Compact date and time forms: 8, 14, 12, 6 and 4 digits and short numbers. DateTime targets use the four shapes of FvcDateTimeShapes,
 //   Date and Time targets a var parameter and a plain local.
+//   Result: no digit string converts, in any shape, on BC 27.5, 28.5 and 29.0. Date targets raise the 'format of the Date ... does not match your device's date settings' text on BC 28 and later; Time and DateTime targets the Evaluate text.
+//   BC 27 raises 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText (or NavCode) to System.DateTime.' for all three targets, Date and Time included.
 // BC versions: see the asserted values; a version guard is used only where the versions differ.
 
 codeunit 75987 "FVC DateTime Digits"
@@ -33,7 +35,47 @@ codeunit 75987 "FVC DateTime Digits"
         Shapes(Observer, FR, '120000');
         FR.Value := '1200';
         Shapes(Observer, FR, '1200');
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('20260115 var', 'error Evaluate:Conversion | The value "20260115" can''t be evaluated into type DateTime.');
+#else
+        Observer.Expect('20260115 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
+        Observer.Expect('20260115 local', 'same as var');
+        Observer.Expect('20260115 byval', 'same as var');
+        Observer.Expect('20260115 named', 'same as var');
+#if BC28PLUS
+        Observer.Expect('20260115120000 var', 'error Evaluate:Conversion | The value "20260115120000" can''t be evaluated into type DateTime.');
+#else
+        Observer.Expect('20260115120000 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
+        Observer.Expect('20260115120000 local', 'same as var');
+        Observer.Expect('20260115120000 byval', 'same as var');
+        Observer.Expect('20260115120000 named', 'same as var');
+#if BC28PLUS
+        Observer.Expect('202601151200 var', 'error Evaluate:Conversion | The value "202601151200" can''t be evaluated into type DateTime.');
+#else
+        Observer.Expect('202601151200 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
+        Observer.Expect('202601151200 local', 'same as var');
+        Observer.Expect('202601151200 byval', 'same as var');
+        Observer.Expect('202601151200 named', 'same as var');
+#if BC28PLUS
+        Observer.Expect('120000 var', 'error Evaluate:Conversion | The value "120000" can''t be evaluated into type DateTime.');
+#else
+        Observer.Expect('120000 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
+        Observer.Expect('120000 local', 'same as var');
+        Observer.Expect('120000 byval', 'same as var');
+        Observer.Expect('120000 named', 'same as var');
+#if BC28PLUS
+        Observer.Expect('1200 var', 'error Evaluate:Conversion | The value "1200" can''t be evaluated into type DateTime.');
+#else
+        Observer.Expect('1200 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
+        Observer.Expect('1200 local', 'same as var');
+        Observer.Expect('1200 byval', 'same as var');
+        Observer.Expect('1200 named', 'same as var');
+        Observer.Verify();
     end;
 
     [Test]
@@ -57,7 +99,47 @@ codeunit 75987 "FVC DateTime Digits"
         Shapes(Observer, FR, '1');
         FR.Value := '0';
         Shapes(Observer, FR, '0');
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('0115 var', 'error Evaluate:Conversion | The value "0115" can''t be evaluated into type DateTime.');
+#else
+        Observer.Expect('0115 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
+        Observer.Expect('0115 local', 'same as var');
+        Observer.Expect('0115 byval', 'same as var');
+        Observer.Expect('0115 named', 'same as var');
+#if BC28PLUS
+        Observer.Expect('01152026 var', 'error Evaluate:Conversion | The value "01152026" can''t be evaluated into type DateTime.');
+#else
+        Observer.Expect('01152026 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
+        Observer.Expect('01152026 local', 'same as var');
+        Observer.Expect('01152026 byval', 'same as var');
+        Observer.Expect('01152026 named', 'same as var');
+#if BC28PLUS
+        Observer.Expect('260115 var', 'error Evaluate:Conversion | The value "260115" can''t be evaluated into type DateTime.');
+#else
+        Observer.Expect('260115 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
+        Observer.Expect('260115 local', 'same as var');
+        Observer.Expect('260115 byval', 'same as var');
+        Observer.Expect('260115 named', 'same as var');
+#if BC28PLUS
+        Observer.Expect('1 var', 'error Evaluate:Conversion | The value "1" can''t be evaluated into type DateTime.');
+#else
+        Observer.Expect('1 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
+        Observer.Expect('1 local', 'same as var');
+        Observer.Expect('1 byval', 'same as var');
+        Observer.Expect('1 named', 'same as var');
+#if BC28PLUS
+        Observer.Expect('0 var', 'error Evaluate:Conversion | The value "0" can''t be evaluated into type DateTime.');
+#else
+        Observer.Expect('0 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
+        Observer.Expect('0 local', 'same as var');
+        Observer.Expect('0 byval', 'same as var');
+        Observer.Expect('0 named', 'same as var');
+        Observer.Verify();
     end;
 
     [Test]
@@ -81,7 +163,47 @@ codeunit 75987 "FVC DateTime Digits"
         Shapes(Observer, FR, '120000');
         FR.Value := '1200';
         Shapes(Observer, FR, '1200');
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('20260115 var', 'error Evaluate:Conversion | The value "20260115" can''t be evaluated into type DateTime.');
+#else
+        Observer.Expect('20260115 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
+#endif
+        Observer.Expect('20260115 local', 'same as var');
+        Observer.Expect('20260115 byval', 'same as var');
+        Observer.Expect('20260115 named', 'same as var');
+#if BC28PLUS
+        Observer.Expect('20260115120000 var', 'error Evaluate:Conversion | The value "20260115120000" can''t be evaluated into type DateTime.');
+#else
+        Observer.Expect('20260115120000 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
+#endif
+        Observer.Expect('20260115120000 local', 'same as var');
+        Observer.Expect('20260115120000 byval', 'same as var');
+        Observer.Expect('20260115120000 named', 'same as var');
+#if BC28PLUS
+        Observer.Expect('202601151200 var', 'error Evaluate:Conversion | The value "202601151200" can''t be evaluated into type DateTime.');
+#else
+        Observer.Expect('202601151200 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
+#endif
+        Observer.Expect('202601151200 local', 'same as var');
+        Observer.Expect('202601151200 byval', 'same as var');
+        Observer.Expect('202601151200 named', 'same as var');
+#if BC28PLUS
+        Observer.Expect('120000 var', 'error Evaluate:Conversion | The value "120000" can''t be evaluated into type DateTime.');
+#else
+        Observer.Expect('120000 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
+#endif
+        Observer.Expect('120000 local', 'same as var');
+        Observer.Expect('120000 byval', 'same as var');
+        Observer.Expect('120000 named', 'same as var');
+#if BC28PLUS
+        Observer.Expect('1200 var', 'error Evaluate:Conversion | The value "1200" can''t be evaluated into type DateTime.');
+#else
+        Observer.Expect('1200 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
+#endif
+        Observer.Expect('1200 local', 'same as var');
+        Observer.Expect('1200 byval', 'same as var');
+        Observer.Expect('1200 named', 'same as var');
+        Observer.Verify();
     end;
 
     [Test]
@@ -105,7 +227,47 @@ codeunit 75987 "FVC DateTime Digits"
         Shapes(Observer, FR, '1');
         FR.Value := '0';
         Shapes(Observer, FR, '0');
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('0115 var', 'error Evaluate:Conversion | The value "0115" can''t be evaluated into type DateTime.');
+#else
+        Observer.Expect('0115 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
+#endif
+        Observer.Expect('0115 local', 'same as var');
+        Observer.Expect('0115 byval', 'same as var');
+        Observer.Expect('0115 named', 'same as var');
+#if BC28PLUS
+        Observer.Expect('01152026 var', 'error Evaluate:Conversion | The value "01152026" can''t be evaluated into type DateTime.');
+#else
+        Observer.Expect('01152026 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
+#endif
+        Observer.Expect('01152026 local', 'same as var');
+        Observer.Expect('01152026 byval', 'same as var');
+        Observer.Expect('01152026 named', 'same as var');
+#if BC28PLUS
+        Observer.Expect('260115 var', 'error Evaluate:Conversion | The value "260115" can''t be evaluated into type DateTime.');
+#else
+        Observer.Expect('260115 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
+#endif
+        Observer.Expect('260115 local', 'same as var');
+        Observer.Expect('260115 byval', 'same as var');
+        Observer.Expect('260115 named', 'same as var');
+#if BC28PLUS
+        Observer.Expect('1 var', 'error Evaluate:Conversion | The value "1" can''t be evaluated into type DateTime.');
+#else
+        Observer.Expect('1 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
+#endif
+        Observer.Expect('1 local', 'same as var');
+        Observer.Expect('1 byval', 'same as var');
+        Observer.Expect('1 named', 'same as var');
+#if BC28PLUS
+        Observer.Expect('0 var', 'error Evaluate:Conversion | The value "0" can''t be evaluated into type DateTime.');
+#else
+        Observer.Expect('0 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
+#endif
+        Observer.Expect('0 local', 'same as var');
+        Observer.Expect('0 byval', 'same as var');
+        Observer.Expect('0 named', 'same as var');
+        Observer.Verify();
     end;
 
     [Test]
@@ -125,7 +287,25 @@ codeunit 75987 "FVC DateTime Digits"
         ShapesDate(Observer, FR, '20260115120000');
         FR.Value := '202601151200';
         ShapesDate(Observer, FR, '202601151200');
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('20260115 var', 'error Evaluate:Conversion | The format of the Date ''20260115'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+#else
+        Observer.Expect('20260115 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
+        Observer.Expect('20260115 local', 'same as var');
+#if BC28PLUS
+        Observer.Expect('20260115120000 var', 'error Evaluate:Conversion | The format of the Date ''20260115120000'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+#else
+        Observer.Expect('20260115120000 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
+        Observer.Expect('20260115120000 local', 'same as var');
+#if BC28PLUS
+        Observer.Expect('202601151200 var', 'error Evaluate:Conversion | The format of the Date ''202601151200'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+#else
+        Observer.Expect('202601151200 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
+        Observer.Expect('202601151200 local', 'same as var');
+        Observer.Verify();
     end;
 
     [Test]
@@ -145,7 +325,25 @@ codeunit 75987 "FVC DateTime Digits"
         ShapesDate(Observer, FR, '1200');
         FR.Value := '0115';
         ShapesDate(Observer, FR, '0115');
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('120000 var', 'error Evaluate:Conversion | The format of the Date ''120000'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+#else
+        Observer.Expect('120000 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
+        Observer.Expect('120000 local', 'same as var');
+#if BC28PLUS
+        Observer.Expect('1200 var', 'error Evaluate:Conversion | The format of the Date ''1200'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+#else
+        Observer.Expect('1200 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
+        Observer.Expect('1200 local', 'same as var');
+#if BC28PLUS
+        Observer.Expect('0115 var', 'error Evaluate:Conversion | The format of the Date ''0115'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+#else
+        Observer.Expect('0115 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
+        Observer.Expect('0115 local', 'same as var');
+        Observer.Verify();
     end;
 
     [Test]
@@ -165,7 +363,25 @@ codeunit 75987 "FVC DateTime Digits"
         ShapesDate(Observer, FR, '260115');
         FR.Value := '1';
         ShapesDate(Observer, FR, '1');
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('01152026 var', 'error Evaluate:Conversion | The format of the Date ''01152026'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+#else
+        Observer.Expect('01152026 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
+        Observer.Expect('01152026 local', 'same as var');
+#if BC28PLUS
+        Observer.Expect('260115 var', 'error Evaluate:Conversion | The format of the Date ''260115'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+#else
+        Observer.Expect('260115 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
+        Observer.Expect('260115 local', 'same as var');
+#if BC28PLUS
+        Observer.Expect('1 var', 'error Evaluate:Conversion | The format of the Date ''1'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+#else
+        Observer.Expect('1 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
+        Observer.Expect('1 local', 'same as var');
+        Observer.Verify();
     end;
 
     [Test]
@@ -181,7 +397,13 @@ codeunit 75987 "FVC DateTime Digits"
         FR := RR.Field(Rec.FieldNo(TextF));
         FR.Value := '0';
         ShapesDate(Observer, FR, '0');
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('0 var', 'error Evaluate:Conversion | The format of the Date ''0'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+#else
+        Observer.Expect('0 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
+        Observer.Expect('0 local', 'same as var');
+        Observer.Verify();
     end;
 
     [Test]
@@ -205,7 +427,37 @@ codeunit 75987 "FVC DateTime Digits"
         ShapesTime(Observer, FR, '120000');
         FR.Value := '1200';
         ShapesTime(Observer, FR, '1200');
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('20260115 var', 'error Evaluate:Conversion | The value "20260115" can''t be evaluated into type Time.');
+#else
+        Observer.Expect('20260115 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
+        Observer.Expect('20260115 local', 'same as var');
+#if BC28PLUS
+        Observer.Expect('20260115120000 var', 'error Evaluate:Conversion | The value "20260115120000" can''t be evaluated into type Time.');
+#else
+        Observer.Expect('20260115120000 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
+        Observer.Expect('20260115120000 local', 'same as var');
+#if BC28PLUS
+        Observer.Expect('202601151200 var', 'error Evaluate:Conversion | The value "202601151200" can''t be evaluated into type Time.');
+#else
+        Observer.Expect('202601151200 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
+        Observer.Expect('202601151200 local', 'same as var');
+#if BC28PLUS
+        Observer.Expect('120000 var', 'error Evaluate:Conversion | The value "120000" can''t be evaluated into type Time.');
+#else
+        Observer.Expect('120000 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
+        Observer.Expect('120000 local', 'same as var');
+#if BC28PLUS
+        Observer.Expect('1200 var', 'error Evaluate:Conversion | The value "1200" can''t be evaluated into type Time.');
+#else
+        Observer.Expect('1200 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
+        Observer.Expect('1200 local', 'same as var');
+        Observer.Verify();
     end;
 
     [Test]
@@ -229,7 +481,37 @@ codeunit 75987 "FVC DateTime Digits"
         ShapesTime(Observer, FR, '1');
         FR.Value := '0';
         ShapesTime(Observer, FR, '0');
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('0115 var', 'error Evaluate:Conversion | The value "0115" can''t be evaluated into type Time.');
+#else
+        Observer.Expect('0115 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
+        Observer.Expect('0115 local', 'same as var');
+#if BC28PLUS
+        Observer.Expect('01152026 var', 'error Evaluate:Conversion | The value "01152026" can''t be evaluated into type Time.');
+#else
+        Observer.Expect('01152026 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
+        Observer.Expect('01152026 local', 'same as var');
+#if BC28PLUS
+        Observer.Expect('260115 var', 'error Evaluate:Conversion | The value "260115" can''t be evaluated into type Time.');
+#else
+        Observer.Expect('260115 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
+        Observer.Expect('260115 local', 'same as var');
+#if BC28PLUS
+        Observer.Expect('1 var', 'error Evaluate:Conversion | The value "1" can''t be evaluated into type Time.');
+#else
+        Observer.Expect('1 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
+        Observer.Expect('1 local', 'same as var');
+#if BC28PLUS
+        Observer.Expect('0 var', 'error Evaluate:Conversion | The value "0" can''t be evaluated into type Time.');
+#else
+        Observer.Expect('0 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+#endif
+        Observer.Expect('0 local', 'same as var');
+        Observer.Verify();
     end;
 
     [Test]
@@ -249,7 +531,25 @@ codeunit 75987 "FVC DateTime Digits"
         ShapesDate(Observer, FR, '20260115120000');
         FR.Value := '202601151200';
         ShapesDate(Observer, FR, '202601151200');
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('20260115 var', 'error Evaluate:Conversion | The format of the Date ''20260115'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+#else
+        Observer.Expect('20260115 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
+#endif
+        Observer.Expect('20260115 local', 'same as var');
+#if BC28PLUS
+        Observer.Expect('20260115120000 var', 'error Evaluate:Conversion | The format of the Date ''20260115120000'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+#else
+        Observer.Expect('20260115120000 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
+#endif
+        Observer.Expect('20260115120000 local', 'same as var');
+#if BC28PLUS
+        Observer.Expect('202601151200 var', 'error Evaluate:Conversion | The format of the Date ''202601151200'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+#else
+        Observer.Expect('202601151200 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
+#endif
+        Observer.Expect('202601151200 local', 'same as var');
+        Observer.Verify();
     end;
 
     [Test]
@@ -269,7 +569,25 @@ codeunit 75987 "FVC DateTime Digits"
         ShapesDate(Observer, FR, '1200');
         FR.Value := '0115';
         ShapesDate(Observer, FR, '0115');
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('120000 var', 'error Evaluate:Conversion | The format of the Date ''120000'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+#else
+        Observer.Expect('120000 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
+#endif
+        Observer.Expect('120000 local', 'same as var');
+#if BC28PLUS
+        Observer.Expect('1200 var', 'error Evaluate:Conversion | The format of the Date ''1200'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+#else
+        Observer.Expect('1200 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
+#endif
+        Observer.Expect('1200 local', 'same as var');
+#if BC28PLUS
+        Observer.Expect('0115 var', 'error Evaluate:Conversion | The format of the Date ''0115'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+#else
+        Observer.Expect('0115 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
+#endif
+        Observer.Expect('0115 local', 'same as var');
+        Observer.Verify();
     end;
 
     [Test]
@@ -289,7 +607,25 @@ codeunit 75987 "FVC DateTime Digits"
         ShapesDate(Observer, FR, '260115');
         FR.Value := '1';
         ShapesDate(Observer, FR, '1');
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('01152026 var', 'error Evaluate:Conversion | The format of the Date ''01152026'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+#else
+        Observer.Expect('01152026 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
+#endif
+        Observer.Expect('01152026 local', 'same as var');
+#if BC28PLUS
+        Observer.Expect('260115 var', 'error Evaluate:Conversion | The format of the Date ''260115'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+#else
+        Observer.Expect('260115 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
+#endif
+        Observer.Expect('260115 local', 'same as var');
+#if BC28PLUS
+        Observer.Expect('1 var', 'error Evaluate:Conversion | The format of the Date ''1'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+#else
+        Observer.Expect('1 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
+#endif
+        Observer.Expect('1 local', 'same as var');
+        Observer.Verify();
     end;
 
     [Test]
@@ -305,7 +641,13 @@ codeunit 75987 "FVC DateTime Digits"
         FR := RR.Field(Rec.FieldNo(CodeF));
         FR.Value := '0';
         ShapesDate(Observer, FR, '0');
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('0 var', 'error Evaluate:Conversion | The format of the Date ''0'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+#else
+        Observer.Expect('0 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
+#endif
+        Observer.Expect('0 local', 'same as var');
+        Observer.Verify();
     end;
 
     [Test]
@@ -329,7 +671,37 @@ codeunit 75987 "FVC DateTime Digits"
         ShapesTime(Observer, FR, '120000');
         FR.Value := '1200';
         ShapesTime(Observer, FR, '1200');
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('20260115 var', 'error Evaluate:Conversion | The value "20260115" can''t be evaluated into type Time.');
+#else
+        Observer.Expect('20260115 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
+#endif
+        Observer.Expect('20260115 local', 'same as var');
+#if BC28PLUS
+        Observer.Expect('20260115120000 var', 'error Evaluate:Conversion | The value "20260115120000" can''t be evaluated into type Time.');
+#else
+        Observer.Expect('20260115120000 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
+#endif
+        Observer.Expect('20260115120000 local', 'same as var');
+#if BC28PLUS
+        Observer.Expect('202601151200 var', 'error Evaluate:Conversion | The value "202601151200" can''t be evaluated into type Time.');
+#else
+        Observer.Expect('202601151200 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
+#endif
+        Observer.Expect('202601151200 local', 'same as var');
+#if BC28PLUS
+        Observer.Expect('120000 var', 'error Evaluate:Conversion | The value "120000" can''t be evaluated into type Time.');
+#else
+        Observer.Expect('120000 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
+#endif
+        Observer.Expect('120000 local', 'same as var');
+#if BC28PLUS
+        Observer.Expect('1200 var', 'error Evaluate:Conversion | The value "1200" can''t be evaluated into type Time.');
+#else
+        Observer.Expect('1200 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
+#endif
+        Observer.Expect('1200 local', 'same as var');
+        Observer.Verify();
     end;
 
     [Test]
@@ -353,7 +725,37 @@ codeunit 75987 "FVC DateTime Digits"
         ShapesTime(Observer, FR, '1');
         FR.Value := '0';
         ShapesTime(Observer, FR, '0');
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('0115 var', 'error Evaluate:Conversion | The value "0115" can''t be evaluated into type Time.');
+#else
+        Observer.Expect('0115 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
+#endif
+        Observer.Expect('0115 local', 'same as var');
+#if BC28PLUS
+        Observer.Expect('01152026 var', 'error Evaluate:Conversion | The value "01152026" can''t be evaluated into type Time.');
+#else
+        Observer.Expect('01152026 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
+#endif
+        Observer.Expect('01152026 local', 'same as var');
+#if BC28PLUS
+        Observer.Expect('260115 var', 'error Evaluate:Conversion | The value "260115" can''t be evaluated into type Time.');
+#else
+        Observer.Expect('260115 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
+#endif
+        Observer.Expect('260115 local', 'same as var');
+#if BC28PLUS
+        Observer.Expect('1 var', 'error Evaluate:Conversion | The value "1" can''t be evaluated into type Time.');
+#else
+        Observer.Expect('1 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
+#endif
+        Observer.Expect('1 local', 'same as var');
+#if BC28PLUS
+        Observer.Expect('0 var', 'error Evaluate:Conversion | The value "0" can''t be evaluated into type Time.');
+#else
+        Observer.Expect('0 var', 'error Conversion | Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime.');
+#endif
+        Observer.Expect('0 local', 'same as var');
+        Observer.Verify();
     end;
 
     local procedure Shapes(var Observer: Codeunit "Probe Observer"; var FR: FieldRef; Label: Text)
