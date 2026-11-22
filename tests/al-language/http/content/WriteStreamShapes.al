@@ -37,9 +37,15 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
     end;
 
     [TryFunction]
-    local procedure TryGetHeaders(var Content: HttpContent; var Headers: HttpHeaders)
+    local procedure TryGetRequestHeaders(var Request: HttpRequestMessage; var Headers: HttpHeaders)
     begin
-        Content.GetHeaders(Headers);
+        Request.Content.GetHeaders(Headers);
+    end;
+
+    [TryFunction]
+    local procedure TryWriteRequest(var Request: HttpRequestMessage; var InS: InStream)
+    begin
+        Request.Content.WriteFrom(InS);
     end;
 
     local procedure ContentType(var Headers: HttpHeaders): Text
@@ -82,6 +88,26 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         ClearLastError();
         Content.ReadAs(Body);
         Observer.Observe(Name, Format(Ok) + '|' + ErrorCode + '|' + ErrorText + '|' + Before + '|' + TypeOf(Content) + '|' + Body);
+    end;
+
+    local procedure WriteRequestCell(Name: Text; var Request: HttpRequestMessage; var InS: InStream; Before: Text)
+    var
+        Headers: HttpHeaders;
+        Ok: Boolean;
+        ErrorCode: Text;
+        ErrorText: Text;
+        Body: Text;
+        After: Text;
+    begin
+        ClearLastError();
+        Ok := TryWriteRequest(Request, InS);
+        ErrorCode := GetLastErrorCode();
+        ErrorText := GetLastErrorText();
+        ClearLastError();
+        Request.Content.GetHeaders(Headers);
+        After := ContentType(Headers);
+        Request.Content.ReadAs(Body);
+        Observer.Observe(Name, Format(Ok) + '|' + ErrorCode + '|' + ErrorText + '|' + Before + '|' + After + '|' + Body);
     end;
 
     local procedure Written(var Content: HttpContent; Value: Text; var Headers: HttpHeaders)
@@ -322,11 +348,11 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         Ok: Boolean;
     begin
         ClearLastError();
-        Ok := TryGetHeaders(Request.Content, Headers);
+        Ok := TryGetRequestHeaders(Request, Headers);
         Observer.Observe('getHeaders|ok', Format(Ok));
         Observer.ObserveError('getHeaders|err');
         Stream(Blob, InS, 'stream body');
-        WriteCell('noContent|direct', Request.Content, InS, '<n/a>');
+        WriteRequestCell('noContent|direct', Request, InS, '<n/a>');
         Observer.Finish();
     end;
 
@@ -342,7 +368,7 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         Request.Content.GetHeaders(Headers);
         Headers.Remove('Content-Type');
         Stream(Blob, InS, 'stream body');
-        WriteCell('writtenFirst', Request.Content, InS, '<absent>');
+        WriteRequestCell('writtenFirst', Request, InS, '<absent>');
         Observer.Finish();
     end;
 
@@ -588,7 +614,7 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         Observer.Observe('after|readText', Format(Content.ReadAs(Txt)));
         Observer.Observe('after|text', Txt);
         Observer.Observe('after|readSecret', Format(Content.ReadAs(Body)));
-        Observer.Observe('after|secretLen', Format(StrLen(Body.Unwrap())));
+        Observer.Observe('after|secretIsEmpty', Format(Body.IsEmpty()));
         Observer.Finish();
     end;
 

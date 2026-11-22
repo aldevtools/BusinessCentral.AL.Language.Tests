@@ -47,16 +47,16 @@ codeunit 98064 "LT HtT Handler Response Shapes"
         exit('<absent>');
     end;
 
-    local procedure ContentCell(Name: Text; var Content: HttpContent)
+    local procedure ResponseContentCell(Name: Text; var Response: HttpResponseMessage)
     var
         Headers: HttpHeaders;
         Body: Text;
     begin
-        Content.GetHeaders(Headers);
+        Response.Content.GetHeaders(Headers);
         Cell(Name, Headers);
         Observer.Observe(Name + '|type', ContentType(Headers));
         Observer.Observe(Name + '|length', Format(Headers.Contains('Content-Length')));
-        Content.ReadAs(Body);
+        Response.Content.ReadAs(Body);
         Observer.Observe(Name + '|body', Body);
     end;
 
@@ -64,6 +64,7 @@ codeunit 98064 "LT HtT Handler Response Shapes"
     procedure ModeHandler(Request: TestHttpRequestMessage; var Response: TestHttpResponseMessage): Boolean
     var
         Headers: HttpHeaders;
+        Body: Text;
     begin
         Calls += 1;
         Response.HttpStatusCode := 200;
@@ -86,7 +87,11 @@ codeunit 98064 "LT HtT Handler Response Shapes"
                 begin
                     Request.GetHeaders(Headers);
                     Cell('handler|requestHeaders', Headers);
-                    ContentCell('handler|requestContent', Request.Content);
+                    Request.Content.GetHeaders(Headers);
+                    Cell('handler|requestContentHeaders', Headers);
+                    Observer.Observe('handler|requestContent|type', ContentType(Headers));
+                    Request.Content.ReadAs(Body);
+                    Observer.Observe('handler|requestContent|body', Body);
                 end;
             7:
                 begin
@@ -121,7 +126,7 @@ codeunit 98064 "LT HtT Handler Response Shapes"
         Headers := Response.Headers();
         Cell('headers', Headers);
         Observer.Observe('headers|x-a', Format(Headers.Contains('X-A')));
-        ContentCell('content', Response.Content);
+        ResponseContentCell('content', Response);
     end;
 
     [Test]

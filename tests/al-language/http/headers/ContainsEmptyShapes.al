@@ -89,6 +89,32 @@ codeunit 70886 "LT HtT Contains Empty Shapes"
         Observer.Observe(Name + '|body', Body);
     end;
 
+    local procedure RequestContentCell(Name: Text; var Request: HttpRequestMessage)
+    var
+        Headers: HttpHeaders;
+        Body: Text;
+    begin
+        Request.Content.GetHeaders(Headers);
+        Cell(Name, Headers);
+        Observer.Observe(Name + '|type', ContentType(Headers));
+        Observer.Observe(Name + '|length', Format(Headers.Contains('Content-Length')));
+        Request.Content.ReadAs(Body);
+        Observer.Observe(Name + '|body', Body);
+    end;
+
+    local procedure ResponseContentCell(Name: Text; var Response: HttpResponseMessage)
+    var
+        Headers: HttpHeaders;
+        Body: Text;
+    begin
+        Response.Content.GetHeaders(Headers);
+        Cell(Name, Headers);
+        Observer.Observe(Name + '|type', ContentType(Headers));
+        Observer.Observe(Name + '|length', Format(Headers.Contains('Content-Length')));
+        Response.Content.ReadAs(Body);
+        Observer.Observe(Name + '|body', Body);
+    end;
+
     local procedure Stream(var Blob: Codeunit "Temp Blob"; var InS: InStream; Value: Text)
     var
         OutS: OutStream;
@@ -214,7 +240,7 @@ codeunit 70886 "LT HtT Contains Empty Shapes"
         Headers: HttpHeaders;
     begin
         Response.Content.WriteFrom('x');
-        ContentCell('responseContent', Response.Content);
+        ResponseContentCell('responseContent', Response);
         Headers := Response.Headers();
         Cell('responseHeaders', Headers);
         Observer.Finish();
@@ -357,7 +383,7 @@ codeunit 70886 "LT HtT Contains Empty Shapes"
         Observer.Observe('secret|length', Format(Headers.Contains('Content-Length')));
         Observer.Observe('secret|isSecret', Format(Content.IsSecretContent()));
         Observer.Observe('secret|read', Format(Content.ReadAs(Body)));
-        Observer.Observe('secret|len', Format(StrLen(Body.Unwrap())));
+        Observer.Observe('secret|isEmpty', Format(Body.IsEmpty()));
         Cell('afterRead', Headers);
         Observer.Finish();
     end;
@@ -406,7 +432,7 @@ codeunit 70886 "LT HtT Contains Empty Shapes"
     begin
         Content.WriteFrom('x');
         Request.Content := Content;
-        ContentCell('assigned', Request.Content);
+        RequestContentCell('assigned', Request);
         ContentCell('source', Content);
         Observer.Finish();
     end;
@@ -418,7 +444,7 @@ codeunit 70886 "LT HtT Contains Empty Shapes"
         Content: HttpContent;
     begin
         Request.Content := Content;
-        ContentCell('assigned', Request.Content);
+        RequestContentCell('assigned', Request);
         Observer.Finish();
     end;
 
@@ -431,7 +457,7 @@ codeunit 70886 "LT HtT Contains Empty Shapes"
         Content.WriteFrom('x');
         Request.Content := Content;
         Request.Content.WriteFrom('y');
-        ContentCell('assigned', Request.Content);
+        RequestContentCell('assigned', Request);
         Observer.Finish();
     end;
 
@@ -452,7 +478,7 @@ codeunit 70886 "LT HtT Contains Empty Shapes"
         Observer.ObserveError('get|err');
         Headers := Response.Headers();
         Cell('headers', Headers);
-        ContentCell('content', Response.Content);
+        ResponseContentCell('content', Response);
         Observer.Finish();
     end;
 
@@ -495,7 +521,7 @@ codeunit 70886 "LT HtT Contains Empty Shapes"
         Cell('requestHeaders', Headers);
         Headers := Response.Headers();
         Cell('responseHeaders', Headers);
-        ContentCell('responseContent', Response.Content);
+        ResponseContentCell('responseContent', Response);
         Observer.Finish();
     end;
 
@@ -517,7 +543,7 @@ codeunit 70886 "LT HtT Contains Empty Shapes"
         Observer.Observe('send', Format(Ok));
         ClearLastError();
         Request.Content.WriteFrom('late');
-        ContentCell('afterSend', Request.Content);
+        RequestContentCell('afterSend', Request);
         Observer.Finish();
     end;
 
@@ -536,7 +562,7 @@ codeunit 70886 "LT HtT Contains Empty Shapes"
         Observer.Observe('send', Format(Ok));
         ClearLastError();
         Request.Content.WriteFrom('late');
-        ContentCell('afterSend', Request.Content);
+        RequestContentCell('afterSend', Request);
         Observer.Finish();
     end;
 
