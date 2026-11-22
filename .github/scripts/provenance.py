@@ -57,7 +57,7 @@ BC_COUNTRY = 'w1'
 # That build reports debugger protocol 9.0, and no published al tool supports it yet: 18.0.37.11445-beta and
 # 18.0.43.1464 stop at 7.0, 30.0.42.60748-beta at 8.0, so every codeunit ended "al runtests exited 1 with no results"
 # (corpus #561). Remove the entry once an al tool lists debugger 9.0. (Moved here from the five test jobs of ci.yml.)
-PINNED = {'29.': RELEASED + '/sandbox/29.0.54011.55816/w1'}
+PINNED = {'29.0': RELEASED + '/sandbox/29.0.54011.55816/w1'}
 
 PROPS = ('source_run', 'source_attempt', 'source_commit', 'bc_build', 'app')
 SCHEMA = 1

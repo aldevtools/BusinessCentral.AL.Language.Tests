@@ -311,7 +311,7 @@ jobs:
           else
             # The newest minor of each major: al-runtime-rs reads these legs as its oracle.
             # Use the bc_version input to run another minor.
-            JSON='{"include":[{"bc_version":"27.5","runtime":"16.1","preprocessor_symbols":"BC27PLUS"},{"bc_version":"28.5","runtime":"17.1","preprocessor_symbols":"BC27PLUS,BC28PLUS"},{"bc_version":"29.0","runtime":"18.0","preprocessor_symbols":"BC27PLUS,BC28PLUS,BC29PLUS"}]}'
+            JSON='{"include":[{"bc_version":"27.5","runtime":"16.1","preprocessor_symbols":"BC27PLUS"},{"bc_version":"28.5","runtime":"17.1","preprocessor_symbols":"BC27PLUS,BC28PLUS"},{"bc_version":"29.1","runtime":"18.0","preprocessor_symbols":"BC27PLUS,BC28PLUS,BC29PLUS"}]}'
           fi
           # The BC build of each version, resolved once here for every leg and shard of the run, and added to the matrix
           # as bc_artifact_url and bc_build (CONTRIBUTING.md, "BC build and result provenance"). A version without a build

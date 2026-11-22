@@ -126,10 +126,10 @@ def main():
     check('resolve: an artifact URL without a full build is an error',
           raises(lambda: pv.build_of(pv.RELEASED + '/sandbox/29.0/w1')) and raises(lambda: pv.build_of('')))
 
-    for v in ('29.0', '29.1'):
+    for v in ('29.0',):
         f = fake({})
         check('resolve: %s takes the pinned URL without reading an index' % v,
-              pv.resolve_one(v, fetch=f, pause=0) == (pv.PINNED['29.'], '29.0.54011.55816') and not f.calls)
+              pv.resolve_one(v, fetch=f, pause=0) == (pv.PINNED['29.0'], '29.0.54011.55816') and not f.calls)
 
     check('resolve: a full build is taken as it is',
           pv.resolve_one('28.5.54151.58194', fetch=fake({}), pause=0)
