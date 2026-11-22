@@ -11,6 +11,9 @@
 //   - the Count of the RecordRef after the call (the filter still applies to rows).
 //   The control tests make the same calls on a table without a global filter.
 // Every test starts by taking back an earlier filter, seeding the four rows and setting the filter again; the last test takes it back.
+// What BC did (BC 29.0 on the local host): every metadata call answers as it does without a global filter (the control test): Number,
+//   Name, Caption, FieldCount, FieldExist, KeyCount, IsTemporary, RecordId (table name and 0), CurrentKeyIndex, KeyIndex, FieldIndex,
+//   Field(1) Name, Caption and Type, SecurityFiltering and ReadPermission; Close and reopen shows Count 2 under the filter and 4 without.
 // Observation form: every test ends in Finish(); the values are what BC produced.
 // BC versions: 27.5, 28.5, 29.0 (measured by the corpus CI)
 
@@ -150,7 +153,8 @@ codeunit 55232 "LT RR Meta Global Filter"
         Setup();
         RR.Open(Database::"LT RR Meta Filtered");
         Observer.Observe('number is the table id', Format(RR.Number() = Database::"LT RR Meta Filtered"));
-        Observer.Finish();
+        Observer.Expect('number is the table id', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -163,7 +167,8 @@ codeunit 55232 "LT RR Meta Global Filter"
         Setup();
         RR.Open(Database::"LT RR Meta Filtered");
         Observer.Observe('name', RR.Name());
-        Observer.Finish();
+        Observer.Expect('name', 'LT RR Meta Filtered');
+        Observer.Verify();
     end;
 
     [Test]
@@ -176,7 +181,8 @@ codeunit 55232 "LT RR Meta Global Filter"
         Setup();
         RR.Open(Database::"LT RR Meta Filtered");
         Observer.Observe('caption', RR.Caption());
-        Observer.Finish();
+        Observer.Expect('caption', 'LT RR Meta Filtered Caption');
+        Observer.Verify();
     end;
 
     [Test]
@@ -189,7 +195,8 @@ codeunit 55232 "LT RR Meta Global Filter"
         Setup();
         RR.Open(Database::"LT RR Meta Filtered");
         Observer.Observe('field count', Format(RR.FieldCount()));
-        Observer.Finish();
+        Observer.Expect('field count', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -203,7 +210,9 @@ codeunit 55232 "LT RR Meta Global Filter"
         RR.Open(Database::"LT RR Meta Filtered");
         Observer.Observe('field 2 exists', Format(RR.FieldExist(2)));
         Observer.Observe('field 9 exists', Format(RR.FieldExist(9)));
-        Observer.Finish();
+        Observer.Expect('field 2 exists', 'Yes');
+        Observer.Expect('field 9 exists', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -216,7 +225,8 @@ codeunit 55232 "LT RR Meta Global Filter"
         Setup();
         RR.Open(Database::"LT RR Meta Filtered");
         Observer.Observe('key count', Format(RR.KeyCount()));
-        Observer.Finish();
+        Observer.Expect('key count', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -229,7 +239,8 @@ codeunit 55232 "LT RR Meta Global Filter"
         Setup();
         RR.Open(Database::"LT RR Meta Filtered");
         Observer.Observe('is temporary', Format(RR.IsTemporary()));
-        Observer.Finish();
+        Observer.Expect('is temporary', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -245,7 +256,8 @@ codeunit 55232 "LT RR Meta Global Filter"
             Observer.Observe('record id', Info)
         else
             Observer.ObserveError('record id');
-        Observer.Finish();
+        Observer.Expect('record id', 'LT RR Meta Filtered: 0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -261,7 +273,8 @@ codeunit 55232 "LT RR Meta Global Filter"
             Observer.Observe('current key index', Info)
         else
             Observer.ObserveError('current key index');
-        Observer.Finish();
+        Observer.Expect('current key index', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -277,7 +290,8 @@ codeunit 55232 "LT RR Meta Global Filter"
             Observer.Observe('key 1', Info)
         else
             Observer.ObserveError('key 1');
-        Observer.Finish();
+        Observer.Expect('key 1', '1 Id');
+        Observer.Verify();
     end;
 
     [Test]
@@ -293,7 +307,8 @@ codeunit 55232 "LT RR Meta Global Filter"
             Observer.Observe('field index 1', Info)
         else
             Observer.ObserveError('field index 1');
-        Observer.Finish();
+        Observer.Expect('field index 1', 'Id');
+        Observer.Verify();
     end;
 
     [Test]
@@ -306,7 +321,8 @@ codeunit 55232 "LT RR Meta Global Filter"
         Setup();
         RR.Open(Database::"LT RR Meta Filtered");
         Observer.Observe('field 1 name', RR.Field(1).Name());
-        Observer.Finish();
+        Observer.Expect('field 1 name', 'Id');
+        Observer.Verify();
     end;
 
     [Test]
@@ -319,7 +335,8 @@ codeunit 55232 "LT RR Meta Global Filter"
         Setup();
         RR.Open(Database::"LT RR Meta Filtered");
         Observer.Observe('field 1 caption', RR.Field(1).Caption());
-        Observer.Finish();
+        Observer.Expect('field 1 caption', 'Row Id');
+        Observer.Verify();
     end;
 
     [Test]
@@ -332,7 +349,8 @@ codeunit 55232 "LT RR Meta Global Filter"
         Setup();
         RR.Open(Database::"LT RR Meta Filtered");
         Observer.Observe('field 1 type', Format(RR.Field(1).Type()));
-        Observer.Finish();
+        Observer.Expect('field 1 type', 'Integer');
+        Observer.Verify();
     end;
 
     [Test]
@@ -345,7 +363,8 @@ codeunit 55232 "LT RR Meta Global Filter"
         Setup();
         RR.Open(Database::"LT RR Meta Filtered");
         Observer.Observe('security filtering', Format(RR.SecurityFiltering()));
-        Observer.Finish();
+        Observer.Expect('security filtering', 'Validated');
+        Observer.Verify();
     end;
 
     [Test]
@@ -358,7 +377,8 @@ codeunit 55232 "LT RR Meta Global Filter"
         Setup();
         RR.Open(Database::"LT RR Meta Filtered");
         Observer.Observe('read permission', Format(RR.ReadPermission()));
-        Observer.Finish();
+        Observer.Expect('read permission', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -374,7 +394,9 @@ codeunit 55232 "LT RR Meta Global Filter"
         RR.Open(Database::"LT RR Meta Filtered");
         Observer.Observe('count after reopen', Format(RR.Count()));
         Observer.Observe('name after reopen', RR.Name());
-        Observer.Finish();
+        Observer.Expect('count after reopen', '2');
+        Observer.Expect('name after reopen', 'LT RR Meta Filtered');
+        Observer.Verify();
     end;
 
     [Test]
@@ -393,7 +415,14 @@ codeunit 55232 "LT RR Meta Global Filter"
         Observer.Observe('is empty', Format(RR.IsEmpty()));
         Observer.Observe('find first', Format(RR.FindFirst()));
         Observer.Observe('first row id', Format(RR.Field(1).Value()));
-        Observer.Finish();
+        Observer.Expect('number', 'Yes');
+        Observer.Expect('field count', '3');
+        Observer.Expect('key count', '3');
+        Observer.Expect('count', '2');
+        Observer.Expect('is empty', 'No');
+        Observer.Expect('find first', 'Yes');
+        Observer.Expect('first row id', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -434,7 +463,24 @@ codeunit 55232 "LT RR Meta Global Filter"
             Observer.Observe('field index 1', Info)
         else
             Observer.ObserveError('field index 1');
-        Observer.Finish();
+        Observer.Expect('number is the table id', 'Yes');
+        Observer.Expect('name', 'LT RR Meta Control');
+        Observer.Expect('caption', 'LT RR Meta Control Caption');
+        Observer.Expect('field count', '3');
+        Observer.Expect('field 2 exists', 'Yes');
+        Observer.Expect('field 9 exists', 'No');
+        Observer.Expect('key count', '3');
+        Observer.Expect('is temporary', 'No');
+        Observer.Expect('field 1 name', 'Id');
+        Observer.Expect('field 1 caption', 'Row Id');
+        Observer.Expect('field 1 type', 'Integer');
+        Observer.Expect('security filtering', 'Validated');
+        Observer.Expect('read permission', 'Yes');
+        Observer.Expect('record id', 'LT RR Meta Control: 0');
+        Observer.Expect('current key index', '1');
+        Observer.Expect('key 1', '1 Id');
+        Observer.Expect('field index 1', 'Id');
+        Observer.Verify();
     end;
 
     [Test]
@@ -450,7 +496,9 @@ codeunit 55232 "LT RR Meta Global Filter"
         RR.Open(Database::"LT RR Meta Control");
         Observer.Observe('count after reopen', Format(RR.Count()));
         Observer.Observe('name after reopen', RR.Name());
-        Observer.Finish();
+        Observer.Expect('count after reopen', '4');
+        Observer.Expect('name after reopen', 'LT RR Meta Control');
+        Observer.Verify();
     end;
 
     [Test]
@@ -464,6 +512,7 @@ codeunit 55232 "LT RR Meta Global Filter"
         ClearFilter();
         RR.Open(Database::"LT RR Meta Filtered");
         Observer.Observe('count after the filter was taken back', Format(RR.Count()));
-        Observer.Finish();
+        Observer.Expect('count after the filter was taken back', '4');
+        Observer.Verify();
     end;
 }

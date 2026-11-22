@@ -11,6 +11,13 @@
 //   Each loop records the iterated characters (Format), their codes (as Integer) and the number of iterations.
 // Compile errors (not tests): a multi-character literal bound for a Char loop variable, an empty literal bound for a Char loop
 //   variable and a Text loop variable are in tests/must-not-compile/cases (0000-for-char-*).
+// What BC did (BC 29.0 on the local host; the CI run measures 27.5, 28.5 and 29.0):
+//   - every shape that compiles iterates the characters between the bounds, ascending for to, descending for downto: '0' to '4' gives
+//     01234 (codes 48 to 52), 'a' to a Char variable 'c' gives abc, integer bounds 48 to 50 give 012; a one-character literal bound and an
+//     integer bound mix freely; the loop variable keeps the last value (52 after '0' to '4', 48 after '4' downto '0');
+//   - an empty range runs zero times and leaves the variable at the start value; a one-value range runs once;
+//   - 'ä' to 'å' gives codes 228 and 229; 65534 to 65535 ends after 2 iterations (no wrap-around);
+//   - an Integer loop variable with the bounds '0' to '4' iterates 48 to 52 (the characters are read as their codes).
 // Observation form: every test ends in Finish(); the values are what BC produced.
 // BC versions: 27.5, 28.5, 29.0 (measured by the corpus CI)
 
@@ -42,7 +49,11 @@ codeunit 55200 "LT For Char Bounds"
         Observer.Observe('codes', codes);
         Observer.Observe('iterations', Format(n));
         Observer.Observe('after the loop', Format(CodeOf(c)));
-        Observer.Finish();
+        Observer.Expect('chars', '01234');
+        Observer.Expect('codes', '48 49 50 51 52 ');
+        Observer.Expect('iterations', '5');
+        Observer.Expect('after the loop', '52');
+        Observer.Verify();
     end;
 
     [Test]
@@ -63,7 +74,11 @@ codeunit 55200 "LT For Char Bounds"
         Observer.Observe('codes', codes);
         Observer.Observe('iterations', Format(n));
         Observer.Observe('after the loop', Format(CodeOf(c)));
-        Observer.Finish();
+        Observer.Expect('chars', '43210');
+        Observer.Expect('codes', '52 51 50 49 48 ');
+        Observer.Expect('iterations', '5');
+        Observer.Expect('after the loop', '48');
+        Observer.Verify();
     end;
 
     [Test]
@@ -83,7 +98,10 @@ codeunit 55200 "LT For Char Bounds"
         Observer.Observe('chars', s);
         Observer.Observe('iterations', Format(n));
         Observer.Observe('after the loop', Format(CodeOf(c)));
-        Observer.Finish();
+        Observer.Expect('chars', 'abc');
+        Observer.Expect('iterations', '3');
+        Observer.Expect('after the loop', '99');
+        Observer.Verify();
     end;
 
     [Test]
@@ -103,7 +121,10 @@ codeunit 55200 "LT For Char Bounds"
         Observer.Observe('chars', s);
         Observer.Observe('iterations', Format(n));
         Observer.Observe('after the loop', Format(CodeOf(c)));
-        Observer.Finish();
+        Observer.Expect('chars', 'cde');
+        Observer.Expect('iterations', '3');
+        Observer.Expect('after the loop', '101');
+        Observer.Verify();
     end;
 
     [Test]
@@ -132,7 +153,11 @@ codeunit 55200 "LT For Char Bounds"
         end;
         Observer.Observe('downto', s);
         Observer.Observe('downto iterations', Format(n));
-        Observer.Finish();
+        Observer.Expect('to', 'abc');
+        Observer.Expect('to iterations', '3');
+        Observer.Expect('downto', 'cba');
+        Observer.Expect('downto iterations', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -153,7 +178,11 @@ codeunit 55200 "LT For Char Bounds"
         Observer.Observe('codes', codes);
         Observer.Observe('iterations', Format(n));
         Observer.Observe('after the loop', Format(CodeOf(c)));
-        Observer.Finish();
+        Observer.Expect('chars', '012');
+        Observer.Expect('codes', '48 49 50 ');
+        Observer.Expect('iterations', '3');
+        Observer.Expect('after the loop', '50');
+        Observer.Verify();
     end;
 
     [Test]
@@ -173,7 +202,10 @@ codeunit 55200 "LT For Char Bounds"
         Observer.Observe('chars', s);
         Observer.Observe('codes', codes);
         Observer.Observe('iterations', Format(n));
-        Observer.Finish();
+        Observer.Expect('chars', '01234');
+        Observer.Expect('codes', '48 49 50 51 52 ');
+        Observer.Expect('iterations', '5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -193,7 +225,10 @@ codeunit 55200 "LT For Char Bounds"
         Observer.Observe('chars', s);
         Observer.Observe('codes', codes);
         Observer.Observe('iterations', Format(n));
-        Observer.Finish();
+        Observer.Expect('chars', '01234');
+        Observer.Expect('codes', '48 49 50 51 52 ');
+        Observer.Expect('iterations', '5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -220,7 +255,13 @@ codeunit 55200 "LT For Char Bounds"
         for c := 'a' downto 'a' do
             n += 1;
         Observer.Observe('a downto a iterations', Format(n));
-        Observer.Finish();
+        Observer.Expect('4 to 0 iterations', '0');
+        Observer.Expect('4 to 0 after the loop', '52');
+        Observer.Expect('0 downto 4 iterations', '0');
+        Observer.Expect('a to a iterations', '1');
+        Observer.Expect('a to a after the loop', '97');
+        Observer.Expect('a downto a iterations', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -237,7 +278,9 @@ codeunit 55200 "LT For Char Bounds"
         end;
         Observer.Observe('codes', codes);
         Observer.Observe('iterations', Format(n));
-        Observer.Finish();
+        Observer.Expect('codes', '228 229 ');
+        Observer.Expect('iterations', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -269,7 +312,13 @@ codeunit 55200 "LT For Char Bounds"
         Observer.Observe('downto codes', codes);
         Observer.Observe('downto iterations', Format(n));
         Observer.Observe('downto after the loop', Format(CodeOf(c)));
-        Observer.Finish();
+        Observer.Expect('to codes', '65534 65535 ');
+        Observer.Expect('to iterations', '2');
+        Observer.Expect('to after the loop', '65535');
+        Observer.Expect('downto codes', '1 0 ');
+        Observer.Expect('downto iterations', '2');
+        Observer.Expect('downto after the loop', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -284,7 +333,9 @@ codeunit 55200 "LT For Char Bounds"
         for c := '4' downto '0' do
             ;
         Observer.Observe('downto', Format(CodeOf(c)));
-        Observer.Finish();
+        Observer.Expect('to', '52');
+        Observer.Expect('downto', '48');
+        Observer.Verify();
     end;
 
     [Test]
@@ -310,6 +361,11 @@ codeunit 55200 "LT For Char Bounds"
         end;
         Observer.Observe('downto values', s);
         Observer.Observe('downto iterations', Format(n));
-        Observer.Finish();
+        Observer.Expect('to values', '48 49 50 51 52 ');
+        Observer.Expect('to iterations', '5');
+        Observer.Expect('to after the loop', '52');
+        Observer.Expect('downto values', '52 51 50 49 48 ');
+        Observer.Expect('downto iterations', '5');
+        Observer.Verify();
     end;
 }

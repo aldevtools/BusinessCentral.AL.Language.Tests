@@ -10,6 +10,11 @@
 //   - the value on the first, second and last row, with a TestPage filter set after the open, and on a page whose SourceTableView
 //     filters the rows (the page's Count follows the filter or not);
 //   - the control inside a repeater, in a group outside the repeater, and on a card page.
+// What BC did (BC 29.0 on the local host): all of these compile and the control shows the value of the method for the page's rows:
+//   Rec.Count, Rec.CountApprox, Rec.Count() and a bare Count give 3 on every row, on the card and in a group outside the repeater;
+//   the count follows a TestPage filter and the SourceTableView (2 after Id 2..3); Rec.GetFilters is empty and shows the filter after a
+//   TestPage filter; Rec.IsEmpty gives No; Rec.TableCaption and Rec.TableName give the table's names. On a table with a field Count,
+//   Rec.Count is the field (10, 20, 30 per row) and Rec.Count() is the method (3).
 // Compile errors (not tests): `Rec.FieldCount` on a page over a table (Record has no FieldCount) is in tests/must-not-compile/cases.
 // Observation form: every test ends in Finish(); the values are what BC produced.
 // BC versions: 27.5, 28.5, 29.0 (measured by the corpus CI)
@@ -336,7 +341,10 @@ codeunit 55266 "LT Rec Count Control"
         TP.Last();
         Observer.Observe('last', Format(TP.Total.Value()));
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('first', '3');
+        Observer.Expect('second', '3');
+        Observer.Expect('last', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -353,7 +361,9 @@ codeunit 55266 "LT Rec Count Control"
         TP.Next();
         Observer.Observe('second', Format(TP.Total.Value()));
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('first', '2');
+        Observer.Expect('second', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -370,7 +380,10 @@ codeunit 55266 "LT Rec Count Control"
         TP.Last();
         Observer.Observe('last', Format(TP.Total.Value()));
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('first', '2');
+        Observer.Expect('second', '2');
+        Observer.Expect('last', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -387,7 +400,10 @@ codeunit 55266 "LT Rec Count Control"
         TP.Last();
         Observer.Observe('last', Format(TP.Total.Value()));
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('first', '3');
+        Observer.Expect('second', '3');
+        Observer.Expect('last', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -404,7 +420,10 @@ codeunit 55266 "LT Rec Count Control"
         TP.Last();
         Observer.Observe('last', Format(TP.Total.Value()));
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('first', '3');
+        Observer.Expect('second', '3');
+        Observer.Expect('last', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -421,7 +440,10 @@ codeunit 55266 "LT Rec Count Control"
         TP.Last();
         Observer.Observe('last', Format(TP.Total.Value()));
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('first', '');
+        Observer.Expect('second', '');
+        Observer.Expect('last', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -436,7 +458,8 @@ codeunit 55266 "LT Rec Count Control"
         TP.First();
         Observer.Observe('first', Format(TP.Total.Value()));
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('first', 'Id: 2..3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -453,7 +476,10 @@ codeunit 55266 "LT Rec Count Control"
         TP.Last();
         Observer.Observe('last', Format(TP.Total.Value()));
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('first', '3');
+        Observer.Expect('second', '3');
+        Observer.Expect('last', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -470,7 +496,10 @@ codeunit 55266 "LT Rec Count Control"
         TP.Last();
         Observer.Observe('last', Format(TP.Total.Value()));
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('first', 'No');
+        Observer.Expect('second', 'No');
+        Observer.Expect('last', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -487,7 +516,10 @@ codeunit 55266 "LT Rec Count Control"
         TP.Last();
         Observer.Observe('last', Format(TP.Total.Value()));
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('first', 'LT Cnt Row');
+        Observer.Expect('second', 'LT Cnt Row');
+        Observer.Expect('last', 'LT Cnt Row');
+        Observer.Verify();
     end;
 
     [Test]
@@ -504,7 +536,10 @@ codeunit 55266 "LT Rec Count Control"
         TP.Last();
         Observer.Observe('last', Format(TP.Total.Value()));
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('first', 'LT Cnt Row');
+        Observer.Expect('second', 'LT Cnt Row');
+        Observer.Expect('last', 'LT Cnt Row');
+        Observer.Verify();
     end;
 
     [Test]
@@ -521,7 +556,10 @@ codeunit 55266 "LT Rec Count Control"
         TP.Last();
         Observer.Observe('last', Format(TP.Total.Value()));
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('first', '3');
+        Observer.Expect('second', '3');
+        Observer.Expect('last', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -538,7 +576,10 @@ codeunit 55266 "LT Rec Count Control"
         TP.Last();
         Observer.Observe('last', Format(TP.Total.Value()));
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('first', '10');
+        Observer.Expect('second', '20');
+        Observer.Expect('last', '30');
+        Observer.Verify();
     end;
 
     [Test]
@@ -555,7 +596,10 @@ codeunit 55266 "LT Rec Count Control"
         TP.Last();
         Observer.Observe('last', Format(TP.Total.Value()));
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('first', '3');
+        Observer.Expect('second', '3');
+        Observer.Expect('last', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -568,7 +612,8 @@ codeunit 55266 "LT Rec Count Control"
         TP.OpenView();
         Observer.Observe('first', Format(TP.Total.Value()));
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('first', '3');
+        Observer.Verify();
     end;
 
 }
