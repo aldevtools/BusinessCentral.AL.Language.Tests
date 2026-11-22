@@ -1263,3 +1263,4 @@ stem	area
 3219-subscriber-bare-id-missing-codeunit	events
 3220-subscriber-bare-id-missing-table	events
 3221-subscriber-bare-table-id-other-record	events
+3805-calcformula-filter-at-sign-unquoted	table-objects
