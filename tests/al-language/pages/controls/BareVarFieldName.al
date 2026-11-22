@@ -9,6 +9,9 @@
 //   and OnClosePage read through the bare name and through Rec, the stored row after Close, and a CaptionClass expression that
 //   reads the bare name. In the page's code a bare name binds to the field (AL 16 rejects `Qty := 'text'` with AL0122, so the
 //   variables cannot be set from code and keep their default values); the control's value tells which one it shows.
+// Facts (CI, BC 27.5, 28.5 and 29.0 the same): the control binds the FIELD, not the page variable: it shows the row values (100.00, rec desc,
+//   RECU, 5) and the field captions, SetValue writes the field (stored row 42/typed desc/TYPU/9), and the bare name in OnValidate,
+//   OnAfterGetRecord, OnClosePage and the CaptionClass expression reads the same value as Rec.
 // local object: the probe needs a table whose field names are also page variable names
 // BC versions: 27, 28, 29
 
@@ -190,7 +193,22 @@ codeunit 75153 "PCV VarField Tests"
         Card.Close();
         Observer.Observe('log', Log.Take());
         Observer.Observe('stored', RowText());
-        Observer.Finish();
+        Observer.Expect('open amount', '100.00');
+        Observer.Expect('open desc', 'rec desc');
+        Observer.Expect('open unit', 'RECU');
+        Observer.Expect('open qty', '5');
+        Observer.Expect('row amount', '100.00');
+        Observer.Expect('row desc', 'rec desc');
+        Observer.Expect('row unit', 'RECU');
+        Observer.Expect('row qty', '5');
+        Observer.Expect('caption amount', 'Row Amount Cap');
+        Observer.Expect('caption desc', 'Row Desc Cap');
+        Observer.Expect('caption unit', 'Row Unit Cap');
+        Observer.Expect('caption qty', 'Row Qty Cap');
+        Observer.Expect('captionclass', 'cc 100');
+        Observer.Expect('log', 'open rec=0///0;agr R1 bare=100/rec desc/RECU/5 rec=100/rec desc/RECU/5;agr R1 bare=100/rec desc/RECU/5 rec=100/rec desc/RECU/5;close bare=100/rec desc/RECU/5 rec=100/rec desc/RECU/5;');
+        Observer.Expect('stored', '100/rec desc/RECU/5');
+        Observer.Verify();
     end;
 
     // CLAIM: where a value typed into those controls goes: the page variable, the field, the stored row.
@@ -217,6 +235,13 @@ codeunit 75153 "PCV VarField Tests"
         Card.Close();
         Observer.Observe('log', Log.Take());
         Observer.Observe('stored', RowText());
-        Observer.Finish();
+        Observer.Expect('typed amount', '42.00');
+        Observer.Expect('typed desc', 'typed desc');
+        Observer.Expect('typed unit', 'TYPU');
+        Observer.Expect('typed qty', '9');
+        Observer.Expect('captionclass', 'cc 42');
+        Observer.Expect('log', 'V-amount bare=42 rec=42;V-desc bare=typed desc rec=typed desc;V-unit bare=TYPU rec=TYPU;V-qty bare=9 rec=9;close bare=42/typed desc/TYPU/9 rec=42/typed desc/TYPU/9;');
+        Observer.Expect('stored', '42/typed desc/TYPU/9');
+        Observer.Verify();
     end;
 }

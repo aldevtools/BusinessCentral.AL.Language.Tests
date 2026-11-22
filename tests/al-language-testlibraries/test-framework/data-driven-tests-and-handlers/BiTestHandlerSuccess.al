@@ -128,7 +128,8 @@ codeunit 81599 "LT BI HS Pass"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('default handler log', LibLog.Take());
-        Observer.Finish();
+        Observer.Expect('default handler log', 'L.bCU(||No);L.bP(BiTs_A_Plain||No);L.aP(BiTs_A_Plain||Yes);L.bP(BiTs_B_AssertError||No);L.aP(BiTs_B_AssertError||Yes);L.bP(BiTs_Zz_DefaultHandlerSuccess||No);');
+        Observer.Verify();
     end;
 }
 
