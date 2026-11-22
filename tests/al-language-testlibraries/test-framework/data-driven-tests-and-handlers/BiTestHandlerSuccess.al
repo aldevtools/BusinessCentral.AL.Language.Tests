@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/testhandlercontext/testhandlercontext-data-type
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160), LT BI DD Source (81602) and LT BI DD Case Data (81601) from BiDataDriven.al; own objects 81599, 81696 - 81698; XH Lib Log (97848) of the XHandler Lib app for BiTs_Zz_DefaultHandlerSuccess
+// Fixtures used: Probe Observer (69160), LT BI DD Source (81602) and LT BI DD Case Data (81601) from BiDataDriven.al; own objects 81599, 81696 - 81698; XH Lib Log (97848) of the XHandler Lib app for BiTs_Z_Zz_DefaultHandlerSuccess
 // Corpus issue (al-runner 7181): what TestHandlerContext.Success() returns in every Before and After callback.
 // Observed on BC 29.0 (CI run 42641553497): every Before callback (OnBeforeTestCodeunitRun, OnBeforeTestProcedureRun,
 // OnBeforeTestCaseRun) gives false; OnAfterTestProcedureRun and OnAfterTestCaseRun give true after a passing procedure or case.
@@ -120,15 +120,15 @@ codeunit 81599 "LT BI HS Pass"
 
     // Corpus issue (al-runner 7181): TestHandlerContext.Success() in every callback of a DEFAULT handler (an enum extension of
     // DefaultTestHandler in the XHandler Lib app, tests/al-language-xhandler-lib/XhLibHandler.al), Before callbacks included.
-    // It logs only this codeunit; this test runs last and reads what the earlier tests and its own Before callbacks logged.
+    // It logs only this codeunit, without BiTs_Z_Rows. Tests of a codeunit run in the order of their upper-cased names (CI run 45021137263: BiTs_Zz_ ran before BiTs_Z_Rows), so this test is named to run after BiTs_Z_Rows and reads what BiTs_A_Plain, BiTs_B_AssertError and its own Before callbacks logged.
     [Test]
-    procedure BiTs_Zz_DefaultHandlerSuccess()
+    procedure BiTs_Z_Zz_DefaultHandlerSuccess()
     var
         LibLog: Codeunit "XH Lib Log";
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('default handler log', LibLog.Take());
-        Observer.Expect('default handler log', 'L.bCU(||No);L.bP(BiTs_A_Plain||No);L.aP(BiTs_A_Plain||Yes);L.bP(BiTs_B_AssertError||No);L.aP(BiTs_B_AssertError||Yes);L.bP(BiTs_Zz_DefaultHandlerSuccess||No);');
+        Observer.Expect('default handler log', 'L.bCU(||No);L.bP(BiTs_A_Plain||No);L.aP(BiTs_A_Plain||Yes);L.bP(BiTs_B_AssertError||No);L.aP(BiTs_B_AssertError||Yes);L.bP(BiTs_Z_Zz_DefaultHandlerSuccess||No);');
         Observer.Verify();
     end;
 }

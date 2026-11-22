@@ -1,6 +1,6 @@
 // Fixture of the default-handler Success probe (al-runner 7181): a default test handler in the XHandler Lib app that logs
 // TestHandlerContext.Success() in every callback, Before callbacks included, of test codeunit 81599 (and only that one) into
-// "XH Lib Log", read by BiTestHandlerSuccess.al BiTs_Zz_DefaultHandlerSuccess. The XHandler A, C and D handlers do not read
+// "XH Lib Log", read by BiTestHandlerSuccess.al BiTs_Z_Zz_DefaultHandlerSuccess. The XHandler A, C and D handlers do not read
 // Success in their Before callbacks, so they cannot answer it.
 // Ids: the app's name sorts after the names of XHandler A, C and D and its enum value id is above theirs, so the order of the
 // default handlers by app name and by id stays the same (BiTestHandlerCrossApp.al).
@@ -61,6 +61,9 @@ codeunit 97847 "XH Handler Lib" implements ITestHandler
         Log: Codeunit "XH Lib Log";
     begin
         if Context.CodeunitId() <> 81599 then
+            exit;
+        // BiTs_Z_Rows runs before this probe's test and has its own expectations; leave it out of the log.
+        if Context.ProcedureName() = 'BiTs_Z_Rows' then
             exit;
         Log.Add('L.' + Callback + '(' + Context.ProcedureName() + '|' + Context.TestCaseName() + '|' + Format(Context.Success()) + ')');
     end;
