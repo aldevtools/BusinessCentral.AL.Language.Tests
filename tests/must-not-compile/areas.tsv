@@ -1440,3 +1440,7 @@ stem	area
 3747-xmlport-textelement-named-all-words	xmlports
 3748-xmlport-fieldattribute-named-all-words	xmlports
 3749-xmlport-textattribute-named-all-words	xmlports
+3801-for-char-multi-char-literal-bound	language
+3802-for-char-empty-literal-bound	language
+3803-for-text-loop-variable	language
+3804-page-control-rec-fieldcount	pages
