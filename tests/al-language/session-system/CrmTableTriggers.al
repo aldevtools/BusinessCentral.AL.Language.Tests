@@ -1,13 +1,17 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/database/database-registertableconnection-method
 // Scope: in-scope (Cloud-compatible: CRM is the one TableConnectionType a Cloud extension may register)
 // Fixtures used: Probe Observer (69160); table 71974 (a CRM table with triggers), test codeunit 71975
-// Probe: DRAFT, observe form, not yet run on BC (al-runner issue 7837). Every value is observed; the pipeline turns them into Expect lines.
+// Probe: al-runner issue 7837. Observed in the corpus CI (BC on Linux, 27.5, 28.5 and 29.0, run of 2026-11-14); the values were the same on all
+//   three versions and were turned into the Expect lines by script.
 // Facts: on a TableType = CRM table served by the '@@test@@' table connection, whether the table's own OnInsert, OnModify,
 //   OnDelete and OnRename triggers run for Insert(true), Modify(true), Delete(true) and Rename, and that they do not for
 //   Insert(false), Modify(false) and Delete(false); what a field the trigger sets reads back after the call and from the
 //   connection (Get); the order against the global OnDatabaseInsert is not covered here.
 //   Already pinned elsewhere: Insert/Get/Modify/Delete on a CRM table without triggers (TestDatabaseTableConnectionCrm.al,
 //   al-language-onprem/session-system/Y16CrmTableConnectionOps.al).
+// Result: Insert(true), Modify(true), Delete(true) and Rename run the table's trigger; Insert(false), Modify(false) and Delete(false)
+//   do not. A field the trigger sets reads back on the variable and from the connection (Get). Insert(true) with an empty Guid key
+//   assigns one. Rename inside a TryFunction succeeds.
 // BC versions: 27, 28, 29 by CI
 
 // local object: the triggers of a TableType = CRM table are under test; the shared CRM fixture (60291) has none
@@ -97,10 +101,10 @@ codeunit 71975 "SES CRM Triggered Tests"
         SetDefaultTableConnection(TableConnectionType::CRM, ConnectionNameTok);
     end;
 
-    local procedure Finish()
+    local procedure UnregisterAndVerify()
     begin
         UnregisterTableConnection(TableConnectionType::CRM, ConnectionNameTok);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     local procedure StoredNote(Id: Guid): Text
@@ -129,7 +133,9 @@ codeunit 71975 "SES CRM Triggered Tests"
         T.Insert(true);
         Observer.Observe('note after insert', T.Note);
         Observer.Observe('stored note', StoredNote(T.ThingId));
-        Finish();
+        Observer.Expect('note after insert', 'insert trigger');
+        Observer.Expect('stored note', 'insert trigger');
+        UnregisterAndVerify();
     end;
 
     [Test]
@@ -143,7 +149,9 @@ codeunit 71975 "SES CRM Triggered Tests"
         T.Insert(false);
         Observer.Observe('note after insert', T.Note);
         Observer.Observe('stored note', StoredNote(T.ThingId));
-        Finish();
+        Observer.Expect('note after insert', '');
+        Observer.Expect('stored note', '');
+        UnregisterAndVerify();
     end;
 
     [Test]
@@ -157,7 +165,10 @@ codeunit 71975 "SES CRM Triggered Tests"
         Observer.Observe('note after insert', T.Note);
         Observer.Observe('id assigned', Format(not IsNullGuid(T.ThingId)));
         Observer.Observe('stored note', StoredNote(T.ThingId));
-        Finish();
+        Observer.Expect('note after insert', 'insert trigger');
+        Observer.Expect('id assigned', 'Yes');
+        Observer.Expect('stored note', 'insert trigger');
+        UnregisterAndVerify();
     end;
 
     [Test]
@@ -172,7 +183,9 @@ codeunit 71975 "SES CRM Triggered Tests"
         T.Modify(true);
         Observer.Observe('note after modify', T.Note);
         Observer.Observe('stored note', StoredNote(T.ThingId));
-        Finish();
+        Observer.Expect('note after modify', 'modify trigger');
+        Observer.Expect('stored note', 'modify trigger');
+        UnregisterAndVerify();
     end;
 
     [Test]
@@ -187,7 +200,9 @@ codeunit 71975 "SES CRM Triggered Tests"
         T.Modify(false);
         Observer.Observe('note after modify', T.Note);
         Observer.Observe('stored note', StoredNote(T.ThingId));
-        Finish();
+        Observer.Expect('note after modify', '');
+        Observer.Expect('stored note', '');
+        UnregisterAndVerify();
     end;
 
     [Test]
@@ -201,7 +216,9 @@ codeunit 71975 "SES CRM Triggered Tests"
         T.Delete(true);
         Observer.Observe('delete log', T.DeleteLog());
         Observer.Observe('stored note', StoredNote(T.ThingId));
-        Finish();
+        Observer.Expect('delete log', 'delete trigger;');
+        Observer.Expect('stored note', '<not found>');
+        UnregisterAndVerify();
     end;
 
     [Test]
@@ -215,7 +232,9 @@ codeunit 71975 "SES CRM Triggered Tests"
         T.Delete(false);
         Observer.Observe('delete log', T.DeleteLog());
         Observer.Observe('stored note', StoredNote(T.ThingId));
-        Finish();
+        Observer.Expect('delete log', '');
+        Observer.Expect('stored note', '<not found>');
+        UnregisterAndVerify();
     end;
 
     [Test]
@@ -234,6 +253,9 @@ codeunit 71975 "SES CRM Triggered Tests"
             Observer.ObserveError('rename');
         Observer.Observe('note after rename', T.Note);
         Observer.Observe('stored note', StoredNote(NewId));
-        Finish();
+        Observer.Expect('rename', 'ok');
+        Observer.Expect('note after rename', 'rename trigger');
+        Observer.Expect('stored note', 'rename trigger');
+        UnregisterAndVerify();
     end;
 }

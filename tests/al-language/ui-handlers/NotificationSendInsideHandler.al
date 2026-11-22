@@ -1,12 +1,18 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-sendnotificationhandler-attribute
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); codeunit 71972 (the sender), test codeunit 71973
-// Probe: DRAFT, observe form, not yet run on BC (al-runner issue 7835). Every value is observed; the pipeline turns them into Expect lines.
+// Probe: al-runner issue 7835. Observed in the corpus CI (BC on Linux, 27.5, 28.5 and 29.0, run of 2026-11-14); the values were the same on all
+//   three versions and were turned into the Expect lines by script.
 // Facts: a [SendNotificationHandler] whose code sends a second notification, directly and through a called codeunit:
 //   whether the handler runs again for the second notification (nested, before the first handler returns), the order of the
 //   handler log, what the second Send returns, the message each run sees, and a third level (the second run sends again);
 //   a [RecallNotificationHandler] that sends a notification; and a SendNotificationHandler that raises a Message with a
 //   [MessageHandler] declared.
+// Result: the handler runs again for a Send inside it, directly or through a called codeunit, before the first run returns (runs 2;
+//   3 with three levels); the inner Send returns true. The log keeps only the outer run's entries: the statement
+//   `Log += 'inner send=' + Format(...Send())` reads Log before the nested run appends to it. A Send inside the
+//   RecallNotificationHandler runs the SendNotificationHandler and returns true. A Message inside the send handler goes to the
+//   MessageHandler, and the send handler then continues.
 // BC versions: 27, 28, 29 by CI
 
 // local object: the sender codeunit is the code path under test (Send from a codeunit the handler calls)
@@ -52,7 +58,10 @@ codeunit 71973 "UIH Notif Nested Tests"
         Observer.Observe('first send', Format(S.SendOne('first')));
         Observer.Observe('log', Log);
         Observer.Observe('runs', Format(Seen));
-        Observer.Finish();
+        Observer.Expect('first send', 'Yes');
+        Observer.Expect('log', 'enter 1 first;inner send=Yes;leave 1 first;');
+        Observer.Expect('runs', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -66,7 +75,10 @@ codeunit 71973 "UIH Notif Nested Tests"
         Observer.Observe('first send', Format(S.SendOne('first')));
         Observer.Observe('log', Log);
         Observer.Observe('runs', Format(Seen));
-        Observer.Finish();
+        Observer.Expect('first send', 'Yes');
+        Observer.Expect('log', 'enter 1 first;inner send=Yes;leave 1 first;');
+        Observer.Expect('runs', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -80,7 +92,10 @@ codeunit 71973 "UIH Notif Nested Tests"
         Observer.Observe('first send', Format(S.SendOne('first')));
         Observer.Observe('log', Log);
         Observer.Observe('runs', Format(Seen));
-        Observer.Finish();
+        Observer.Expect('first send', 'Yes');
+        Observer.Expect('log', 'enter 1 first;inner send=Yes;leave 1 first;');
+        Observer.Expect('runs', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -94,7 +109,9 @@ codeunit 71973 "UIH Notif Nested Tests"
         N.Send();
         Observer.Observe('recall', Format(N.Recall()));
         Observer.Observe('log', Log);
-        Observer.Finish();
+        Observer.Expect('recall', 'Yes');
+        Observer.Expect('log', 'send to recall;recall to recall;send from recall=Yes;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -106,7 +123,9 @@ codeunit 71973 "UIH Notif Nested Tests"
         Initialize();
         Observer.Observe('send', Format(S.SendOne('with message')));
         Observer.Observe('log', Log);
-        Observer.Finish();
+        Observer.Expect('send', 'Yes');
+        Observer.Expect('log', 'send with message;message inside send handler;after message;');
+        Observer.Verify();
     end;
 
     [SendNotificationHandler]
