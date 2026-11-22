@@ -54,7 +54,7 @@ table 53556 "MNC KP3556"
     }
 }
 
-page 58560 "MNC KP3556 systempart"
+page 58560 "MNC KP3556 P0"
 {
     PageType = Card;
     SourceTable = "MNC KP3556";
@@ -65,7 +65,7 @@ page 58560 "MNC KP3556 systempart"
     }
 }
 
-pageextension 58570 "MNC KP3556 systempart Ext" extends "MNC KP3556 systempart"
+pageextension 58570 "MNC KP3556 X0" extends "MNC KP3556 P0"
 {
     layout
     {
@@ -76,7 +76,7 @@ pageextension 58570 "MNC KP3556 systempart Ext" extends "MNC KP3556 systempart"
     }
 }
 
-page 58561 "MNC KP3556 repeater"
+page 58561 "MNC KP3556 P1"
 {
     PageType = List;
     SourceTable = "MNC KP3556";
@@ -87,7 +87,7 @@ page 58561 "MNC KP3556 repeater"
     }
 }
 
-pageextension 58571 "MNC KP3556 repeater Ext" extends "MNC KP3556 repeater"
+pageextension 58571 "MNC KP3556 X1" extends "MNC KP3556 P1"
 {
     layout
     {
@@ -98,7 +98,7 @@ pageextension 58571 "MNC KP3556 repeater Ext" extends "MNC KP3556 repeater"
     }
 }
 
-page 58562 "MNC KP3556 cuegroup"
+page 58562 "MNC KP3556 P2"
 {
     PageType = CardPart;
     SourceTable = "MNC KP3556";
@@ -109,7 +109,7 @@ page 58562 "MNC KP3556 cuegroup"
     }
 }
 
-pageextension 58572 "MNC KP3556 cuegroup Ext" extends "MNC KP3556 cuegroup"
+pageextension 58572 "MNC KP3556 X2" extends "MNC KP3556 P2"
 {
     layout
     {
@@ -120,7 +120,7 @@ pageextension 58572 "MNC KP3556 cuegroup Ext" extends "MNC KP3556 cuegroup"
     }
 }
 
-page 58563 "MNC KP3556 grid"
+page 58563 "MNC KP3556 P3"
 {
     PageType = Card;
     SourceTable = "MNC KP3556";
@@ -131,7 +131,7 @@ page 58563 "MNC KP3556 grid"
     }
 }
 
-pageextension 58573 "MNC KP3556 grid Ext" extends "MNC KP3556 grid"
+pageextension 58573 "MNC KP3556 X3" extends "MNC KP3556 P3"
 {
     layout
     {
@@ -142,7 +142,7 @@ pageextension 58573 "MNC KP3556 grid Ext" extends "MNC KP3556 grid"
     }
 }
 
-page 58564 "MNC KP3556 fixed"
+page 58564 "MNC KP3556 P4"
 {
     PageType = Card;
     SourceTable = "MNC KP3556";
@@ -153,7 +153,7 @@ page 58564 "MNC KP3556 fixed"
     }
 }
 
-pageextension 58574 "MNC KP3556 fixed Ext" extends "MNC KP3556 fixed"
+pageextension 58574 "MNC KP3556 X4" extends "MNC KP3556 P4"
 {
     layout
     {
@@ -164,7 +164,7 @@ pageextension 58574 "MNC KP3556 fixed Ext" extends "MNC KP3556 fixed"
     }
 }
 
-page 58565 "MNC KP3556 actionref"
+page 58565 "MNC KP3556 P5"
 {
     PageType = Card;
     SourceTable = "MNC KP3556";
@@ -175,7 +175,7 @@ page 58565 "MNC KP3556 actionref"
     }
 }
 
-pageextension 58575 "MNC KP3556 actionref Ext" extends "MNC KP3556 actionref"
+pageextension 58575 "MNC KP3556 X5" extends "MNC KP3556 P5"
 {
     actions
     {
@@ -186,7 +186,7 @@ pageextension 58575 "MNC KP3556 actionref Ext" extends "MNC KP3556 actionref"
     }
 }
 
-page 58566 "MNC KP3556 action-area-group"
+page 58566 "MNC KP3556 P6"
 {
     PageType = Card;
     SourceTable = "MNC KP3556";
@@ -197,7 +197,7 @@ page 58566 "MNC KP3556 action-area-group"
     }
 }
 
-pageextension 58576 "MNC KP3556 action-area-group Ext" extends "MNC KP3556 action-area-group"
+pageextension 58576 "MNC KP3556 X6" extends "MNC KP3556 P6"
 {
     actions
     {
@@ -208,7 +208,7 @@ pageextension 58576 "MNC KP3556 action-area-group Ext" extends "MNC KP3556 actio
     }
 }
 
-page 58567 "MNC KP3556 unknown-control"
+page 58567 "MNC KP3556 P7"
 {
     PageType = Card;
     SourceTable = "MNC KP3556";
@@ -219,7 +219,7 @@ page 58567 "MNC KP3556 unknown-control"
     }
 }
 
-pageextension 58577 "MNC KP3556 unknown-control Ext" extends "MNC KP3556 unknown-control"
+pageextension 58577 "MNC KP3556 X7" extends "MNC KP3556 P7"
 {
     layout
     {
