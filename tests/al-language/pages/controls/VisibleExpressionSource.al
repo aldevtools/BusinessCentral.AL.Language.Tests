@@ -6,10 +6,12 @@
 // Facts:
 //   - BC 29: a control whose source is an expression (Rec.Amount + 1), a page variable or a constant, and whose Visible
 //     expression names a field of the source record (Rec.Amount > 0, Rec.Amount < 0, Rec.Flag, Amount > 0, ShowIt and
-//     (Rec.Amount >= 0)): the TestPage reads Yes, whatever the row holds.
+//     (Rec.Amount >= 0), the primary key Rec.Id > 0): the TestPage reads Yes, whatever the row holds, also when another
+//     control binds that field, after OpenEdit, OpenView and OpenNew, a Trap of Page.Run and in a ModalPageHandler.
 //   - BC 27 and 28: opening a TestPage of a page with such a control (OpenEdit, OpenView, OpenNew) raises "The identifier
 //     '<field>' could not be found." (code Expression:Argument), naming the first field that the Visible of the first such
-//     control names, after OnOpenPage and before OnAfterGetRecord.
+//     control names, after OnOpenPage and before OnAfterGetRecord; a control bound to a field before it does not count, and
+//     another control binding the field changes nothing. Page.Run of a trapped page raises it too.
 //   - A control bound to a field of the source record, or whose Visible expression names no field (a page variable, 1 = 0):
 //     the TestPage reads the value the expression had when the page opened, before its first row (No for Rec.Amount > 0 and
 //     for a variable that OnAfterGetRecord sets).
@@ -322,6 +324,143 @@ codeunit 75704 "PGC Visible Source Tests"
         Observer.Expect('ConstSource visible', 'Yes');
         Observer.Verify();
     end;
+    [Test]
+    procedure VisibleSource_FieldBoundByAnotherControl_ReadsYes()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Visible Source Row";
+        Card: TestPage "PGC Visible Bound Elsewhere";
+    begin
+        Initialize();
+        InsertRow(Row);
+        Card.OpenEdit();
+        Card.GoToRecord(Row);
+        Observer.Observe('Total visible', Format(Card.Total.Visible()));
+        Observer.Observe('AmountCtl visible', Format(Card.AmountCtl.Visible()));
+        Card.Close();
+        Observer.Expect('Total visible', 'Yes');
+        Observer.Expect('AmountCtl visible', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure VisibleSource_FieldBoundControlFirst_KeepsOpenValue()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Visible Source Row";
+        Card: TestPage "PGC Visible Bound First";
+    begin
+        Initialize();
+        InsertRow(Row);
+        Card.OpenEdit();
+        Card.GoToRecord(Row);
+        Observer.Observe('IdCtl visible', Format(Card.IdCtl.Visible()));
+        Observer.Observe('Total visible', Format(Card.Total.Visible()));
+        Card.Close();
+        Observer.Expect('IdCtl visible', 'No');
+        Observer.Expect('Total visible', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure VisibleSource_NamesPrimaryKey_ReadsYes()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Visible Source Row";
+        Card: TestPage "PGC Visible Names Key";
+    begin
+        Initialize();
+        InsertRow(Row);
+        Card.OpenEdit();
+        Card.GoToRecord(Row);
+        Observer.Observe('Total visible', Format(Card.Total.Visible()));
+        Card.Close();
+        Observer.Expect('Total visible', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure VisibleSource_AndWithOneFieldBound_ReadsYes()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Visible Source Row";
+        Card: TestPage "PGC Visible One Bound";
+    begin
+        Initialize();
+        InsertRow(Row);
+        Card.OpenEdit();
+        Card.GoToRecord(Row);
+        Observer.Observe('Total visible', Format(Card.Total.Visible()));
+        Card.Close();
+        Observer.Expect('Total visible', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure VisibleSource_OpenView_ReadsYes()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Visible Source Row";
+        Card: TestPage "PGC Visible Expr Source";
+    begin
+        Initialize();
+        InsertRow(Row);
+        Card.OpenView();
+        Card.GoToRecord(Row);
+        Observer.Observe('AmountPlusOne visible', Format(Card.AmountPlusOne.Visible()));
+        Card.Close();
+        Observer.Expect('AmountPlusOne visible', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure VisibleSource_OpenNew_ReadsYes()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Visible Source Row";
+        Card: TestPage "PGC Visible Expr Source";
+    begin
+        Initialize();
+        InsertRow(Row);
+        Card.OpenNew();
+        Observer.Observe('AmountPlusOne visible', Format(Card.AmountPlusOne.Visible()));
+        Card.Close();
+        Observer.Expect('AmountPlusOne visible', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure VisibleSource_TrapPageRun_ReadsYes()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Visible Source Row";
+        Card: TestPage "PGC Visible Expr Source";
+    begin
+        Initialize();
+        InsertRow(Row);
+        Card.Trap();
+        Page.Run(Page::"PGC Visible Expr Source", Row);
+        Observer.Observe('AmountPlusOne visible', Format(Card.AmountPlusOne.Visible()));
+        Card.Close();
+        Observer.Expect('AmountPlusOne visible', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    [HandlerFunctions('ReadVisibleModalHandler')]
+    procedure VisibleSource_ModalPageHandler_ReadsYes()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Visible Source Row";
+    begin
+        Initialize();
+        InsertRow(Row);
+        ModalVisible := 'not run';
+        Page.RunModal(Page::"PGC Visible Expr Source", Row);
+        Observer.Observe('AmountPlusOne visible in handler', ModalVisible);
+        Observer.Expect('AmountPlusOne visible in handler', 'Yes');
+        Observer.Verify();
+    end;
 #else
     // BC 27 and 28: opening a TestPage of a page with such a control raises "The identifier '<field>' could not be found."
     // (code Expression:Argument) in OpenEdit, OpenView and OpenNew, naming the first field the Visible of the first such
@@ -363,6 +502,47 @@ codeunit 75704 "PGC Visible Source Tests"
         Observer.Verify();
     end;
 
+    // BC 27 and 28 (al-runner PR 8667 review): the same error for the shapes next to the rule, naming the first field the
+    // Visible of the first expression control names. Another control that binds that field, the primary key, and a field-bound
+    // control before it change nothing; Page.Run of a trapped page raises it too. A Page.RunModal answered by a ModalPageHandler
+    // raised it before the handler ran (CI run 45019519945), but a test cannot hold it: the handler never runs.
+    [Test]
+    procedure VisibleSource_ShapesNextToRule_Before29_OpenErrors()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Visible Source Row";
+        Elsewhere: TestPage "PGC Visible Bound Elsewhere";
+        BoundFirst: TestPage "PGC Visible Bound First";
+        NamesKey: TestPage "PGC Visible Names Key";
+        OneBound: TestPage "PGC Visible One Bound";
+        Trapped: TestPage "PGC Visible Expr Source";
+    begin
+        Initialize();
+        InsertRow(Row);
+        asserterror Elsewhere.OpenEdit();
+        Observer.ObserveError('bound elsewhere');
+        asserterror BoundFirst.OpenEdit();
+        Observer.ObserveError('bound first');
+        asserterror NamesKey.OpenEdit();
+        Observer.ObserveError('names key');
+        asserterror OneBound.OpenEdit();
+        Observer.ObserveError('one bound');
+        Trapped.Trap();
+        asserterror Page.Run(Page::"PGC Visible Expr Source", Row);
+        Observer.ObserveError('trap page run');
+        Observer.Expect('bound elsewhere|text', 'The identifier ''Amount'' could not be found.');
+        Observer.Expect('bound elsewhere|code', 'Expression:Argument');
+        Observer.Expect('bound first|text', 'The identifier ''Amount'' could not be found.');
+        Observer.Expect('bound first|code', 'Expression:Argument');
+        Observer.Expect('names key|text', 'The identifier ''Id'' could not be found.');
+        Observer.Expect('names key|code', 'Expression:Argument');
+        Observer.Expect('one bound|text', 'The identifier ''Amount'' could not be found.');
+        Observer.Expect('one bound|code', 'Expression:Argument');
+        Observer.Expect('trap page run|text', 'The identifier ''Amount'' could not be found.');
+        Observer.Expect('trap page run|code', 'Expression:Argument');
+        Observer.Verify();
+    end;
+
     [Test]
     procedure VisibleSource_ExpressionSourceNamingRecField_Before29_ErrorBeforeOnAfterGetRecord()
     var
@@ -401,136 +581,6 @@ codeunit 75704 "PGC Visible Source Tests"
         Observer.Expect('ExprVariable visible', 'No');
         Observer.Expect('ExprConstant visible', 'No');
         Observer.Verify();
-    end;
-
-    // Observed (Finish), al-runner PR 8667 review: whether another control that binds the named field changes the answer
-    // (pages 75707 to 75710), and the routes to page 75701 other than OpenEdit.
-    [Test]
-    procedure VisibleSource_Review_BoundElsewhere_Observe()
-    var
-        Observer: Codeunit "Probe Observer";
-        Row: Record "PGC Visible Source Row";
-        Card: TestPage "PGC Visible Bound Elsewhere";
-    begin
-        Initialize();
-        InsertRow(Row);
-        Card.OpenEdit();
-        Card.GoToRecord(Row);
-        Observer.Observe('Total visible', Format(Card.Total.Visible()));
-        Observer.Observe('AmountCtl visible', Format(Card.AmountCtl.Visible()));
-        Card.Close();
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure VisibleSource_Review_BoundFirst_Observe()
-    var
-        Observer: Codeunit "Probe Observer";
-        Row: Record "PGC Visible Source Row";
-        Card: TestPage "PGC Visible Bound First";
-    begin
-        Initialize();
-        InsertRow(Row);
-        Card.OpenEdit();
-        Card.GoToRecord(Row);
-        Observer.Observe('IdCtl visible', Format(Card.IdCtl.Visible()));
-        Observer.Observe('Total visible', Format(Card.Total.Visible()));
-        Card.Close();
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure VisibleSource_Review_NamesKey_Observe()
-    var
-        Observer: Codeunit "Probe Observer";
-        Row: Record "PGC Visible Source Row";
-        Card: TestPage "PGC Visible Names Key";
-    begin
-        Initialize();
-        InsertRow(Row);
-        Card.OpenEdit();
-        Card.GoToRecord(Row);
-        Observer.Observe('Total visible', Format(Card.Total.Visible()));
-        Card.Close();
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure VisibleSource_Review_OneBound_Observe()
-    var
-        Observer: Codeunit "Probe Observer";
-        Row: Record "PGC Visible Source Row";
-        Card: TestPage "PGC Visible One Bound";
-    begin
-        Initialize();
-        InsertRow(Row);
-        Card.OpenEdit();
-        Card.GoToRecord(Row);
-        Observer.Observe('Total visible', Format(Card.Total.Visible()));
-        Card.Close();
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure VisibleSource_Review_OpenView_Observe()
-    var
-        Observer: Codeunit "Probe Observer";
-        Row: Record "PGC Visible Source Row";
-        Card: TestPage "PGC Visible Expr Source";
-    begin
-        Initialize();
-        InsertRow(Row);
-        Card.OpenView();
-        Card.GoToRecord(Row);
-        Observer.Observe('AmountPlusOne visible', Format(Card.AmountPlusOne.Visible()));
-        Card.Close();
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure VisibleSource_Review_OpenNew_Observe()
-    var
-        Observer: Codeunit "Probe Observer";
-        Row: Record "PGC Visible Source Row";
-        Card: TestPage "PGC Visible Expr Source";
-    begin
-        Initialize();
-        InsertRow(Row);
-        Card.OpenNew();
-        Observer.Observe('AmountPlusOne visible', Format(Card.AmountPlusOne.Visible()));
-        Card.Close();
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure VisibleSource_Review_TrapPageRun_Observe()
-    var
-        Observer: Codeunit "Probe Observer";
-        Row: Record "PGC Visible Source Row";
-        Card: TestPage "PGC Visible Expr Source";
-    begin
-        Initialize();
-        InsertRow(Row);
-        Card.Trap();
-        Page.Run(Page::"PGC Visible Expr Source", Row);
-        Observer.Observe('AmountPlusOne visible', Format(Card.AmountPlusOne.Visible()));
-        Card.Close();
-        Observer.Finish();
-    end;
-
-    [Test]
-    [HandlerFunctions('ReadVisibleModalHandler')]
-    procedure VisibleSource_Review_ModalPageHandler_Observe()
-    var
-        Observer: Codeunit "Probe Observer";
-        Row: Record "PGC Visible Source Row";
-    begin
-        Initialize();
-        InsertRow(Row);
-        ModalVisible := 'not run';
-        Page.RunModal(Page::"PGC Visible Expr Source", Row);
-        Observer.Observe('AmountPlusOne visible in handler', ModalVisible);
-        Observer.Finish();
     end;
 
     [ModalPageHandler]
