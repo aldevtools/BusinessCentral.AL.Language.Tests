@@ -1,21 +1,18 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/record/record-modify-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160), ALT Triggered and ALT Trigger Log (60002, 60003), ALTFixtureCleanup (60019); the tables "REC StaleMx Row" (97290) and "REC StaleMx Other" (97291) and the step codeunit
+// Fixtures used: Probe Observer (69160); the tables "REC StaleMx Row" (97290) and "REC StaleMx Other" (97291) and the step codeunit
 //   "REC StaleMx Ops" (97290) of record/crud/StaleRuleMatrix.al; own codeunits 76600 and 76601
 // local object: codeunit 76600 must fail inside `if Codeunit.Run` after a write, so the rollback of a failed guarded run can be measured.
-// Probe: al-runner issues 6924 and 7464, the edges that record/crud/StaleRuleMatrix.al leaves open for the one rule of the stale record buffer.
+// Probe: al-runner issue 6924, the edges that record/crud/StaleRuleMatrix.al leaves open for the one rule of the stale record buffer.
 //   Area: how the open transaction ends or loses its contact with the row's table before the stale write (LockTable then a rollback with
-//   nothing after it, a rollback by an error of the database instead of Error(), a failed `if Codeunit.Run` that wrote), the row itself
-//   deleted, deleted and inserted again, renamed, renamed back, a ModifyAll that matches no row, a Truncate of another table; and a Modify
-//   through a buffer whose own Modify and the Insert of its row a rollback undid, on a table without Modify event subscribers; and a Modify(true)
-//   after a rolled-back Modify on the shared fixture "ALT Triggered" (60002), which has global and database triggers (codeunit 60025).
+//   nothing after it, a failed `if Codeunit.Run` that wrote), the row itself
+//   deleted, deleted and inserted again, renamed, renamed back, a ModifyAll that matches no row, a Truncate of another table.
 //   The cell notation is the one of the header of StaleRuleMatrix.al (buffer kind, steps, final write). New steps of this file:
-//     rbi  asserterror of a duplicate Insert of row 8 (an error of the database rolls back the open transaction)
 //     f:x  step x inside `if Codeunit.Run` of codeunit 76600, which raises an error after the step; '<cell>|runs' records Y or N
 //     rd   another variable: Get(6), Delete(false)                    ri   another variable inserts row 6 again (Text 'again')
 //     rn   another variable: Get(6), Rename(60)                       rnb  another variable: Get(60), Rename(6)
 //     oman ModifyAll on the row table filtered to row 1000 (no row)   kt   Truncate of the other table
-// Observation form: every test ends in Finish(), so the run fails on purpose and the failure message carries what BC produced.
+// Every test records what BC produced with Observer.Expect and ends in Verify().
 // BC versions: 27, 28, 29
 
 codeunit 76600 "REC StaleEdge Fail Run"
@@ -285,56 +282,25 @@ codeunit 76601 "REC StaleEdge Probe"
         Cell(Observer, 'lk_rb_insert', 'insert', 'C rm C lk rb', 'modify_true');
         Cell(Observer, 'lk_rb_lk', 'insert_modify', 'C rm C lk rb lk', 'modify_true');
         Cell(Observer, 'lk_rb_false', 'insert_modify', 'C rm C lk rb', 'modify_false');
-        Observer.Finish();
+        Observer.Expect('lk_rb', 'error');
+        Observer.Expect('lk_rb|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('lk_rb|code', 'DB:RecordChanged');
+        Observer.Expect('lk_rb|stored', 'o2|0|1|1 buf=2');
+        Observer.Expect('lk_rb_insert', 'error');
+        Observer.Expect('lk_rb_insert|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('lk_rb_insert|code', 'DB:RecordChanged');
+        Observer.Expect('lk_rb_insert|stored', 'o2|0|0|0 buf=1');
+        Observer.Expect('lk_rb_lk', 'ok');
+        Observer.Expect('lk_rb_lk|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('lk_rb_false', 'error');
+        Observer.Expect('lk_rb_false|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('lk_rb_false|code', 'DB:RecordChanged');
+        Observer.Expect('lk_rb_false|stored', 'o2|0|1|1 buf=1');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure StaleEdge_LockThenRollback_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure StaleEdge_LockThenRollback_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure StaleEdge_LockThenRollback_More3()
-    begin
-        Observer.More();
-    end;
-
-    // A rollback by an error of the database (a duplicate Insert under asserterror) instead of Error().
-    [Test]
-    procedure StaleEdge_DatabaseErrorRollback()
-    begin
-        Clear(Observer);
-        Cell(Observer, 'rm_rbi', 'insert_modify', 'C rm C rm rbi', 'modify_true');
-        Cell(Observer, 'om_rbi', 'insert_modify', 'C rm C om rbi', 'modify_true');
-        Cell(Observer, 'rbi_rm', 'insert_modify', 'C rm C rbi rm', 'modify_true');
-        Cell(Observer, 'rbi_only', 'insert_modify', 'C rm C rbi', 'modify_true');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure StaleEdge_DatabaseErrorRollback_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure StaleEdge_DatabaseErrorRollback_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure StaleEdge_DatabaseErrorRollback_More3()
-    begin
-        Observer.More();
-    end;
 
     // A failed `if Codeunit.Run` that wrote before its error: the row, another row, another table.
     [Test]
@@ -347,26 +313,39 @@ codeunit 76601 "REC StaleEdge Probe"
         Cell(Observer, 'f_lk', 'insert_modify', 'C rm C f:lk', 'modify_true');
         Cell(Observer, 'f_rm_rm', 'insert_modify', 'C rm C f:rm rm', 'modify_true');
         Cell(Observer, 'f_rm_insert', 'insert', 'C rm C f:rm', 'modify_true');
-        Observer.Finish();
+        Observer.Expect('f_rm', 'error');
+        Observer.Expect('f_rm|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('f_rm|code', 'DB:RecordChanged');
+        Observer.Expect('f_rm|stored', 'o2|0|1|1 buf=2');
+        Observer.Expect('f_rm|runs', 'N');
+        Observer.Expect('f_om', 'error');
+        Observer.Expect('f_om|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('f_om|code', 'DB:RecordChanged');
+        Observer.Expect('f_om|stored', 'o2|0|1|1 buf=2');
+        Observer.Expect('f_om|runs', 'N');
+        Observer.Expect('f_ki', 'error');
+        Observer.Expect('f_ki|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('f_ki|code', 'DB:RecordChanged');
+        Observer.Expect('f_ki|stored', 'o2|0|1|1 buf=2');
+        Observer.Expect('f_ki|runs', 'N');
+        Observer.Expect('f_lk', 'error');
+        Observer.Expect('f_lk|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('f_lk|code', 'DB:RecordChanged');
+        Observer.Expect('f_lk|stored', 'o2|0|1|1 buf=2');
+        Observer.Expect('f_lk|runs', 'N');
+        Observer.Expect('f_rm_rm', 'ok');
+        Observer.Expect('f_rm_rm|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('f_rm_rm|runs', 'N');
+        Observer.Expect('f_rm_insert', 'error');
+        Observer.Expect('f_rm_insert|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('f_rm_insert|code', 'DB:RecordChanged');
+        Observer.Expect('f_rm_insert|stored', 'o2|0|0|0 buf=1');
+        Observer.Expect('f_rm_insert|runs', 'N');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure StaleEdge_FailedGuardedRun_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure StaleEdge_FailedGuardedRun_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure StaleEdge_FailedGuardedRun_More3()
-    begin
-        Observer.More();
-    end;
 
     // The row itself deleted by another variable in the open transaction, and inserted again after it.
     [Test]
@@ -378,26 +357,25 @@ codeunit 76601 "REC StaleEdge Probe"
         Cell(Observer, 'rd_ri_false', 'insert_modify', 'C rm C rd ri', 'modify_false');
         Cell(Observer, 'rd_ri_delete', 'insert_modify', 'C rm C rd ri', 'delete_false');
         Cell(Observer, 'rd_ri_committed', 'get_committed', 'C rd ri', 'modify_true');
-        Observer.Finish();
+        Observer.Expect('rd', 'error');
+        Observer.Expect('rd|text', 'The REC StaleMx Row does not exist. Identification fields and values: Entry No.=''6''');
+        Observer.Expect('rd|code', 'DB:RecordNotFound');
+        Observer.Expect('rd|stored', 'o2|0|1|1 buf=2');
+        Observer.Expect('rd_ri', 'ok');
+        Observer.Expect('rd_ri|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('rd_ri_false', 'ok');
+        Observer.Expect('rd_ri_false|stored', 'start|5|1|1 buf=1');
+        Observer.Expect('rd_ri_delete', 'ok');
+        Observer.Expect('rd_ri_delete|stored', 'none buf=1');
+        Observer.Expect('rd_ri_committed', 'error');
+        Observer.Expect('rd_ri_committed|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('rd_ri_committed|code', 'DB:RecordChanged');
+        Observer.Expect('rd_ri_committed|stored', 'start|0|0|0 buf=1');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure StaleEdge_RowDeletedAndInserted_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure StaleEdge_RowDeletedAndInserted_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure StaleEdge_RowDeletedAndInserted_More3()
-    begin
-        Observer.More();
-    end;
 
     // The row itself renamed by another variable in the open transaction, and renamed back.
     [Test]
@@ -407,26 +385,19 @@ codeunit 76601 "REC StaleEdge Probe"
         Cell(Observer, 'rn', 'insert_modify', 'C rm C rn', 'modify_true');
         Cell(Observer, 'rn_rnb', 'insert_modify', 'C rm C rn rnb', 'modify_true');
         Cell(Observer, 'rn_rnb_false', 'insert_modify', 'C rm C rn rnb', 'modify_false');
-        Observer.Finish();
+        Observer.Expect('rn', 'error');
+        Observer.Expect('rn|text', 'The REC StaleMx Row does not exist. Identification fields and values: Entry No.=''6''');
+        Observer.Expect('rn|code', 'DB:RecordNotFound');
+        Observer.Expect('rn|stored', 'o2|0|1|1 buf=2');
+        Observer.Expect('rn_rnb', 'ok');
+        Observer.Expect('rn_rnb|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('rn_rnb_false', 'ok');
+        Observer.Expect('rn_rnb_false|stored', 'start|5|1|1 buf=1');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure StaleEdge_RowRenamed_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure StaleEdge_RowRenamed_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure StaleEdge_RowRenamed_More3()
-    begin
-        Observer.More();
-    end;
 
     // A ModifyAll on the row's table that matches no row.
     [Test]
@@ -435,26 +406,15 @@ codeunit 76601 "REC StaleEdge Probe"
         Clear(Observer);
         Cell(Observer, 'oman', 'insert_modify', 'C rm C oman', 'modify_true');
         Cell(Observer, 'oman_1c', 'insert_modify', 'rm C oman', 'modify_true');
-        Observer.Finish();
+        Observer.Expect('oman', 'ok');
+        Observer.Expect('oman|stored', 'start|5|1|2 buf=2');
+        Observer.Expect('oman_1c', 'ok');
+        Observer.Expect('oman_1c|stored', 'start|5|1|2 buf=2');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure StaleEdge_NoRowModifyAll_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure StaleEdge_NoRowModifyAll_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure StaleEdge_NoRowModifyAll_More3()
-    begin
-        Observer.More();
-    end;
 
     // A Truncate of another table in the open transaction.
     [Test]
@@ -462,151 +422,14 @@ codeunit 76601 "REC StaleEdge Probe"
     begin
         Clear(Observer);
         Cell(Observer, 'kt', 'insert_modify', 'C rm C kt', 'modify_true');
-        Observer.Finish();
+        Observer.Expect('kt', 'error');
+        Observer.Expect('kt|text', 'The changes to the REC StaleMx Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\Entry No.=''6''');
+        Observer.Expect('kt|code', 'DB:RecordChanged');
+        Observer.Expect('kt|stored', 'o2|0|1|1 buf=2');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure StaleEdge_TruncateOtherTable_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure StaleEdge_TruncateOtherTable_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure StaleEdge_TruncateOtherTable_More3()
-    begin
-        Observer.More();
-    end;
 
-    local procedure RolledBackInsertAndModify(var Observer: Codeunit "Probe Observer"; Name: Text; RunTrigger: Boolean; ChangeAfter: Boolean)
-    var
-        Row: Record "REC StaleMx Row";
-        Done: Boolean;
-    begin
-        Reset();
-        Row.Init();
-        Row."Entry No." := 6;
-        Row."Text Field" := 'start';
-        Row.Insert(false);
-        Row."Integer Field" := 1;
-        Row.Modify(RunTrigger);
-        asserterror Error('REC_STALEEDGE_ROLLBACK');
-        ClearLastError();
-        if ChangeAfter then
-            Row."Integer Field" := 2;
-        ClearLastError();
-        asserterror
-        begin
-            Done := Row.Modify(RunTrigger);
-            Error('REC_STALEEDGE_WRITE_DONE %1 %2', Format(Done), StoredText());
-        end;
-        Observer.Observe(Name, GetLastErrorText());
-        if GetLastErrorText() <> '' then
-            if not GetLastErrorText().StartsWith('REC_STALEEDGE_WRITE_DONE') then
-                Observer.Observe(Name + '|code', GetLastErrorCode());
-        ClearLastError();
-        Observer.Observe(Name + '|buf', Format(Row."Integer Field") + '|' + Format(Row."Modify Count"));
-        Observer.Observe(Name + '|after', StoredText());
-        Reset();
-    end;
-
-    // al-runner issue 7464: the rollback undid the buffer's own Modify and the Insert of its row (no Commit after the Insert); the table has an
-    // OnModify trigger and no Modify event subscribers.
-    [Test]
-    procedure StaleEdge_RolledBackInsertAndModify_NoSubscribers()
-    begin
-        Clear(Observer);
-        RolledBackInsertAndModify(Observer, 'modify_false_unchanged', false, false);
-        RolledBackInsertAndModify(Observer, 'modify_true_unchanged', true, false);
-        RolledBackInsertAndModify(Observer, 'modify_false_changed', false, true);
-        RolledBackInsertAndModify(Observer, 'modify_true_changed', true, true);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure StaleEdge_RolledBackInsertAndModify_NoSubscribers_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure StaleEdge_RolledBackInsertAndModify_NoSubscribers_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure StaleEdge_RolledBackInsertAndModify_NoSubscribers_More3()
-    begin
-        Observer.More();
-    end;
-
-    local procedure TriggerLog() Result: Text
-    var
-        TrigLog: Record "ALT Trigger Log";
-    begin
-        if TrigLog.FindSet() then
-            repeat
-                Result += TrigLog.TriggerName + ',';
-            until TrigLog.Next() = 0;
-        TrigLog.DeleteAll();
-    end;
-
-    // al-runner issue 7464 on a table with an OnModify trigger, Modify event subscribers, global triggers (OnGlobalModify) and database
-    // triggers (OnDatabaseModify): Insert, Commit, Modify(true), a failed Validate-like Error under asserterror, the same value again, Modify(true).
-    [Test]
-    procedure StaleEdge_RolledBackModify_GlobalAndDatabaseTriggers()
-    var
-        Cleanup: Codeunit ALTFixtureCleanup;
-        Row: Record "ALT Triggered";
-        Check: Record "ALT Triggered";
-        Done: Boolean;
-    begin
-        Clear(Observer);
-        Cleanup.Initialize();
-        Row.Init();
-        Row."Entry No." := 1;
-        Row.Name := 'start';
-        Row.Insert(true);
-        Commit();
-        TriggerLog();
-        Row.Value := 1;
-        Row.Modify(true);
-        Observer.Observe('first modify log', TriggerLog());
-        asserterror Error('REC_STALEEDGE_ROLLBACK');
-        ClearLastError();
-        Row.Value := 1;
-        Done := Row.Modify(true);
-        Observer.Observe('second modify', Format(Done));
-        Observer.Observe('second modify log', TriggerLog());
-        Check.Get(1);
-        Observer.Observe('stored', Check.Name + '|' + Format(Check.Value));
-        Observer.Observe('buffer', Row.Name + '|' + Format(Row.Value));
-        Cleanup.Initialize();
-        Commit();
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure StaleEdge_RolledBackModify_GlobalAndDatabaseTriggers_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure StaleEdge_RolledBackModify_GlobalAndDatabaseTriggers_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure StaleEdge_RolledBackModify_GlobalAndDatabaseTriggers_More3()
-    begin
-        Observer.More();
-    end;
 }

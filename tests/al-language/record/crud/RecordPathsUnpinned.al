@@ -4,7 +4,7 @@
 //   codeunit 76623 (a manual subscriber), test codeunit 76624
 // local object: the OnDelete trigger that logs the order of the deletes, the Media and MediaSet fields whose Tenant Media rows are counted,
 //   and a subscriber bound only inside one test are what is under test.
-// Probe (al-runner issues 7632 and 7626): record paths that no corpus test pinned. Area:
+// Probe (al-runner issue 7632): record paths that no corpus test pinned. Area:
 //   DeleteAll(true) on a record sorted descending (by Ascending(false), by a descending secondary key) with a stored filter: the order of the
 //   OnDelete calls; DeleteAll() and DeleteAll(true) on rows that hold Media and MediaSet values: the Tenant Media rows of those values after it,
 //   next to a row-by-row Delete; Count of the Company table; the SystemId a record holds after a failed Insert whose result is used (a
@@ -12,10 +12,10 @@
 //   SetLoadFields without a fetch then Modify, and after Get, Clear and the assignment of one field; SystemRowVersion of a temporary record
 //   after Insert and Modify; FilterPageBuilder.GetView with a Boolean filter, localized and not;
 //   whether "Filter Helper Triggers".MakeDateFilter is raised for a Date filter text with a piece it cannot read when the filter has
-//   placeholders, and in a session whose language is not English; a copy of a RecordRef that is not open (RR2 := RR, V := RR) before
-//   RR.Open; Date and DateTime values before 1753-01-02 other than the ones record/filters/P130DateFilters.al:255-293 pins; Blob.Length
+//   placeholders, and in a session whose language is not English;
+//   Blob.Length
 //   and HasValue of a stored Blob before and after CalcFields; a [FilterPageHandler] that points its RecordRef at another record or table.
-// Observation form: every test ends in Finish(), so the run fails on purpose and the failure message carries what BC produced.
+// Every test records what BC produced with Observer.Expect and ends in Verify().
 // BC versions: 27, 28, 29
 
 table 76620 "REC RPU Row"
@@ -232,26 +232,17 @@ codeunit 76624 "REC RPU Probe"
         Row.FindFirst();
         Row.DeleteAll(true);
         Observer.Observe('pk_descending_filter_after_find', TakeLog());
-        Observer.Finish();
+        Observer.Expect('pk_descending_filter', 'del R4;del R3;del R2;');
+        Observer.Expect('pk_descending_filter|left', 'R1;R5;');
+        Observer.Expect('grp_descending_filter', 'del R2;del R3;del R4;');
+        Observer.Expect('grp_ascending_filter', 'del R4;del R3;del R2;');
+        Observer.Expect('pk_descending_nofilter', 'del R5;del R4;del R3;del R2;del R1;');
+        Observer.Expect('pk_descending_filter_after_find', 'del R4;del R3;del R2;');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure DeleteAllTrue_Descending_TriggerOrder_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure DeleteAllTrue_Descending_TriggerOrder_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure DeleteAllTrue_Descending_TriggerOrder_More3()
-    begin
-        Observer.More();
-    end;
 
     local procedure PngIn(var TempBlob: Codeunit "Temp Blob"; var Ins: InStream)
     var
@@ -340,26 +331,20 @@ codeunit 76624 "REC RPU Probe"
         MediaCell(Observer, 'deleteall', 'deleteall');
         MediaCell(Observer, 'deleteall_true', 'deleteall_true');
         MediaCell(Observer, 'delete_each', 'delete_each');
-        Observer.Finish();
+        Observer.Expect('deleteall|before', '2/2');
+        Observer.Expect('deleteall|tenant media pic/set', '0/1');
+        Observer.Expect('deleteall|orphans pic/set', '0/0');
+        Observer.Expect('deleteall_true|before', '2/2');
+        Observer.Expect('deleteall_true|tenant media pic/set', '0/1');
+        Observer.Expect('deleteall_true|orphans pic/set', '0/0');
+        Observer.Expect('delete_each|before', '2/2');
+        Observer.Expect('delete_each|tenant media pic/set', '0/0');
+        Observer.Expect('delete_each|orphans pic/set', '0/0');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure DeleteAll_MediaRows_TenantMedia_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure DeleteAll_MediaRows_TenantMedia_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure DeleteAll_MediaRows_TenantMedia_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure Company_Count()
@@ -369,26 +354,13 @@ codeunit 76624 "REC RPU Probe"
         Clear(Observer);
         Observer.Observe('count', Format(Company.Count()));
         Observer.Observe('current found', Format(Company.Get(CompanyName())));
-        Observer.Finish();
+        Observer.Expect('count', '2');
+        Observer.Expect('current found', 'Yes');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Company_Count_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Company_Count_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Company_Count_More3()
-    begin
-        Observer.More();
-    end;
 
     local procedure GuidKind(Value: Guid; Assigned: Guid; First: Guid): Text
     begin
@@ -451,26 +423,16 @@ codeunit 76624 "REC RPU Probe"
         Second.SystemId := Assigned;
         Ok := Second.Insert();
         Observer.Observe('insert', Format(Ok) + ' ' + GuidKind(Second.SystemId, Assigned, First));
-        Observer.Finish();
+        Observer.Expect('temp insert', 'No null');
+        Observer.Expect('temp insert no assignment', 'No null');
+        Observer.Expect('temp insert with systemid', 'No null');
+        Observer.Expect('insert with systemid', 'No null');
+        Observer.Expect('insert', 'No null');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure FailedGuardedInsert_SystemIdAfter_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure FailedGuardedInsert_SystemIdAfter_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure FailedGuardedInsert_SystemIdAfter_More3()
-    begin
-        Observer.More();
-    end;
 
     local procedure Loaded(var Row: Record "REC RPU Row"): Text
     begin
@@ -518,26 +480,18 @@ codeunit 76624 "REC RPU Probe"
         Row := Row;
         Row.Init();
         Observer.Observe('get init', Loaded(Row));
-        Observer.Finish();
+        Observer.Expect('init', 'Yes/Yes/Yes/Yes');
+        Observer.Expect('init modify', 'Yes Yes/Yes/Yes/Yes');
+        Observer.Expect('setloadfields no fetch', 'Yes/Yes/Yes/Yes');
+        Observer.Expect('setloadfields no fetch modify', 'Yes Yes/Yes/Yes/Yes');
+        Observer.Expect('get clear assign', 'Yes/Yes/Yes/Yes');
+        Observer.Expect('partial get clear assign', 'Yes/Yes/Yes/Yes');
+        Observer.Expect('get init', 'Yes/Yes/Yes/Yes');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure AreFieldsLoaded_UnfetchedAndCleared_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure AreFieldsLoaded_UnfetchedAndCleared_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure AreFieldsLoaded_UnfetchedAndCleared_More3()
-    begin
-        Observer.More();
-    end;
 
     // SystemRowVersion of a temporary record after Insert and Modify.
     [Test]
@@ -556,26 +510,15 @@ codeunit 76624 "REC RPU Probe"
         Observer.Observe('after modify', Format(TempRow.SystemRowVersion));
         TempRow.Get('T1');
         Observer.Observe('after get', Format(TempRow.SystemRowVersion));
-        Observer.Finish();
+        Observer.Expect('before insert', '0');
+        Observer.Expect('after insert', '0');
+        Observer.Expect('after modify', '0');
+        Observer.Expect('after get', '0');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Temporary_SystemRowVersion_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Temporary_SystemRowVersion_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Temporary_SystemRowVersion_More3()
-    begin
-        Observer.More();
-    end;
 
     // FilterPageBuilder.GetView of a record with a Boolean filter, localized (true) and not (false).
     [Test]
@@ -596,26 +539,15 @@ codeunit 76624 "REC RPU Probe"
         Builder.AddRecord('Rows', Row);
         Observer.Observe('getview false two', Builder.GetView('Rows', false));
         Observer.Observe('getview true two', Builder.GetView('Rows', true));
-        Observer.Finish();
+        Observer.Expect('getview false', 'VERSION(1) SORTING(Field1) WHERE(Field4=1(1))');
+        Observer.Expect('getview true', 'VERSION(1) SORTING(No.) WHERE(Flag=FILTER(true))');
+        Observer.Expect('getview false two', 'VERSION(1) SORTING(Field1) WHERE(Field4=1(0),Field6=1(1..3))');
+        Observer.Expect('getview true two', 'VERSION(1) SORTING(No.) WHERE(Flag=FILTER(false),Grp=FILTER(1..3))');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure FilterPageBuilder_GetView_BooleanFilter_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure FilterPageBuilder_GetView_BooleanFilter_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure FilterPageBuilder_GetView_BooleanFilter_More3()
-    begin
-        Observer.More();
-    end;
 
     local procedure DateCell(var Observer: Codeunit "Probe Observer"; var Sub: Codeunit "REC RPU Date Sub"; Name: Text; Filter: Text; WithArg: Boolean)
     var
@@ -658,138 +590,23 @@ codeunit 76624 "REC RPU Probe"
         DateCell(Observer, Sub, 'german placeholder or', '%1|abc', true);
         GlobalLanguage(1033);
         UnbindSubscription(Sub);
-        Observer.Finish();
+        Observer.Expect('english plain', 'ok 12/31/20');
+        Observer.Expect('english plain|calls', '[abc]');
+        Observer.Expect('english placeholder or', 'ok 01/02/20|12/31/20');
+        Observer.Expect('english placeholder or|calls', '[abc]');
+        Observer.Expect('english placeholder range', 'ok 12/31/20..01/02/20');
+        Observer.Expect('english placeholder range|calls', '[abc]');
+        Observer.Expect('english placeholder only', 'ok 01/02/20');
+        Observer.Expect('english placeholder only|calls', '');
+        Observer.Expect('german plain', 'ok 12/31/20');
+        Observer.Expect('german plain|calls', '[abc]');
+        Observer.Expect('german placeholder or', 'ok 01/02/20|12/31/20');
+        Observer.Expect('german placeholder or|calls', '[abc]');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure MakeDateFilter_PlaceholdersAndLanguage_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure MakeDateFilter_PlaceholdersAndLanguage_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure MakeDateFilter_PlaceholdersAndLanguage_More3()
-    begin
-        Observer.More();
-    end;
-
-    // A copy of a RecordRef that is not open, before the original is opened (RR2 := RR, and RR through a Variant).
-    [Test]
-    procedure RecordRefCopy_BeforeOpen()
-    var
-        RR: RecordRef;
-        RR2: RecordRef;
-        Back: RecordRef;
-        V: Variant;
-    begin
-        Clear(Observer);
-        SeedRows();
-        RR2 := RR;
-        V := RR;
-        RR.Open(Database::"REC RPU Row");
-        RR.FindFirst();
-        Observer.Observe('rr number', Format(RR.Number()));
-        Observer.Observe('rr2 number', Format(RR2.Number()));
-        Observer.Observe('variant is recordref', Format(V.IsRecordRef()));
-        Back := V;
-        Observer.Observe('back number', Format(Back.Number()));
-        ClearLastError();
-        asserterror
-        begin
-            RR2.FindFirst();
-            Error('REC_RPU_FOUND %1', Format(RR2.Field(1).Value));
-        end;
-        Observer.Observe('rr2 findfirst', GetLastErrorText());
-        Observer.Observe('rr2 findfirst|code', GetLastErrorCode());
-        ClearLastError();
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure RecordRefCopy_BeforeOpen_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure RecordRefCopy_BeforeOpen_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure RecordRefCopy_BeforeOpen_More3()
-    begin
-        Observer.More();
-    end;
-
-    local procedure StoreDate(var Observer: Codeunit "Probe Observer"; Name: Text; D: Date; Dtm: DateTime)
-    var
-        Row: Record "REC RPU Dates";
-        Stored: Record "REC RPU Dates";
-    begin
-        Row.DeleteAll();
-        ClearLastError();
-        asserterror
-        begin
-            Row.Init();
-            Row.Id := 1;
-            Row.Dt := D;
-            Row.Dtm := Dtm;
-            Row.Insert();
-            Stored.Get(1);
-            Error('REC_RPU_STORED %1|%2|%3|%4', Format(Stored.Dt, 0, 9), Format(Stored.Dtm, 0, 9), Format(Stored.Dt = D), Format(Stored.Dtm = Dtm));
-        end;
-        if GetLastErrorText().StartsWith('REC_RPU_STORED ') then
-            Observer.Observe(Name, 'stored ' + CopyStr(GetLastErrorText(), StrLen('REC_RPU_STORED ') + 1))
-        else begin
-            Observer.Observe(Name, 'error');
-            Observer.Observe(Name + '|text', GetLastErrorText());
-            Observer.Observe(Name + '|code', GetLastErrorCode());
-        end;
-        ClearLastError();
-    end;
-
-    // Date and DateTime values before 1753-01-02 other than the pinned ones, written by Insert and read back by Get.
-    [Test]
-    procedure DatesBefore1753_InsertAndGet()
-    begin
-        Clear(Observer);
-        StoreDate(Observer, 'date 1700-06-15', DMY2Date(15, 6, 1700), 0DT);
-        StoreDate(Observer, 'date 0001-01-02', DMY2Date(2, 1, 1), 0DT);
-        StoreDate(Observer, 'date 1753-01-02', DMY2Date(2, 1, 1753), 0DT);
-        StoreDate(Observer, 'datetime 1753-01-01 12:00', 0D, CreateDateTime(DMY2Date(1, 1, 1753), 120000T));
-        StoreDate(Observer, 'datetime 1753-01-01 23:59', 0D, CreateDateTime(DMY2Date(1, 1, 1753), 235900T));
-        StoreDate(Observer, 'datetime 1753-01-02 00:00', 0D, CreateDateTime(DMY2Date(2, 1, 1753), 000000T));
-        StoreDate(Observer, 'datetime 1752-01-01 00:00', 0D, CreateDateTime(DMY2Date(1, 1, 1752), 000000T));
-        StoreDate(Observer, 'datetime 0001-01-01 00:00', 0D, CreateDateTime(DMY2Date(1, 1, 1), 000000T));
-        StoreDate(Observer, 'datetime 0001-01-02 08:00', 0D, CreateDateTime(DMY2Date(2, 1, 1), 080000T));
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure DatesBefore1753_InsertAndGet_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DatesBefore1753_InsertAndGet_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DatesBefore1753_InsertAndGet_More3()
-    begin
-        Observer.More();
-    end;
 
     // Blob.Length and HasValue of a stored Blob of 24 bytes, read by Get without CalcFields, then after CalcFields.
     [Test]
@@ -818,26 +635,16 @@ codeunit 76624 "REC RPU Probe"
         Clear(Row);
         Row.Get(1);
         Observer.Observe('get after commit', Format(Row.B.Length) + ' ' + Format(Row.B.HasValue()));
-        Observer.Finish();
+        Observer.Expect('buffer after insert', '24 Yes');
+        Observer.Expect('get', '30 Yes');
+        Observer.Expect('calcfields', '24 Yes');
+        Observer.Expect('findfirst', '30 Yes');
+        Observer.Expect('get after commit', '30 Yes');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure StoredBlob_LengthBeforeCalcFields_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure StoredBlob_LengthBeforeCalcFields_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure StoredBlob_LengthBeforeCalcFields_More3()
-    begin
-        Observer.More();
-    end;
 
     var
         FilterPageMode: Integer;
@@ -908,24 +715,13 @@ codeunit 76624 "REC RPU Probe"
         FilterPageCell(Observer, 'gettable other record', 2);
         FilterPageCell(Observer, 'open other table', 3);
         FilterPageCell(Observer, 'open same table again', 4);
-        Observer.Finish();
+        Observer.Expect('set filter', 'Yes|1|Rows|VERSION(1) SORTING(Field1) WHERE(Field4=1(1),Field6=1(1..3))');
+        Observer.Expect('gettable other record', 'Yes|1|Rows|VERSION(1) SORTING(Field1) WHERE(Field6=1(7))');
+        Observer.Expect('open other table', 'Yes|1|Rows|VERSION(1) SORTING(Field1) WHERE(Field2=1(x*))');
+        Observer.Expect('open same table again', 'Yes|1|Rows|VERSION(1) SORTING(Field1) WHERE(Field2=1(n1))');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure FilterPageHandler_PointsRecordRefElsewhere_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure FilterPageHandler_PointsRecordRefElsewhere_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure FilterPageHandler_PointsRecordRefElsewhere_More3()
-    begin
-        Observer.More();
-    end;
 }

@@ -15,7 +15,7 @@
 //     conditions joined by a comma.
 //   Each cell validates the field with the code of every row of the related table (one row per member), an empty code and a missing code,
 //   and records 'ok' or the error code, plus the error text of the missing code.
-// Observation form: every test ends in Finish(), so the run fails on purpose and the failure message carries what BC produced.
+// Every test records what BC produced with Observer.Expect and ends in Verify().
 // BC versions: 27, 28, 29
 
 enum 76630 "REC TRQ Kind"
@@ -243,26 +243,43 @@ codeunit 76635 "REC TRQ Probe"
         Probe(11, 0, '', Codes);
         Probe(12, 0, '', Codes);
         Probe(13, 0, '', Codes);
-        Observer.Finish();
+        Observer.Expect('f10k0_R0', 'DB:NothingInsideFilter');
+        Observer.Expect('f10k0_R1', 'ok');
+        Observer.Expect('f10k0_R2', 'ok');
+        Observer.Expect('f10k0_R3', 'ok');
+        Observer.Expect('f10k0_S1', 'ok');
+        Observer.Expect('f10k0_', 'ok');
+        Observer.Expect('f10k0_NOPE', 'DB:NothingInsideFilter');
+        Observer.Expect('f10k0_NOPE|text', 'The field Kind Two Quoted Range of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ Ref).');
+        Observer.Expect('f11k0_R0', 'DB:NothingInsideFilter');
+        Observer.Expect('f11k0_R1', 'ok');
+        Observer.Expect('f11k0_R2', 'ok');
+        Observer.Expect('f11k0_R3', 'ok');
+        Observer.Expect('f11k0_S1', 'ok');
+        Observer.Expect('f11k0_', 'ok');
+        Observer.Expect('f11k0_NOPE', 'DB:NothingInsideFilter');
+        Observer.Expect('f11k0_NOPE|text', 'The field Opt Two Quoted Range of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ Ref).');
+        Observer.Expect('f12k0_R0', 'DB:NothingInsideFilter');
+        Observer.Expect('f12k0_R1', 'ok');
+        Observer.Expect('f12k0_R2', 'DB:NothingInsideFilter');
+        Observer.Expect('f12k0_R3', 'ok');
+        Observer.Expect('f12k0_S1', 'ok');
+        Observer.Expect('f12k0_', 'ok');
+        Observer.Expect('f12k0_NOPE', 'DB:NothingInsideFilter');
+        Observer.Expect('f12k0_NOPE|text', 'The field Kind Two Quoted Or of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ Ref).');
+        Observer.Expect('f13k0_R0', 'DB:NothingInsideFilter');
+        Observer.Expect('f13k0_R1', 'ok');
+        Observer.Expect('f13k0_R2', 'DB:NothingInsideFilter');
+        Observer.Expect('f13k0_R3', 'ok');
+        Observer.Expect('f13k0_S1', 'ok');
+        Observer.Expect('f13k0_', 'ok');
+        Observer.Expect('f13k0_NOPE', 'DB:NothingInsideFilter');
+        Observer.Expect('f13k0_NOPE|text', 'The field Opt Two Quoted Or of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ Ref).');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Where_TwoQuotedBounds_And_TwoQuotedMembers_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Where_TwoQuotedBounds_And_TwoQuotedMembers_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Where_TwoQuotedBounds_And_TwoQuotedMembers_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure Where_NotBoth_FourAnd_QuotedPlain()
@@ -276,26 +293,51 @@ codeunit 76635 "REC TRQ Probe"
         Probe(16, 0, '', Codes);
         Probe(17, 0, '', Codes);
         Probe(18, 0, '', Codes);
-        Observer.Finish();
+        Observer.Expect('f14k0_R0', 'ok');
+        Observer.Expect('f14k0_R1', 'DB:NothingInsideFilter');
+        Observer.Expect('f14k0_R2', 'ok');
+        Observer.Expect('f14k0_R3', 'DB:NothingInsideFilter');
+        Observer.Expect('f14k0_S1', 'DB:NothingInsideFilter');
+        Observer.Expect('f14k0_', 'ok');
+        Observer.Expect('f14k0_NOPE', 'DB:NothingInsideFilter');
+        Observer.Expect('f14k0_NOPE|text', 'The field Kind Not Both of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ Ref).');
+        Observer.Expect('f15k0_R0', 'DB:NothingInsideFilter');
+        Observer.Expect('f15k0_R1', 'DB:NothingInsideFilter');
+        Observer.Expect('f15k0_R2', 'DB:NothingInsideFilter');
+        Observer.Expect('f15k0_R3', 'DB:NothingInsideFilter');
+        Observer.Expect('f15k0_S1', 'DB:NothingInsideFilter');
+        Observer.Expect('f15k0_', 'ok');
+        Observer.Expect('f15k0_NOPE', 'DB:NothingInsideFilter');
+        Observer.Expect('f15k0_NOPE|text', 'The field Opt Four And of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ Ref).');
+        Observer.Expect('f16k0_R0', 'ok');
+        Observer.Expect('f16k0_R1', 'DB:NothingInsideFilter');
+        Observer.Expect('f16k0_R2', 'ok');
+        Observer.Expect('f16k0_R3', 'DB:NothingInsideFilter');
+        Observer.Expect('f16k0_S1', 'DB:NothingInsideFilter');
+        Observer.Expect('f16k0_', 'ok');
+        Observer.Expect('f16k0_NOPE', 'DB:NothingInsideFilter');
+        Observer.Expect('f16k0_NOPE|text', 'The field Kind Quoted Plain of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ Ref).');
+        Observer.Expect('f17k0_R0', 'DB:NothingInsideFilter');
+        Observer.Expect('f17k0_R1', 'ok');
+        Observer.Expect('f17k0_R2', 'ok');
+        Observer.Expect('f17k0_R3', 'ok');
+        Observer.Expect('f17k0_S1', 'ok');
+        Observer.Expect('f17k0_', 'ok');
+        Observer.Expect('f17k0_NOPE', 'DB:NothingInsideFilter');
+        Observer.Expect('f17k0_NOPE|text', 'The field Opt Quoted Plain Not of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ Ref).');
+        Observer.Expect('f18k0_R0', 'DB:NothingInsideFilter');
+        Observer.Expect('f18k0_R1', 'ok');
+        Observer.Expect('f18k0_R2', 'ok');
+        Observer.Expect('f18k0_R3', 'DB:NothingInsideFilter');
+        Observer.Expect('f18k0_S1', 'ok');
+        Observer.Expect('f18k0_', 'ok');
+        Observer.Expect('f18k0_NOPE', 'DB:NothingInsideFilter');
+        Observer.Expect('f18k0_NOPE|text', 'The field Kind Range Spaced of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ Ref).');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Where_NotBoth_FourAnd_QuotedPlain_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Where_NotBoth_FourAnd_QuotedPlain_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Where_NotBoth_FourAnd_QuotedPlain_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure Where_QuotedNextToOtherConditions()
@@ -308,26 +350,43 @@ codeunit 76635 "REC TRQ Probe"
         Probe(20, 0, '', Codes);
         Probe(21, 0, 'G1', Codes);
         Probe(21, 0, 'G2', Codes);
-        Observer.Finish();
+        Observer.Expect('f19k0_R0', 'DB:NothingInsideFilter');
+        Observer.Expect('f19k0_R1', 'DB:NothingInsideFilter');
+        Observer.Expect('f19k0_R2', 'DB:NothingInsideFilter');
+        Observer.Expect('f19k0_R3', 'ok');
+        Observer.Expect('f19k0_S1', 'DB:NothingInsideFilter');
+        Observer.Expect('f19k0_', 'ok');
+        Observer.Expect('f19k0_NOPE', 'DB:NothingInsideFilter');
+        Observer.Expect('f19k0_NOPE|text', 'The field Two Quoted Conditions of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ Ref).');
+        Observer.Expect('f20k0_R0', 'ok');
+        Observer.Expect('f20k0_R1', 'DB:NothingInsideFilter');
+        Observer.Expect('f20k0_R2', 'ok');
+        Observer.Expect('f20k0_R3', 'ok');
+        Observer.Expect('f20k0_S1', 'DB:NothingInsideFilter');
+        Observer.Expect('f20k0_', 'ok');
+        Observer.Expect('f20k0_NOPE', 'DB:NothingInsideFilter');
+        Observer.Expect('f20k0_NOPE|text', 'The field Const And Quoted of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ Ref).');
+        Observer.Expect('f21k0G1_R0', 'DB:NothingInsideFilter');
+        Observer.Expect('f21k0G1_R1', 'ok');
+        Observer.Expect('f21k0G1_R2', 'ok');
+        Observer.Expect('f21k0G1_R3', 'DB:NothingInsideFilter');
+        Observer.Expect('f21k0G1_S1', 'DB:NothingInsideFilter');
+        Observer.Expect('f21k0G1_', 'ok');
+        Observer.Expect('f21k0G1_NOPE', 'DB:NothingInsideFilter');
+        Observer.Expect('f21k0G1_NOPE|text', 'The field Field And Quoted of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ Ref).');
+        Observer.Expect('f21k0G2_R0', 'DB:NothingInsideFilter');
+        Observer.Expect('f21k0G2_R1', 'DB:NothingInsideFilter');
+        Observer.Expect('f21k0G2_R2', 'DB:NothingInsideFilter');
+        Observer.Expect('f21k0G2_R3', 'DB:NothingInsideFilter');
+        Observer.Expect('f21k0G2_S1', 'ok');
+        Observer.Expect('f21k0G2_', 'ok');
+        Observer.Expect('f21k0G2_NOPE', 'DB:NothingInsideFilter');
+        Observer.Expect('f21k0G2_NOPE|text', 'The field Field And Quoted of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ Ref).');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Where_QuotedNextToOtherConditions_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Where_QuotedNextToOtherConditions_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Where_QuotedNextToOtherConditions_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure Arms_EnumField_SingleConditions()
@@ -343,26 +402,107 @@ codeunit 76635 "REC TRQ Probe"
             Probe(32, K, '', Codes);
             Probe(33, K, '', Codes);
         end;
-        Observer.Finish();
+        Observer.Expect('f30k0_X1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f30k0_Y1', 'ok');
+        Observer.Expect('f30k0_R1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f30k0_', 'ok');
+        Observer.Expect('f30k0_NOPE', 'DB:PrimRecordNotFound');
+        Observer.Expect('f30k0_NOPE|text', 'The field Arm Const Quoted of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ T2).');
+        Observer.Expect('f31k0_X1', 'ok');
+        Observer.Expect('f31k0_Y1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f31k0_R1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f31k0_', 'ok');
+        Observer.Expect('f31k0_NOPE', 'DB:PrimRecordNotFound');
+        Observer.Expect('f31k0_NOPE|text', 'The field Arm Quoted Or A of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ T1).');
+        Observer.Expect('f32k0_X1', 'ok');
+        Observer.Expect('f32k0_Y1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f32k0_R1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f32k0_', 'ok');
+        Observer.Expect('f32k0_NOPE', 'DB:PrimRecordNotFound');
+        Observer.Expect('f32k0_NOPE|text', 'The field Arm Not Quoted of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ T1).');
+        Observer.Expect('f33k0_X1', 'ok');
+        Observer.Expect('f33k0_Y1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f33k0_R1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f33k0_', 'ok');
+        Observer.Expect('f33k0_NOPE', 'DB:PrimRecordNotFound');
+        Observer.Expect('f33k0_NOPE|text', 'The field Arm Upto Quoted of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ T1).');
+        Observer.Expect('f30k1_X1', 'ok');
+        Observer.Expect('f30k1_Y1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f30k1_R1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f30k1_', 'ok');
+        Observer.Expect('f30k1_NOPE', 'DB:PrimRecordNotFound');
+        Observer.Expect('f30k1_NOPE|text', 'The field Arm Const Quoted of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ T1).');
+        Observer.Expect('f31k1_X1', 'ok');
+        Observer.Expect('f31k1_Y1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f31k1_R1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f31k1_', 'ok');
+        Observer.Expect('f31k1_NOPE', 'DB:PrimRecordNotFound');
+        Observer.Expect('f31k1_NOPE|text', 'The field Arm Quoted Or A of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ T1).');
+        Observer.Expect('f32k1_X1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f32k1_Y1', 'ok');
+        Observer.Expect('f32k1_R1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f32k1_', 'ok');
+        Observer.Expect('f32k1_NOPE', 'DB:PrimRecordNotFound');
+        Observer.Expect('f32k1_NOPE|text', 'The field Arm Not Quoted of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ T2).');
+        Observer.Expect('f33k1_X1', 'ok');
+        Observer.Expect('f33k1_Y1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f33k1_R1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f33k1_', 'ok');
+        Observer.Expect('f33k1_NOPE', 'DB:PrimRecordNotFound');
+        Observer.Expect('f33k1_NOPE|text', 'The field Arm Upto Quoted of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ T1).');
+        Observer.Expect('f30k2_X1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f30k2_Y1', 'ok');
+        Observer.Expect('f30k2_R1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f30k2_', 'ok');
+        Observer.Expect('f30k2_NOPE', 'DB:PrimRecordNotFound');
+        Observer.Expect('f30k2_NOPE|text', 'The field Arm Const Quoted of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ T2).');
+        Observer.Expect('f31k2_X1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f31k2_Y1', 'ok');
+        Observer.Expect('f31k2_R1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f31k2_', 'ok');
+        Observer.Expect('f31k2_NOPE', 'DB:PrimRecordNotFound');
+        Observer.Expect('f31k2_NOPE|text', 'The field Arm Quoted Or A of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ T2).');
+        Observer.Expect('f32k2_X1', 'ok');
+        Observer.Expect('f32k2_Y1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f32k2_R1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f32k2_', 'ok');
+        Observer.Expect('f32k2_NOPE', 'DB:PrimRecordNotFound');
+        Observer.Expect('f32k2_NOPE|text', 'The field Arm Not Quoted of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ T1).');
+        Observer.Expect('f33k2_X1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f33k2_Y1', 'ok');
+        Observer.Expect('f33k2_R1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f33k2_', 'ok');
+        Observer.Expect('f33k2_NOPE', 'DB:PrimRecordNotFound');
+        Observer.Expect('f33k2_NOPE|text', 'The field Arm Upto Quoted of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ T2).');
+        Observer.Expect('f30k3_X1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f30k3_Y1', 'ok');
+        Observer.Expect('f30k3_R1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f30k3_', 'ok');
+        Observer.Expect('f30k3_NOPE', 'DB:PrimRecordNotFound');
+        Observer.Expect('f30k3_NOPE|text', 'The field Arm Const Quoted of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ T2).');
+        Observer.Expect('f31k3_X1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f31k3_Y1', 'ok');
+        Observer.Expect('f31k3_R1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f31k3_', 'ok');
+        Observer.Expect('f31k3_NOPE', 'DB:PrimRecordNotFound');
+        Observer.Expect('f31k3_NOPE|text', 'The field Arm Quoted Or A of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ T2).');
+        Observer.Expect('f32k3_X1', 'ok');
+        Observer.Expect('f32k3_Y1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f32k3_R1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f32k3_', 'ok');
+        Observer.Expect('f32k3_NOPE', 'DB:PrimRecordNotFound');
+        Observer.Expect('f32k3_NOPE|text', 'The field Arm Not Quoted of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ T1).');
+        Observer.Expect('f33k3_X1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f33k3_Y1', 'ok');
+        Observer.Expect('f33k3_R1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f33k3_', 'ok');
+        Observer.Expect('f33k3_NOPE', 'DB:PrimRecordNotFound');
+        Observer.Expect('f33k3_NOPE|text', 'The field Arm Upto Quoted of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ T2).');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Arms_EnumField_SingleConditions_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Arms_EnumField_SingleConditions_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Arms_EnumField_SingleConditions_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure Arms_EnumField_RangesAndAnd()
@@ -376,26 +516,59 @@ codeunit 76635 "REC TRQ Probe"
             Probe(34, K, '', Codes);
             Probe(35, K, '', Codes);
         end;
-        Observer.Finish();
+        Observer.Expect('f34k0_X1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f34k0_Y1', 'ok');
+        Observer.Expect('f34k0_R1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f34k0_', 'ok');
+        Observer.Expect('f34k0_NOPE', 'DB:PrimRecordNotFound');
+        Observer.Expect('f34k0_NOPE|text', 'The field Arm Two Quoted Range of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ T2).');
+        Observer.Expect('f35k0_X1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f35k0_Y1', 'ok');
+        Observer.Expect('f35k0_R1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f35k0_', 'ok');
+        Observer.Expect('f35k0_NOPE', 'DB:PrimRecordNotFound');
+        Observer.Expect('f35k0_NOPE|text', 'The field Arm Three And of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ T2).');
+        Observer.Expect('f34k1_X1', 'ok');
+        Observer.Expect('f34k1_Y1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f34k1_R1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f34k1_', 'ok');
+        Observer.Expect('f34k1_NOPE', 'DB:PrimRecordNotFound');
+        Observer.Expect('f34k1_NOPE|text', 'The field Arm Two Quoted Range of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ T1).');
+        Observer.Expect('f35k1_X1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f35k1_Y1', 'ok');
+        Observer.Expect('f35k1_R1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f35k1_', 'ok');
+        Observer.Expect('f35k1_NOPE', 'DB:PrimRecordNotFound');
+        Observer.Expect('f35k1_NOPE|text', 'The field Arm Three And of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ T2).');
+        Observer.Expect('f34k2_X1', 'ok');
+        Observer.Expect('f34k2_Y1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f34k2_R1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f34k2_', 'ok');
+        Observer.Expect('f34k2_NOPE', 'DB:PrimRecordNotFound');
+        Observer.Expect('f34k2_NOPE|text', 'The field Arm Two Quoted Range of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ T1).');
+        Observer.Expect('f35k2_X1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f35k2_Y1', 'ok');
+        Observer.Expect('f35k2_R1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f35k2_', 'ok');
+        Observer.Expect('f35k2_NOPE', 'DB:PrimRecordNotFound');
+        Observer.Expect('f35k2_NOPE|text', 'The field Arm Three And of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ T2).');
+        Observer.Expect('f34k3_X1', 'ok');
+        Observer.Expect('f34k3_Y1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f34k3_R1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f34k3_', 'ok');
+        Observer.Expect('f34k3_NOPE', 'DB:PrimRecordNotFound');
+        Observer.Expect('f34k3_NOPE|text', 'The field Arm Two Quoted Range of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ T1).');
+        Observer.Expect('f35k3_X1', 'ok');
+        Observer.Expect('f35k3_Y1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f35k3_R1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f35k3_', 'ok');
+        Observer.Expect('f35k3_NOPE', 'DB:PrimRecordNotFound');
+        Observer.Expect('f35k3_NOPE|text', 'The field Arm Three And of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ T1).');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Arms_EnumField_RangesAndAnd_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Arms_EnumField_RangesAndAnd_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Arms_EnumField_RangesAndAnd_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure Arms_EnumField_ThreeArms_TwoConditions()
@@ -410,24 +583,81 @@ codeunit 76635 "REC TRQ Probe"
             Probe(37, K, 'G1', Codes);
             Probe(37, K, 'G2', Codes);
         end;
-        Observer.Finish();
+        Observer.Expect('f36k0_X1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f36k0_Y1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f36k0_R1', 'ok');
+        Observer.Expect('f36k0_', 'ok');
+        Observer.Expect('f36k0_NOPE', 'DB:PrimRecordNotFound');
+        Observer.Expect('f36k0_NOPE|text', 'The field Arm Three Arms of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ Ref).');
+        Observer.Expect('f37k0G1_X1', 'ok');
+        Observer.Expect('f37k0G1_Y1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f37k0G1_R1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f37k0G1_', 'ok');
+        Observer.Expect('f37k0G1_NOPE', 'DB:PrimRecordNotFound');
+        Observer.Expect('f37k0G1_NOPE|text', 'The field Arm Two Conditions of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ T1).');
+        Observer.Expect('f37k0G2_X1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f37k0G2_Y1', 'ok');
+        Observer.Expect('f37k0G2_R1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f37k0G2_', 'ok');
+        Observer.Expect('f37k0G2_NOPE', 'DB:PrimRecordNotFound');
+        Observer.Expect('f37k0G2_NOPE|text', 'The field Arm Two Conditions of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ T2).');
+        Observer.Expect('f36k1_X1', 'ok');
+        Observer.Expect('f36k1_Y1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f36k1_R1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f36k1_', 'ok');
+        Observer.Expect('f36k1_NOPE', 'DB:PrimRecordNotFound');
+        Observer.Expect('f36k1_NOPE|text', 'The field Arm Three Arms of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ T1).');
+        Observer.Expect('f37k1G1_X1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f37k1G1_Y1', 'ok');
+        Observer.Expect('f37k1G1_R1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f37k1G1_', 'ok');
+        Observer.Expect('f37k1G1_NOPE', 'DB:PrimRecordNotFound');
+        Observer.Expect('f37k1G1_NOPE|text', 'The field Arm Two Conditions of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ T2).');
+        Observer.Expect('f37k1G2_X1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f37k1G2_Y1', 'ok');
+        Observer.Expect('f37k1G2_R1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f37k1G2_', 'ok');
+        Observer.Expect('f37k1G2_NOPE', 'DB:PrimRecordNotFound');
+        Observer.Expect('f37k1G2_NOPE|text', 'The field Arm Two Conditions of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ T2).');
+        Observer.Expect('f36k2_X1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f36k2_Y1', 'ok');
+        Observer.Expect('f36k2_R1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f36k2_', 'ok');
+        Observer.Expect('f36k2_NOPE', 'DB:PrimRecordNotFound');
+        Observer.Expect('f36k2_NOPE|text', 'The field Arm Three Arms of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ T2).');
+        Observer.Expect('f37k2G1_X1', 'ok');
+        Observer.Expect('f37k2G1_Y1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f37k2G1_R1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f37k2G1_', 'ok');
+        Observer.Expect('f37k2G1_NOPE', 'DB:PrimRecordNotFound');
+        Observer.Expect('f37k2G1_NOPE|text', 'The field Arm Two Conditions of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ T1).');
+        Observer.Expect('f37k2G2_X1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f37k2G2_Y1', 'ok');
+        Observer.Expect('f37k2G2_R1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f37k2G2_', 'ok');
+        Observer.Expect('f37k2G2_NOPE', 'DB:PrimRecordNotFound');
+        Observer.Expect('f37k2G2_NOPE|text', 'The field Arm Two Conditions of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ T2).');
+        Observer.Expect('f36k3_X1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f36k3_Y1', 'ok');
+        Observer.Expect('f36k3_R1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f36k3_', 'ok');
+        Observer.Expect('f36k3_NOPE', 'DB:PrimRecordNotFound');
+        Observer.Expect('f36k3_NOPE|text', 'The field Arm Three Arms of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ T2).');
+        Observer.Expect('f37k3G1_X1', 'ok');
+        Observer.Expect('f37k3G1_Y1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f37k3G1_R1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f37k3G1_', 'ok');
+        Observer.Expect('f37k3G1_NOPE', 'DB:PrimRecordNotFound');
+        Observer.Expect('f37k3G1_NOPE|text', 'The field Arm Two Conditions of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ T1).');
+        Observer.Expect('f37k3G2_X1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f37k3G2_Y1', 'ok');
+        Observer.Expect('f37k3G2_R1', 'DB:PrimRecordNotFound');
+        Observer.Expect('f37k3G2_', 'ok');
+        Observer.Expect('f37k3G2_NOPE', 'DB:PrimRecordNotFound');
+        Observer.Expect('f37k3G2_NOPE|text', 'The field Arm Two Conditions of table REC TRQ Src contains a value (NOPE) that cannot be found in the related table (REC TRQ T2).');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Arms_EnumField_ThreeArms_TwoConditions_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Arms_EnumField_ThreeArms_TwoConditions_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Arms_EnumField_ThreeArms_TwoConditions_More3()
-    begin
-        Observer.More();
-    end;
 }
