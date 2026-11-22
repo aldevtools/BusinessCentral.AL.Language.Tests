@@ -324,4 +324,231 @@ codeunit 87211 "REC MovedKey Tests"
         CloseCell('P8');
         Obs.Finish();
     end;
+
+    // Round 2 (cells Q1-Q7, al-runner issue 8721): which version the check after a failed Insert counts. Shape as P1 unless stated:
+    //   Src read, CopyTo creates TARGET, Src.Name := 'second' in memory, the 2nd CopyTo inside asserterror.
+    //   Q1  the seed NOT committed (DeleteAll + Insert SOURCE in the open transaction), then Src.Get. Q1a with asserterror around
+    //       the 2nd call, Q1b without it (the issue's cell 5 has none): Q1b raising shows as a test failure without OBSERVE:.
+    //   Q2  committed seed, row X of the SAME table inserted (no Commit), then Src.Get.
+    //   Q3  committed seed, a row of ANOTHER table (87212) inserted (no Commit), then Src.Get.
+    //   Q4  the seed NOT committed, Src.Get, then a Commit, then the upsert twice.
+    //   Q5  committed seed, a 2nd variable modifies SOURCE (Name 'modified', no Commit), then Src.Get.
+    //   Q6  P6 with a Commit right after the own Insert of OWN.
+    //   Q7  P6 with Copy.Name := 'ownmod' and Copy.Modify() after the own Insert of OWN, before TARGET is inserted.
+
+    local procedure SeedOpen()
+    var
+        Row: Record "REC MovedKey Row";
+    begin
+        Row.DeleteAll();
+        AddRow('SOURCE', 'new');
+        Inserts := '';
+        StoredInside := '';
+    end;
+
+    // Q1b: the 2nd call ran unguarded and did not raise (a raise ends the test with its own message).
+    local procedure CloseUnguarded(Cell: Text)
+    var
+        Row: Record "REC MovedKey Row";
+    begin
+        Obs.Observe(Cell + '|insert', Inserts);
+        Obs.Observe(Cell + '|raised', 'none');
+        Obs.Observe(Cell + '|stored', StoredInside);
+        Row.DeleteAll();
+        Commit();
+    end;
+
+    [Test]
+    procedure FailedInsert_MovedKey_Q1a_OpenSeed_Guarded()
+    var
+        Src: Record "REC MovedKey Row";
+    begin
+        SeedOpen();
+        Src.Get('SOURCE');
+        CopyTo(Src, 'TARGET');
+        Src.Name := 'second';
+        asserterror begin
+            CopyTo(Src, 'TARGET');
+            StoredInside := Stored();
+            Error(NoErrorTxt);
+        end;
+        CloseCell('Q1a');
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure FailedInsert_MovedKey_Q1b_OpenSeed_Unguarded()
+    var
+        Src: Record "REC MovedKey Row";
+    begin
+        SeedOpen();
+        Src.Get('SOURCE');
+        CopyTo(Src, 'TARGET');
+        Src.Name := 'second';
+        CopyTo(Src, 'TARGET');
+        StoredInside := Stored();
+        CloseUnguarded('Q1b');
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure FailedInsert_MovedKey_Q2_SameTableWrittenBeforeRead()
+    var
+        Src: Record "REC MovedKey Row";
+    begin
+        Seed(false);
+        AddRow('X', 'x');
+        Src.Get('SOURCE');
+        CopyTo(Src, 'TARGET');
+        Src.Name := 'second';
+        asserterror begin
+            CopyTo(Src, 'TARGET');
+            StoredInside := Stored();
+            Error(NoErrorTxt);
+        end;
+        CloseCell('Q2');
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure FailedInsert_MovedKey_Q3_OtherTableWrittenBeforeRead()
+    var
+        Src: Record "REC MovedKey Row";
+        Side: Record "REC MovedKey Side";
+    begin
+        Side.DeleteAll();
+        Seed(false);
+        Side.Code := 'S';
+        Side.Insert();
+        Src.Get('SOURCE');
+        CopyTo(Src, 'TARGET');
+        Src.Name := 'second';
+        asserterror begin
+            CopyTo(Src, 'TARGET');
+            StoredInside := Stored();
+            Error(NoErrorTxt);
+        end;
+        CloseCell('Q3');
+        Side.DeleteAll();
+        Commit();
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure FailedInsert_MovedKey_Q4_OpenSeed_CommitAfterRead()
+    var
+        Src: Record "REC MovedKey Row";
+    begin
+        SeedOpen();
+        Src.Get('SOURCE');
+        Commit();
+        CopyTo(Src, 'TARGET');
+        Src.Name := 'second';
+        asserterror begin
+            CopyTo(Src, 'TARGET');
+            StoredInside := Stored();
+            Error(NoErrorTxt);
+        end;
+        CloseCell('Q4');
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure FailedInsert_MovedKey_Q5_SourceModifiedBeforeRead()
+    var
+        Src: Record "REC MovedKey Row";
+        Other: Record "REC MovedKey Row";
+    begin
+        Seed(false);
+        Other.Get('SOURCE');
+        Other.Name := 'modified';
+        Other.Modify();
+        Src.Get('SOURCE');
+        CopyTo(Src, 'TARGET');
+        Src.Name := 'second';
+        asserterror begin
+            CopyTo(Src, 'TARGET');
+            StoredInside := Stored();
+            Error(NoErrorTxt);
+        end;
+        CloseCell('Q5');
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure FailedInsert_MovedKey_Q6_OwnInsertThenCommit()
+    var
+        Src: Record "REC MovedKey Row";
+        Copy: Record "REC MovedKey Row";
+        Done: Boolean;
+    begin
+        Seed(false);
+        Src.Get('SOURCE');
+        Copy := Src;
+        Copy.Code := 'OWN';
+        NoteInsert(Copy.Insert(true));
+        Commit();
+        CopyTo(Src, 'TARGET');
+        Src.Name := 'second';
+        asserterror begin
+            Copy.Code := 'TARGET';
+            Done := Copy.Insert(true);
+            NoteInsert(Done);
+            if not Done then begin
+                Copy.TransferFields(Src, false);
+                Copy.Modify(true);
+            end;
+            StoredInside := Stored();
+            Error(NoErrorTxt);
+        end;
+        CloseCell('Q6');
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure FailedInsert_MovedKey_Q7_OwnInsertThenOwnModify()
+    var
+        Src: Record "REC MovedKey Row";
+        Copy: Record "REC MovedKey Row";
+        Done: Boolean;
+    begin
+        Seed(false);
+        Src.Get('SOURCE');
+        Copy := Src;
+        Copy.Code := 'OWN';
+        NoteInsert(Copy.Insert(true));
+        Copy.Name := 'ownmod';
+        Copy.Modify();
+        CopyTo(Src, 'TARGET');
+        Src.Name := 'second';
+        asserterror begin
+            Copy.Code := 'TARGET';
+            Done := Copy.Insert(true);
+            NoteInsert(Done);
+            if not Done then begin
+                Copy.TransferFields(Src, false);
+                Copy.Modify(true);
+            end;
+            StoredInside := Stored();
+            Error(NoErrorTxt);
+        end;
+        CloseCell('Q7');
+        Obs.Finish();
+    end;
+}
+
+// Q3: a second table, written before the read.
+table 87212 "REC MovedKey Side"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "Code"; Code[20]) { }
+    }
+
+    keys
+    {
+        key(PK; "Code") { Clustered = true; }
+    }
 }
