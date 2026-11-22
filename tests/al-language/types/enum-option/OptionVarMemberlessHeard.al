@@ -606,6 +606,55 @@ codeunit 75283 "OVH Heard Callers Tests"
         Observer.Expect('writer runs first, Second: seen>after', 'write Q|1;read R|2;>Third|2');
         Observer.Verify();
     end;
+
+    [Test]
+    procedure ShortListPastItsEnd_HeardPublishers()
+    var
+        Observer: Codeunit "Probe Observer";
+        A1: Option A,B;
+        A2: Option A,B;
+        A3: Option A,B;
+        A4: Option A,B;
+        A5: Option A,B;
+        A6: Option A,B;
+        E1: Option A,B,C,D,E;
+        E2: Option A,B,C,D,E;
+        Seen: Text;
+    begin
+        A1 := 4;
+        Pub.OnHeardIgnored(A1);
+        Observer.Observe('A,B holding 4, ignored: after', Format(A1) + '|' + Format(A1, 0, 2));
+        A2 := 4;
+        Pub.OnHeardRead(A2, Seen);
+        Observer.Observe('A,B holding 4, read: seen>after', Seen + '>' + Format(A2) + '|' + Format(A2, 0, 2));
+        A3 := 4;
+        Pub.OnHeardWritten(A3, Seen);
+        Observer.Observe('A,B holding 4, written R: seen>after', Seen + '>' + Format(A3) + '|' + Format(A3, 0, 2));
+        A4 := 4;
+        Pub.OnHeardWrittenInteger(A4, Seen);
+        Observer.Observe('A,B holding 4, written 0: seen>after', Seen + '>' + Format(A4) + '|' + Format(A4, 0, 2));
+        A5 := 2;
+        Pub.OnHeardRead(A5, Seen);
+        Observer.Observe('A,B holding 2, read: seen>after', Seen + '>' + Format(A5) + '|' + Format(A5, 0, 2));
+        A6 := 2;
+        Pub.OnHeardIgnored(A6);
+        Observer.Observe('A,B holding 2, ignored: after', Format(A6) + '|' + Format(A6, 0, 2));
+        E1 := E1::E;
+        Pub.OnHeardRead(E1, Seen);
+        Observer.Observe('A,B,C,D,E holding E, read: seen>after', Seen + '>' + Format(E1) + '|' + Format(E1, 0, 2));
+        E2 := 7;
+        Pub.OnHeardWritten(E2, Seen);
+        Observer.Observe('A,B,C,D,E holding 7, written R: seen>after', Seen + '>' + Format(E2) + '|' + Format(E2, 0, 2));
+        Observer.Expect('A,B holding 4, ignored: after', '4|4');
+        Observer.Expect('A,B holding 4, read: seen>after', '4|4>4|4');
+        Observer.Expect('A,B holding 4, written R: seen>after', '4|4~R|2>2|2');
+        Observer.Expect('A,B holding 4, written 0: seen>after', 'P|0>A|0');
+        Observer.Expect('A,B holding 2, read: seen>after', 'R|2>2|2');
+        Observer.Expect('A,B holding 2, ignored: after', '2|2');
+        Observer.Expect('A,B,C,D,E holding E, read: seen>after', '4|4>E|4');
+        Observer.Expect('A,B,C,D,E holding 7, written R: seen>after', '7|7~R|2>C|2');
+        Observer.Verify();
+    end;
 }
 
 // The publishers of the cells after the first seven tests (al-runner PR 8391 review): subscribers that store a number
@@ -618,7 +667,10 @@ codeunit 75283 "OVH Heard Callers Tests"
 //   or -1 leaves 7|7 or -1|-1 also in a First,Second,Third caller; a memberless -1 or 7 given R ends 2|2. SingleInstance
 //   codeunits and both skip flags change nothing (Q|1~R|2, then 2|2 or Third|2). Of two subscribers in one codeunit,
 //   HandleReadSecond ran before HandleWriteFirst (read Q|1, write Q|1); with HandleAWriterBefore running first, the reader
-//   sees the writer's R (write Q|1, read R|2), and the caller ends 2|2 or Third|2.
+//   sees the writer's R (write Q|1, read R|2), and the caller ends 2|2 or Third|2. ShortListPastItsEnd (al-runner PR 8391,
+//   second review): a caller A,B holding 4, past both lists, keeps 4|4 and is read as 4|4, R gives 2|2 and 0 gives A|0; A,B
+//   holding 2 is read as R|2 and keeps 2|2; A,B,C,D,E holding E is read as 4|4 and keeps E|4, holding 7 and given R ends
+//   C|2.
 codeunit 75284 "OVH More Publisher"
 {
     [IntegrationEvent(false, false)]
