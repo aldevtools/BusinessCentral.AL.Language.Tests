@@ -806,14 +806,6 @@ codeunit 75671 "YRM Json Yaml Remaining"
         Observer.Finish();
     end;
 
-    local procedure ScalarCells(Prefix: Text; Items: List of [Text])
-    var
-        S: Text;
-    begin
-        foreach S in Items do
-            Observer.Observe(Prefix + '[' + S + ']', Both(Doc('q: ' + S, ''), '', ''));
-    end;
-
     [Test]
     procedure ReadFromYaml_NullAndEmpty_3()
     var
@@ -823,14 +815,6 @@ codeunit 75671 "YRM Json Yaml Remaining"
             'q:   ', 'q: ~~', 'k:', 'k:~  -', 'k:~  - ', 'o:~  q:', 'o:~  q:~n: 1', 'q: [{~}, null, ]', 'q: {a: {~}, b: null, c: }');
         Cells('nl', D, 21, 30);
         Observer.Finish();
-    end;
-
-    local procedure ScalarCells(Prefix: Text; Items: List of [Text])
-    var
-        S: Text;
-    begin
-        foreach S in Items do
-            Observer.Observe(Prefix + '[' + S + ']', Both(Doc('q: ' + S, ''), '', ''));
     end;
 
     [Test]
