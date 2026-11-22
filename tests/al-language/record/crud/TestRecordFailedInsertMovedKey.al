@@ -1214,6 +1214,62 @@ codeunit 87211 "REC MovedKey Tests"
         Obs.Expect('S8|stored', 'SOURCE=new TARGET=new X=x');
         Obs.Verify();
     end;
+
+    // Cells Q8 and Q9: the issue's cells 6 and 7, as P2 and P3 but with the seed NOT committed (SOURCE inserted in the test, as in
+    //   the issue). Q8: TARGET modified by another variable between the two calls. Q9: SOURCE modified by another variable between
+    //   the two calls.
+    //   Expected values from the reporter's BC 29 repro in al-runner issue 8721; #1523's CI on real BC 27.5/28.5/29.0 is their
+    //   check. The reporter measured "no error"; insert and stored follow from the shape, as in Q1a (measured: written).
+
+    [Test]
+    procedure FailedInsert_MovedKey_Q8_OpenSeed_TargetModifiedBetween()
+    var
+        Src: Record "REC MovedKey Row";
+        Other: Record "REC MovedKey Row";
+    begin
+        SeedOpen();
+        Src.Get('SOURCE');
+        CopyTo(Src, 'TARGET');
+        Other.Get('TARGET');
+        Other.Name := 'between';
+        Other.Modify();
+        Src.Name := 'second';
+        asserterror begin
+            CopyTo(Src, 'TARGET');
+            StoredInside := Stored();
+            Error(NoErrorTxt);
+        end;
+        CloseCell('Q8');
+        Obs.Expect('Q8|insert', 'ok,fail');
+        Obs.Expect('Q8|raised', 'none');
+        Obs.Expect('Q8|stored', 'SOURCE=new TARGET=second');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure FailedInsert_MovedKey_Q9_OpenSeed_SourceModifiedBetween()
+    var
+        Src: Record "REC MovedKey Row";
+        Other: Record "REC MovedKey Row";
+    begin
+        SeedOpen();
+        Src.Get('SOURCE');
+        CopyTo(Src, 'TARGET');
+        Other.Get('SOURCE');
+        Other.Name := 'between';
+        Other.Modify();
+        Src.Name := 'second';
+        asserterror begin
+            CopyTo(Src, 'TARGET');
+            StoredInside := Stored();
+            Error(NoErrorTxt);
+        end;
+        CloseCell('Q9');
+        Obs.Expect('Q9|insert', 'ok,fail');
+        Obs.Expect('Q9|raised', 'none');
+        Obs.Expect('Q9|stored', 'SOURCE=between TARGET=second');
+        Obs.Verify();
+    end;
 }
 
 // Q3: a second table, written before the read.
