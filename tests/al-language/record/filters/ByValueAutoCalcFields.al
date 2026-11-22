@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/record/record-setautocalcfields-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own objects 78810..78815 (BVA Head, BVA Detail, BVA Buffer, BVA Callee,
-//   BVA By Value AutoCalc Tests, BVA Holder)
+// Fixtures used: Probe Observer (codeunit 69160); own objects 78810..78818 (BVA Head, BVA Detail, BVA Buffer, BVA Callee,
+//   BVA By Value AutoCalc Tests, BVA Holder, BVA Head Ext, BVA Stat, BVA Stat Callee)
 // local object: the FlowFields of the table, the callee table's procedures and the caller's SetAutoCalcFields are what is
 //   under test.
 // Probe (al-runner issue 8538): what a procedure sees of the caller's SetAutoCalcFields when it gets a record of a stored table
@@ -21,6 +21,8 @@
 //   Each table procedure also has a rich view (secondary key, descending, filters in groups 0 and 2, two FlowFields, a mark).
 //   Added: Get of the copy, Other.Copy of the copy then FindLast, the callee's own SetAutoCalcFields of another FlowField, a
 //   FlowField whose formula reads a FlowFilter (none set), and Buffer.Proc(Head) from the OnInsert of a third table.
+//   Added for the review of al-runner PR 8541: a FlowField of every method (Min, Max, Average, Exist, Lookup on BVA Stat), three
+//   auto-calculated fields, and a Min FlowField a table extension declares (BVA Head Ext), through a codeunit procedure.
 // Facts (observed on a local BC 29.1 OnPrem W1 container; 27.5 and 28.5 by the corpus CI):
 //   - RecordRef.GetTable of the caller's own record keeps its SetAutoCalcFields (FindLast calculates 30);
 //   - a by-value copy keeps the field values of the caller's current row, its calculated FlowFields included (total=10,
@@ -29,7 +31,8 @@
 //     took of it through a Variant, leave the FlowFields 0 (lastTotal=0 lastCount=0), for a codeunit procedure, a local
 //     procedure of the test codeunit, a table procedure of another table and Head.Proc(Head); so do its Get, a FindLast of
 //     another record that copied it with Copy, and a FlowFilter-dependent FlowField; a SetAutoCalcFields of its own
-//     calculates only the field it names (total=0 count=1);
+//     calculates only the field it names (total=0 count=1); every FlowField method behaves the same (min, max, average,
+//     exist and lookup read 0 or No in the copy), with three fields, and for a FlowField a table extension declares;
 //   - the caller keeps its filters, key and SetAutoCalcFields after every call.
 // BC versions: 27.5, 28.5, 29.0
 
@@ -217,10 +220,12 @@ codeunit 78814 "BVA By Value AutoCalc Tests"
         Head: Record "BVA Head";
         Detail: Record "BVA Detail";
         Holder: Record "BVA Holder";
+        Stat: Record "BVA Stat";
     begin
         Head.DeleteAll();
         Detail.DeleteAll();
         Holder.DeleteAll();
+        Stat.DeleteAll();
         AddHead('H1', 'A');
         AddHead('H2', 'A');
         AddHead('H3', 'B');
@@ -602,5 +607,182 @@ codeunit 78814 "BVA By Value AutoCalc Tests"
         Observer.Observe('callee', Holder.Info);
         Observer.Expect('callee', 'no=H1 total=10 count=0 f={} n=3 key=No. asc=Yes last=H3 lastTotal=0 lastCount=0');
         Observer.Verify();
+    end;
+
+    // Added for the review of al-runner PR 8541: every FlowField method, on the table (BVA Stat) and in a table extension
+    // (BVA Head Ext), and three auto-calculated fields.
+    local procedure AddStats()
+    var
+        Stat: Record "BVA Stat";
+    begin
+        Stat."No." := 'H1';
+        Stat.Insert();
+        Stat."No." := 'H2';
+        Stat.Insert();
+        Stat."No." := 'H3';
+        Stat.Insert();
+    end;
+
+    [Test]
+    procedure ByValueAutoCalc_Codeunit_MinMaxAverage()
+    var
+        Observer: Codeunit "Probe Observer";
+        Stat: Record "BVA Stat";
+        StatCallee: Codeunit "BVA Stat Callee";
+    begin
+        Initialize();
+        AddStats();
+        Stat.SetFilter("No.", '<>%1', 'H9');
+        Stat.SetAutoCalcFields("Min Amount");
+        Stat.FindFirst();
+        Observer.Observe('caller min', Format(Stat."Min Amount", 0, 9));
+        Observer.Observe('callee min', StatCallee.StatAfterFindLast(Stat));
+        Stat.SetAutoCalcFields();
+        Stat.SetAutoCalcFields("Max Amount");
+        Stat.FindFirst();
+        Observer.Observe('caller max', Format(Stat."Max Amount", 0, 9));
+        Observer.Observe('callee max', StatCallee.StatAfterFindLast(Stat));
+        Stat.SetAutoCalcFields();
+        Stat.SetAutoCalcFields("Average Amount");
+        Stat.FindFirst();
+        Observer.Observe('caller average', Format(Stat."Average Amount", 0, 9));
+        Observer.Observe('callee average', StatCallee.StatAfterFindLast(Stat));
+        Stat.FindLast();
+        Observer.Observe('caller findlast', Format(Stat."Average Amount", 0, 9));
+        Observer.Expect('caller min', '4');
+        Observer.Expect('callee min', 'no=H3 sum=0 count=0 min=0 max=0 avg=0 exist=No lookup=0');
+        Observer.Expect('caller max', '6');
+        Observer.Expect('callee max', 'no=H3 sum=0 count=0 min=0 max=0 avg=0 exist=No lookup=0');
+        Observer.Expect('caller average', '5');
+        Observer.Expect('callee average', 'no=H3 sum=0 count=0 min=0 max=0 avg=0 exist=No lookup=0');
+        Observer.Expect('caller findlast', '30');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure ByValueAutoCalc_Codeunit_ExistLookup()
+    var
+        Observer: Codeunit "Probe Observer";
+        Stat: Record "BVA Stat";
+        StatCallee: Codeunit "BVA Stat Callee";
+    begin
+        Initialize();
+        AddStats();
+        Stat.SetFilter("No.", '<>%1', 'H9');
+        Stat.SetAutoCalcFields("Has Lines", "First Amount");
+        Stat.FindFirst();
+        Observer.Observe('caller', Format(Stat."Has Lines") + ' ' + Format(Stat."First Amount", 0, 9));
+        Observer.Observe('callee', StatCallee.StatAfterFindLast(Stat));
+        Stat.FindLast();
+        Observer.Observe('caller findlast', Format(Stat."Has Lines") + ' ' + Format(Stat."First Amount", 0, 9));
+        Observer.Expect('caller', 'Yes 4');
+        Observer.Expect('callee', 'no=H3 sum=0 count=0 min=0 max=0 avg=0 exist=No lookup=0');
+        Observer.Expect('caller findlast', 'Yes 30');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure ByValueAutoCalc_Codeunit_ThreeFields()
+    var
+        Observer: Codeunit "Probe Observer";
+        Stat: Record "BVA Stat";
+        StatCallee: Codeunit "BVA Stat Callee";
+    begin
+        Initialize();
+        AddStats();
+        Stat.SetFilter("No.", '<>%1', 'H9');
+        Stat.SetAutoCalcFields("Sum Amount", "Line Count", "Max Amount");
+        Stat.FindFirst();
+        Observer.Observe('caller', Format(Stat."Sum Amount", 0, 9) + ' ' + Format(Stat."Line Count") + ' ' + Format(Stat."Max Amount", 0, 9));
+        Observer.Observe('callee', StatCallee.StatAfterFindLast(Stat));
+        Stat.FindLast();
+        Observer.Observe('caller findlast', Format(Stat."Sum Amount", 0, 9) + ' ' + Format(Stat."Line Count") + ' ' + Format(Stat."Max Amount", 0, 9));
+        Observer.Expect('caller', '10 2 6');
+        Observer.Expect('callee', 'no=H3 sum=0 count=0 min=0 max=0 avg=0 exist=No lookup=0');
+        Observer.Expect('caller findlast', '30 1 30');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure ByValueAutoCalc_Codeunit_ExtensionMinField()
+    var
+        Observer: Codeunit "Probe Observer";
+        Head: Record "BVA Head";
+        StatCallee: Codeunit "BVA Stat Callee";
+    begin
+        Initialize();
+        Head.SetRange(Kind, 'A');
+        Head.SetAutoCalcFields("Min Line Amount");
+        Head.FindFirst();
+        Observer.Observe('caller', 'no=' + Head."No." + ' min=' + Format(Head."Min Line Amount", 0, 9));
+        Observer.Observe('callee', StatCallee.ExtMinAfterFindLast(Head));
+        Observer.Observe('callee variant', StatCallee.ExtMinVariant(Head));
+        Head.FindLast();
+        Observer.Observe('caller findlast', 'no=' + Head."No." + ' min=' + Format(Head."Min Line Amount", 0, 9));
+        Observer.Expect('caller', 'no=H1 min=4');
+        Observer.Expect('callee', 'no=H3 min=0');
+        Observer.Expect('callee variant', 'no=H3 min=0');
+        Observer.Expect('caller findlast', 'no=H2 min=20');
+        Observer.Verify();
+    end;
+}
+
+// Every FlowField method over BVA Detail (Line No. 1 for the lookup).
+table 78817 "BVA Stat"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "No."; Code[20]) { }
+        field(2; "Sum Amount"; Decimal) { FieldClass = FlowField; CalcFormula = sum("BVA Detail".Amount where("Head No." = field("No."))); Editable = false; }
+        field(3; "Line Count"; Integer) { FieldClass = FlowField; CalcFormula = count("BVA Detail" where("Head No." = field("No."))); Editable = false; }
+        field(4; "Min Amount"; Decimal) { FieldClass = FlowField; CalcFormula = min("BVA Detail".Amount where("Head No." = field("No."))); Editable = false; }
+        field(5; "Max Amount"; Decimal) { FieldClass = FlowField; CalcFormula = max("BVA Detail".Amount where("Head No." = field("No."))); Editable = false; }
+        field(6; "Average Amount"; Decimal) { FieldClass = FlowField; CalcFormula = average("BVA Detail".Amount where("Head No." = field("No."))); Editable = false; }
+        field(7; "Has Lines"; Boolean) { FieldClass = FlowField; CalcFormula = exist("BVA Detail" where("Head No." = field("No."))); Editable = false; }
+        field(8; "First Amount"; Decimal) { FieldClass = FlowField; CalcFormula = lookup("BVA Detail".Amount where("Head No." = field("No."), "Line No." = const(1))); Editable = false; }
+    }
+
+    keys { key(PK; "No.") { Clustered = true; } }
+}
+
+// A Min FlowField a table extension adds to BVA Head (the shape of a partner app's routing line).
+tableextension 78816 "BVA Head Ext" extends "BVA Head"
+{
+    fields
+    {
+        field(78816; "Min Line Amount"; Decimal)
+        {
+            FieldClass = FlowField;
+            CalcFormula = min("BVA Detail".Amount where("Head No." = field("No.")));
+            Editable = false;
+        }
+    }
+}
+
+codeunit 78818 "BVA Stat Callee"
+{
+    procedure StatAfterFindLast(S: Record "BVA Stat"): Text
+    begin
+        S.FindLast();
+        exit('no=' + S."No." + ' sum=' + Format(S."Sum Amount", 0, 9) + ' count=' + Format(S."Line Count") + ' min=' + Format(S."Min Amount", 0, 9)
+            + ' max=' + Format(S."Max Amount", 0, 9) + ' avg=' + Format(S."Average Amount", 0, 9) + ' exist=' + Format(S."Has Lines")
+            + ' lookup=' + Format(S."First Amount", 0, 9));
+    end;
+
+    procedure ExtMinAfterFindLast(H: Record "BVA Head"): Text
+    begin
+        H.FindLast();
+        exit('no=' + H."No." + ' min=' + Format(H."Min Line Amount", 0, 9));
+    end;
+
+    procedure ExtMinVariant(H: Record "BVA Head"): Text
+    var
+        RecRef: RecordRef;
+    begin
+        RecRef.GetTable(H);
+        RecRef.FindLast();
+        exit('no=' + Format(RecRef.Field(1).Value) + ' min=' + Format(RecRef.Field(78816).Value, 0, 9));
     end;
 }
