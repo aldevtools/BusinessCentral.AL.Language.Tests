@@ -932,7 +932,7 @@ codeunit 87211 "REC MovedKey Tests"
         Obs.Verify();
     end;
 
-    // Round 4 (cells S1a-S8, observe-only, al-runner issue 8721): more upsert shapes after the open transaction wrote the table
+    // Round 4 (cells S1a-S8, al-runner issue 8721): more upsert shapes after the open transaction wrote the table
     //   before the read (row X inserted after a committed seed, as Q2), unless stated. The 2nd call runs in asserterror.
     //   S1a  no copy: Src.Get, CopyTo creates TARGET, then Src's own key moved to TARGET, `if not Src.Insert() then Src.Modify()`.
     //   S1b  the same with Insert(true) and Modify(true).
