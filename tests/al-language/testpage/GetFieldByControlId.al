@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/testpage/testpage-getfield-method
 // Scope: in-scope
 // local object: the pages' controls and the ids the compiler gives them are what is under test
-// Fixtures used: shared Assert (60021); own tables 97701, 97711 and 97735, enum 97713, pages 97680-97690, 97695, 97696, 97699, 97700, 97702-97705, 97708, 97709, 97712 and 97734-97736, page extensions 97706 and 97710, tests 97707, 97691 and 97734
+// Fixtures used: shared Assert (60021); own tables 97701, 97711 and 97735, enum 97713, pages 97680-97690, 97695, 97696, 97699, 97700, 97702-97705, 97708, 97709, 97712, 97734-97737 and 97739-97742, page extensions 97706, 97710 and 97738, tests 97707, 97691, 97734 and 97737
 // Probe (al-runner issue 8832): TestPage.GetField and TestPart.GetField take the id the compiler gives a page control. The ids in
 //   this file are FNV-1a (32 bit) over the UTF-16LE text of the declaring object's id followed by the control name as declared,
 //   read as a signed number and made positive; the compiled app's SymbolReference.json lists the same ids. The issue's page (a List
@@ -2224,5 +2224,482 @@ codeunit 97734 "LT GFI Cue More Tests"
         Pg.Close();
         Expect('FormulaValue', '0|0');
         Expect('WideFlagValue', '0|0');
+    end;
+}
+
+// The ids around the other page kinds (al-runner issue 8887, review of the runner's pull request 8902): an action, an action
+// group and a page extension's field on a Worksheet, a host control's id through the TestPart of a CardPart, the CardPart a
+// RoleCenter shows, a missing id on an API page, a PromptDialog, a ReportPreview and a ReportProcessingOnly page, and a control's
+// own id on a Worksheet, a ListPlus and a CardPart a TestPart shows.
+page 97737 "LT GFI Action Sheet"
+{
+    PageType = Worksheet;
+    SourceTable = "LT GFI Row";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Lines)
+            {
+                field(Name; Rec.Name) { ApplicationArea = All; }
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(Act1)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                begin
+                end;
+            }
+            group(ActGroup)
+            {
+                action(Act2)
+                {
+                    ApplicationArea = All;
+
+                    trigger OnAction()
+                    begin
+                    end;
+                }
+            }
+        }
+    }
+}
+
+pageextension 97738 "LT GFI Action Sheet Ext" extends "LT GFI Action Sheet"
+{
+    layout
+    {
+        addlast(Lines)
+        {
+            field(ExtNote; Rec.Note) { ApplicationArea = All; }
+        }
+    }
+}
+
+page 97739 "LT GFI Api"
+{
+    PageType = API;
+    APIPublisher = 'ltcorpus';
+    APIGroup = 'gfi';
+    APIVersion = 'v1.0';
+    EntityName = 'gfiRow';
+    EntitySetName = 'gfiRows';
+    SourceTable = "LT GFI Row";
+    DelayedInsert = true;
+    ODataKeyFields = SystemId;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Rows)
+            {
+                field(name; Rec.Name) { }
+            }
+        }
+    }
+}
+
+page 97740 "LT GFI Prompt"
+{
+    PageType = PromptDialog;
+    Extensible = false;
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Prompt)
+        {
+            field(Input; InputText) { ApplicationArea = All; }
+        }
+        area(Content)
+        {
+            field(Output; OutputText) { ApplicationArea = All; }
+        }
+    }
+
+    var
+        InputText: Text;
+        OutputText: Text;
+}
+
+page 97741 "LT GFI Report Preview"
+{
+    PageType = ReportPreview;
+    SourceTable = "LT GFI Row";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            group(General)
+            {
+                field(Name; Rec.Name) { ApplicationArea = All; }
+            }
+        }
+    }
+}
+
+page 97742 "LT GFI Processing Only"
+{
+    PageType = ReportProcessingOnly;
+    SourceTable = "LT GFI Row";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            group(General)
+            {
+                field(Name; Rec.Name) { ApplicationArea = All; }
+            }
+        }
+    }
+}
+
+codeunit 97737 "LT GFI Kinds Tests"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        Assert: Codeunit Assert;
+        Seen: Dictionary of [Text, Text];
+
+    local procedure Initialize()
+    var
+        Row: Record "LT GFI Row";
+    begin
+        Row.DeleteAll();
+        Row."No." := 'R1';
+        Row.Name := 'Alpha';
+        Row.Note := 'n1';
+        Row.Insert();
+        Commit();
+        Clear(Seen);
+    end;
+
+    local procedure Note(What: Text; Actual: Text)
+    begin
+        Seen.Set(What, Actual);
+    end;
+
+    local procedure Expect(What: Text; Expected: Text)
+    begin
+        Assert.AreEqual(Expected, Seen.Get(What), What);
+    end;
+
+    local procedure Failure(): Text
+    begin
+        exit('error ' + GetLastErrorCode() + ': ' + GetLastErrorText());
+    end;
+
+    [TryFunction]
+    local procedure TrySheet(var Pg: TestPage "LT GFI Action Sheet"; Id: Integer; var Shown: Text)
+    begin
+        Shown := Pg.GetField(Id).Value();
+    end;
+
+    local procedure ReadSheet(var Pg: TestPage "LT GFI Action Sheet"; Id: Integer): Text
+    var
+        Shown: Text;
+    begin
+        ClearLastError();
+        if TrySheet(Pg, Id, Shown) then
+            exit('found ' + Shown);
+        exit(Failure());
+    end;
+
+    [TryFunction]
+    local procedure TryApi(var Pg: TestPage "LT GFI Api"; Id: Integer; var Shown: Text)
+    begin
+        Shown := Pg.GetField(Id).Value();
+    end;
+
+    local procedure ReadApi(var Pg: TestPage "LT GFI Api"; Id: Integer): Text
+    var
+        Shown: Text;
+    begin
+        ClearLastError();
+        if TryApi(Pg, Id, Shown) then
+            exit('found ' + Shown);
+        exit(Failure());
+    end;
+
+    [TryFunction]
+    local procedure TryPrompt(var Pg: TestPage "LT GFI Prompt"; Id: Integer; var Shown: Text)
+    begin
+        Shown := Pg.GetField(Id).Value();
+    end;
+
+    local procedure ReadPrompt(var Pg: TestPage "LT GFI Prompt"; Id: Integer): Text
+    var
+        Shown: Text;
+    begin
+        ClearLastError();
+        if TryPrompt(Pg, Id, Shown) then
+            exit('found ' + Shown);
+        exit(Failure());
+    end;
+
+    [TryFunction]
+    local procedure TryPreview(var Pg: TestPage "LT GFI Report Preview"; Id: Integer; var Shown: Text)
+    begin
+        Shown := Pg.GetField(Id).Value();
+    end;
+
+    local procedure ReadPreview(var Pg: TestPage "LT GFI Report Preview"; Id: Integer): Text
+    var
+        Shown: Text;
+    begin
+        ClearLastError();
+        if TryPreview(Pg, Id, Shown) then
+            exit('found ' + Shown);
+        exit(Failure());
+    end;
+
+    [TryFunction]
+    local procedure TryOnly(var Pg: TestPage "LT GFI Processing Only"; Id: Integer; var Shown: Text)
+    begin
+        Shown := Pg.GetField(Id).Value();
+    end;
+
+    local procedure ReadOnly(var Pg: TestPage "LT GFI Processing Only"; Id: Integer): Text
+    var
+        Shown: Text;
+    begin
+        ClearLastError();
+        if TryOnly(Pg, Id, Shown) then
+            exit('found ' + Shown);
+        exit(Failure());
+    end;
+
+    [TryFunction]
+    local procedure TryHost(var Pg: TestPage "LT GFI Part Host"; Id: Integer; var Shown: Text)
+    begin
+        Shown := Pg.Part.GetField(Id).Value();
+    end;
+
+    local procedure ReadHost(var Pg: TestPage "LT GFI Part Host"; Id: Integer): Text
+    var
+        Shown: Text;
+    begin
+        ClearLastError();
+        if TryHost(Pg, Id, Shown) then
+            exit('found ' + Shown);
+        exit(Failure());
+    end;
+
+    [TryFunction]
+    local procedure TryRole(var Pg: TestPage "LT GFI Role Center"; Id: Integer; var Shown: Text)
+    begin
+        Shown := Pg.Part.GetField(Id).Value();
+    end;
+
+    local procedure ReadRole(var Pg: TestPage "LT GFI Role Center"; Id: Integer): Text
+    var
+        Shown: Text;
+    begin
+        ClearLastError();
+        if TryRole(Pg, Id, Shown) then
+            exit('found ' + Shown);
+        exit(Failure());
+    end;
+
+    [TryFunction]
+    local procedure TryWork(var Pg: TestPage "LT GFI Worksheet"; Id: Integer; var Shown: Text)
+    begin
+        Shown := Pg.GetField(Id).Value();
+    end;
+
+    local procedure ReadWork(var Pg: TestPage "LT GFI Worksheet"; Id: Integer): Text
+    var
+        Shown: Text;
+    begin
+        ClearLastError();
+        if TryWork(Pg, Id, Shown) then
+            exit('found ' + Shown);
+        exit(Failure());
+    end;
+
+    [TryFunction]
+    local procedure TryPlus(var Pg: TestPage "LT GFI ListPlus"; Id: Integer; var Shown: Text)
+    begin
+        Shown := Pg.GetField(Id).Value();
+    end;
+
+    local procedure ReadPlus(var Pg: TestPage "LT GFI ListPlus"; Id: Integer): Text
+    var
+        Shown: Text;
+    begin
+        ClearLastError();
+        if TryPlus(Pg, Id, Shown) then
+            exit('found ' + Shown);
+        exit(Failure());
+    end;
+
+    // A Worksheet: the ids of an action, an action group and an action in it.
+    [Test]
+    procedure Worksheet_GetFieldActionIds_NotFound()
+    var
+        Pg: TestPage "LT GFI Action Sheet";
+    begin
+        Initialize();
+        Pg.OpenEdit();
+        Note('action', ReadSheet(Pg, 1754972975));
+        Note('group', ReadSheet(Pg, 1979372073));
+        Note('inner', ReadSheet(Pg, 158116876));
+        Pg.Close();
+        Expect('action', 'error TestFieldNotFound: The field with ID = 1754972975 is not found on the page.');
+        Expect('group', 'error TestFieldNotFound: The field with ID = 1979372073 is not found on the page.');
+        Expect('inner', 'error TestFieldNotFound: The field with ID = 158116876 is not found on the page.');
+    end;
+
+    // A Worksheet: a page extension's field by the base page's id and by the extension's id.
+    [Test]
+    procedure Worksheet_GetFieldExtensionFieldIds()
+    var
+        Pg: TestPage "LT GFI Action Sheet";
+    begin
+        Initialize();
+        Pg.OpenEdit();
+        Note('base', ReadSheet(Pg, 2109999191));
+        Note('ext', ReadSheet(Pg, 853341002));
+        Pg.Close();
+        Expect('base', 'error TestFieldNotFound: The field with ID = 2109999191 is not found on the page.');
+        Expect('ext', 'found n1');
+    end;
+
+    // The CardPart a Card shows: GetField on the TestPart with the id of the host's own Name control.
+    [Test]
+    procedure CardPartOfHost_GetFieldHostControlId_NotFound()
+    var
+        Pg: TestPage "LT GFI Part Host";
+    begin
+        Initialize();
+        Pg.OpenEdit();
+        Note('host', ReadHost(Pg, 1524274214));
+        Pg.Close();
+        Expect('host', 'error TestFieldNotFound: The field with ID = 1524274214 is not found on the page.');
+    end;
+
+    // The CardPart a RoleCenter shows: GetField(1) on the TestPart.
+    [Test]
+    procedure RoleCenterPart_GetFieldMissingId_NotFound()
+    var
+        Pg: TestPage "LT GFI Role Center";
+    begin
+        Initialize();
+        Pg.OpenView();
+        Note('missing', ReadRole(Pg, 1));
+        Pg.Close();
+        Expect('missing', 'error TestFieldNotFound: The field with ID = 1 is not found on the page.');
+    end;
+
+    // An API page.
+    [Test]
+    procedure Api_GetFieldMissingId()
+    var
+        Pg: TestPage "LT GFI Api";
+    begin
+        Initialize();
+        Pg.OpenView();
+        Note('missing', ReadApi(Pg, 1));
+        Pg.Close();
+        Expect('missing', 'error TestFieldNotFound: The field with ID = 1 is not found on the page.');
+    end;
+
+    // A PromptDialog.
+    [Test]
+    procedure PromptDialog_GetFieldMissingId()
+    var
+        Pg: TestPage "LT GFI Prompt";
+    begin
+        Initialize();
+        Pg.OpenEdit();
+        Note('missing', ReadPrompt(Pg, 1));
+        Pg.Close();
+        Expect('missing', 'error TestFieldNotFound: The field with ID = 1 is not found on the page.');
+    end;
+
+    // A ReportPreview page.
+    [Test]
+    procedure ReportPreview_GetFieldMissingId()
+    var
+        Pg: TestPage "LT GFI Report Preview";
+    begin
+        Initialize();
+        Pg.OpenEdit();
+        Note('missing', ReadPreview(Pg, 1));
+        Pg.Close();
+        Expect('missing', 'error TestFieldNotFound: The field with ID = 1 is not found on the page.');
+    end;
+
+    // A ReportProcessingOnly page.
+    [Test]
+    procedure ReportProcessingOnly_GetFieldMissingId()
+    var
+        Pg: TestPage "LT GFI Processing Only";
+    begin
+        Initialize();
+        Pg.OpenEdit();
+        Note('missing', ReadOnly(Pg, 1));
+        Pg.Close();
+        Expect('missing', 'error TestFieldNotFound: The field with ID = 1 is not found on the page.');
+    end;
+
+    // A control's own id: the Name control of the Worksheet 97685.
+    [Test]
+    procedure Worksheet_GetFieldOwnId()
+    var
+        Pg: TestPage "LT GFI Worksheet";
+    begin
+        Initialize();
+        Pg.OpenEdit();
+        Note('own', ReadWork(Pg, 2044414625));
+        Pg.Close();
+        Expect('own', 'found Alpha');
+    end;
+
+    // The Name control of the ListPlus 97686.
+    [Test]
+    procedure ListPlus_GetFieldOwnId()
+    var
+        Pg: TestPage "LT GFI ListPlus";
+    begin
+        Initialize();
+        Pg.OpenEdit();
+        Note('own', ReadPlus(Pg, 1633031500));
+        Pg.Close();
+        Expect('own', 'found Alpha');
+    end;
+
+    // The Name control of the CardPart 97687 the Card 97688 shows, through the TestPart.
+    [Test]
+    procedure CardPartOfHost_GetFieldOwnId()
+    var
+        Pg: TestPage "LT GFI Part Host";
+    begin
+        Initialize();
+        Pg.OpenEdit();
+        Note('own', ReadHost(Pg, 1480767443));
+        Pg.Close();
+        Expect('own', 'found Alpha');
     end;
 }
