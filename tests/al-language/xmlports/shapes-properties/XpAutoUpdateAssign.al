@@ -592,7 +592,7 @@ xmlport 72929 "LT XAU Suite"
                         Suite.Validation := UpperCase(SuiteValidation) = 'TRUE';
                     end;
                 }
-                tableelement(Lang; "LT XAU Lang")
+                tableelement(SuiteLang; "LT XAU Lang")
                 {
                     LinkTable = Suite;
                     LinkFields = SuiteCode = field(Code);
@@ -606,7 +606,7 @@ xmlport 72929 "LT XAU Suite"
 
                         trigger OnAfterAssignVariable()
                         begin
-                            Lang.Tag := LangTag;
+                            SuiteLang.Tag := LangTag;
                         end;
                     }
                     textattribute(LangValidation)
@@ -616,7 +616,7 @@ xmlport 72929 "LT XAU Suite"
 
                         trigger OnAfterAssignVariable()
                         begin
-                            Lang.Validation := UpperCase(LangValidation) = 'TRUE';
+                            SuiteLang.Validation := UpperCase(LangValidation) = 'TRUE';
                         end;
                     }
 
@@ -849,7 +849,9 @@ codeunit 72931 "LT XmlPort AutoUpdate Assign"
         RunPort(Xmlport::"LT XAU KeyTrig", '<Root><P><Id>1</Id><Name>new</Name></P></Root>');
         Observer.Observe('trace', Log.Take());
         Observer.Observe('rows', ParRows());
-        Observer.Finish();
+        Observer.Expect('trace', 'tr:1///;bm:1/new/s0/e0;am:1/new/s0/e0;');
+        Observer.Expect('rows', 'P1/new/s0/e0;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -862,7 +864,9 @@ codeunit 72931 "LT XmlPort AutoUpdate Assign"
         RunPort(Xmlport::"LT XAU KeyTrig", '<Root><P><Id>1</Id></P></Root>');
         Observer.Observe('trace', Log.Take());
         Observer.Observe('rows', ParRows());
-        Observer.Finish();
+        Observer.Expect('trace', 'tr:1///;bm:1/old/s0/e0;am:1/old/s0/e0;');
+        Observer.Expect('rows', 'P1/old/s0/e0;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -875,7 +879,9 @@ codeunit 72931 "LT XmlPort AutoUpdate Assign"
         RunPort(Xmlport::"LT XAU KeyTrig", '<Root><P><Id>2</Id><Name>new</Name></P></Root>');
         Observer.Observe('trace', Log.Take());
         Observer.Observe('rows', ParRows());
-        Observer.Finish();
+        Observer.Expect('trace', 'tr:2///;bi:2/new/trig/;');
+        Observer.Expect('rows', 'P1/old/s0/e0;P2/new/trig/;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -888,7 +894,9 @@ codeunit 72931 "LT XmlPort AutoUpdate Assign"
         RunPort(Xmlport::"LT XAU FieldTrig", '<Root><P><Id>1</Id><Name>new</Name></P></Root>');
         Observer.Observe('trace', Log.Take());
         Observer.Observe('rows', ParRows());
-        Observer.Finish();
+        Observer.Expect('trace', 'tr:1/new//;bm:1/new!/s0/e0;');
+        Observer.Expect('rows', 'P1/new!/s0/e0;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -901,7 +909,9 @@ codeunit 72931 "LT XmlPort AutoUpdate Assign"
         RunPort(Xmlport::"LT XAU TextTrig", '<Root><P><Id>1</Id><Flg>f</Flg></P></Root>');
         Observer.Observe('trace', Log.Take());
         Observer.Observe('rows', ParRows());
-        Observer.Finish();
+        Observer.Expect('trace', 'tr:1///;bm:1/old/s0/e0;');
+        Observer.Expect('rows', 'P1/old/s0/e0;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -914,7 +924,9 @@ codeunit 72931 "LT XmlPort AutoUpdate Assign"
         RunPort(Xmlport::"LT XAU InitTrig", '<Root><P><Id>1</Id><Name>new</Name></P></Root>');
         Observer.Observe('trace', Log.Take());
         Observer.Observe('rows', ParRows());
-        Observer.Finish();
+        Observer.Expect('trace', 'init:0///;bm:1/new/s0/e0;');
+        Observer.Expect('rows', 'P1/new/s0/e0;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -927,7 +939,9 @@ codeunit 72931 "LT XmlPort AutoUpdate Assign"
         RunPort(Xmlport::"LT XAU InitTrig", '<Root><P><Id>1</Id></P></Root>');
         Observer.Observe('trace', Log.Take());
         Observer.Observe('rows', ParRows());
-        Observer.Finish();
+        Observer.Expect('trace', 'init:0///;bm:1/old/s0/e0;');
+        Observer.Expect('rows', 'P1/old/s0/e0;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -940,7 +954,9 @@ codeunit 72931 "LT XmlPort AutoUpdate Assign"
         RunPort(Xmlport::"LT XAU NestUpd", '<Root><P><Id>1</Id><Name>new</Name><C><CId>10</CId><Note>a</Note></C></P></Root>');
         Observer.Observe('trace', Log.Take());
         Observer.Observe('rows', ParRows());
-        Observer.Finish();
+        Observer.Expect('trace', 'bm:1/new/s0/e0;bm:1/new/s0/e0;');
+        Observer.Expect('rows', 'P1/new/s0/e0;C10/1/a;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -953,7 +969,9 @@ codeunit 72931 "LT XmlPort AutoUpdate Assign"
         RunPort(Xmlport::"LT XAU NestUpd", '<Root><P><Id>2</Id><Name>new</Name><C><CId>10</CId><Note>a</Note></C></P></Root>');
         Observer.Observe('trace', Log.Take());
         Observer.Observe('rows', ParRows());
-        Observer.Finish();
+        Observer.Expect('trace', 'bi:2/new/trig/;bm:2/new/trig/;');
+        Observer.Expect('rows', 'P1/old/s0/e0;P2/new/trig/;C10/2/a;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -966,7 +984,9 @@ codeunit 72931 "LT XmlPort AutoUpdate Assign"
         RunPort(Xmlport::"LT XAU Again", '<Root><P><Id>2</Id><Name>two</Name><C><CId>10</CId><Note>a</Note></C><C><CId>11</CId><Note>b</Note></C></P><P><Id>3</Id><Name>three</Name></P></Root>');
         Observer.Observe('trace', Log.Take());
         Observer.Observe('rows', ParRows());
-        Observer.Finish();
+        Observer.Expect('trace', 'tr:2///;bi:2/two/trig/;bm:2/two/trig/;am:2/two/trig/;tr:3///;bi:3/three/trig/;');
+        Observer.Expect('rows', 'P1/old/s0/e0;P2/two/trig/;P3/three/trig/;C10/2/a;C11/0/b;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -979,7 +999,9 @@ codeunit 72931 "LT XmlPort AutoUpdate Assign"
         RunPort(Xmlport::"LT XAU Stale", '<Root><P><Id>2</Id><Name>two</Name><C><CId>10</CId></C></P></Root>');
         Observer.Observe('trace', Log.Take());
         Observer.Observe('rows', ParRows());
-        Observer.Finish();
+        Observer.Expect('trace', 'bm:2/two/trig/child;');
+        Observer.Expect('rows', 'P1/old/s0/e0;P2/two/trig/child;C10/2/;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -998,7 +1020,12 @@ codeunit 72931 "LT XmlPort AutoUpdate Assign"
         end;
         Observer.ObserveError('error');
         Observer.Observe('trace_after', Log.Take());
-        Observer.Finish();
+        Observer.Expect('trace', 'bm:2/two//trig;');
+        Observer.Expect('rows', 'P1/old/s0/e0;P2/two//trig;W10/2;');
+        Observer.Expect('error|text', '');
+        Observer.Expect('error|code', 'Dialog');
+        Observer.Expect('trace_after', '');
+        Observer.Verify();
     end;
 
     [Test]
