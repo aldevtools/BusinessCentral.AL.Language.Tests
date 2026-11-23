@@ -50,7 +50,13 @@ codeunit 79895 "YFN Yaml Chars"
         CharCell('U+00DF', '{u00DF}');
         CharCell('U+00E9', '{u00E9}');
         CharCell('U+00F1', '{u00F1}');
-        Observer.Finish();
+        Observer.Expect('U+00E4', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+00F6', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+00FC', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+00DF', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+00E9', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+00F1', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -62,7 +68,13 @@ codeunit 79895 "YFN Yaml Chars"
         CharCell('U+00FF', '{u00FF}');
         CharCell('U+00C0', '{u00C0}');
         CharCell('U+00D7', '{u00D7}');
-        Observer.Finish();
+        Observer.Expect('U+00A1', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+00AD', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+00B5', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+00FF', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+00C0', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+00D7', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -74,7 +86,13 @@ codeunit 79895 "YFN Yaml Chars"
         CharCell('U+0416', '{u0416}');
         CharCell('U+05D0', '{u05D0}');
         CharCell('U+0627', '{u0627}');
-        Observer.Finish();
+        Observer.Expect('U+0100', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+017F', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+0152', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+0416', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+05D0', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+0627', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -86,14 +104,21 @@ codeunit 79895 "YFN Yaml Chars"
         CharCell('U+30A2', '{u30A2}');
         CharCell('U+4E2D', '{u4E2D}');
         CharCell('U+AC00', '{uAC00}');
-        Observer.Finish();
+        Observer.Expect('U+0E01', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+1E9E', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+3042', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+30A2', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+4E2D', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+AC00', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYaml_Chars_Letters_3()
     begin
         CharCell('U+FF21', '{uFF21}');
-        Observer.Finish();
+        Observer.Expect('U+FF21', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -105,7 +130,13 @@ codeunit 79895 "YFN Yaml Chars"
         CharCell('U+2018', '{u2018}');
         CharCell('U+2019', '{u2019}');
         CharCell('U+201C', '{u201C}');
-        Observer.Finish();
+        Observer.Expect('U+2010', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+2013', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+2014', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+2018', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+2019', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+201C', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -117,7 +148,13 @@ codeunit 79895 "YFN Yaml Chars"
         CharCell('U+20AC', '{u20AC}');
         CharCell('U+2122', '{u2122}');
         CharCell('U+2190', '{u2190}');
-        Observer.Finish();
+        Observer.Expect('U+201D', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+2022', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+2026', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+20AC', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+2122', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+2190', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -129,7 +166,13 @@ codeunit 79895 "YFN Yaml Chars"
         CharCell('U+D83DDC68200DD83DDCBB', '{uD83D}{uDC68}{u200D}{uD83D}{uDCBB}');
         CharCell('U+D83DDE00', '{uD83D}{uDE00}');
         CharCell('U+2603', '{u2603}');
-        Observer.Finish();
+        Observer.Expect('U+D83CDF89', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+D800DC00', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+DBFFDFFF', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+D83DDC68200DD83DDCBB', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+D83DDE00', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+2603', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -141,7 +184,13 @@ codeunit 79895 "YFN Yaml Chars"
         CharCell('U+0009', '{u0009}');
         CharCell('U+000B', '{u000B}');
         CharCell('U+000C', '{u000C}');
-        Observer.Finish();
+        Observer.Expect('U+0001', 'p={"q":"a\u0001b","n":"1"} s={"q":"a\u0001b","n":"1"} d={"q":"a\u0001b","n":"1"} l={"q":"a\u0001b","n":"1"} f={"q":"a\u0001b","n":"1"} k={"a\u0001b":"1"} qk={"a\u0001b":"1"} c=ok fs={"q":["a\u0001b","x"]} fm={"q":{"a":"b\u0001c"}} li={"k":["a\u0001b"]} e={"q":"\u0001b\u0001"}');
+        Observer.Expect('U+0002', 'p={"q":"a\u0002b","n":"1"} s={"q":"a\u0002b","n":"1"} d={"q":"a\u0002b","n":"1"} l={"q":"a\u0002b","n":"1"} f={"q":"a\u0002b","n":"1"} k={"a\u0002b":"1"} qk={"a\u0002b":"1"} c=ok fs={"q":["a\u0002b","x"]} fm={"q":{"a":"b\u0002c"}} li={"k":["a\u0002b"]} e={"q":"\u0002b\u0002"}');
+        Observer.Expect('U+0008', 'p={"q":"a\bb","n":"1"} s={"q":"a\bb","n":"1"} d={"q":"a\bb","n":"1"} l={"q":"a\bb","n":"1"} f={"q":"a\bb","n":"1"} k={"a\bb":"1"} qk={"a\bb":"1"} c=ok fs={"q":["a\bb","x"]} fm={"q":{"a":"b\bc"}} li={"k":["a\bb"]} e={"q":"\bb\b"}');
+        Observer.Expect('U+0009', 'p={"q":"a\tb","n":"1"} s={"q":"a\tb","n":"1"} d={"q":"a\tb","n":"1"} l={"q":"a\tb","n":"1"} f={"q":"a\tb","n":"1"} k={"a\tb":"1"} qk={"a\tb":"1"} c=ok fs={"q":["a\tb","x"]} fm={"q":{"a":"b\tc"}} li={"k":["a\tb"]} e={"q":"b"}');
+        Observer.Expect('U+000B', 'p={"q":"a\u000bb","n":"1"} s={"q":"a\u000bb","n":"1"} d={"q":"a\u000bb","n":"1"} l={"q":"a\u000bb","n":"1"} f={"q":"a\u000bb","n":"1"} k={"a\u000bb":"1"} qk={"a\u000bb":"1"} c=ok fs={"q":["a\u000bb","x"]} fm={"q":{"a":"b\u000bc"}} li={"k":["a\u000bb"]} e={"q":"\u000bb\u000b"}');
+        Observer.Expect('U+000C', 'p={"q":"a\fb","n":"1"} s={"q":"a\fb","n":"1"} d={"q":"a\fb","n":"1"} l={"q":"a\fb","n":"1"} f={"q":"a\fb","n":"1"} k={"a\fb":"1"} qk={"a\fb":"1"} c=ok fs={"q":["a\fb","x"]} fm={"q":{"a":"b\fc"}} li={"k":["a\fb"]} e={"q":"\fb\f"}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -151,7 +200,11 @@ codeunit 79895 "YFN Yaml Chars"
         CharCell('U+001F', '{u001F}');
         CharCell('U+007F', '{u007F}');
         CharCell('U+0080', '{u0080}');
-        Observer.Finish();
+        Observer.Expect('U+000E', 'p={"q":"a\u000eb","n":"1"} s={"q":"a\u000eb","n":"1"} d={"q":"a\u000eb","n":"1"} l={"q":"a\u000eb","n":"1"} f={"q":"a\u000eb","n":"1"} k={"a\u000eb":"1"} qk={"a\u000eb":"1"} c=ok fs={"q":["a\u000eb","x"]} fm={"q":{"a":"b\u000ec"}} li={"k":["a\u000eb"]} e={"q":"\u000eb\u000e"}');
+        Observer.Expect('U+001F', 'p={"q":"a\u001fb","n":"1"} s={"q":"a\u001fb","n":"1"} d={"q":"a\u001fb","n":"1"} l={"q":"a\u001fb","n":"1"} f={"q":"a\u001fb","n":"1"} k={"a\u001fb":"1"} qk={"a\u001fb":"1"} c=ok fs={"q":["a\u001fb","x"]} fm={"q":{"a":"b\u001fc"}} li={"k":["a\u001fb"]} e={"q":"\u001fb\u001f"}');
+        Observer.Expect('U+007F', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+0080', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -163,7 +216,13 @@ codeunit 79895 "YFN Yaml Chars"
         CharCell('U+009F', '{u009F}');
         CharCell('U+00A0', '{u00A0}');
         CharCell('U+2028', '{u2028}');
-        Observer.Finish();
+        Observer.Expect('U+0081', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+0085', 'p=FYamlBadFormat s={"q":"a b","n":"1"} d=FYamlBadFormat l=FYamlBadFormat f=FYamlBadFormat k=FYamlBadFormat qk=FYamlBadFormat c=ok fs=FYamlBadFormat fm=FYamlBadFormat li=FYamlBadFormat e=FYamlBadFormat');
+        Observer.Expect('U+0090', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+009F', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+00A0', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+2028', 'p=FYamlBadFormat s={"q":"a\u2028b","n":"1"} d=FYamlBadFormat l=FYamlBadFormat f=FYamlBadFormat k=FYamlBadFormat qk=FYamlBadFormat c=ok fs=FYamlBadFormat fm=FYamlBadFormat li=FYamlBadFormat e=FYamlBadFormat');
+        Observer.Verify();
     end;
 
     [Test]
@@ -174,7 +233,12 @@ codeunit 79895 "YFN Yaml Chars"
         CharCell('U+200D', '{u200D}');
         CharCell('U+202E', '{u202E}');
         CharCell('U+2060', '{u2060}');
-        Observer.Finish();
+        Observer.Expect('U+2029', 'p=FYamlBadFormat s={"q":"a\u2029b","n":"1"} d=FYamlBadFormat l=FYamlBadFormat f=FYamlBadFormat k=FYamlBadFormat qk=FYamlBadFormat c=ok fs=FYamlBadFormat fm=FYamlBadFormat li=FYamlBadFormat e=FYamlBadFormat');
+        Observer.Expect('U+200B', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+200D', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+202E', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+2060', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -186,7 +250,13 @@ codeunit 79895 "YFN Yaml Chars"
         CharCell('U+FDD0', '{uFDD0}');
         CharCell('U+FDEF', '{uFDEF}');
         CharCell('U+FFFD', '{uFFFD}');
-        Observer.Finish();
+        Observer.Expect('U+D7FF', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+E000', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+F8FF', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+FDD0', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+FDEF', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+FFFD', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -195,7 +265,10 @@ codeunit 79895 "YFN Yaml Chars"
         CharCell('U+FEFF', '{uFEFF}');
         CharCell('U+FFFE', '{uFFFE}');
         CharCell('U+FFFF', '{uFFFF}');
-        Observer.Finish();
+        Observer.Expect('U+FEFF', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+FFFE', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Expect('U+FFFF', 'p=ok s=ok d=ok l=ok f=ok k=ok qk=ok c=ok fs=ok fm=ok li=ok e=ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -205,6 +278,10 @@ codeunit 79895 "YFN Yaml Chars"
         CharCell('U+DBFF', '{uDBFF}');
         CharCell('U+DC00', '{uDC00}');
         CharCell('U+DFFF', '{uDFFF}');
-        Observer.Finish();
+        Observer.Expect('U+D800', 'p=T ok | S {"q":"a<U+FFFD>b","n":"1"} s=T ok | S {"q":"a<U+FFFD>b","n":"1"} d=T ok | S {"q":"a<U+FFFD>b","n":"1"} l=T ok | S {"q":"a<U+FFFD>b","n":"1"} f=T ok | S {"q":"a<U+FFFD>b","n":"1"} k=T ok | S {"a<U+FFFD>b":"1"} qk=T ok | S {"a<U+FFFD>b":"1"} c=ok fs=T ok | S {"q":["a<U+FFFD>b","x"]} fm=T ok | S {"q":{"a":"b<U+FFFD>c"}} li=T ok | S {"k":["a<U+FFFD>b"]} e=T ok | S {"q":"<U+FFFD>b<U+FFFD>"}');
+        Observer.Expect('U+DBFF', 'p=T ok | S {"q":"a<U+FFFD>b","n":"1"} s=T ok | S {"q":"a<U+FFFD>b","n":"1"} d=T ok | S {"q":"a<U+FFFD>b","n":"1"} l=T ok | S {"q":"a<U+FFFD>b","n":"1"} f=T ok | S {"q":"a<U+FFFD>b","n":"1"} k=T ok | S {"a<U+FFFD>b":"1"} qk=T ok | S {"a<U+FFFD>b":"1"} c=ok fs=T ok | S {"q":["a<U+FFFD>b","x"]} fm=T ok | S {"q":{"a":"b<U+FFFD>c"}} li=T ok | S {"k":["a<U+FFFD>b"]} e=T ok | S {"q":"<U+FFFD>b<U+FFFD>"}');
+        Observer.Expect('U+DC00', 'p=T ok | S {"q":"a<U+FFFD>b","n":"1"} s=T ok | S {"q":"a<U+FFFD>b","n":"1"} d=T ok | S {"q":"a<U+FFFD>b","n":"1"} l=T ok | S {"q":"a<U+FFFD>b","n":"1"} f=T ok | S {"q":"a<U+FFFD>b","n":"1"} k=T ok | S {"a<U+FFFD>b":"1"} qk=T ok | S {"a<U+FFFD>b":"1"} c=ok fs=T ok | S {"q":["a<U+FFFD>b","x"]} fm=T ok | S {"q":{"a":"b<U+FFFD>c"}} li=T ok | S {"k":["a<U+FFFD>b"]} e=T ok | S {"q":"<U+FFFD>b<U+FFFD>"}');
+        Observer.Expect('U+DFFF', 'p=T ok | S {"q":"a<U+FFFD>b","n":"1"} s=T ok | S {"q":"a<U+FFFD>b","n":"1"} d=T ok | S {"q":"a<U+FFFD>b","n":"1"} l=T ok | S {"q":"a<U+FFFD>b","n":"1"} f=T ok | S {"q":"a<U+FFFD>b","n":"1"} k=T ok | S {"a<U+FFFD>b":"1"} qk=T ok | S {"a<U+FFFD>b":"1"} c=ok fs=T ok | S {"q":["a<U+FFFD>b","x"]} fm=T ok | S {"q":{"a":"b<U+FFFD>c"}} li=T ok | S {"k":["a<U+FFFD>b"]} e=T ok | S {"q":"<U+FFFD>b<U+FFFD>"}');
+        Observer.Verify();
     end;
 }

@@ -49,21 +49,69 @@ codeunit 79898 "YFN Yaml Streams"
     procedure ReadFromYaml_InStreamEncoding_Ascii()
     begin
         Matrix('ascii-', 'q: abc~n: 1', '{"q":"abc","n":"1"}');
-        Observer.Finish();
+        Observer.Expect('ascii-m-m', 'ok');
+        Observer.Expect('ascii-m-8', 'ok');
+        Observer.Expect('ascii-m-16', 'ok');
+        Observer.Expect('ascii-m-w', 'ok');
+        Observer.Expect('ascii-8-m', 'ok');
+        Observer.Expect('ascii-8-8', 'ok');
+        Observer.Expect('ascii-8-16', 'ok');
+        Observer.Expect('ascii-8-w', 'ok');
+        Observer.Expect('ascii-16-m', 'FYamlBadFormat');
+        Observer.Expect('ascii-16-8', 'FYamlBadFormat');
+        Observer.Expect('ascii-16-16', 'FYamlBadFormat');
+        Observer.Expect('ascii-16-w', 'FYamlBadFormat');
+        Observer.Expect('ascii-w-m', 'ok');
+        Observer.Expect('ascii-w-8', 'ok');
+        Observer.Expect('ascii-w-16', 'ok');
+        Observer.Expect('ascii-w-w', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYaml_InStreamEncoding_Text()
     begin
         Matrix('text-', 'q: a{u00E4}b{u20AC}c~n: 1', '{"q":"a{u00E4}b{u20AC}c","n":"1"}');
-        Observer.Finish();
+        Observer.Expect('text-m-m', '{"q":"a<U+FFFD>b<U+FFFD>c","n":"1"}');
+        Observer.Expect('text-m-8', '{"q":"a<U+FFFD>b<U+FFFD>c","n":"1"}');
+        Observer.Expect('text-m-16', '{"q":"a<U+FFFD>b<U+FFFD>c","n":"1"}');
+        Observer.Expect('text-m-w', '{"q":"a<U+FFFD>b<U+FFFD>c","n":"1"}');
+        Observer.Expect('text-8-m', 'ok');
+        Observer.Expect('text-8-8', 'ok');
+        Observer.Expect('text-8-16', 'ok');
+        Observer.Expect('text-8-w', 'ok');
+        Observer.Expect('text-16-m', 'FYamlBadFormat');
+        Observer.Expect('text-16-8', 'FYamlBadFormat');
+        Observer.Expect('text-16-16', 'FYamlBadFormat');
+        Observer.Expect('text-16-w', 'FYamlBadFormat');
+        Observer.Expect('text-w-m', '{"q":"a<U+FFFD>b<U+FFFD>c","n":"1"}');
+        Observer.Expect('text-w-8', '{"q":"a<U+FFFD>b<U+FFFD>c","n":"1"}');
+        Observer.Expect('text-w-16', '{"q":"a<U+FFFD>b<U+FFFD>c","n":"1"}');
+        Observer.Expect('text-w-w', '{"q":"a<U+FFFD>b<U+FFFD>c","n":"1"}');
+        Observer.Verify();
     end;
 
     [Test]
     procedure ReadFromYaml_InStreamEncoding_Sections()
     begin
         Matrix('sect-', 'q: {u00A7}{u00DF}{u00F1}~n: 1', '{"q":"{u00A7}{u00DF}{u00F1}","n":"1"}');
-        Observer.Finish();
+        Observer.Expect('sect-m-m', '{"q":"\u0015<U+FFFD>","n":"1"}');
+        Observer.Expect('sect-m-8', '{"q":"\u0015<U+FFFD>","n":"1"}');
+        Observer.Expect('sect-m-16', '{"q":"\u0015<U+FFFD>","n":"1"}');
+        Observer.Expect('sect-m-w', '{"q":"\u0015<U+FFFD>","n":"1"}');
+        Observer.Expect('sect-8-m', 'ok');
+        Observer.Expect('sect-8-8', 'ok');
+        Observer.Expect('sect-8-16', 'ok');
+        Observer.Expect('sect-8-w', 'ok');
+        Observer.Expect('sect-16-m', 'FYamlBadFormat');
+        Observer.Expect('sect-16-8', 'FYamlBadFormat');
+        Observer.Expect('sect-16-16', 'FYamlBadFormat');
+        Observer.Expect('sect-16-w', 'FYamlBadFormat');
+        Observer.Expect('sect-w-m', '{"q":"<U+FFFD><U+FFFD><U+FFFD>","n":"1"}');
+        Observer.Expect('sect-w-8', '{"q":"<U+FFFD><U+FFFD><U+FFFD>","n":"1"}');
+        Observer.Expect('sect-w-16', '{"q":"<U+FFFD><U+FFFD><U+FFFD>","n":"1"}');
+        Observer.Expect('sect-w-w', '{"q":"<U+FFFD><U+FFFD><U+FFFD>","n":"1"}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -139,6 +187,20 @@ codeunit 79898 "YFN Yaml Streams"
         JO.WriteTo(Out);
         Observer.Observe('empty-stream', Format(Ok) + ' ' + Y.Esc(Out) + ' ' + Y.Esc(GetLastErrorText()) + ' ' + GetLastErrorCode());
         Blob.DeleteAll();
-        Observer.Finish();
+        Observer.Expect('whole-read', 'Yes {"skip":"me","q":"abc","n":"1"}');
+        Observer.Expect('whole-eos', 'No');
+        Observer.Expect('whole-length', '22');
+        Observer.Expect('whole-pos', '1');
+        Observer.Expect('whole-readtext-after', 'skip: me');
+        Observer.Expect('whole-second-read', 'Yes {"q":"abc","n":"1"} ');
+        Observer.Expect('whole-second-pos', '11');
+        Observer.Expect('whole-second-eos', 'No');
+        Observer.Expect('whole-after-reset', 'Yes {"skip":"me","q":"abc","n":"1"} ');
+        Observer.Expect('partial-first-line', 'skip: me');
+        Observer.Expect('partial-read', 'Yes {"q":"abc","n":"1"}');
+        Observer.Expect('partial-eos', 'No');
+        Observer.Expect('partial-pos', '11');
+        Observer.Expect('empty-stream', 'No {} JSON tokens of type ''Null'' are not supported by this implementation. InvalidJsonType');
+        Observer.Verify();
     end;
 }
