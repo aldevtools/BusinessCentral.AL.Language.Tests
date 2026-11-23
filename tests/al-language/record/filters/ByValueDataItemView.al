@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods/devenv-passing-parameters
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own objects 78735..78739 (BVV Iso Row, BVV Iso Callee, BVV Iso Desc Report,
+// Fixtures used: Probe Observer (codeunit 69160); own objects 78735..78739 and 78751..78755 (BVV Iso Row, BVV Iso Callee, BVV Iso Desc Report,
 //   BVV Iso Name Report, BVV Iso Item View Tests)
 // local object: the view a report's data item record hands by value, and the isolation level of the copy, is what is under test.
 // Probe (al-runner issue 8838): a report's data item that still holds its DataItemTableView, read descending, handed by value
@@ -259,6 +259,257 @@ codeunit 78739 "BVV Iso Item View Tests"
         Observer.Observe('caller after', 'f={' + Row.GetFilters() + '} n=' + Format(Row.Count()));
         Observer.Expect('report', 'callee id=4 f={} n=4 key=Id asc=Yes grp=0 groups -1={} 0={} 1={} 2={} 3={} 4={} 5={} 6={} 7={}  iso before=Default after=ReadCommitted need=Yes iso now=ReadCommitted first=1 item after f={Amount: <30} n=1 key=Name asc=No iso=Default ids=4,');
         Observer.Expect('caller after', 'f={Amount: <30} n=3');
+        Observer.Verify();
+    end;
+}
+
+// Added after review (al-runner PR 8853): a child data item with a DataItemLink and a DataItemTableView, handed to a
+// codeunit procedure and to a local procedure of the report; and the data item with its view handed to a procedure of another
+// instance of the same report.
+// Facts (measured on 29.0): the copy has the view of a fresh record in each: neither the DataItemLink filter nor the
+// DataItemTableView of the child is handed (no filter in groups -1 to 7, the primary key ascending, Count of the whole
+// table), and another instance of the report gets a fresh view too; the data items keep their views.
+table 78751 "BVV Iso Line"
+{
+    fields
+    {
+        field(1; RowId; Integer) { }
+        field(2; Id; Integer) { }
+        field(3; Amt; Decimal) { }
+    }
+
+    keys
+    {
+        key(PK; RowId, Id) { Clustered = true; }
+    }
+}
+
+codeunit 78752 "BVV Iso Line Callee"
+{
+    procedure Describe(L: Record "BVV Iso Line"): Text
+    var
+        Result: Text;
+        First: Text;
+        Group: Integer;
+    begin
+        Result := 'row=' + Format(L.RowId) + ' id=' + Format(L.Id) + ' f={' + L.GetFilters() + '} n=' + Format(L.Count())
+            + ' key=' + L.CurrentKey() + ' asc=' + Format(L.Ascending()) + ' grp=' + Format(L.FilterGroup()) + ' groups ';
+        for Group := -1 to 7 do begin
+            L.FilterGroup(Group);
+            Result += Format(Group) + '={' + L.GetFilters() + '} ';
+        end;
+        L.FilterGroup(0);
+        if L.FindFirst() then
+            First := Format(L.RowId) + '/' + Format(L.Id)
+        else
+            First := 'none';
+        exit(Result + 'first=' + First);
+    end;
+}
+
+// The child Line has both a DataItemLink and a DataItemTableView, as many Base Application child data items do.
+report 78753 "BVV Iso Link Report"
+{
+    ProcessingOnly = true;
+    UseRequestPage = false;
+
+    dataset
+    {
+        dataitem(Row; "BVV Iso Row")
+        {
+            DataItemTableView = sorting(Id) where(Status = filter(Open));
+
+            dataitem(Line; "BVV Iso Line")
+            {
+                DataItemLink = RowId = field(Id);
+                DataItemTableView = sorting(RowId, Id) order(descending) where(Amt = filter(> 0));
+
+                trigger OnAfterGetRecord()
+                var
+                    Callee: Codeunit "BVV Iso Line Callee";
+                begin
+                    Ids += Format(RowId) + '/' + Format(Id) + ',';
+                    if Done then
+                        exit;
+                    Done := true;
+                    case Mode of
+                        1:
+                            Outcome := 'callee ' + Callee.Describe(Line);
+                        2:
+                            Outcome := 'callee ' + DescribeLine(Line);
+                    end;
+                    Outcome += ' item after f={' + GetFilters() + '} n=' + Format(Count()) + ' key=' + CurrentKey() + ' asc='
+                        + Format(Ascending());
+                end;
+            }
+        }
+    }
+
+    var
+        Mode: Integer;
+        Done: Boolean;
+        Outcome: Text;
+        Ids: Text;
+
+    procedure SetMode(NewMode: Integer)
+    begin
+        Mode := NewMode;
+    end;
+
+    procedure GetResult(): Text
+    begin
+        exit(Outcome + ' ids=' + Ids);
+    end;
+
+    local procedure DescribeLine(L: Record "BVV Iso Line"): Text
+    var
+        Callee: Codeunit "BVV Iso Line Callee";
+    begin
+        exit(Callee.Describe(L));
+    end;
+}
+
+// The data item with its view handed to a procedure of another instance of the same report.
+report 78754 "BVV Iso Other Instance"
+{
+    ProcessingOnly = true;
+    UseRequestPage = false;
+
+    dataset
+    {
+        dataitem(Row; "BVV Iso Row")
+        {
+            DataItemTableView = sorting(Id) order(descending) where(Status = filter(Open));
+
+            trigger OnAfterGetRecord()
+            var
+                OtherInstance: Report "BVV Iso Other Instance";
+            begin
+                Ids += Format(Id) + ',';
+                if Done then
+                    exit;
+                Done := true;
+                Outcome := 'other instance ' + OtherInstance.Describe(Row) + ' item after f={' + GetFilters() + '} n='
+                    + Format(Count()) + ' key=' + CurrentKey() + ' asc=' + Format(Ascending());
+            end;
+        }
+    }
+
+    var
+        Done: Boolean;
+        Outcome: Text;
+        Ids: Text;
+
+    procedure GetResult(): Text
+    begin
+        exit(Outcome + ' ids=' + Ids);
+    end;
+
+    procedure Describe(R: Record "BVV Iso Row"): Text
+    var
+        Result: Text;
+        First: Text;
+        Group: Integer;
+    begin
+        Result := 'id=' + Format(R.Id) + ' f={' + R.GetFilters() + '} n=' + Format(R.Count()) + ' key=' + R.CurrentKey()
+            + ' asc=' + Format(R.Ascending()) + ' grp=' + Format(R.FilterGroup()) + ' groups ';
+        for Group := -1 to 7 do begin
+            R.FilterGroup(Group);
+            Result += Format(Group) + '={' + R.GetFilters() + '} ';
+        end;
+        R.FilterGroup(0);
+        if R.FindFirst() then
+            First := Format(R.Id)
+        else
+            First := 'none';
+        exit(Result + 'first=' + First);
+    end;
+}
+
+codeunit 78755 "BVV Iso Link Tests"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    // Rows 1 (C-NAME, Open, 30), 2 (B-NAME, Posted, 20), 3 (A-NAME, Open, 0), 4 (D-NAME, Open, 10).
+    // Lines: row 1: 1 (5), 2 (0), 3 (7); row 2: 1 (9); row 4: 1 (3).
+    local procedure Seed()
+    var
+        Row: Record "BVV Iso Row";
+        Line: Record "BVV Iso Line";
+    begin
+        Row.DeleteAll();
+        Line.DeleteAll();
+        AddRow(1, 'C-NAME', Row.Status::Open, 30);
+        AddRow(2, 'B-NAME', Row.Status::Posted, 20);
+        AddRow(3, 'A-NAME', Row.Status::Open, 0);
+        AddRow(4, 'D-NAME', Row.Status::Open, 10);
+        AddLine(1, 1, 5);
+        AddLine(1, 2, 0);
+        AddLine(1, 3, 7);
+        AddLine(2, 1, 9);
+        AddLine(4, 1, 3);
+    end;
+
+    local procedure AddRow(Id: Integer; Name: Text[20]; Status: Option; Amount: Decimal)
+    var
+        Row: Record "BVV Iso Row";
+    begin
+        Row.Id := Id;
+        Row.Name := Name;
+        Row.Status := Status;
+        Row.Amount := Amount;
+        Row.Insert();
+    end;
+
+    local procedure AddLine(RowId: Integer; Id: Integer; Amt: Decimal)
+    var
+        Line: Record "BVV Iso Line";
+    begin
+        Line.RowId := RowId;
+        Line.Id := Id;
+        Line.Amt := Amt;
+        Line.Insert();
+    end;
+
+    [Test]
+    procedure ByValue_ReportProcedure_ChildDataItemLinkViewToCodeunit()
+    var
+        Observer: Codeunit "Probe Observer";
+        Rep: Report "BVV Iso Link Report";
+    begin
+        Seed();
+        Rep.SetMode(1);
+        Rep.RunModal();
+        Observer.Observe('report', Rep.GetResult());
+        Observer.Expect('report', 'callee row=1 id=3 f={} n=5 key=RowId,Id asc=Yes grp=0 groups -1={} 0={} 1={} 2={} 3={} 4={} 5={} 6={} 7={} first=1/1 item after f={} n=2 key=RowId,Id asc=No ids=1/3,1/1,4/1,');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure ByValue_ReportProcedure_ChildDataItemLinkViewToLocal()
+    var
+        Observer: Codeunit "Probe Observer";
+        Rep: Report "BVV Iso Link Report";
+    begin
+        Seed();
+        Rep.SetMode(2);
+        Rep.RunModal();
+        Observer.Observe('report', Rep.GetResult());
+        Observer.Expect('report', 'callee row=1 id=3 f={} n=5 key=RowId,Id asc=Yes grp=0 groups -1={} 0={} 1={} 2={} 3={} 4={} 5={} 6={} 7={} first=1/1 item after f={} n=2 key=RowId,Id asc=No ids=1/3,1/1,4/1,');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure ByValue_ReportProcedure_DataItemViewToOtherInstance()
+    var
+        Observer: Codeunit "Probe Observer";
+        Rep: Report "BVV Iso Other Instance";
+    begin
+        Seed();
+        Rep.RunModal();
+        Observer.Observe('report', Rep.GetResult());
+        Observer.Expect('report', 'other instance id=4 f={} n=4 key=Id asc=Yes grp=0 groups -1={} 0={} 1={} 2={} 3={} 4={} 5={} 6={} 7={} first=1 item after f={} n=3 key=Id asc=No ids=4,3,1,');
         Observer.Verify();
     end;
 }
