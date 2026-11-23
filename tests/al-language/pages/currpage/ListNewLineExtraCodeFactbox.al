@@ -2,8 +2,8 @@
 // Scope: in-scope
 // local object: a List page with page triggers and a CardPart FactBox whose table field's OnValidate inserts the page's new line,
 //   and the code around CurrPage.SaveRecord() and CurrPage.Update in the control's OnValidate, are what is under test
-// Fixtures used: own tables 97691 and 97701, pages 97693, 97694, 97697, 97698 and 97703, codeunits 97692, 97695, 97696,
-//   97699, 97702 and 97704, test codeunits 97700 and 97705
+// Fixtures used: own tables 97691 and 96741, pages 97693, 97694, 97697, 97698 and 96743, codeunits 97692, 97695, 97696,
+//   97699, 96742 and 96744, test codeunits 97700 and 96745
 // Probe (al-runner issue 8734): a List page with AutoSplitKey, OnAfterGetRecord and OnAfterGetCurrRecord, and a CardPart
 //   FactBox linked to the line's key whose OnAfterGetRecord sets a variable it shows, stands on its new line; the SetValue on
 //   Name runs the table field's OnValidate, which inserts the row (Insert(true), an AutoIncrement key field), then the
@@ -523,7 +523,7 @@ codeunit 97700 "LT NK Tests"
 
 // The review of the runner pull request 8820: after the save, a field of Rec set, a row of another table inserted, or a row
 // of another table deleted, then CurrPage.Update(false), on the logging page's shape.
-table 97701 "LT NK Other"
+table 96741 "LT NK Other"
 {
     DataClassification = CustomerContent;
 
@@ -539,7 +539,7 @@ table 97701 "LT NK Other"
     }
 }
 
-codeunit 97702 "LT NK More Log"
+codeunit 96742 "LT NK More Log"
 {
     SingleInstance = true;
 
@@ -569,7 +569,7 @@ codeunit 97702 "LT NK More Log"
     end;
 }
 
-page 97703 "LT NK More Lines"
+page 96743 "LT NK More Lines"
 {
     PageType = List;
     SourceTable = "LT NK Line";
@@ -639,7 +639,7 @@ page 97703 "LT NK More Lines"
     end;
 }
 
-codeunit 97704 "LT NK More Opener"
+codeunit 96744 "LT NK More Opener"
 {
     procedure Open(GroupCode: Code[10])
     var
@@ -650,7 +650,7 @@ codeunit 97704 "LT NK More Opener"
     end;
 }
 
-codeunit 97705 "LT NK More Tests"
+codeunit 96745 "LT NK More Tests"
 {
     Subtype = Test;
     TestPermissions = Disabled;
