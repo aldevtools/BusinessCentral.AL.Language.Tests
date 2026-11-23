@@ -1,0 +1,63 @@
+{{- /*
+  The table of version changes. Parameters (all optional):
+    version="29.1"  only the changes of this minor (see layouts/_partials/changes/versions.html)
+    filters="true"  show the version, area and class filters (client side, no build step)
+*/ -}}
+{{- $version := .Get "version" -}}
+{{- $filters := eq (.Get "filters") "true" -}}
+{{- $pages := slice -}}
+{{- range (where site.RegularPages "Section" "changes").ByParam "id" -}}
+  {{- $vs := partial "changes/versions.html" . -}}
+  {{- if or (not $version) (in $vs $version) -}}{{- $pages = $pages | append . -}}{{- end -}}
+{{- end -}}
+{{- $id := printf "change-list-%d" .Ordinal -}}
+{{- if $filters -}}
+{{- $allVersions := slice -}}{{- $allAreas := slice -}}{{- $allClasses := slice -}}
+{{- range $pages -}}
+  {{- $allVersions = $allVersions | append (partial "changes/versions.html" .) -}}
+  {{- $allAreas = $allAreas | append .Params.area -}}
+  {{- $allClasses = $allClasses | append .Params.class -}}
+{{- end -}}
+<div class="change-filters" data-target="{{ $id }}">
+  <label>Version <select data-filter="versions"><option value="">all</option>{{ range sort (uniq $allVersions) }}<option>{{ . }}</option>{{ end }}</select></label>
+  <label>Area <select data-filter="area"><option value="">all</option>{{ range sort (uniq $allAreas) }}<option>{{ . }}</option>{{ end }}</select></label>
+  <label>Class <select data-filter="class"><option value="">all</option>{{ range sort (uniq $allClasses) }}<option>{{ . }}</option>{{ end }}</select></label>
+</div>
+{{- end }}
+<table id="{{ $id }}" class="change-list">
+  <thead><tr><th>Change</th><th>Area</th><th>Class</th><th>First seen</th><th>Old behavior only in</th><th>Documented by Microsoft</th></tr></thead>
+  <tbody>
+  {{- range $pages }}
+    {{- $vs := partial "changes/versions.html" . }}
+    <tr data-versions="{{ delimit $vs " " }}" data-area="{{ .Params.area }}" data-class="{{ .Params.class }}">
+      <td><a href="{{ .RelPermalink }}">{{ .Title }}</a><br><code>{{ .Params.id }}</code></td>
+      <td>{{ .Params.area }}</td>
+      <td>{{ .Params.class }}</td>
+      <td>{{ .Params.first_seen }}</td>
+      <td>{{ .Params.only_in | default "" }}</td>
+      <td>{{ partial "changes/documented.html" .Params.microsoft_documented }}</td>
+    </tr>
+  {{- else }}
+    <tr><td colspan="6">No changes recorded.</td></tr>
+  {{- end }}
+  </tbody>
+</table>
+{{- if $filters }}
+<script>
+(function () {
+  var box = document.querySelector('.change-filters[data-target="{{ $id }}"]');
+  var rows = document.querySelectorAll('#{{ $id }} tbody tr[data-area]');
+  function apply() {
+    var sel = {};
+    box.querySelectorAll('select').forEach(function (s) { sel[s.dataset.filter] = s.value; });
+    rows.forEach(function (r) {
+      var ok = (!sel.versions || r.dataset.versions.split(' ').indexOf(sel.versions) >= 0)
+        && (!sel.area || r.dataset.area === sel.area)
+        && (!sel['class'] || r.dataset['class'] === sel['class']);
+      r.style.display = ok ? '' : 'none';
+    });
+  }
+  box.addEventListener('change', apply);
+})();
+</script>
+{{- end }}

@@ -11,6 +11,7 @@ Thank you for contributing! This repo is an executable specification proving AL 
 - [Multi-app fixtures](#multi-app-fixtures)
 - [Coverage gaps](#coverage-gaps)
 - [Version-gated tests (preprocessor directives)](#version-gated-tests-preprocessor-directives)
+- [Version changes site](#version-changes-site)
 - [Out-of-scope features](#out-of-scope-features)
 - [Local development](#local-development)
 - [Running CI locally](#running-ci-locally)
@@ -265,6 +266,24 @@ The CI matrix defines these symbols per version:
 The guard comment must explain **why** the guard exists — which API or behavior changed.
 
 If you are writing a test for a feature available in all supported BC versions (27.5+), **no guard is needed**.
+
+---
+
+## Version changes site
+
+`docs/` holds a [Hugo](https://gohugo.io/) site, published to GitHub Pages by `.github/workflows/pages.yml`. It lists
+every case where Business Central gives a different result on two versions or minors, and whether Microsoft documented
+it. Each change is one file, `docs/content/changes/<id>.md`; the fields are explained in `docs/content/contribute.md`.
+
+A version guard that exists because BC behavior or shipped data changed gets a comment with the change id next to it:
+
+```al
+#if BC29PLUS // version change: 29.1-page-part-refresh
+```
+
+`.github/scripts/check-version-change-docs.py` (in the object-id gate job) fails when such a comment names an id that
+has no file in `docs/content/changes/`. A guard for an API that only exists from a version on (no behavior change) needs
+no comment. Build the site locally with `cd docs && hugo server`.
 
 ---
 

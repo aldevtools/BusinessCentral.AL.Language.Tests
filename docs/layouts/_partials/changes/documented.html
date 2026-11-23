@@ -1,0 +1,5 @@
+{{- /* microsoft_documented as "yes" / "no", whether the front matter holds a string or a YAML boolean. */ -}}
+{{- $v := . -}}
+{{- $s := "no" -}}
+{{- if or (eq $v true) (eq (lower (string $v)) "yes") -}}{{- $s = "yes" -}}{{- end -}}
+{{- return $s -}}

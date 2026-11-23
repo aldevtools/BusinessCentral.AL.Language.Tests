@@ -1,0 +1,4 @@
+{{- /* The versions a change belongs to: the minor of first_seen, plus only_in when the old behavior existed in one minor only. */ -}}
+{{- $list := slice (partial "changes/minor.html" .Params.first_seen) -}}
+{{- with .Params.only_in -}}{{- $list = $list | append (string .) -}}{{- end -}}
+{{- return (uniq $list) -}}
