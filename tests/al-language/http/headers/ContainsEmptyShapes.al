@@ -579,7 +579,19 @@ codeunit 70886 "LT HtT Contains Empty Shapes"
     begin
         ClearLastError();
         ClientSettingCells(5);
-        Observer.Finish();
+        Observer.Expect('set5', 'No');
+        Observer.Expect('set5|err|text', 'There was an error while executing the HTTP request. Make sure you are connecting to a valid endpoint.');
+        Observer.Expect('set5|err|code', 'HttpRequest:Cryptographic');
+        Observer.Expect('old5|ok', 'No');
+        Observer.Expect('old5|found', 'Yes');
+        Observer.Expect('old5|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('old5|code', 'InvalidHeader:Argument');
+        Observer.Expect('new5|ok', 'No');
+        Observer.Expect('new5|found', 'Yes');
+        Observer.Expect('new5|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('new5|code', 'InvalidHeader:Argument');
+        Observer.Expect('new5|x-a', 'Yes');
+        Observer.Verify();
     end;
 
     // ---- A5: a secret content ----
