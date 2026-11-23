@@ -2838,3 +2838,226 @@ codeunit 97748 "LT GFI Ext Area Tests"
         Expect('plainbase', 'error TestFieldNotFound: The field with ID = 1463453138 is not found on the page.');
     end;
 }
+
+// The review of aldevtools/BusinessCentral.AL.Runner#8902: ids that a page extension's control has by the extension's id, on a
+// Worksheet (an actionref and an action), on the Card that shows a CardPart (a field, read through the part) and on the CardPart
+// a RoleCenter shows (a field, read on the RoleCenter itself).
+page 97749 "LT GFI Ext Sheet"
+{
+    PageType = Worksheet;
+    SourceTable = "LT GFI Row";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Lines)
+            {
+                field(Name; Rec.Name) { ApplicationArea = All; }
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(SheetAct)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                begin
+                end;
+            }
+        }
+        area(Promoted)
+        {
+            actionref(SheetActRef; SheetAct) { }
+        }
+    }
+}
+
+pageextension 97748 "LT GFI Ext Sheet Ext" extends "LT GFI Ext Sheet"
+{
+    actions
+    {
+        addlast(Processing)
+        {
+            action(ExtAct)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                begin
+                end;
+            }
+        }
+        addlast(Promoted)
+        {
+            actionref(ExtActRef; ExtAct) { }
+        }
+    }
+}
+
+pageextension 97739 "LT GFI Part Host Ext" extends "LT GFI Part Host"
+{
+    layout
+    {
+        addlast(General)
+        {
+            field(HostExt; Rec.Note) { ApplicationArea = All; }
+        }
+    }
+}
+
+pageextension 97740 "LT GFI Card Part Ext" extends "LT GFI Card Part"
+{
+    layout
+    {
+        addlast(General)
+        {
+            field(PartExt; Rec.Note) { ApplicationArea = All; }
+        }
+    }
+}
+
+codeunit 97749 "LT GFI Owner Tests"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        Assert: Codeunit Assert;
+        Seen: Dictionary of [Text, Text];
+
+    local procedure Initialize()
+    var
+        Row: Record "LT GFI Row";
+    begin
+        Row.DeleteAll();
+        Row."No." := 'R1';
+        Row.Name := 'Alpha';
+        Row.Note := 'n1';
+        Row.Insert();
+        Commit();
+        Clear(Seen);
+    end;
+
+    local procedure Note(What: Text; Actual: Text)
+    begin
+        Seen.Set(What, Actual);
+    end;
+
+    local procedure Expect(What: Text; Expected: Text)
+    begin
+        Assert.AreEqual(Expected, Seen.Get(What), What);
+    end;
+
+    local procedure Failure(): Text
+    begin
+        exit('error ' + GetLastErrorCode() + ': ' + GetLastErrorText());
+    end;
+
+    [TryFunction]
+    local procedure TrySheet(var Pg: TestPage "LT GFI Ext Sheet"; Id: Integer; var Shown: Text)
+    begin
+        Shown := Pg.GetField(Id).Value();
+    end;
+
+    local procedure ReadSheet(var Pg: TestPage "LT GFI Ext Sheet"; Id: Integer): Text
+    var
+        Shown: Text;
+    begin
+        ClearLastError();
+        if TrySheet(Pg, Id, Shown) then
+            exit('found ' + Shown);
+        exit(Failure());
+    end;
+
+    [TryFunction]
+    local procedure TryHostPart(var Pg: TestPage "LT GFI Part Host"; Id: Integer; var Shown: Text)
+    begin
+        Shown := Pg.Part.GetField(Id).Value();
+    end;
+
+    local procedure ReadHostPart(var Pg: TestPage "LT GFI Part Host"; Id: Integer): Text
+    var
+        Shown: Text;
+    begin
+        ClearLastError();
+        if TryHostPart(Pg, Id, Shown) then
+            exit('found ' + Shown);
+        exit(Failure());
+    end;
+
+    [TryFunction]
+    local procedure TryRole(var Pg: TestPage "LT GFI Role Center"; Id: Integer; var Shown: Text)
+    begin
+        Shown := Pg.GetField(Id).Value();
+    end;
+
+    local procedure ReadRole(var Pg: TestPage "LT GFI Role Center"; Id: Integer): Text
+    var
+        Shown: Text;
+    begin
+        ClearLastError();
+        if TryRole(Pg, Id, Shown) then
+            exit('found ' + Shown);
+        exit(Failure());
+    end;
+
+    // The Worksheet 97749: the extension's actionref and action by the extension's id (97748), the actionref by the base page's
+    // id, and the page's own actionref. GetField finds an actionref by its own object's id, as a field whose Value is empty.
+    [Test]
+    procedure Worksheet_GetFieldExtensionActionIds()
+    var
+        Pg: TestPage "LT GFI Ext Sheet";
+    begin
+        Initialize();
+        Pg.OpenEdit();
+        Note('extref', ReadSheet(Pg, 272406266));
+        Note('extact', ReadSheet(Pg, 1258699039));
+        Note('extrefbase', ReadSheet(Pg, 1843488919));
+        Note('ownref', ReadSheet(Pg, 162346633));
+        Pg.Close();
+        Expect('extref', 'found ');
+        Expect('extact', 'error TestFieldNotFound: The field with ID = 1258699039 is not found on the page.');
+        Expect('extrefbase', 'error TestFieldNotFound: The field with ID = 1843488919 is not found on the page.');
+        Expect('ownref', 'found ');
+    end;
+
+    // The CardPart the Card 97688 shows: GetField on the TestPart with the id of the field the host's extension (97739) adds, by
+    // the extension's id and by the host's id.
+    [Test]
+    procedure CardPartOfHost_GetFieldHostExtensionFieldIds()
+    var
+        Pg: TestPage "LT GFI Part Host";
+    begin
+        Initialize();
+        Pg.OpenEdit();
+        Note('ext', ReadHostPart(Pg, 712164609));
+        Note('base', ReadHostPart(Pg, 125594652));
+        Pg.Close();
+        Expect('ext', 'error TestFieldNotFound: The field with ID = 712164609 is not found on the page.');
+        Expect('base', 'error TestFieldNotFound: The field with ID = 125594652 is not found on the page.');
+    end;
+
+    // The RoleCenter 97690: GetField on the page itself with the id of the field the part page's extension (97740) adds, by the
+    // extension's id and by the part page's id.
+    [Test]
+    procedure RoleCenter_GetFieldPartExtensionFieldIds()
+    var
+        Pg: TestPage "LT GFI Role Center";
+    begin
+        Initialize();
+        Pg.OpenView();
+        Note('ext', ReadRole(Pg, 1429087898));
+        Note('base', ReadRole(Pg, 2012559612));
+        Pg.Close();
+        Expect('ext', 'error TestFieldNotFound: The field with ID = 1429087898 is not found on the page.');
+        Expect('base', 'error TestFieldNotFound: The field with ID = 2012559612 is not found on the page.');
+    end;
+}
