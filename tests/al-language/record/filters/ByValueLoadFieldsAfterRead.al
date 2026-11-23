@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/record/record-setloadfields-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own objects 78760..78763 (BVL Row, BVL Callee, BVL Caller, BVL By Value Load Tests)
+// Fixtures used: Probe Observer (codeunit 69160); own objects 78760..78764 (BVL Row, BVL Callee, BVL Caller, BVL By Value Load Tests, BVL Run Caller)
 // local object: what a by-value copy holds of the caller's SetLoadFields and partly loaded row is what is under test, so the table's
 //   fields and keys are part of the claim.
 // Probe (al-runner issue 8839): a caller sets SetLoadFields, reads a row with it, then hands the record by value to a procedure (a
@@ -10,7 +10,8 @@
 //   CalcInbndDocOldCost, a local procedure whose first call on the copy is SetCurrentKey.
 //   Cells: SetLoadFields of one field then FindSet, FindFirst and Get; FindFirst then SetLoadFields; every field requested; no filter
 //   on the primary key; a secondary key with a filter set after the read (the codeunit 5895 shape) from a codeunit that is not a test
-//   codeunit, into another codeunit's procedure and into its own local procedure; a local procedure of the test codeunit.
+//   codeunit, into another codeunit's procedure and into its own local procedure; a local procedure of the test codeunit; the caller
+//   reading a field it did not load before the hand-off; a codeunit's OnRun trigger as the caller.
 //   In each cell the callee reports, before it reads anything, which fields of the copy are loaded and the value of a field the
 //   caller did not load; then the copy's view; then, after its own SetCurrentKey, SetRange and FindSet, which fields are loaded and
 //   the sum it read. The caller reports its view, its loaded fields and its next row after the call.
@@ -19,10 +20,10 @@
 //     record/filters/ByValueRecordView.al;
 //   - the copy as handed has the fields the caller's row has loaded: with SetLoadFields(Name) and then a read, Name is loaded and
 //     Amount is not; with the read first and SetLoadFields after it, every field is; a read of an unloaded field of the copy
-//     loads it with the row's value;
+//     loads it with the row's value; a field the caller read before the hand-off (and so loaded) is loaded on the copy too;
 //   - the caller's SetLoadFields is not handed on: after the copy's own FindSet every field of it is loaded;
-//   - this holds from a test codeunit and from a codeunit that is not a test codeunit, into another codeunit's procedure, into a
-//     local procedure of the calling codeunit and with no filter on the primary key;
+//   - this holds from a test codeunit, from a codeunit that is not a test codeunit and from a codeunit's OnRun trigger, into another
+//     codeunit's procedure, into a local procedure of the calling codeunit and with no filter on the primary key;
 //   - the caller's filters, key, loaded fields and next row are unchanged after every call.
 // BC versions: 27.5, 28.5, 29.0
 
@@ -338,5 +339,64 @@ codeunit 78763 "BVL By Value Load Tests"
         Observer.Observe('loop', Caller.Run(true));
         Observer.Expect('loop', 'name loaded=No amount loaded=No id=2 amount=20 amount loaded now=Yes | f={} key=Id asc=Yes grp=0 n=3 | first=2 name loaded=Yes amount loaded=Yes total=50 ## caller f={Status: Posted, Doc: D2} key=Status,Doc amount loaded=No ## name loaded=No amount loaded=No id=3 amount=30 amount loaded now=Yes | f={} key=Id asc=Yes grp=0 n=3 | first=2 name loaded=Yes amount loaded=Yes total=50 ## caller f={Status: Posted, Doc: D3} key=Status,Doc amount loaded=No ## ');
         Observer.Verify();
+    end;
+
+    [Test]
+    procedure ByValueLoad_CallerReadsUnloadedFieldFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "BVL Row";
+        Amount: Decimal;
+    begin
+        Initialize();
+        Row.SetRange(Status, Row.Status::Posted);
+        Row.SetLoadFields(Name);
+        Row.FindFirst();
+        Amount := Row.Amount;
+        Observer.Observe('caller amount', Format(Amount));
+        Observer.Observe('callee', Callee.Describe(Row));
+        ObserveCaller(Observer, Row);
+        Observer.Expect('caller amount', '20');
+        Observer.Expect('callee', 'name loaded=Yes amount loaded=Yes id=2 amount=20 amount loaded now=Yes | f={} key=Id asc=Yes grp=0 n=3 | first=2 name loaded=Yes amount loaded=Yes total=50');
+        Observer.Expect('caller after', 'f={Status: Posted} key=Id id=2 name loaded=Yes amount loaded=Yes');
+        Observer.Expect('caller next', '3');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure ByValueLoad_FromCodeunitOnRun()
+    var
+        Observer: Codeunit "Probe Observer";
+        RunCaller: Codeunit "BVL Run Caller";
+    begin
+        Initialize();
+        RunCaller.Run();
+        Observer.Observe('callee', RunCaller.Result());
+        Observer.Expect('callee', 'name loaded=Yes amount loaded=No id=2 amount=20 amount loaded now=Yes | f={} key=Id asc=Yes grp=0 n=3 | first=2 name loaded=Yes amount loaded=Yes total=50');
+        Observer.Verify();
+    end;
+}
+
+// A codeunit whose OnRun trigger reads a row with SetLoadFields and hands it on by value: the caller is a trigger, not a
+// procedure.
+codeunit 78764 "BVL Run Caller"
+{
+    var
+        Described: Text;
+
+    trigger OnRun()
+    var
+        Row: Record "BVL Row";
+        Callee: Codeunit "BVL Callee";
+    begin
+        Row.SetRange(Status, Row.Status::Posted);
+        Row.SetLoadFields(Name);
+        Row.FindSet();
+        Described := Callee.Describe(Row);
+    end;
+
+    procedure Result(): Text
+    begin
+        exit(Described);
     end;
 }
