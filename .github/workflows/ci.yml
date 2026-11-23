@@ -7,17 +7,14 @@ name: AL Language Test Suite
 # All matrix legs boot BC on Linux (no Windows runner required) via
 # StefanMaron/MsDyn365Bc.On.Linux.
 #
-# Adding a new BC version:
-#   1. In the prepare job, add an include entry to the else-branch JSON:
-#      {"bc_version":"29.1","leg":"29","runtime":"18.0","preprocessor_symbols":"BC27PLUS,BC28PLUS,BC29PLUS,BC29_1PLUS"}
-#      `leg` is the major only: the check names ("BC 29 / test") stay the same when the leg moves to a newer minor.
-#   2. If new API/keywords only exist from that version, guard tests with
-#      #if BC29PLUS and define the symbol in the include entry above.
-#   3. Minor symbols: BC<major>_<minor>PLUS (BC29_1PLUS) is defined on that minor, every later minor of the same
-#      major and every later major. Guard a value that changed in a minor with it, newest first:
-#      #if BC29_1PLUS ... #elif BC29PLUS ... #else ... #endif, and name the change in a comment
-#      (`// version change: <minor>-<short-id>`). Add a new minor symbol to MINOR_SYMBOLS in the prepare job and to
-#      the include entries of the legs that run that minor or a later one.
+# Adding a new BC version (a new minor or major):
+#   1. Add the minor to .github/released-minors.txt. The prepare job (.github/scripts/ci-legs.py) then runs the newest
+#      minor of each major and defines its preprocessor symbols; nothing else lists versions. `leg` is the major only:
+#      the check names ("BC 29 / test") stay the same when a leg moves to a newer minor.
+#   2. Symbols: BC<n>PLUS for every major from 27 to the leg's major, BC<n>_<m>PLUS (BC29_1PLUS) for every released
+#      minor at or below the leg, in version order across majors (30.0 gets BC29_1PLUS). Guard a value that changed in
+#      a minor with it, newest first: #if BC29_1PLUS ... #elif BC29PLUS ... #else ... #endif, and name the change in a
+#      comment (`// version change: <minor>-<short-id>`).
 #   al_tool_version and runtime_version are auto-derived from bc_version
 #   by the bc-linux reusable workflow — no manual entry needed.
 
@@ -306,29 +303,10 @@ jobs:
         env:
           OVERRIDE: ${{ github.event.inputs.bc_version }}
         run: |
-          if [ -n "$OVERRIDE" ]; then
-            MAJOR=$(echo "$OVERRIDE" | cut -d. -f1)
-            MINOR=$(echo "$OVERRIDE" | cut -d. -f2)
-            SYMS=""
-            for v in 27 28 29; do
-              [ "$v" -le "$MAJOR" ] || break
-              SYMS="${SYMS:+$SYMS,}BC${v}PLUS"
-            done
-            # Minor symbols BC<major>_<minor>PLUS: defined on that minor, every later minor of its major and every later major.
-            MINOR_SYMBOLS="29.1"
-            for mv in $MINOR_SYMBOLS; do
-              MJ=${mv%.*}; MN=${mv#*.}
-              if [ "$MAJOR" -gt "$MJ" ] || { [ "$MAJOR" -eq "$MJ" ] && [ "${MINOR:-0}" -ge "$MN" ]; }; then
-                SYMS="${SYMS:+$SYMS,}BC${MJ}_${MN}PLUS"
-              fi
-            done
-            case "$MAJOR" in 27) RT=16.1;; 28) RT=17.1;; *) RT=18.0;; esac
-            JSON=$(python3 -c 'import json,sys; v,rt,s=sys.argv[1:]; print(json.dumps({"include":[{"bc_version":v,"leg":v.split(".")[0],"runtime":rt,"preprocessor_symbols":s}]}))' "$OVERRIDE" "$RT" "$SYMS")
-          else
-            # The newest minor of each major: al-runtime-rs reads these legs as its oracle.
-            # Use the bc_version input to run another minor. `leg` (the major) names the checks.
-            JSON='{"include":[{"bc_version":"27.5","leg":"27","runtime":"16.1","preprocessor_symbols":"BC27PLUS"},{"bc_version":"28.5","leg":"28","runtime":"17.1","preprocessor_symbols":"BC27PLUS,BC28PLUS"},{"bc_version":"29.1","leg":"29","runtime":"18.0","preprocessor_symbols":"BC27PLUS,BC28PLUS,BC29PLUS,BC29_1PLUS"}]}'
-          fi
+          # The legs and the preprocessor symbols of each come from the list of released minors (ci-legs.py,
+          # .github/released-minors.txt): by default the newest minor of each major, which al-runtime-rs reads as its
+          # oracle; with the bc_version input that version alone. `leg` (the major) names the checks.
+          JSON=$(python3 .github/scripts/ci-legs.py matrix --version "$OVERRIDE") || exit 1
           # The BC build of each version, resolved once here for every leg and shard of the run, and added to the matrix
           # as bc_artifact_url and bc_build (CONTRIBUTING.md, "BC build and result provenance"). A version without a build
           # fails this job, so no leg starts.

@@ -254,14 +254,16 @@ end;
 #endif
 ```
 
-The CI matrix defines these symbols per version:
+The CI matrix defines these symbols per version. They come from one list, `.github/released-minors.txt` (every released minor from 27.0
+on); `.github/scripts/ci-legs.py` derives the legs (the newest minor of each major) and each version's symbols from it, and the results
+manifest records both. A new minor is one line in that list.
 
 | Symbol | Meaning |
 |--------|---------|
 | `BC27PLUS` | Available from BC 27.0 onwards (always defined) |
 | `BC28PLUS` | Available from BC 28.0 onwards |
 | `BC29PLUS` | Available from BC 29.0 onwards |
-| `BC29_1PLUS` | BC 29.1 and every later minor of 29, and every later major |
+| `BC<n>_<m>PLUS` | One per released minor with `m` of at least 1 (`BC27_1PLUS` ... `BC27_5PLUS`, `BC28_1PLUS` ... `BC28_5PLUS`, `BC29_1PLUS`): that minor, every later minor of its major and every later major |
 
 Minor symbols have the form `BC<major>_<minor>PLUS`. Use one when a value or a behavior changed in a minor update. Guard newest first and
 keep the older values, they document the older builds:
@@ -481,7 +483,7 @@ al-runtime-rs takes the JUnit files of a green master run as its oracle. These f
   | `app` | `full`: the run published the full test app |
 
   After **Re-run failed jobs**, a codeunit that the earlier attempt stamped keeps its stamp; a codeunit of a re-run shard gets the new attempt. The test results and the timestamps do not change.
-- **Results manifest.** When every leg of a push run (master) or of the nightly run succeeded, the job `manifest` writes `results-manifest.json` and uploads it as the artifact `results-manifest` (`provenance.py manifest`). It names the run, the attempt, the commit and, per BC version, the build, the artifact URL and, per leg, the number of codeunits. The job fails when a leg has no JUnit file or no codeunit, or a codeunit lacks this run's provenance (run, commit, `app` full) or names another build. The manifest of a full run has `base_run` null. The nightly run's job "Nightly comparison" adds the comparison to it (see "Nightly full run"). Pull request runs and dispatched runs do not write a manifest.
+- **Results manifest.** When every leg of a push run (master) or of the nightly run succeeded, the job `manifest` writes `results-manifest.json` and uploads it as the artifact `results-manifest` (`provenance.py manifest`). It names the run, the attempt, the commit, the list of released minors (`released_minors`, from `.github/released-minors.txt`) and, per BC version, the build, the artifact URL, the preprocessor symbols the run compiled with (`preprocessor_symbols`, a list) and, per leg, the number of codeunits. al-runtime-rs refuses a bump when its own symbols of a version differ from the recorded ones. The job fails when a leg has no JUnit file or no codeunit, or a codeunit lacks this run's provenance (run, commit, `app` full) or names another build. The manifest of a full run has `base_run` null. The nightly run's job "Nightly comparison" adds the comparison to it (see "Nightly full run"). Pull request runs and dispatched runs do not write a manifest.
 - **When a manifest counts.** Only for the run's latest attempt, and only when the run's conclusion is success. A later attempt (**Re-run all jobs**, or a re-run of one job) replaces the legs' JUnit files; when it ends red, the job `manifest` is skipped and the manifest of the earlier attempt stays. Every reader checks this with `provenance.py check-manifest --manifest results-manifest.json --run-json run.json`, where `run.json` is `gh api repos/<repo>/actions/runs/<run id>`.
 - **Downloads.** The merging job and the job `manifest` download the run's artifacts with `.github/scripts/run-artifacts.sh`. A download that answers HTTP 404 is skipped only when the artifact itself is gone, that is when `gh api repos/<repo>/actions/artifacts/<id>` also answers HTTP 404: another leg's merging job deleted that shard artifact after the listing. A 404 download of an artifact that still exists fails the job, and so does every other failure, including any other answer of that metadata call.
 

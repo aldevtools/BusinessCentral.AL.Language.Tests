@@ -213,8 +213,10 @@ def main():
 
     # ---- manifest ----
     jobs = [{'test_app_dirs': ['tests/al-language']}, {'test_app_dirs': ['tests/al-language-onprem']}]
-    versions = {'include': [{'bc_version': '27.5', 'bc_build': '27.5.10.0', 'bc_artifact_url': 'u27'},
-                            {'bc_version': '29.0', 'bc_build': '29.0.1.0', 'bc_artifact_url': 'u29'}]}
+    versions = {'include': [{'bc_version': '27.5', 'bc_build': '27.5.10.0', 'bc_artifact_url': 'u27',
+                             'preprocessor_symbols': 'BC27PLUS,BC27_5PLUS'},
+                            {'bc_version': '29.0', 'bc_build': '29.0.1.0', 'bc_artifact_url': 'u29',
+                             'preprocessor_symbols': 'BC27PLUS,BC28PLUS,BC29PLUS'}]}
 
     def tree(d, broken=None):
         for v, build in (('27.5', '27.5.10.0'), ('29.0', '29.0.1.0')):
@@ -239,6 +241,17 @@ def main():
             'test_app_dir': 'tests/al-language', 'fresh': 2, 'reused': 0, 'dropped': 0, 'oldest_source_run': 300},
             v27['legs'])
         check('manifest: is JSON', json.loads(json.dumps(out)) == out)
+        check('manifest: each version records the symbols of its matrix entry, as a list',
+              (v27['preprocessor_symbols'], out['versions']['29.0']['preprocessor_symbols'])
+              == (['BC27PLUS', 'BC27_5PLUS'], ['BC27PLUS', 'BC28PLUS', 'BC29PLUS']), v27)
+        check('manifest: records the list of released minors of released-minors.txt',
+              out['released_minors'] == pv.released_minors() and '27.0' in out['released_minors'], out['released_minors'])
+        out, _ = pv.manifest(versions, jobs, '300', '1', 'sha', 'push', d, released=['27.5', '29.0'])
+        check('manifest: a given list of released minors is recorded as given', out['released_minors'] == ['27.5', '29.0'])
+        bare = {'include': [dict(e, preprocessor_symbols='') for e in versions['include']]}
+        _, errors = pv.manifest(bare, jobs, '300', '1', 'sha', 'push', d)
+        check('manifest: a matrix entry without symbols is an error',
+              any('BC 27.5: the matrix entry has no preprocessor_symbols' in e for e in errors), errors)
 
         # a later artifact folder (a leftover shard artifact would sort earlier) replaces an earlier one
         later = os.path.join(d, '27.5', '2026-11-18T02:00:00Z-9')
@@ -298,6 +311,9 @@ def main():
           len(re.findall(r'^\s+bc_artifact_url:\s+\$\{\{ matrix\.bc_artifact_url \}\}$', ci, re.M)) == calls, calls)
     check('real ci.yml: no leg passes the build apart from its URL', 'bc_build:' not in ci)
     check('real ci.yml: the prepare job resolves the builds', 'provenance.py resolve' in ci)
+    check('real ci.yml: the matrix comes from the list of released minors, no leg or symbol is typed',
+          'ci-legs.py matrix --version "$OVERRIDE"' in ci and '"preprocessor_symbols":"' not in ci
+          and not re.search(r'^\s+[^#\s].*BC2[0-9]PLUS', ci, re.M))
     check('real ci.yml: a manifest job on push runs provenance.py manifest and uploads results-manifest',
           re.search(r'^  manifest:\n(?:    .*\n|\n)*?    if: .*github\.event_name == .push.', ci, re.M) is not None
           and 'provenance.py manifest' in ci and 'name: results-manifest' in ci)
