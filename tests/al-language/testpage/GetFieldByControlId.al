@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/testpage/testpage-getfield-method
 // Scope: in-scope
 // local object: the pages' controls and the ids the compiler gives them are what is under test
-// Fixtures used: shared Assert (60021); own tables 97701 and 97711, enum 97713, pages 97680-97689, 97702-97705, 97708, 97709 and 97712, page extensions 97706 and 97710, tests 97707 and 97691
+// Fixtures used: shared Assert (60021); own tables 97701 and 97711, enum 97713, pages 97680-97689, 97694-97698, 97702-97705, 97708, 97709 and 97712, page extensions 97706 and 97710, tests 97707 and 97691
 // Probe (al-runner issue 8832): TestPage.GetField and TestPart.GetField take the id the compiler gives a page control. The ids in
 //   this file are FNV-1a (32 bit) over the UTF-16LE text of the declaring object's id followed by the control name as declared,
 //   read as a signed number and made positive; the compiled app's SymbolReference.json lists the same ids. The issue's page (a List
@@ -1693,4 +1693,216 @@ codeunit 97691 "LT GFI Missing Tests"
         Pg.Close();
         Expect('missing', 'error TestFieldNotFound: The field with ID = 1 is not found on the page.');
     end;
+
+    [TryFunction]
+    local procedure TryRoleCenter(var Pg: TestPage "LT GFI Role Center"; Id: Integer; var Shown: Text)
+    begin
+        Shown := Pg.GetField(Id).Value();
+    end;
+
+    [TryFunction]
+    local procedure TryNavigatePage(var Pg: TestPage "LT GFI Navigate"; Id: Integer; var Shown: Text)
+    begin
+        Shown := Pg.GetField(Id).Value();
+    end;
+
+    [TryFunction]
+    local procedure TryStandardDialog(var Pg: TestPage "LT GFI Dialog"; Id: Integer; var Shown: Text)
+    begin
+        Shown := Pg.GetField(Id).Value();
+    end;
+
+    [TryFunction]
+    local procedure TryConfirmationDialog(var Pg: TestPage "LT GFI Confirm"; Id: Integer; var Shown: Text)
+    begin
+        Shown := Pg.GetField(Id).Value();
+    end;
+
+    [TryFunction]
+    local procedure TryHeadlinePart(var Pg: TestPage "LT GFI Headline"; Id: Integer; var Shown: Text)
+    begin
+        Shown := Pg.GetField(Id).Value();
+    end;
+
+    // A RoleCenter.
+    [Test]
+    procedure RoleCenter_GetFieldMissingId_NotFound()
+    var
+        Pg: TestPage "LT GFI Role Center";
+        Shown: Text;
+    begin
+        Initialize();
+        Pg.OpenView();
+        if TryRoleCenter(Pg, 1, Shown) then
+            Note('missing', 'found ' + Shown)
+        else
+            Note('missing', Failure());
+        Pg.Close();
+        Expect('missing', 'error TestFieldNotFound: The field with ID = 1 is not found on the page.');
+    end;
+
+    // A NavigatePage.
+    [Test]
+    procedure NavigatePage_GetFieldMissingId_NotFound()
+    var
+        Pg: TestPage "LT GFI Navigate";
+        Shown: Text;
+    begin
+        Initialize();
+        Pg.OpenEdit();
+        if TryNavigatePage(Pg, 1, Shown) then
+            Note('missing', 'found ' + Shown)
+        else
+            Note('missing', Failure());
+        Pg.Close();
+        Expect('missing', 'error TestFieldNotFound: The field with ID = 1 is not found on the page.');
+    end;
+
+    // A StandardDialog.
+    [Test]
+    procedure StandardDialog_GetFieldMissingId_NotFound()
+    var
+        Pg: TestPage "LT GFI Dialog";
+        Shown: Text;
+    begin
+        Initialize();
+        Pg.OpenEdit();
+        if TryStandardDialog(Pg, 1, Shown) then
+            Note('missing', 'found ' + Shown)
+        else
+            Note('missing', Failure());
+        Pg.Close();
+        Expect('missing', 'error TestFieldNotFound: The field with ID = 1 is not found on the page.');
+    end;
+
+    // A ConfirmationDialog.
+    [Test]
+    procedure ConfirmationDialog_GetFieldMissingId_NotFound()
+    var
+        Pg: TestPage "LT GFI Confirm";
+        Shown: Text;
+    begin
+        Initialize();
+        Pg.OpenEdit();
+        if TryConfirmationDialog(Pg, 1, Shown) then
+            Note('missing', 'found ' + Shown)
+        else
+            Note('missing', Failure());
+        Pg.Close();
+        Expect('missing', 'error TestFieldNotFound: The field with ID = 1 is not found on the page.');
+    end;
+
+    // A HeadlinePart.
+    [Test]
+    procedure HeadlinePart_GetFieldMissingId_NotFound()
+    var
+        Pg: TestPage "LT GFI Headline";
+        Shown: Text;
+    begin
+        Initialize();
+        Pg.OpenView();
+        if TryHeadlinePart(Pg, 1, Shown) then
+            Note('missing', 'found ' + Shown)
+        else
+            Note('missing', Failure());
+        Pg.Close();
+        Expect('missing', 'error TestFieldNotFound: The field with ID = 1 is not found on the page.');
+    end;
+}
+
+// The other page kinds a TestPage opens, for GetField with an id that is on no page (al-runner issue 8887).
+
+page 97694 "LT GFI Role Center"
+{
+    PageType = RoleCenter;
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(RoleCenter)
+        {
+            part(Part; "LT GFI Card Part") { ApplicationArea = All; }
+        }
+    }
+}
+
+page 97695 "LT GFI Navigate"
+{
+    PageType = NavigatePage;
+    SourceTable = "LT GFI Row";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            group(General)
+            {
+                field(Name; Rec.Name) { ApplicationArea = All; }
+            }
+        }
+    }
+}
+
+page 97696 "LT GFI Dialog"
+{
+    PageType = StandardDialog;
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            group(General)
+            {
+                field(Title; Title) { ApplicationArea = All; }
+            }
+        }
+    }
+
+    var
+        Title: Text;
+}
+
+page 97697 "LT GFI Confirm"
+{
+    PageType = ConfirmationDialog;
+    SourceTable = "LT GFI Row";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            group(General)
+            {
+                field(Name; Rec.Name) { ApplicationArea = All; }
+            }
+        }
+    }
+}
+
+page 97698 "LT GFI Headline"
+{
+    PageType = HeadlinePart;
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            group(General)
+            {
+                field(Title; Title) { ApplicationArea = All; }
+            }
+        }
+    }
+
+    var
+        Title: Text;
 }
