@@ -503,7 +503,7 @@ codeunit 97501 "AM Kind Tests"
         Assert.AreEqual('1:1,|1:1,|1:1,|1:1,|0:|0:|0:|0:', Seen, 'database group 1 code, text, group 2 code, text; temporary the same');
     end;
 
-    // <>@ alone and @ alone set on a min and on a max FlowField of Code and of Text type (table 97510): Count, IsEmpty and
+    // <>@ alone and @ alone set on a min and on a max FlowField of Code and of Text type (table 97511): Count, IsEmpty and
     // FindFirst, of a host in the database and of a temporary host. The min of the group is the empty value, the max is K.
     local procedure MinMaxReads(var Host: Record "AM Min Max Host"; FieldNo: Integer; Filter: Text): Text
     begin
@@ -559,7 +559,7 @@ codeunit 97501 "AM Kind Tests"
 }
 
 // The FlowFields of AtSignAloneNegated_MinMaxFlowFieldFilter: the min and the max of the Code and of the Text field of a group.
-table 97510 "AM Min Max Host"
+table 97511 "AM Min Max Host"
 {
     DataClassification = SystemMetadata;
     ReplicateData = false;
