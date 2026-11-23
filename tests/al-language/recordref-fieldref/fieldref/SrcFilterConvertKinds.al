@@ -1,8 +1,8 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/fieldref/fieldref-setrange-method
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); own table 57406, helper codeunit 57406, test codeunits 57407..57409
-// Probe: every literal asserted below was observed by the corpus CI on BC 27.5, 28.5 and 29.0, except the tests CodeABC_D_Value and
-//   TxtXY_D_Value (observe form, observed by the next CI run); #if BC28PLUS marks the results BC 27.5 gives differently.
+// Probe: every literal asserted below was observed by the corpus CI on BC 27.5, 28.5 and 29.0; #if BC28PLUS marks the results BC 27.5
+//   gives differently.
 // Facts: FieldRef.SetRange, FieldRef.SetFilter('%1', ...) and Record.SetRange on a Code[20], Text[50], Integer, BigInteger, Decimal,
 //   Boolean, Guid and Date field with a value of another type, and FieldRef.Value := of the same value for comparison.
 //   Sources into Code and Text: Integer 5 and 0, BigInteger 5, Decimal 1.5, 1000.5 and -1.25, Boolean true.
@@ -1661,7 +1661,12 @@ codeunit 57409 "SFK Other Kinds Tests"
     begin
         X := 'ABC';
         Probe.ValueCode(9, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('v', 'E: The format of the Date ''ABC'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('v', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1713,7 +1718,12 @@ codeunit 57409 "SFK Other Kinds Tests"
     begin
         X := 'XY';
         Probe.ValueTxt(9, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('v', 'E: The format of the Date ''XY'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('v', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
