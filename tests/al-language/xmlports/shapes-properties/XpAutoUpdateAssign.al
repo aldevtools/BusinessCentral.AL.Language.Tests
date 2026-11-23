@@ -1038,7 +1038,9 @@ codeunit 72931 "LT XmlPort AutoUpdate Assign"
         RunSuite('app1', 'h1', '<Root><Suite Code="A" Description="da" Validation="true"><Language Tag="en" Validation="true"/><Line Cu="5"><Evaluator Name="e1"/></Line><Line Cu="6"/></Suite><Suite Code="B"><Line Cu="7"/></Suite></Root>');
         Observer.Observe('trace', Log.Take());
         Observer.Observe('rows', SuiteRows());
-        Observer.Finish();
+        Observer.Expect('trace', 'code:A////No/0;bi:A/da/app1/h1/Yes/0;bm:A/da/app1/h1/Yes/7;am:A/da/app1/h1/Yes/7;code:B////No/0;bi:B//app1/h1/No/0;bm:B//app1/h1/No/7;am:B//app1/h1/No/7;');
+        Observer.Expect('rows', 'SA/da/app1/h1/Yes/7;SB//app1/h1/No/7;LA/en/Yes;NA/10000/5;NA/20000/6;NB/10000/7;EA/10000/e1;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1051,7 +1053,9 @@ codeunit 72931 "LT XmlPort AutoUpdate Assign"
         RunSuite('app1', 'h1', '<Root><Suite Code="A"><Evaluator Name="e0"/><Line Cu="5"/></Suite></Root>');
         Observer.Observe('trace', Log.Take());
         Observer.Observe('rows', SuiteRows());
-        Observer.Finish();
+        Observer.Expect('trace', 'code:A////No/0;bi:A//app1/h1/No/0;bm:A//app1/h1/No/7;am:A//app1/h1/No/7;');
+        Observer.Expect('rows', 'SA//app1/h1/No/7;NA/10000/5;EA/0/e0;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1066,7 +1070,9 @@ codeunit 72931 "LT XmlPort AutoUpdate Assign"
         RunSuite('app1', 'h1', '<Root><Suite Code="A" Description="db" Validation="true"><Language Tag="en"/><Line Cu="6"><Evaluator Name="e1"/></Line></Suite><Suite Code="B"><Line Cu="7"/></Suite></Root>');
         Observer.Observe('trace', Log.Take());
         Observer.Observe('rows', SuiteRows());
-        Observer.Finish();
+        Observer.Expect('trace', 'code:A////No/0;bi:A/db///Yes/0;code:B////No/0;bi:B//app1/h1/No/0;bm:B//app1/h1/No/7;am:B//app1/h1/No/7;');
+        Observer.Expect('rows', 'SA/da/app1/h1/No/7;SB//app1/h1/No/7;NA/10000/5;NB/10000/7;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1081,7 +1087,9 @@ codeunit 72931 "LT XmlPort AutoUpdate Assign"
         RunSuite('app1', 'h2', '<Root><Suite Code="A" Description="db"><Line Cu="6"/></Suite></Root>');
         Observer.Observe('trace', Log.Take());
         Observer.Observe('rows', SuiteRows());
-        Observer.Finish();
+        Observer.Expect('trace', 'code:A////No/0;bi:A/db/app1/h2/No/0;bm:A/db/app1/h2/No/7;am:A/db/app1/h2/No/7;');
+        Observer.Expect('rows', 'SA/db/app1/h2/No/7;NA/10000/5;NA/20000/6;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1098,6 +1106,10 @@ codeunit 72931 "LT XmlPort AutoUpdate Assign"
         Observer.ObserveError('error');
         Observer.Observe('trace', Log.Take());
         Observer.Observe('rows', SuiteRows());
-        Observer.Finish();
+        Observer.Expect('error|text', 'Suite A belongs to another app.');
+        Observer.Expect('error|code', 'Dialog');
+        Observer.Expect('trace', 'code:A////No/0;');
+        Observer.Expect('rows', 'SA/da/app1/h1/No/7;NA/10000/5;');
+        Observer.Verify();
     end;
 }
