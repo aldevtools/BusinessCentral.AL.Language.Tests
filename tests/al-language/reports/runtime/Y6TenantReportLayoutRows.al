@@ -81,7 +81,8 @@ codeunit 91312 "LT Y6 Tenant Report Layout"
     // ---- cw-waldo5 (al-runner 6924, waldo): Insert into Tenant Report Layout for a report of ANOTHER app (Base Application's report 1306
     // "Standard Sales - Invoice", a dependency app's report), the way a test library adds a custom Word layout / e-mail body layout.
     // The Word stream is that of the corpus report "LT Y67 Lay Base" (an empty document body, valid for any report); the report's own default
-    // Word layout carries an attachedTemplate reference that BC 27 and 28 refuse and BC 29 accepts (W5_..._ItsOwnWordLayoutStream). ----
+    // Word layout carries an attachedTemplate reference that BC 27, 28 and 29.1 refuse and BC 29.0 accepts (W5_..._ItsOwnWordLayoutStream,
+    // version change 29.1-word-layout-external-refs). ----
     // Tests of a codeunit share one session and the rows they insert stay: every W5 test removes its own rows first and last, and the
     // tests of Report Selections put the rows of Usage S.Invoice back (Insert without triggers) after they replaced them.
     local procedure W5CleanLayouts()
@@ -308,8 +309,17 @@ codeunit 91312 "LT Y6 Tenant Report Layout"
         L."Layout Format" := L."Layout Format"::Word;
         Report.WordLayout(Report::"Standard Sales - Invoice", InS);
         L.Layout.ImportStream(InS, 'the report''s own word layout');
-#if BC29PLUS
-        // BC 29 accepts the report's own default Word layout (BC 27 and 28 refuse it, below).
+#if BC29_1PLUS
+        // version change: 29.1-word-layout-external-refs (29.1 refuses the external attachedTemplate reference again, like 27 and 28;
+        // Microsoft KB 5135161, platform hotfix 654475 "Handles external references in Office documents for layout and mail merge")
+        W5Fails(Observer, 'standard invoice own word layout', L);
+        Observer.Expect('standard invoice own word layout error', 'Errors were detected in the Word layout:');
+        Observer.Expect('standard invoice own word layout code', 'ReportLayoutValidation:WordLayoutValidation');
+        Observer.Expect('standard invoice own word layout rows after', '0');
+        W5CleanLayouts();
+        Observer.Verify();
+#elif BC29PLUS
+        // BC 29.0 accepts the report's own default Word layout (BC 27, 28 and 29.1 refuse it).
         W5Insert(Observer, 'standard invoice own word layout', L);
         Observer.Expect('standard invoice own word layout rows before', '0');
         Observer.Expect('standard invoice own word layout insert', 'Yes');
