@@ -504,22 +504,6 @@ codeunit 96554 "LT NU4 Tests"
 
     [Test]
     [HandlerFunctions('LinesHandler')]
-    procedure NewLine_BoundPageSubscriber_RunsAtEachModifyOfThePage()
-    var
-        Opener: Codeunit "LT NU4 Opener";
-        Spy: Codeunit "LT NU4 Spy";
-    begin
-        Initialize();
-        BindSubscription(Spy);
-        Opener.Open('G1');
-        UnbindSubscription(Spy);
-        Check('shown', 'name=A/Resolved/Stamped//Noted part=Resolved/Stamped/A value=A/Resolved/Stamped/V/Noted part=Resolved/Stamped/A ', Shown);
-        Check('rows', 'A/Resolved/Stamped/V;', Rows());
-        Check('spy', 'MOD(A/Resolved//);MOD(A/Resolved/Stamped/V);', Spy.Log());
-    end;
-
-    [Test]
-    [HandlerFunctions('LinesHandler')]
     procedure NewLine_PageSubscriberBoundAndUnboundBeforeTheOpen_RunsNothing()
     var
         Opener: Codeunit "LT NU4 Opener";
@@ -546,6 +530,22 @@ codeunit 96554 "LT NU4 Tests"
         Check('shown', 'name=A/Resolved/Stamped//Noted part=Resolved/Stamped/A value=A/Resolved/Stamped/V/Noted part=Resolved/Stamped/A ', Shown);
         Check('rows', 'A/Resolved/Stamped/V;', Rows());
         Check('spy', 'MOD(A/Resolved//);MOD(A/Resolved/Stamped/V);', AutoSpy.Log());
+    end;
+
+    [Test]
+    [HandlerFunctions('LinesHandler')]
+    procedure NewLine_BoundPageSubscriber_RunsAtEachModifyOfThePage()
+    var
+        Opener: Codeunit "LT NU4 Opener";
+        Spy: Codeunit "LT NU4 Spy";
+    begin
+        Initialize();
+        BindSubscription(Spy);
+        Opener.Open('G1');
+        UnbindSubscription(Spy);
+        Check('shown', 'name=A/Resolved/Stamped//Noted part=Resolved/Stamped/A value=A/Resolved/Stamped/V/Noted part=Resolved/Stamped/A ', Shown);
+        Check('rows', 'A/Resolved/Stamped/V;', Rows());
+        Check('spy', 'MOD(A/Resolved//);MOD(A/Resolved/Stamped/V);', Spy.Log());
     end;
 
     [ModalPageHandler]
