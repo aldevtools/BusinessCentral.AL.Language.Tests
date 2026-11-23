@@ -3,7 +3,8 @@
 // Fixtures used: Probe Observer (codeunit 69160), YFN Yaml Support (codeunit 79894)
 // Probe: AL Runner issue 8580, runner PR 8824. Core tags on scalars (!!int, !!float, !!bool, !!null, !!str and others), core
 //   tags on the other kind of node, tags in flow collections and list items, a tagged whole document, tagged and untagged
-//   keys. Written against local BC 27.5, 28.5 and 29.0 service tiers; every literal asserted below is what those tiers produced.
+//   keys, percent escapes in tag handles, suffixes and verbatim tags.
+//   Written against local BC 27.5, 28.5 and 29.0 service tiers; every literal asserted below is what those tiers produced.
 // Facts: one observation per document. The value is 'document => result' (document tokens: ~ line feed, {~} tilde,
 //   {S} space; result notation: see JsonYamlFinalSupport.al). Text and InStream overload agree unless 'T .. | S ..'.
 // BC versions: 27, 28, 29
@@ -338,6 +339,51 @@ codeunit 79896 "YFN Yaml Tags"
             '!!map {}',
             '!!map~q: 1~n: 2');
         Cells('Top2_', D);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ReadFromYaml_TagEscapes_1()
+    var
+        D: List of [Text];
+    begin
+        D.AddRange('%TAG !e! tag:yaml.org,2002:~---~q: !e!%32:int 1',
+            '%TAG !e! tag:yaml.org,2002:~---~q: !e!%32:int 007',
+            '%TAG !e! tag:yaml.org,200~---~q: !e!%32:int 007',
+            '%TAG !e! tag:yaml.org,2002:~---~q: !e!%69nt 007',
+            '%TAG !e! tag:yaml.org,2002:~---~q: !e!%73tr 1',
+            '%TAG !e! tag:yaml.org,2002:~---~q: !e!%62ool yes',
+            '%TAG !e! tag:yaml.org,2002:~---~q: !e!%6Eull x',
+            '%TAG !e! tag:yaml.org,2002:~---~q: !e!%6eull x',
+            '%TAG !e! tag%3Ayaml.org,2002:~---~q: !e!int 007',
+            '%TAG !e! tag:yaml.org,2002:~---~q: !e!%ZZ 1',
+            '%TAG !e! tag:yaml.org,2002:~---~q: !e!% 1',
+            '%TAG !e! tag:yaml.org,2002:~---~q: !e!%6 1',
+            '%TAG !e! tag:yaml.org,2002:~---~q: !e!%C3%A9 1');
+        Cells('Escapes1_', D);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ReadFromYaml_TagEscapes_2()
+    var
+        D: List of [Text];
+    begin
+        D.AddRange('q: !%21 1',
+            'q: !%21 yes',
+            'q: !!%69nt 007',
+            'q: !!%62ool yes',
+            'q: !!int%20 1',
+            'q: !x%41 1',
+            'q: !<tag:yaml.org,2002:%69nt> 007',
+            'q: !<tag%3Ayaml.org,2002:int> 007',
+            'q: !<tag:yaml.org,2002:int%20> 1',
+            'q: !<%21> 1',
+            '%TAG !e! tag:yaml.org,2002:~---~!e!%69nt 007: a',
+            '%TAG !e! tag:yaml.org,2002:~---~q: [!e!%69nt 007]',
+            '%TAG !e! tag:yaml.org,2002:~---~q: {a: !e!%69nt 007}',
+            '%TAG !e! tag:yaml.org,2002:~---~q:~  - !e!%69nt 007');
+        Cells('Escapes2_', D);
         Observer.Finish();
     end;
 

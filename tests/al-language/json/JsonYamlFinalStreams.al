@@ -105,6 +105,14 @@ codeunit 79898 "YFN Yaml Streams"
         Ok := JO2.ReadFromYaml(InS);
         JO2.WriteTo(Out);
         Observer.Observe('whole-second-read', Format(Ok) + ' ' + Y.Esc(Out) + ' ' + Y.Esc(GetLastErrorText()));
+        Observer.Observe('whole-second-pos', Format(InS.Position()));
+        Observer.Observe('whole-second-eos', Format(InS.EOS()));
+        InS.ResetPosition();
+        Clear(JO2);
+        ClearLastError();
+        Ok := JO2.ReadFromYaml(InS);
+        JO2.WriteTo(Out);
+        Observer.Observe('whole-after-reset', Format(Ok) + ' ' + Y.Esc(Out) + ' ' + Y.Esc(GetLastErrorText()));
 
         // a stream read up to the second line first
         ClearLastError();
@@ -118,8 +126,9 @@ codeunit 79898 "YFN Yaml Streams"
         Observer.Observe('partial-eos', Format(InS.EOS()));
         Observer.Observe('partial-pos', Format(InS.Position()));
 
-        // an empty stream
+        // an empty stream (a fresh record: the variable no longer holds the old blob)
         Blob.DeleteAll();
+        Clear(Blob);
         Blob.Id := 1;
         Blob.Insert();
         Blob.CalcFields(Data);
