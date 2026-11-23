@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/testpage/testpage-getfield-method
 // Scope: in-scope
 // local object: the pages' controls and the ids the compiler gives them are what is under test
-// Fixtures used: shared Assert (60021); own tables 97701 and 97711, enum 97713, pages 97680-97689, 97694-97698, 97702-97705, 97708, 97709 and 97712, page extensions 97706 and 97710, tests 97707 and 97691
+// Fixtures used: shared Assert (60021); own tables 97701 and 97711, enum 97713, pages 97680-97689, 97694-97697, 97699, 97702-97705, 97708, 97709 and 97712, page extensions 97706 and 97710, tests 97707 and 97691
 // Probe (al-runner issue 8832): TestPage.GetField and TestPart.GetField take the id the compiler gives a page control. The ids in
 //   this file are FNV-1a (32 bit) over the UTF-16LE text of the declaring object's id followed by the control name as declared,
 //   read as a signed number and made positive; the compiled app's SymbolReference.json lists the same ids. The issue's page (a List
@@ -1886,7 +1886,7 @@ page 97697 "LT GFI Confirm"
     }
 }
 
-page 97698 "LT GFI Headline"
+page 97699 "LT GFI Headline"
 {
     PageType = HeadlinePart;
     ApplicationArea = All;
