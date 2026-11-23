@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/testpage/testpage-getfield-method
 // Scope: in-scope
 // local object: the pages' controls and the ids the compiler gives them are what is under test
-// Fixtures used: shared Assert (60021); own tables 97701 and 97711, pages 97702-97705, 97708, 97709 and 97712, page extensions 97706 and 97710, tests 97707
+// Fixtures used: shared Assert (60021); own tables 97701 and 97711, enum 97713, pages 97702-97705, 97708, 97709 and 97712, page extensions 97706 and 97710, tests 97707
 // Probe (al-runner issue 8832): TestPage.GetField and TestPart.GetField take the id the compiler gives a page control. The ids in
 //   this file are FNV-1a (32 bit) over the UTF-16LE text of the declaring object's id followed by the control name as declared,
 //   read as a signed number and made positive; the compiled app's SymbolReference.json lists the same ids. The issue's page (a List
@@ -736,7 +736,8 @@ codeunit 97707 "LT GFI Tests"
         exit(Failure());
     end;
 
-    // A field control in a cuegroup for a field of each type: its Value by its name, then through GetField by its id.
+    // A field control in a cuegroup for a field of each type, and a Code and an Integer field in a cuegroup with CuegroupLayout = Wide:
+    // its Value by its name, then through GetField by its id.
     [Test]
     procedure CueTypes_ValueByNameAndById()
     var
@@ -760,6 +761,9 @@ codeunit 97707 "LT GFI Tests"
         Row.OptValue := Row.OptValue::Beta;
         Row.AtValue := 103000T;
         Row.StampValue := CreateDateTime(DMY2Date(3, 3, 2026), 103000T);
+        Row.GuidValue := '{0F2E7C52-6E0B-4F51-9C3A-1B2C3D4E5F60}';
+        Row.KindValue := Row.KindValue::Beta;
+        Row.SpanValue := 90000;
         Row.Insert();
         Card.OpenView();
         Note('TextWord', Card.CueTextWord.Value() + '|' + ReadCueTypes(Card, 674324257));
@@ -776,6 +780,11 @@ codeunit 97707 "LT GFI Tests"
         Note('OptValue', Card.CueOptValue.Value() + '|' + ReadCueTypes(Card, 1575506972));
         Note('AtValue', Card.CueAtValue.Value() + '|' + ReadCueTypes(Card, 1819569266));
         Note('StampValue', Card.CueStampValue.Value() + '|' + ReadCueTypes(Card, 339305132));
+        Note('GuidValue', Card.CueGuidValue.Value() + '|' + ReadCueTypes(Card, 1928044720));
+        Note('KindValue', Card.CueKindValue.Value() + '|' + ReadCueTypes(Card, 2059022367));
+        Note('SpanValue', Card.CueSpanValue.Value() + '|' + ReadCueTypes(Card, 1714720931));
+        Note('WideCodeWord', Card.WideCodeWord.Value() + '|' + ReadCueTypes(Card, 1127485133));
+        Note('WideIntValue', Card.WideIntValue.Value() + '|' + ReadCueTypes(Card, 585839752));
         Card.Close();
         Expect('TextWord', '0|0');
         Expect('TextNumber', '0|0');
@@ -791,6 +800,11 @@ codeunit 97707 "LT GFI Tests"
         Expect('OptValue', '1|1');
         Expect('AtValue', '0|0');
         Expect('StampValue', '0|0');
+        Expect('GuidValue', '0|0');
+        Expect('KindValue', '1|1');
+        Expect('SpanValue', '0|0');
+        Expect('WideCodeWord', '0|0');
+        Expect('WideIntValue', '5|5');
     end;
 }
 
@@ -815,6 +829,9 @@ table 97711 "LT GFI Cue Row"
         field(13; OptValue; Option) { OptionMembers = Alpha,Beta,Gamma; }
         field(14; AtValue; Time) { }
         field(15; StampValue; DateTime) { }
+        field(16; GuidValue; Guid) { }
+        field(17; KindValue; Enum "LT GFI Cue Kind") { }
+        field(18; SpanValue; Duration) { }
     }
 
     keys
@@ -850,7 +867,25 @@ page 97712 "LT GFI Cue Types"
                 field(CueOptValue; Rec.OptValue) { }
                 field(CueAtValue; Rec.AtValue) { }
                 field(CueStampValue; Rec.StampValue) { }
+                field(CueGuidValue; Rec.GuidValue) { }
+                field(CueKindValue; Rec.KindValue) { }
+                field(CueSpanValue; Rec.SpanValue) { }
+            }
+            cuegroup(WideCues)
+            {
+                CuegroupLayout = Wide;
+
+                field(WideCodeWord; Rec.CodeWord) { }
+                field(WideIntValue; Rec.IntValue) { }
             }
         }
     }
+}
+
+enum 97713 "LT GFI Cue Kind"
+{
+    Extensible = false;
+
+    value(0; Alpha) { }
+    value(1; Beta) { }
 }
