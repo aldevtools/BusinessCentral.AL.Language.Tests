@@ -914,6 +914,30 @@ codeunit 97500 "AS Kind Tests"
         Seen := FlowNotAt(Host) + '|' + FlowNotAt(TempHost);
         Assert.AreEqual('10,10|10,10', Seen, 'database host, temporary host');
     end;
+
+    // The same FlowFilters read through field() without filter() (table 97505).
+    local procedure FlowFieldNotAt(var Host: Record "AS Kind Filter Host"): Text
+    begin
+        Host.SetFilter("Code Filter", '<>@');
+        Host.SetFilter("Text Filter", '<>@');
+        Host.CalcFields("Code By Code Filter", "Text By Text Filter");
+        exit(Format(Host."Code By Code Filter") + ',' + Format(Host."Text By Text Filter"));
+    end;
+
+    [Test]
+    procedure AtSignAloneNegated_FlowFilterThroughField()
+    var
+        Host: Record "AS Kind Filter Host";
+        TempHost: Record "AS Kind Filter Host" temporary;
+        Seen: Text;
+    begin
+        Host."No." := NewGroup(true);
+        Host.Insert();
+        TempHost := Host;
+        TempHost.Insert();
+        Seen := FlowFieldNotAt(Host) + '|' + FlowFieldNotAt(TempHost);
+        Assert.AreEqual('10,10|10,10', Seen, 'database host, temporary host');
+    end;
 }
 
 // The CalcFormulas of AtSignAloneNegated_CalcFormulaQuotedFilter: a quoted filter('<>@').
@@ -934,6 +958,19 @@ table 97505 "AS Kind Filter Host"
         {
             FieldClass = FlowField;
             CalcFormula = sum("AS Kind Row".Amount where("Group" = field("No."), "Text Kind" = filter('<>@')));
+        }
+        // The FlowFilters of AtSignAloneNegated_FlowFilterThroughField, read through field() without filter().
+        field(4; "Code Filter"; Code[20]) { FieldClass = FlowFilter; }
+        field(5; "Text Filter"; Text[50]) { FieldClass = FlowFilter; }
+        field(6; "Code By Code Filter"; Decimal)
+        {
+            FieldClass = FlowField;
+            CalcFormula = sum("AS Kind Row".Amount where("Group" = field("No."), "Code Kind" = field("Code Filter")));
+        }
+        field(7; "Text By Text Filter"; Decimal)
+        {
+            FieldClass = FlowField;
+            CalcFormula = sum("AS Kind Row".Amount where("Group" = field("No."), "Text Kind" = field("Text Filter")));
         }
     }
 
