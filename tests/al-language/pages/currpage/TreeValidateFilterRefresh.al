@@ -1401,6 +1401,71 @@ codeunit 97724 "LT TVF Tests"
         Expect('error', 'TestValidation: Validation error for Field: ,  Message = ''The view is filtered, and the entry is outside the filter. Some actions may not work.''');
         Expect('stored', 'A,B,C,');
     end;
+
+    // The tree 97720 over rows A, B and C (entries 1, 2 and 3) in the groups and with the Indentation given: the rows the drop
+    // cells hold in other data.
+    local procedure InitializeShape(GroupA: Code[10]; GroupB: Code[10]; GroupC: Code[10]; IndentA: Integer; IndentB: Integer; IndentC: Integer)
+    var
+        Row: Record "LT TVF Row";
+        Line: Record "LT TVF Line";
+    begin
+        Row.DeleteAll();
+        Line.DeleteAll();
+        AddLine(GroupA, 1, 'A', IndentA);
+        AddLine(GroupB, 2, 'B', IndentB);
+        AddLine(GroupC, 3, 'C', IndentC);
+        Commit();
+        Log.Setup(0, 0);
+        Clear(Seen);
+    end;
+
+    // A in G5, B in G1, C in G0, none indented (in the key C, B, A): from the middle row B, SetRange on G0 keeps only C.
+    [Test]
+    procedure FlatTree_GroupsG5G1G0_MiddleRowSetRangeDropsUpdateFalse_Fails()
+    begin
+        InitializeShape('G5', 'G1', 'G0', 0, 0, 0);
+        RunTreeDrop(1, 4);
+        Expect('open', 'B:P.AGR(C);P.AGR(B);P.AGR(A);P.AGR(C);');
+        Expect('error', 'TestValidation: Validation error for Field: ,  Message = ''The view is filtered, and the entry is outside the filter. Some actions may not work.''');
+        Expect('setname', 'P.AGR(B);P.V(X2);P.AGR(C);');
+        Expect('stored', 'C/,X2/,A/,');
+    end;
+
+    // A in G0, B in G2, C in G1, none indented (in the key A, C, B): from the first row A, SetRange on G1 keeps only C.
+    [Test]
+    procedure FlatTree_GroupsG0G2G1_FirstRowSetRangeDropsUpdateFalse_Fails()
+    begin
+        InitializeShape('G0', 'G2', 'G1', 0, 0, 0);
+        RunTreeDrop(0, 1);
+        Expect('open', 'A:P.AGR(A);P.AGR(C);P.AGR(B);P.AGR(A);');
+        Expect('error', 'TestValidation: Validation error for Field: ,  Message = ''The view is filtered, and the entry is outside the filter. Some actions may not work.''');
+        Expect('setname', 'P.V(X2);P.AGR(C);');
+        Expect('stored', 'X2/,C/,B/,');
+    end;
+
+    // A in G1, B in G0, C in G2, none indented (in the key B, A, C): from the last row C, SetRange on G1 keeps only A.
+    [Test]
+    procedure FlatTree_GroupsG1G0G2_LastRowSetRangeDropsUpdateFalse_Fails()
+    begin
+        InitializeShape('G1', 'G0', 'G2', 0, 0, 0);
+        RunTreeDrop(2, 1);
+        Expect('open', 'C:P.AGR(B);P.AGR(A);P.AGR(C);P.AGR(B);');
+        Expect('error', 'TestValidation: Validation error for Field: ,  Message = ''The view is filtered, and the entry is outside the filter. Some actions may not work.''');
+        Expect('setname', 'P.AGR(C);P.V(X2);P.AGR(A);');
+        Expect('stored', 'B/,A/,X2/,');
+    end;
+
+    // A and B in G1, C in G0 indented 1 (in the key C, A, B): from Last, SetRange on G0 keeps only C.
+    [Test]
+    procedure Tree_ChildInG0_LastRowSetRangeDropsUpdateFalse_Fails()
+    begin
+        InitializeShape('G1', 'G1', 'G0', 0, 0, 1);
+        RunTreeDrop(2, 4);
+        Expect('open', 'B:P.AGR(C);P.AGR(A);P.AGR(B);P.AGR(C);');
+        Expect('error', 'TestValidation: Validation error for Field: ,  Message = ''The view is filtered, and the entry is outside the filter. Some actions may not work.''');
+        Expect('setname', 'P.AGR(B);P.V(X2);P.AGR(C);');
+        Expect('stored', 'C/,A/,X2/,');
+    end;
 }
 
 // A List over the tree's table, without ShowAsTree; otherwise page 97720.
