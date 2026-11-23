@@ -191,7 +191,7 @@ codeunit 74780 "LT SubPageLink Not Blank"
         Observer.Observe('head filter', '[' + Card.CodeSpaced.Filter.GetFilter("Header No.") + ']');
         Card.Close();
         Observer.Expect('rows', '2,3,');
-        Observer.Expect('filter', '[<>'''''']');
+        Observer.Expect('filter', '[<>'''']');
         Observer.Expect('head filter', '[H1]');
         Observer.Verify();
     end;
@@ -213,7 +213,7 @@ codeunit 74780 "LT SubPageLink Not Blank"
         Observer.Observe('filter', '[' + Card.CodeTight.Filter.GetFilter("Arrival No.") + ']');
         Card.Close();
         Observer.Expect('rows', '2,3,');
-        Observer.Expect('filter', '[<>'''''']');
+        Observer.Expect('filter', '[<>'''']');
         Observer.Verify();
     end;
 
@@ -234,7 +234,7 @@ codeunit 74780 "LT SubPageLink Not Blank"
         Observer.Observe('filter', '[' + Card.CodeAlone.Filter.GetFilter("Arrival No.") + ']');
         Card.Close();
         Observer.Expect('rows', '2,3,5,');
-        Observer.Expect('filter', '[<>'''''']');
+        Observer.Expect('filter', '[<>'''']');
         Observer.Verify();
     end;
 
@@ -255,7 +255,7 @@ codeunit 74780 "LT SubPageLink Not Blank"
         Observer.Observe('filter', '[' + Card.TextSpaced.Filter.GetFilter(Note) + ']');
         Card.Close();
         Observer.Expect('rows', '2,4,');
-        Observer.Expect('filter', '[<>'''''']');
+        Observer.Expect('filter', '[<>'''']');
         Observer.Verify();
     end;
 
@@ -299,7 +299,7 @@ codeunit 74780 "LT SubPageLink Not Blank"
         List.Close();
         Card.Close();
         Observer.Expect('rows', '2,3,5,0,');
-        Observer.Expect('filter', '[<>'''''']');
+        Observer.Expect('filter', '[<>'''']');
         Observer.Verify();
     end;
 
@@ -324,7 +324,7 @@ codeunit 74780 "LT SubPageLink Not Blank"
         List.Close();
         Card.Close();
         Observer.Expect('rows', '2,4,5,0,');
-        Observer.Expect('filter', '[<>'''''']');
+        Observer.Expect('filter', '[<>'''']');
         Observer.Verify();
     end;
 }
