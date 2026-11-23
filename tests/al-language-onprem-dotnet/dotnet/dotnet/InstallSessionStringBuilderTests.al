@@ -10,7 +10,6 @@ codeunit 99454 "LT Install Builder Tests"
     TestPermissions = Disabled;
 
     var
-        Assert: Codeunit "Library Assert";
         LocalInstallText: Text;
         SessionInstallText: Text;
         InstallError: Text;
@@ -21,8 +20,8 @@ codeunit 99454 "LT Install Builder Tests"
     // CLAIM: a fresh builder in the installation trigger appends and returns non-default text.
     begin
         Initialize();
-        Assert.AreEqual('', InstallError, 'Installation probe must complete.');
-        Assert.AreEqual('LOCAL-INSTALL', LocalInstallText, 'Install builder text.');
+        AssertText('', InstallError, 'Installation probe must complete.');
+        AssertText('LOCAL-INSTALL', LocalInstallText, 'Install builder text.');
     end;
 
     [Test]
@@ -38,10 +37,10 @@ codeunit 99454 "LT Install Builder Tests"
         State.SetValue('TEST-SESSION');
         After := State.ReadValue();
         State.ResetValue();
-        Assert.AreEqual('', InstallError, 'Installation probe must complete.');
-        Assert.AreEqual('SESSION-INSTALL', SessionInstallText, 'Install session held the builder.');
-        Assert.AreEqual('', Before, 'Test session must begin without the install builder.');
-        Assert.AreEqual('TEST-SESSION', After, 'Test session must hold its own non-default builder.');
+        AssertText('', InstallError, 'Installation probe must complete.');
+        AssertText('SESSION-INSTALL', SessionInstallText, 'Install session held the builder.');
+        AssertText('', Before, 'Test session must begin without the install builder.');
+        AssertText('TEST-SESSION', After, 'Test session must hold its own non-default builder.');
     end;
 
     [Test]
@@ -49,8 +48,14 @@ codeunit 99454 "LT Install Builder Tests"
     // CLAIM: the install-time API getters are enabled and IsAzure is false on the OnPrem CI host.
     begin
         Initialize();
-        Assert.AreEqual('', InstallError, 'Installation probe must complete.');
-        Assert.AreEqual('SN', InstallApiFlags, 'Services and subscriptions enabled; host is OnPrem.');
+        AssertText('', InstallError, 'Installation probe must complete.');
+        AssertText('SN', InstallApiFlags, 'Services and subscriptions enabled; host is OnPrem.');
+    end;
+
+    local procedure AssertText(Expected: Text; Actual: Text; Context: Text)
+    begin
+        if Expected <> Actual then
+            Error('%1: expected [%2], actual [%3].', Context, Expected, Actual);
     end;
 
     local procedure Initialize()
