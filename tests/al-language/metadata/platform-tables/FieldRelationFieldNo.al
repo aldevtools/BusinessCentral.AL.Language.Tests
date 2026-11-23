@@ -359,6 +359,108 @@ codeunit 75930 "RFN Relation Field No Tests"
             exit(Format(Reader.Result()));
         exit('error: ' + GetLastErrorText());
     end;
+    // Issue 8592: a TableRelation that names no field, against a target whose primary key has two fields of different types,
+    // and a source field inside its own table's primary key. Source fields are in table 75929 "RFN Source Keyed".
+    // Every cell reads RelationTableNo = the target table and RelationFieldNo = 0.
+    // Measured directly on a local BC 29.0.54011.57673 service tier (invented repro): the control
+    // (Code to a Code key, outside its own key), A (inside its own key), B (Code to a (Code, Text) key) and C (Integer to an
+    // (Integer, Code) key). Confirmed by the corpus CI on real BC 27.5, 28.5 and 29.0: the key-order cells (Code to an
+    // (Integer, Code) key, Code to a (Code, Integer) key) and Integer to a (Code, Integer) key.
+
+    [Test]
+    procedure FieldTable_NoField_ControlCodeKey()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        Observer.Observe('code to (code), outside own key', KeyedRow(10));
+        Observer.Expect('code to (code), outside own key', '75920/0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure FieldTable_NoField_SourceInsideOwnPrimaryKey()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        Observer.Observe('code to (code), inside own key (integer, code)', KeyedRow(2));
+        Observer.Expect('code to (code), inside own key (integer, code)', '75920/0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure FieldTable_NoField_CodeToCodeTextKey()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        Observer.Observe('code to (code, text)', KeyedRow(11));
+        Observer.Expect('code to (code, text)', '75926/0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure FieldTable_NoField_IntegerToIntegerCodeKey()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        Observer.Observe('integer to (integer, code)', KeyedRow(12));
+        Observer.Expect('integer to (integer, code)', '75927/0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure FieldTable_NoField_CodeToIntegerCodeKey()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        Observer.Observe('code to (integer, code)', KeyedRow(13));
+        Observer.Expect('code to (integer, code)', '75927/0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure FieldTable_NoField_CodeToCodeIntegerKey()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        Observer.Observe('code to (code, integer)', KeyedRow(14));
+        Observer.Expect('code to (code, integer)', '75928/0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure FieldTable_NoField_IntegerToCodeIntegerKey()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        Observer.Observe('integer to (code, integer)', KeyedRow(15));
+        Observer.Expect('integer to (code, integer)', '75928/0');
+        Observer.Verify();
+    end;
+
+    local procedure KeyedRow(FieldNo: Integer): Text
+    begin
+        exit(FieldRow(Database::"RFN Source Keyed", FieldNo));
+    end;
+
+    local procedure Initialize()
+    var
+        Source: Record "RFN Source Keyed";
+        CodeText: Record "RFN Target Code Text";
+        IntCode: Record "RFN Target Int Code";
+        CodeInt: Record "RFN Target Code Int";
+    begin
+        Source.DeleteAll();
+        CodeText.DeleteAll();
+        IntCode.DeleteAll();
+        CodeInt.DeleteAll();
+    end;
 }
 
 codeunit 75931 "RFN Relation Reader"
@@ -395,4 +497,82 @@ codeunit 75931 "RFN Relation Reader"
     begin
         exit(Value);
     end;
+}
+
+// local object: the shapes of these tables' primary keys and relations are what the issue 8592 tests read (Field table rows).
+// A primary key of a Code and a Text field.
+table 75926 "RFN Target Code Text"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; K1; Code[20]) { }
+        field(2; K2; Text[30]) { }
+        field(3; Info; Text[30]) { }
+    }
+
+    keys
+    {
+        key(PK; K1, K2) { Clustered = true; }
+    }
+}
+
+// A primary key of an Integer and a Code field, in that order.
+table 75927 "RFN Target Int Code"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; K1; Integer) { }
+        field(2; K2; Code[20]) { }
+        field(3; Info; Text[30]) { }
+    }
+
+    keys
+    {
+        key(PK; K1, K2) { Clustered = true; }
+    }
+}
+
+// A primary key of a Code and an Integer field, in that order.
+table 75928 "RFN Target Code Int"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; K1; Code[20]) { }
+        field(2; K2; Integer) { }
+        field(3; Info; Text[30]) { }
+    }
+
+    keys
+    {
+        key(PK; K1, K2) { Clustered = true; }
+    }
+}
+
+// Every relation names no field. The primary key is (Id, KeyCode), so KeyCode is a related field inside its own key.
+table 75929 "RFN Source Keyed"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; KeyCode; Code[20]) { TableRelation = "RFN Target One"; }
+        field(10; ControlNoField; Code[20]) { TableRelation = "RFN Target One"; }
+        field(11; CodeToCodeText; Code[20]) { TableRelation = "RFN Target Code Text"; }
+        field(12; IntToIntCode; Integer) { TableRelation = "RFN Target Int Code"; }
+        field(13; CodeToIntCode; Code[20]) { TableRelation = "RFN Target Int Code"; }
+        field(14; CodeToCodeInt; Code[20]) { TableRelation = "RFN Target Code Int"; }
+        field(15; IntToCodeInt; Integer) { TableRelation = "RFN Target Code Int"; }
+    }
+
+    keys
+    {
+        key(PK; Id, KeyCode) { Clustered = true; }
+    }
 }
