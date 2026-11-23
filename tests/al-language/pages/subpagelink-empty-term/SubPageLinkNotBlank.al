@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-subpagelink-property
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160); own tables 74775 and 74776, pages 74777, 74778 and 74779, test codeunit 74780
-// Probe (al-runner issue 8873): written against a local BC service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
+// Probe (al-runner issue 8873): the literals asserted below are measured by the corpus CI matrix (27, 28, 29) of this file's pull request.
 // Facts: which rows a list part shows, and the part's Filter.GetFilter of the linked field, for SubPageLink = ... filter(<> '') ("not blank")
 // on a Code field next to a field(...) link (the issue's shape), written without the blank (filter(<>'')), alone, and on a Text field;
 // the same term in the RunPageLink of an action on a Code and a Text field (rows of the opened list and its Filter.GetFilter).
@@ -190,7 +190,10 @@ codeunit 74780 "LT SubPageLink Not Blank"
         Observer.Observe('filter', '[' + Card.CodeSpaced.Filter.GetFilter("Arrival No.") + ']');
         Observer.Observe('head filter', '[' + Card.CodeSpaced.Filter.GetFilter("Header No.") + ']');
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('rows', '2,3,');
+        Observer.Expect('filter', '[<>'''''']');
+        Observer.Expect('head filter', '[H1]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -209,7 +212,9 @@ codeunit 74780 "LT SubPageLink Not Blank"
         Observer.Observe('rows', Result);
         Observer.Observe('filter', '[' + Card.CodeTight.Filter.GetFilter("Arrival No.") + ']');
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('rows', '2,3,');
+        Observer.Expect('filter', '[<>'''''']');
+        Observer.Verify();
     end;
 
     [Test]
@@ -228,7 +233,9 @@ codeunit 74780 "LT SubPageLink Not Blank"
         Observer.Observe('rows', Result);
         Observer.Observe('filter', '[' + Card.CodeAlone.Filter.GetFilter("Arrival No.") + ']');
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('rows', '2,3,5,');
+        Observer.Expect('filter', '[<>'''''']');
+        Observer.Verify();
     end;
 
     [Test]
@@ -247,7 +254,9 @@ codeunit 74780 "LT SubPageLink Not Blank"
         Observer.Observe('rows', Result);
         Observer.Observe('filter', '[' + Card.TextSpaced.Filter.GetFilter(Note) + ']');
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('rows', '2,4,');
+        Observer.Expect('filter', '[<>'''''']');
+        Observer.Verify();
     end;
 
     [Test]
@@ -265,7 +274,8 @@ codeunit 74780 "LT SubPageLink Not Blank"
             until not Card.CodeSpaced.Next();
         Observer.Observe('rows', Result);
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('rows', '5,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -288,7 +298,9 @@ codeunit 74780 "LT SubPageLink Not Blank"
         Observer.Observe('filter', '[' + List.Filter.GetFilter("Arrival No.") + ']');
         List.Close();
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('rows', '2,3,5,0,');
+        Observer.Expect('filter', '[<>'''''']');
+        Observer.Verify();
     end;
 
     [Test]
@@ -311,6 +323,8 @@ codeunit 74780 "LT SubPageLink Not Blank"
         Observer.Observe('filter', '[' + List.Filter.GetFilter(Note) + ']');
         List.Close();
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('rows', '2,4,5,0,');
+        Observer.Expect('filter', '[<>'''''']');
+        Observer.Verify();
     end;
 }
