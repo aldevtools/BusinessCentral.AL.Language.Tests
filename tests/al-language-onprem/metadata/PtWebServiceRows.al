@@ -108,6 +108,28 @@ codeunit 61281 "LT PT Web Service Rows"
         exit(Format(WebService.Count()) + '|' + Format(TenantWebService.Count()));
     end;
 
+    // The change of each count of Now against the counts Base read at the start of the test ('0|1' = one more row in the second table).
+    // The tests assert these deltas, not the counts: the catalog size is data of the BC build (Tenant Web Service has 64 rows on 29.0
+    // and 65 on 29.1, version change: 29.1-mdm-web-service-row).
+    local procedure CountDelta(Base: Text; Now: Text) Result: Text
+    var
+        BaseParts: List of [Text];
+        NowParts: List of [Text];
+        BaseCount: Integer;
+        NowCount: Integer;
+        Index: Integer;
+    begin
+        BaseParts := Base.Split('|');
+        NowParts := Now.Split('|');
+        for Index := 1 to NowParts.Count() do begin
+            Evaluate(BaseCount, BaseParts.Get(Index));
+            Evaluate(NowCount, NowParts.Get(Index));
+            if Index > 1 then
+                Result += '|';
+            Result += Format(NowCount - BaseCount);
+        end;
+    end;
+
     [Test]
     procedure QX_CreateWebService_SalesOrderPage()
     var
@@ -115,11 +137,12 @@ codeunit 61281 "LT PT Web Service Rows"
         TenantWebService: Record "Tenant Web Service";
         WebServiceManagement: Codeunit "Web Service Management";
         Observer: Codeunit "Probe Observer";
+        BaseCounts: Text;
     begin
-        Observer.Observe('counts before', QxCounts());
+        BaseCounts := QxCounts();
         Observer.Observe('page 42 before', QxRowsFor(Page::"Sales Order"));
         WebServiceManagement.CreateWebService(WebService."Object Type"::Page, Page::"Sales Order", '', true);
-        Observer.Observe('counts after', QxCounts());
+        Observer.Observe('counts after', CountDelta(BaseCounts, QxCounts()));
         Observer.Observe('page 42 after', QxRowsFor(Page::"Sales Order"));
         WebServiceManagement.CreateWebService(WebService."Object Type"::Page, Page::"Sales Order", '', false);
         Observer.Observe('page 42 after unpublished call', QxRowsFor(Page::"Sales Order"));
@@ -128,21 +151,20 @@ codeunit 61281 "LT PT Web Service Rows"
         Observer.Observe('page 42 after named call', QxRowsFor(Page::"Sales Order"));
         WebServiceManagement.CreateTenantWebService(WebService."Object Type"::Page, Page::"Sales Order", 'LTQXTenantSalesOrder', true);
         Observer.Observe('page 42 after tenant call', QxRowsFor(Page::"Sales Order"));
-        Observer.Observe('counts end', QxCounts());
+        Observer.Observe('counts end', CountDelta(BaseCounts, QxCounts()));
         WebService.SetFilter("Service Name", 'LTQX*');
         WebService.DeleteAll();
         TenantWebService.SetFilter("Service Name", 'LTQX*');
         TenantWebService.DeleteAll();
-        Observer.Observe('counts cleaned', QxCounts());
-        Observer.Expect('counts before', '17|64');
+        Observer.Observe('counts cleaned', CountDelta(BaseCounts, QxCounts()));
         Observer.Expect('page 42 before', 'ws[SalesOrder|Yes]');
-        Observer.Expect('counts after', '17|64');
+        Observer.Expect('counts after', '0|0');
         Observer.Expect('page 42 after', 'ws[SalesOrder|Yes]');
         Observer.Expect('page 42 after unpublished call', 'ws[SalesOrder|No]');
         Observer.Expect('page 42 after named call', 'ws[LTQXSalesOrder|Yes]ws[SalesOrder|Yes]');
         Observer.Expect('page 42 after tenant call', 'ws[LTQXSalesOrder|Yes]ws[SalesOrder|Yes]tws[LTQXTenantSalesOrder|Yes]');
-        Observer.Expect('counts end', '18|65');
-        Observer.Expect('counts cleaned', '17|64');
+        Observer.Expect('counts end', '1|1');
+        Observer.Expect('counts cleaned', '0|0');
         Observer.Verify();
     end;
 
@@ -234,51 +256,51 @@ codeunit 61281 "LT PT Web Service Rows"
         WebServiceManagement: Codeunit "Web Service Management";
         Observer: Codeunit "Probe Observer";
         Before: Text;
+        BaseCounts: Text;
     begin
         Before := RdAllRows();
-        Observer.Observe('counts before', RdCounts());
+        BaseCounts := RdCounts();
         Observer.Observe('job list before', RdTenantRows(TenantWebService."Object Type"::Page, Page::"Job List"));
         WebServiceManagement.CreateTenantWebService(TenantWebService."Object Type"::Page, Page::"Job List", 'Job List', true);
         Observer.Observe('job list call: all rows unchanged', Format(RdAllRows() = Before));
         Observer.Observe('job list after', RdTenantRows(TenantWebService."Object Type"::Page, Page::"Job List"));
-        Observer.Observe('counts after job list', RdCounts());
+        Observer.Observe('counts after job list', CountDelta(BaseCounts, RdCounts()));
         RdWorkflowWebhookCalls();
         Observer.Observe('workflow calls: all rows unchanged', Format(RdAllRows() = Before));
-        Observer.Observe('counts after workflow', RdCounts());
+        Observer.Observe('counts after workflow', CountDelta(BaseCounts, RdCounts()));
         RdExcelTemplateCalls();
         Observer.Observe('excel calls: all rows unchanged', Format(RdAllRows() = Before));
-        Observer.Observe('counts after excel', RdCounts());
+        Observer.Observe('counts after excel', CountDelta(BaseCounts, RdCounts()));
         WebServiceManagement.CreateTenantWebService(TenantWebService."Object Type"::Page, Page::"Job List", 'Job List', false);
         Observer.Observe('job list unpublished call', RdTenantRows(TenantWebService."Object Type"::Page, Page::"Job List"));
         WebServiceManagement.CreateTenantWebService(TenantWebService."Object Type"::Page, Page::"Job List", '', true);
         Observer.Observe('job list empty name call', RdTenantRows(TenantWebService."Object Type"::Page, Page::"Job List"));
-        Observer.Observe('counts after empty name', RdCounts());
+        Observer.Observe('counts after empty name', CountDelta(BaseCounts, RdCounts()));
         WebServiceManagement.CreateTenantWebService(TenantWebService."Object Type"::Page, Page::"Job List", 'LTRDJobList', true);
         Observer.Observe('job list new name call', RdTenantRows(TenantWebService."Object Type"::Page, Page::"Job List"));
-        Observer.Observe('counts after new name', RdCounts());
+        Observer.Observe('counts after new name', CountDelta(BaseCounts, RdCounts()));
         TenantWebService.SetRange("Object Type", TenantWebService."Object Type"::Page);
         TenantWebService.SetRange("Object ID", Page::"Job List");
         TenantWebService.SetFilter("Service Name", '<>%1', 'Job List');
         TenantWebService.DeleteAll();
         WebServiceManagement.CreateTenantWebService(TenantWebService."Object Type"::Page, Page::"Job List", 'Job List', true);
         Observer.Observe('restored: all rows as before', Format(RdAllRows() = Before));
-        Observer.Observe('counts restored', RdCounts());
-        Observer.Expect('counts before', '17|64|402|29');
+        Observer.Observe('counts restored', CountDelta(BaseCounts, RdCounts()));
         Observer.Expect('job list before', '[3=Page;9=Job List;6=89;12=Yes;13=No;14=No;]');
         Observer.Expect('job list call: all rows unchanged', 'Yes');
         Observer.Expect('job list after', '[3=Page;9=Job List;6=89;12=Yes;13=No;14=No;]');
-        Observer.Expect('counts after job list', '17|64|402|29');
+        Observer.Expect('counts after job list', '0|0|0|0');
         Observer.Expect('workflow calls: all rows unchanged', 'Yes');
-        Observer.Expect('counts after workflow', '17|64|402|29');
+        Observer.Expect('counts after workflow', '0|0|0|0');
         Observer.Expect('excel calls: all rows unchanged', 'Yes');
-        Observer.Expect('counts after excel', '17|64|402|29');
+        Observer.Expect('counts after excel', '0|0|0|0');
         Observer.Expect('job list unpublished call', '[3=Page;9=Job List;6=89;12=No;13=No;14=No;]');
         Observer.Expect('job list empty name call', '[3=Page;9=Job List;6=89;12=No;13=No;14=No;][3=Page;9=JobList;6=89;12=Yes;13=No;14=No;]');
-        Observer.Expect('counts after empty name', '17|65|402|29');
+        Observer.Expect('counts after empty name', '0|1|0|0');
         Observer.Expect('job list new name call', '[3=Page;9=Job List;6=89;12=No;13=No;14=No;][3=Page;9=JobList;6=89;12=Yes;13=No;14=No;][3=Page;9=LTRDJobList;6=89;12=Yes;13=No;14=No;]');
-        Observer.Expect('counts after new name', '17|66|402|29');
+        Observer.Expect('counts after new name', '0|2|0|0');
         Observer.Expect('restored: all rows as before', 'Yes');
-        Observer.Expect('counts restored', '17|64|402|29');
+        Observer.Expect('counts restored', '0|0|0|0');
         Observer.Verify();
     end;
 
@@ -341,9 +363,10 @@ codeunit 61281 "LT PT Web Service Rows"
         MaxEntry: Integer;
         ODataExisted: Boolean;
         Ok: Boolean;
+        BaseCounts: Text;
     begin
         Before := RdAllRows();
-        Observer.Observe('counts before', RdCounts());
+        BaseCounts := RdCounts();
         TenantWebService.Get(TenantWebService."Object Type"::Page, 'Job List');
         Columns.SetCurrentKey("Entry ID");
         if Columns.FindLast() then
@@ -389,7 +412,7 @@ codeunit 61281 "LT PT Web Service Rows"
         RjFindOData(TenantWebServiceOData, TenantWebService.RecordId);
         Observer.Observe('clauses after', RjClauses(TenantWebServiceOData));
         Observer.Observe('rows after', RjRowsOf(TenantWebService.RecordId, MaxEntry));
-        Observer.Observe('counts after', RdCounts());
+        Observer.Observe('counts after', CountDelta(BaseCounts, RdCounts()));
 
         Columns.Reset();
         Columns.SetRange(TenantWebServiceID, TenantWebService.RecordId);
@@ -403,10 +426,9 @@ codeunit 61281 "LT PT Web Service Rows"
         end else
             TenantWebServiceOData.Delete();
         Observer.Observe('restored: all rows as before', Format(RdAllRows() = Before));
-        Observer.Observe('counts restored', RdCounts());
+        Observer.Observe('counts restored', CountDelta(BaseCounts, RdCounts()));
         // The fresh tenant already has 'Job List' with 14 columns (the seven fields twice) and an OData row: the calls add seven columns, the
         // OData Insert fails, GenerateSelectText lists every column row, and both filter texts of a page service without filter rows are empty.
-        Observer.Expect('counts before', '17|64|402|29');
         Observer.Expect('rows before', 'columns 14 new 0: odata 1 filters 0');
         Observer.Expect('clauses before', '[$select=No,Description,Bill_to_Customer_No,Status,Person_Responsible,Search_Description,Project_Manager,No,Description,Bill_to_Customer_No,Status,Person_Responsible,Search_Description,Project_Manager][][]');
         Observer.Expect('rows after columns', 'columns 21 new 7:[167|1|No|Yes][167|3|Description|Yes][167|5|Bill_to_Customer_No|Yes][167|19|Status|Yes][167|20|Person_Responsible|Yes][167|2|Search_Description|Yes][167|1036|Project_Manager|Yes] odata 1 filters 0');
@@ -419,9 +441,9 @@ codeunit 61281 "LT PT Web Service Rows"
         Observer.Expect('v4 text', '[]');
         Observer.Expect('clauses after', '[$select=No,Description,Bill_to_Customer_No,Status,Person_Responsible,Search_Description,Project_Manager,No,Description,Bill_to_Customer_No,Status,Person_Responsible,Search_Description,Project_Manager,No,Description,Bill_to_Customer_No,Status,Person_Responsible,Search_Description,Project_Manager][][]');
         Observer.Expect('rows after', 'columns 21 new 7:[167|1|No|Yes][167|3|Description|Yes][167|5|Bill_to_Customer_No|Yes][167|19|Status|Yes][167|20|Person_Responsible|Yes][167|2|Search_Description|Yes][167|1036|Project_Manager|Yes] odata 1 filters 0');
-        Observer.Expect('counts after', '17|64|409|29');
+        Observer.Expect('counts after', '0|0|7|0');
         Observer.Expect('restored: all rows as before', 'Yes');
-        Observer.Expect('counts restored', '17|64|402|29');
+        Observer.Expect('counts restored', '0|0|0|0');
         Observer.Verify();
     end;
 }

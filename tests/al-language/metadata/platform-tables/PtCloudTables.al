@@ -201,7 +201,9 @@ codeunit 67107 "LT PT Cloud Tables"
         Standard(Observer, 2000000168, '3=8;6=10;9=LTPTSvc;12=true', '3=8;9=LTPTSvc', '12=false');
         Observer.Expect('columns', 'ok:3:Object Type:Option:4:Normal;9:Service Name:Text:250:Normal;6:Object ID:Integer:4:Normal;12:Published:Boolean:4:Normal;13:ExcludeFieldsOutsideRepeater:Boolean:4:Normal;14:ExcludeNonEditableFlowFields:Boolean:4:Normal;');
         Observer.Expect('has_rows', 'ok:Yes');
-        Observer.Expect('first_row', 'ok:3=Codeunit;9=WorkflowActionResponse;6=1544;12=Yes;13=No;14=No;');
+        // The first row of the catalog is not asserted: BC 29.1 adds MDMCrossEnvSource (codeunit 7241) in front of the 29.0 first row
+        // (WorkflowActionResponse, codeunit 1544). has_rows is the fact this test needs. version change: 29.1-mdm-web-service-row
+        Observer.Ignore('first_row');
         Observer.Expect('insert', 'ok:Yes');
         Observer.Expect('find_inserted', 'ok:3=Page;9=LTPTSvc;6=10;12=Yes;13=No;14=No;');
         Observer.Expect('count_inserted', 'ok:1');
