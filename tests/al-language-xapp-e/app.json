@@ -4,7 +4,7 @@
   "publisher": "Echo Probe Publisher",
   "version": "1.0.0.0",
   "brief": "Cross-app fixture E: an app with a JPEG logo that registers an assisted setup when the login raises OnRegisterAssistedSetup.",
-  "description": "Holds the 8 x 8 JPEG app logo and one OnRegisterAssistedSetup subscriber (tests/al-language-onprem/session-system/UsAppLogoJpeg.al). Depends on System Application and Base Application only; no app depends on it. It is published last, after cross-app fixture T, so it changes no subscriber order of the other fixtures. The app id, name and publisher are fixed: the probe reads them.",
+  "description": "Holds the 8 x 8 JPEG app logo and one OnRegisterAssistedSetup subscriber (tests/al-language-onprem/session-system/UsAppLogoJpeg.al). Also holds one OnAfterLogin subscriber that sets the SingleInstance state of the AL Internals Test Fixture (tests/al-language-xapp-e/SirXeLoginSubs.al, al-runner 8696). Depends on the AL Internals Test Fixture, System Application and Base Application; no app depends on it. It is published last, after cross-app fixture T, so it changes no subscriber order of the other fixtures. The app id, name and publisher are fixed: the probe reads them.",
   "privacyStatement": "",
   "EULA": "",
   "help": "",
@@ -12,6 +12,12 @@
   "logo": "logo.jpg",
   "platform": "27.0.0.0",
   "dependencies": [
+    {
+      "id": "f1e2d3c4-b5a6-7890-fedc-ba9876543210",
+      "name": "AL Internals Test Fixture",
+      "publisher": "AL Language",
+      "version": "1.0.0.0"
+    },
     {
       "id": "63ca2fa4-4f03-4f2b-a480-172fef340d3f",
       "name": "System Application",
