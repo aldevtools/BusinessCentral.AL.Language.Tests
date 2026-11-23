@@ -51,20 +51,20 @@ codeunit 79897 "YFN Yaml Structure"
     begin
         case Form of
             1:
-                exit('q: ' + Y.Repeat('[', N) + 'x' + Y.Repeat(']', N));
+                exit('q: ' + Y.Rep('[', N) + 'x' + Y.Rep(']', N));
             2:
-                exit('q: ' + Y.Repeat('{a: ', N) + 'x' + Y.Repeat('}', N));
+                exit('q: ' + Y.Rep('{a: ', N) + 'x' + Y.Rep('}', N));
             3:
-                exit('k:~' + Y.Repeat('- ', N) + 'x');
+                exit('k:~' + Y.Rep('- ', N) + 'x');
             4:
                 begin
                     for i := 1 to N do
-                        Doc.Append(Y.Repeat(' ', i - 1) + 'a:' + Y.Chr(10));
-                    Doc.Append(Y.Repeat(' ', N) + 'x: 1');
+                        Doc.Append(Y.Rep(' ', i - 1) + 'a:' + Y.Chr(10));
+                    Doc.Append(Y.Rep(' ', N) + 'x: 1');
                     exit(Doc.ToText());
                 end;
             5:
-                exit('q: ' + Y.Repeat('[{a: ', N div 2) + 'x' + Y.Repeat('}]', N div 2));
+                exit('q: ' + Y.Rep('[{a: ', N div 2) + 'x' + Y.Rep('}]', N div 2));
         end;
     end;
 
@@ -276,7 +276,7 @@ codeunit 79897 "YFN Yaml Structure"
     begin
         L.AddRange(1, 1000, 1023, 1024, 1025, 1026, 1100, 1500, 2000, 2047, 2048, 2049, 2999, 3000, 3001, 5000);
         foreach N in L do
-            KeyCell('plain-' + Format(N), '', Y.Repeat('k', N), ': 1');
+            KeyCell('plain-' + Format(N), '', Y.Rep('k', N), ': 1');
         Observer.Finish();
     end;
 
@@ -288,12 +288,12 @@ codeunit 79897 "YFN Yaml Structure"
     begin
         L.AddRange(1023, 1024, 1025, 3000);
         foreach N in L do begin
-            KeyCell('single-' + Format(N), '''', Y.Repeat('k', N), ''': 1');
-            KeyCell('double-' + Format(N), '"', Y.Repeat('k', N), '": 1');
-            KeyCell('nested-' + Format(N), 'o:~  ', Y.Repeat('k', N), ': 1');
-            KeyCell('listitem-' + Format(N), 'k:~  - ', Y.Repeat('k', N), ': 1');
-            KeyCell('flow-' + Format(N), '{', Y.Repeat('k', N), ': 1}');
-            KeyCell('explicit-' + Format(N), '? ', Y.Repeat('k', N), '~: 1');
+            KeyCell('single-' + Format(N), '''', Y.Rep('k', N), ''': 1');
+            KeyCell('double-' + Format(N), '"', Y.Rep('k', N), '": 1');
+            KeyCell('nested-' + Format(N), 'o:~  ', Y.Rep('k', N), ': 1');
+            KeyCell('listitem-' + Format(N), 'k:~  - ', Y.Rep('k', N), ': 1');
+            KeyCell('flow-' + Format(N), '{', Y.Rep('k', N), ': 1}');
+            KeyCell('explicit-' + Format(N), '? ', Y.Rep('k', N), '~: 1');
         end;
         Observer.Finish();
     end;
@@ -301,17 +301,17 @@ codeunit 79897 "YFN Yaml Structure"
     [Test]
     procedure ReadFromYaml_KeyLength_Layout()
     begin
-        Observer.Observe('spaces-before-colon-1100', Y.TextOnly('a' + Y.Repeat('{S}', 1100) + ': 1', '{"a":"1"}'));
-        Observer.Observe('spaces-before-colon-100', Y.TextOnly('a' + Y.Repeat('{S}', 100) + ': 1', '{"a":"1"}'));
-        Observer.Observe('value-on-next-line-1025', Y.TextOnly(Y.Repeat('k', 1025) + ':~  1', ''));
-        Observer.Observe('two-keys-1025', Y.TextOnly(Y.Repeat('k', 1025) + ': 1~' + Y.Repeat('j', 1025) + ': 2', ''));
-        Observer.Observe('value-1025', Y.TextOnly('k: ' + Y.Repeat('v', 1025), ''));
-        Observer.Observe('emoji-key-512', Y.TextOnly(Y.Repeat('{uD83D}{uDE00}', 512) + ': 1', ''));
-        Observer.Observe('emoji-key-513', Y.TextOnly(Y.Repeat('{uD83D}{uDE00}', 513) + ': 1', ''));
-        Observer.Observe('emoji-key-600', Y.TextOnly(Y.Repeat('{uD83D}{uDE00}', 600) + ': 1', ''));
-        Observer.Observe('emoji-key-1600', Y.TextOnly(Y.Repeat('{uD83D}{uDE00}', 1600) + ': 1', ''));
-        Observer.Observe('auml-key-1025', Y.TextOnly(Y.Repeat('{u00E4}', 1025) + ': 1', ''));
-        Observer.Observe('auml-key-1024', Y.TextOnly(Y.Repeat('{u00E4}', 1024) + ': 1', ''));
+        Observer.Observe('spaces-before-colon-1100', Y.TextOnly('a' + Y.Rep('{S}', 1100) + ': 1', '{"a":"1"}'));
+        Observer.Observe('spaces-before-colon-100', Y.TextOnly('a' + Y.Rep('{S}', 100) + ': 1', '{"a":"1"}'));
+        Observer.Observe('value-on-next-line-1025', Y.TextOnly(Y.Rep('k', 1025) + ':~  1', ''));
+        Observer.Observe('two-keys-1025', Y.TextOnly(Y.Rep('k', 1025) + ': 1~' + Y.Rep('j', 1025) + ': 2', ''));
+        Observer.Observe('value-1025', Y.TextOnly('k: ' + Y.Rep('v', 1025), ''));
+        Observer.Observe('emoji-key-512', Y.TextOnly(Y.Rep('{uD83D}{uDE00}', 512) + ': 1', ''));
+        Observer.Observe('emoji-key-513', Y.TextOnly(Y.Rep('{uD83D}{uDE00}', 513) + ': 1', ''));
+        Observer.Observe('emoji-key-600', Y.TextOnly(Y.Rep('{uD83D}{uDE00}', 600) + ': 1', ''));
+        Observer.Observe('emoji-key-1600', Y.TextOnly(Y.Rep('{uD83D}{uDE00}', 1600) + ': 1', ''));
+        Observer.Observe('auml-key-1025', Y.TextOnly(Y.Rep('{u00E4}', 1025) + ': 1', ''));
+        Observer.Observe('auml-key-1024', Y.TextOnly(Y.Rep('{u00E4}', 1024) + ': 1', ''));
         Observer.Finish();
     end;
 
@@ -439,7 +439,7 @@ codeunit 79897 "YFN Yaml Structure"
         Observer.Observe('two-docs', Y.ReadInto('a: 1~---~b: 2', '{"pre":1}'));
         Observer.Observe('partial-then-error', Y.ReadInto('a: 1~b: [', '{"pre":1}'));
         Observer.Observe('undefined-alias', Y.ReadInto('a: 1~b: *zz', '{"pre":1}'));
-        Observer.Observe('depth-too-deep', Y.ReadInto('q: ' + Y.Repeat('[', 100) + 'x' + Y.Repeat(']', 100), '{"pre":1}'));
+        Observer.Observe('depth-too-deep', Y.ReadInto('q: ' + Y.Rep('[', 100) + 'x' + Y.Rep(']', 100), '{"pre":1}'));
         Observer.Observe('bad-escape', Y.ReadInto('q: "{\}q"', '{"pre":1}'));
         Observer.Observe('unmeasured-char-lone', Y.ReadInto('q: a{uD800}b', '{"pre":1}'));
         Observer.Observe('empty-object', Y.ReadInto('q: [', '{}'));

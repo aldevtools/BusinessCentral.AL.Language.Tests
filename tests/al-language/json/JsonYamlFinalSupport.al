@@ -56,7 +56,7 @@ codeunit 79894 "YFN Yaml Support"
         exit(C);
     end;
 
-    procedure Repeat(Piece: Text; Count: Integer): Text
+    procedure Rep(Piece: Text; Count: Integer): Text
     var
         Result: TextBuilder;
         i: Integer;
