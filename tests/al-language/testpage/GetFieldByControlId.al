@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/testpage/testpage-getfield-method
 // Scope: in-scope
 // local object: the pages' controls and the ids the compiler gives them are what is under test
-// Fixtures used: shared Assert (60021); own tables 97701 and 97711, enum 97713, pages 97680-97689, 97694-97697, 97699, 97702-97705, 97708, 97709 and 97712, page extensions 97706 and 97710, tests 97707 and 97691
+// Fixtures used: shared Assert (60021); own tables 97701 and 97711, enum 97713, pages 97680-97690, 97695, 97696, 97699, 97700, 97702-97705, 97708, 97709 and 97712, page extensions 97706 and 97710, tests 97707 and 97691
 // Probe (al-runner issue 8832): TestPage.GetField and TestPart.GetField take the id the compiler gives a page control. The ids in
 //   this file are FNV-1a (32 bit) over the UTF-16LE text of the declaring object's id followed by the control name as declared,
 //   read as a signed number and made positive; the compiled app's SymbolReference.json lists the same ids. The issue's page (a List
@@ -1812,7 +1812,7 @@ codeunit 97691 "LT GFI Missing Tests"
 
 // The other page kinds a TestPage opens, for GetField with an id that is on no page (al-runner issue 8887).
 
-page 97694 "LT GFI Role Center"
+page 97690 "LT GFI Role Center"
 {
     PageType = RoleCenter;
     ApplicationArea = All;
@@ -1867,7 +1867,7 @@ page 97696 "LT GFI Dialog"
         Title: Text;
 }
 
-page 97697 "LT GFI Confirm"
+page 97700 "LT GFI Confirm"
 {
     PageType = ConfirmationDialog;
     SourceTable = "LT GFI Row";
