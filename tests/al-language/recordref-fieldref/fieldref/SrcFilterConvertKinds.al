@@ -1,7 +1,8 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/fieldref/fieldref-setrange-method
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); own table 57406, helper codeunit 57406, test codeunits 57407..57409
-// Probe: observe form; the corpus CI matrix (27.5, 28.5, 29.0) observes every cell.
+// Probe: every literal asserted below was observed by the corpus CI on BC 27.5, 28.5 and 29.0, except the tests CodeABC_D_Value and
+//   TxtXY_D_Value (observe form, observed by the next CI run); #if BC28PLUS marks the results BC 27.5 gives differently.
 // Facts: FieldRef.SetRange, FieldRef.SetFilter('%1', ...) and Record.SetRange on a Code[20], Text[50], Integer, BigInteger, Decimal,
 //   Boolean, Guid and Date field with a value of another type, and FieldRef.Value := of the same value for comparison.
 //   Sources into Code and Text: Integer 5 and 0, BigInteger 5, Decimal 1.5, 1000.5 and -1.25, Boolean true.
@@ -11,7 +12,8 @@
 //   Routes: a FieldRef.SetRange(X) typed; b FieldRef.SetRange(V), V a Variant holding X; c FieldRef.SetRange(X, X);
 //   e FieldRef.SetFilter('%1', X); f FieldRef.SetFilter('%1', V); gr Record.SetRange(Rec.<field>, V); v FieldRef.Value := X.
 //   Each cell runs in a TryFunction on a fresh RecordRef or Record and records "ok: <GetFilter of the field>" (route v:
-//   "ok: " + Format(F.Value, 0, 9)) or "E: <GetLastErrorText> | <GetLastErrorCode>". A test is <Source>_<Field>.
+//   "ok: " + Format(F.Value, 0, 9)) or "E: <GetLastErrorText> | <GetLastErrorCode>". A test is <Source>_<Field>; the Date tests of
+//   Code 'ABC' and Text 'XY' run route v in a test of its own (<Source>_D_Value), as the results of all routes do not fit one observation.
 //   Companion of SrcSetRangeConvert.al (Date, Time and DateTime fields).
 //   Asked by al-runner issues 8857, 8867, 8868, 8869 and 8870.
 // BC versions: 27, 28, 29 by CI
@@ -312,6 +314,25 @@ codeunit 57406 "SFK Probe"
         CellCode('v', FieldNo, X);
     end;
 
+    // Routes a, b, c, e, f and gr only: a test whose results do not fit one observation (about 1800 characters) tests route v apart.
+    procedure FiltersCode(FieldNo: Integer; X: Code[20])
+    var
+        V: Variant;
+    begin
+        V := X;
+        CellCode('a', FieldNo, X);
+        CellVar('b', FieldNo, V);
+        CellCode('c', FieldNo, X);
+        CellCode('e', FieldNo, X);
+        CellVar('f', FieldNo, V);
+        CellVar('gr', FieldNo, V);
+    end;
+
+    procedure ValueCode(FieldNo: Integer; X: Code[20])
+    begin
+        CellCode('v', FieldNo, X);
+    end;
+
     [TryFunction]
     local procedure TryTxt(var F: FieldRef; Route: Text; X: Text)
     begin
@@ -352,6 +373,25 @@ codeunit 57406 "SFK Probe"
         CellTxt('e', FieldNo, X);
         CellVar('f', FieldNo, V);
         CellVar('gr', FieldNo, V);
+        CellTxt('v', FieldNo, X);
+    end;
+
+    // Routes a, b, c, e, f and gr only: a test whose results do not fit one observation (about 1800 characters) tests route v apart.
+    procedure FiltersTxt(FieldNo: Integer; X: Text)
+    var
+        V: Variant;
+    begin
+        V := X;
+        CellTxt('a', FieldNo, X);
+        CellVar('b', FieldNo, V);
+        CellTxt('c', FieldNo, X);
+        CellTxt('e', FieldNo, X);
+        CellVar('f', FieldNo, V);
+        CellVar('gr', FieldNo, V);
+    end;
+
+    procedure ValueTxt(FieldNo: Integer; X: Text)
+    begin
         CellTxt('v', FieldNo, X);
     end;
 
@@ -416,7 +456,14 @@ codeunit 57407 "SFK Number To Text Tests"
     begin
         X := 5;
         Probe.CellsInt(2, X);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: 5');
+        Probe.Expect('b', 'ok: 5');
+        Probe.Expect('c', 'ok: 5');
+        Probe.Expect('e', 'ok: 5');
+        Probe.Expect('f', 'ok: 5');
+        Probe.Expect('gr', 'ok: 5');
+        Probe.Expect('v', 'ok: 5');
+        Probe.Verify();
     end;
 
     [Test]
@@ -427,7 +474,14 @@ codeunit 57407 "SFK Number To Text Tests"
     begin
         X := 0;
         Probe.CellsInt(2, X);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: 0');
+        Probe.Expect('b', 'ok: 0');
+        Probe.Expect('c', 'ok: 0');
+        Probe.Expect('e', 'ok: 0');
+        Probe.Expect('f', 'ok: 0');
+        Probe.Expect('gr', 'ok: 0');
+        Probe.Expect('v', 'ok: 0');
+        Probe.Verify();
     end;
 
     [Test]
@@ -438,7 +492,14 @@ codeunit 57407 "SFK Number To Text Tests"
     begin
         X := 5;
         Probe.CellsBig(2, X);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: 5');
+        Probe.Expect('b', 'ok: 5');
+        Probe.Expect('c', 'ok: 5');
+        Probe.Expect('e', 'ok: 5');
+        Probe.Expect('f', 'ok: 5');
+        Probe.Expect('gr', 'ok: 5');
+        Probe.Expect('v', 'ok: 5');
+        Probe.Verify();
     end;
 
     [Test]
@@ -449,7 +510,14 @@ codeunit 57407 "SFK Number To Text Tests"
     begin
         X := 1.5;
         Probe.CellsDec(2, X);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: 1.5');
+        Probe.Expect('b', 'ok: 1.5');
+        Probe.Expect('c', 'ok: 1.5');
+        Probe.Expect('e', 'ok: 1.5');
+        Probe.Expect('f', 'ok: 1.5');
+        Probe.Expect('gr', 'ok: 1.5');
+        Probe.Expect('v', 'ok: 1.5');
+        Probe.Verify();
     end;
 
     [Test]
@@ -460,7 +528,14 @@ codeunit 57407 "SFK Number To Text Tests"
     begin
         X := 1000.5;
         Probe.CellsDec(2, X);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: 1,000.5');
+        Probe.Expect('b', 'ok: 1,000.5');
+        Probe.Expect('c', 'ok: 1,000.5');
+        Probe.Expect('e', 'ok: 1,000.5');
+        Probe.Expect('f', 'ok: 1,000.5');
+        Probe.Expect('gr', 'ok: 1,000.5');
+        Probe.Expect('v', 'ok: 1,000.5');
+        Probe.Verify();
     end;
 
     [Test]
@@ -471,7 +546,14 @@ codeunit 57407 "SFK Number To Text Tests"
     begin
         X := -1.25;
         Probe.CellsDec(2, X);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: -1.25');
+        Probe.Expect('b', 'ok: -1.25');
+        Probe.Expect('c', 'ok: -1.25');
+        Probe.Expect('e', 'ok: -1.25');
+        Probe.Expect('f', 'ok: -1.25');
+        Probe.Expect('gr', 'ok: -1.25');
+        Probe.Expect('v', 'ok: -1.25');
+        Probe.Verify();
     end;
 
     [Test]
@@ -482,7 +564,14 @@ codeunit 57407 "SFK Number To Text Tests"
     begin
         X := true;
         Probe.CellsBool(2, X);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: YES');
+        Probe.Expect('b', 'ok: YES');
+        Probe.Expect('c', 'ok: YES');
+        Probe.Expect('e', 'ok: YES');
+        Probe.Expect('f', 'ok: YES');
+        Probe.Expect('gr', 'ok: YES');
+        Probe.Expect('v', 'ok: YES');
+        Probe.Verify();
     end;
 
     [Test]
@@ -493,7 +582,14 @@ codeunit 57407 "SFK Number To Text Tests"
     begin
         X := 5;
         Probe.CellsInt(3, X);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: 5');
+        Probe.Expect('b', 'ok: 5');
+        Probe.Expect('c', 'ok: 5');
+        Probe.Expect('e', 'ok: 5');
+        Probe.Expect('f', 'ok: 5');
+        Probe.Expect('gr', 'ok: 5');
+        Probe.Expect('v', 'ok: 5');
+        Probe.Verify();
     end;
 
     [Test]
@@ -504,7 +600,14 @@ codeunit 57407 "SFK Number To Text Tests"
     begin
         X := 0;
         Probe.CellsInt(3, X);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: 0');
+        Probe.Expect('b', 'ok: 0');
+        Probe.Expect('c', 'ok: 0');
+        Probe.Expect('e', 'ok: 0');
+        Probe.Expect('f', 'ok: 0');
+        Probe.Expect('gr', 'ok: 0');
+        Probe.Expect('v', 'ok: 0');
+        Probe.Verify();
     end;
 
     [Test]
@@ -515,7 +618,14 @@ codeunit 57407 "SFK Number To Text Tests"
     begin
         X := 5;
         Probe.CellsBig(3, X);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: 5');
+        Probe.Expect('b', 'ok: 5');
+        Probe.Expect('c', 'ok: 5');
+        Probe.Expect('e', 'ok: 5');
+        Probe.Expect('f', 'ok: 5');
+        Probe.Expect('gr', 'ok: 5');
+        Probe.Expect('v', 'ok: 5');
+        Probe.Verify();
     end;
 
     [Test]
@@ -526,7 +636,14 @@ codeunit 57407 "SFK Number To Text Tests"
     begin
         X := 1.5;
         Probe.CellsDec(3, X);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: 1.5');
+        Probe.Expect('b', 'ok: 1.5');
+        Probe.Expect('c', 'ok: 1.5');
+        Probe.Expect('e', 'ok: 1.5');
+        Probe.Expect('f', 'ok: 1.5');
+        Probe.Expect('gr', 'ok: 1.5');
+        Probe.Expect('v', 'ok: 1.5');
+        Probe.Verify();
     end;
 
     [Test]
@@ -537,7 +654,14 @@ codeunit 57407 "SFK Number To Text Tests"
     begin
         X := 1000.5;
         Probe.CellsDec(3, X);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: 1,000.5');
+        Probe.Expect('b', 'ok: 1,000.5');
+        Probe.Expect('c', 'ok: 1,000.5');
+        Probe.Expect('e', 'ok: 1,000.5');
+        Probe.Expect('f', 'ok: 1,000.5');
+        Probe.Expect('gr', 'ok: 1,000.5');
+        Probe.Expect('v', 'ok: 1,000.5');
+        Probe.Verify();
     end;
 
     [Test]
@@ -548,7 +672,14 @@ codeunit 57407 "SFK Number To Text Tests"
     begin
         X := -1.25;
         Probe.CellsDec(3, X);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: -1.25');
+        Probe.Expect('b', 'ok: -1.25');
+        Probe.Expect('c', 'ok: -1.25');
+        Probe.Expect('e', 'ok: -1.25');
+        Probe.Expect('f', 'ok: -1.25');
+        Probe.Expect('gr', 'ok: -1.25');
+        Probe.Expect('v', 'ok: -1.25');
+        Probe.Verify();
     end;
 
     [Test]
@@ -559,7 +690,14 @@ codeunit 57407 "SFK Number To Text Tests"
     begin
         X := true;
         Probe.CellsBool(3, X);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: Yes');
+        Probe.Expect('b', 'ok: Yes');
+        Probe.Expect('c', 'ok: Yes');
+        Probe.Expect('e', 'ok: Yes');
+        Probe.Expect('f', 'ok: Yes');
+        Probe.Expect('gr', 'ok: Yes');
+        Probe.Expect('v', 'ok: Yes');
+        Probe.Verify();
     end;
 
 }
@@ -577,7 +715,14 @@ codeunit 57408 "SFK Text To Number Tests"
     begin
         X := '123';
         Probe.CellsCode(4, X);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: 123');
+        Probe.Expect('b', 'ok: 123');
+        Probe.Expect('c', 'ok: 123');
+        Probe.Expect('e', 'ok: 123');
+        Probe.Expect('f', 'ok: 123');
+        Probe.Expect('gr', 'ok: 123');
+        Probe.Expect('v', 'ok: 123');
+        Probe.Verify();
     end;
 
     [Test]
@@ -588,7 +733,42 @@ codeunit 57408 "SFK Text To Number Tests"
     begin
         X := 'ABC';
         Probe.CellsCode(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: The type NavInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: The type NavInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: The type NavInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: The type NavInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: The type NavInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: The type NavInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('v', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('v', 'E: The type NavInteger is unknown. | NotSupportedType');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -599,7 +779,42 @@ codeunit 57408 "SFK Text To Number Tests"
     begin
         X := 'XY';
         Probe.CellsTxt(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: The type NavInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: The type NavInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: The type NavInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: The type NavInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: The type NavInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: The type NavInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('v', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('v', 'E: The type NavInteger is unknown. | NotSupportedType');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -610,7 +825,42 @@ codeunit 57408 "SFK Text To Number Tests"
     begin
         X := '1.5';
         Probe.CellsTxt(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "1.5" can''t be evaluated into type Integer. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: The type NavInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "1.5" can''t be evaluated into type Integer. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: The type NavInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "1.5" can''t be evaluated into type Integer. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: The type NavInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "1.5" can''t be evaluated into type Integer. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: The type NavInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "1.5" can''t be evaluated into type Integer. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: The type NavInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "1.5" can''t be evaluated into type Integer. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: The type NavInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('v', 'E: The value "1.5" can''t be evaluated into type Integer. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('v', 'E: The type NavInteger is unknown. | NotSupportedType');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -621,7 +871,42 @@ codeunit 57408 "SFK Text To Number Tests"
     begin
         X := '';
         Probe.CellsTxt(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "" can''t be evaluated into type Integer. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: The type NavInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "" can''t be evaluated into type Integer. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: The type NavInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "" can''t be evaluated into type Integer. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: The type NavInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "" can''t be evaluated into type Integer. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: The type NavInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "" can''t be evaluated into type Integer. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: The type NavInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "" can''t be evaluated into type Integer. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: The type NavInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('v', 'E: The value "" can''t be evaluated into type Integer. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('v', 'E: The type NavInteger is unknown. | NotSupportedType');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -632,7 +917,42 @@ codeunit 57408 "SFK Text To Number Tests"
     begin
         X := '1,000';
         Probe.CellsCode(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "1,000" can''t be evaluated into type Integer. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: The type NavInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "1,000" can''t be evaluated into type Integer. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: The type NavInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "1,000" can''t be evaluated into type Integer. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: The type NavInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "1,000" can''t be evaluated into type Integer. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: The type NavInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "1,000" can''t be evaluated into type Integer. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: The type NavInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "1,000" can''t be evaluated into type Integer. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: The type NavInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('v', 'E: The value "1,000" can''t be evaluated into type Integer. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('v', 'E: The type NavInteger is unknown. | NotSupportedType');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -643,7 +963,14 @@ codeunit 57408 "SFK Text To Number Tests"
     begin
         X := '123';
         Probe.CellsCode(5, X);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: 123');
+        Probe.Expect('b', 'ok: 123');
+        Probe.Expect('c', 'ok: 123');
+        Probe.Expect('e', 'ok: 123');
+        Probe.Expect('f', 'ok: 123');
+        Probe.Expect('gr', 'ok: 123');
+        Probe.Expect('v', 'ok: 123');
+        Probe.Verify();
     end;
 
     [Test]
@@ -654,7 +981,42 @@ codeunit 57408 "SFK Text To Number Tests"
     begin
         X := 'ABC';
         Probe.CellsCode(5, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('v', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('v', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -665,7 +1027,42 @@ codeunit 57408 "SFK Text To Number Tests"
     begin
         X := 'XY';
         Probe.CellsTxt(5, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('v', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('v', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -676,7 +1073,42 @@ codeunit 57408 "SFK Text To Number Tests"
     begin
         X := '1.5';
         Probe.CellsTxt(5, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "1.5" can''t be evaluated into type BigInteger. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "1.5" can''t be evaluated into type BigInteger. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "1.5" can''t be evaluated into type BigInteger. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "1.5" can''t be evaluated into type BigInteger. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "1.5" can''t be evaluated into type BigInteger. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "1.5" can''t be evaluated into type BigInteger. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('v', 'E: The value "1.5" can''t be evaluated into type BigInteger. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('v', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -687,7 +1119,42 @@ codeunit 57408 "SFK Text To Number Tests"
     begin
         X := '';
         Probe.CellsTxt(5, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "" can''t be evaluated into type BigInteger. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "" can''t be evaluated into type BigInteger. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "" can''t be evaluated into type BigInteger. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "" can''t be evaluated into type BigInteger. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "" can''t be evaluated into type BigInteger. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "" can''t be evaluated into type BigInteger. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('v', 'E: The value "" can''t be evaluated into type BigInteger. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('v', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -698,7 +1165,42 @@ codeunit 57408 "SFK Text To Number Tests"
     begin
         X := '1,000';
         Probe.CellsCode(5, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "1,000" can''t be evaluated into type BigInteger. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "1,000" can''t be evaluated into type BigInteger. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "1,000" can''t be evaluated into type BigInteger. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "1,000" can''t be evaluated into type BigInteger. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "1,000" can''t be evaluated into type BigInteger. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "1,000" can''t be evaluated into type BigInteger. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('v', 'E: The value "1,000" can''t be evaluated into type BigInteger. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('v', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -709,7 +1211,14 @@ codeunit 57408 "SFK Text To Number Tests"
     begin
         X := '123';
         Probe.CellsCode(6, X);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: 123');
+        Probe.Expect('b', 'ok: 123');
+        Probe.Expect('c', 'ok: 123');
+        Probe.Expect('e', 'ok: 123');
+        Probe.Expect('f', 'ok: 123');
+        Probe.Expect('gr', 'ok: 123');
+        Probe.Expect('v', 'ok: 123');
+        Probe.Verify();
     end;
 
     [Test]
@@ -720,7 +1229,42 @@ codeunit 57408 "SFK Text To Number Tests"
     begin
         X := 'ABC';
         Probe.CellsCode(6, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: The type NavDecimal is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: The type NavDecimal is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: The type NavDecimal is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: The type NavDecimal is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: The type NavDecimal is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: The type NavDecimal is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('v', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('v', 'E: The type NavDecimal is unknown. | NotSupportedType');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -731,7 +1275,42 @@ codeunit 57408 "SFK Text To Number Tests"
     begin
         X := 'XY';
         Probe.CellsTxt(6, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: The type NavDecimal is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: The type NavDecimal is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: The type NavDecimal is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: The type NavDecimal is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: The type NavDecimal is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: The type NavDecimal is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('v', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('v', 'E: The type NavDecimal is unknown. | NotSupportedType');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -742,7 +1321,14 @@ codeunit 57408 "SFK Text To Number Tests"
     begin
         X := '1.5';
         Probe.CellsTxt(6, X);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: 1.5');
+        Probe.Expect('b', 'ok: 1.5');
+        Probe.Expect('c', 'ok: 1.5');
+        Probe.Expect('e', 'ok: 1.5');
+        Probe.Expect('f', 'ok: 1.5');
+        Probe.Expect('gr', 'ok: 1.5');
+        Probe.Expect('v', 'ok: 1.5');
+        Probe.Verify();
     end;
 
     [Test]
@@ -753,7 +1339,42 @@ codeunit 57408 "SFK Text To Number Tests"
     begin
         X := '';
         Probe.CellsTxt(6, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "" can''t be evaluated into type Decimal. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: The type NavDecimal is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "" can''t be evaluated into type Decimal. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: The type NavDecimal is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "" can''t be evaluated into type Decimal. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: The type NavDecimal is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "" can''t be evaluated into type Decimal. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: The type NavDecimal is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "" can''t be evaluated into type Decimal. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: The type NavDecimal is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "" can''t be evaluated into type Decimal. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: The type NavDecimal is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('v', 'E: The value "" can''t be evaluated into type Decimal. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('v', 'E: The type NavDecimal is unknown. | NotSupportedType');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -764,7 +1385,14 @@ codeunit 57408 "SFK Text To Number Tests"
     begin
         X := '1,000';
         Probe.CellsCode(6, X);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: 1,000');
+        Probe.Expect('b', 'ok: 1,000');
+        Probe.Expect('c', 'ok: 1,000');
+        Probe.Expect('e', 'ok: 1,000');
+        Probe.Expect('f', 'ok: 1,000');
+        Probe.Expect('gr', 'ok: 1,000');
+        Probe.Expect('v', 'ok: 1000');
+        Probe.Verify();
     end;
 
 }
@@ -782,7 +1410,14 @@ codeunit 57409 "SFK Other Kinds Tests"
     begin
         X := '123';
         Probe.CellsCode(7, X);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: Yes');
+        Probe.Expect('b', 'ok: Yes');
+        Probe.Expect('c', 'ok: Yes');
+        Probe.Expect('e', 'ok: Yes');
+        Probe.Expect('f', 'ok: Yes');
+        Probe.Expect('gr', 'ok: Yes');
+        Probe.Expect('v', 'ok: true');
+        Probe.Verify();
     end;
 
     [Test]
@@ -793,7 +1428,14 @@ codeunit 57409 "SFK Other Kinds Tests"
     begin
         X := '0';
         Probe.CellsCode(7, X);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: No');
+        Probe.Expect('b', 'ok: No');
+        Probe.Expect('c', 'ok: No');
+        Probe.Expect('e', 'ok: No');
+        Probe.Expect('f', 'ok: No');
+        Probe.Expect('gr', 'ok: No');
+        Probe.Expect('v', 'ok: false');
+        Probe.Verify();
     end;
 
     [Test]
@@ -804,7 +1446,42 @@ codeunit 57409 "SFK Other Kinds Tests"
     begin
         X := 'ABC';
         Probe.CellsCode(7, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "ABC" can''t be evaluated into type Boolean. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: The type NavBoolean is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "ABC" can''t be evaluated into type Boolean. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: The type NavBoolean is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "ABC" can''t be evaluated into type Boolean. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: The type NavBoolean is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "ABC" can''t be evaluated into type Boolean. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: The type NavBoolean is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "ABC" can''t be evaluated into type Boolean. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: The type NavBoolean is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "ABC" can''t be evaluated into type Boolean. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: The type NavBoolean is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('v', 'E: The value "ABC" can''t be evaluated into type Boolean. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('v', 'E: The type NavBoolean is unknown. | NotSupportedType');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -815,7 +1492,42 @@ codeunit 57409 "SFK Other Kinds Tests"
     begin
         X := 'Yes';
         Probe.CellsTxt(7, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "Yes" can''t be evaluated into type Boolean. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: The type NavBoolean is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "Yes" can''t be evaluated into type Boolean. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: The type NavBoolean is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "Yes" can''t be evaluated into type Boolean. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: The type NavBoolean is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "Yes" can''t be evaluated into type Boolean. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: The type NavBoolean is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "Yes" can''t be evaluated into type Boolean. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: The type NavBoolean is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "Yes" can''t be evaluated into type Boolean. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: The type NavBoolean is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('v', 'E: The value "Yes" can''t be evaluated into type Boolean. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('v', 'E: The type NavBoolean is unknown. | NotSupportedType');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -826,7 +1538,42 @@ codeunit 57409 "SFK Other Kinds Tests"
     begin
         X := 'XY';
         Probe.CellsTxt(7, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "XY" can''t be evaluated into type Boolean. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: The type NavBoolean is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "XY" can''t be evaluated into type Boolean. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: The type NavBoolean is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "XY" can''t be evaluated into type Boolean. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: The type NavBoolean is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "XY" can''t be evaluated into type Boolean. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: The type NavBoolean is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "XY" can''t be evaluated into type Boolean. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: The type NavBoolean is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "XY" can''t be evaluated into type Boolean. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: The type NavBoolean is unknown. | NotSupportedType');
+#endif
+#if BC28PLUS
+        Probe.Expect('v', 'E: The value "XY" can''t be evaluated into type Boolean. | Evaluate:Format');
+#else // BC 27.5 gives another result
+        Probe.Expect('v', 'E: The type NavBoolean is unknown. | NotSupportedType');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -837,7 +1584,14 @@ codeunit 57409 "SFK Other Kinds Tests"
     begin
         X := 1;
         Probe.CellsInt(7, X);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: Yes');
+        Probe.Expect('b', 'ok: Yes');
+        Probe.Expect('c', 'ok: Yes');
+        Probe.Expect('e', 'ok: Yes');
+        Probe.Expect('f', 'ok: Yes');
+        Probe.Expect('gr', 'ok: Yes');
+        Probe.Expect('v', 'ok: true');
+        Probe.Verify();
     end;
 
     [Test]
@@ -848,7 +1602,14 @@ codeunit 57409 "SFK Other Kinds Tests"
     begin
         X := 0;
         Probe.CellsInt(7, X);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: No');
+        Probe.Expect('b', 'ok: No');
+        Probe.Expect('c', 'ok: No');
+        Probe.Expect('e', 'ok: No');
+        Probe.Expect('f', 'ok: No');
+        Probe.Expect('gr', 'ok: No');
+        Probe.Expect('v', 'ok: false');
+        Probe.Verify();
     end;
 
     [Test]
@@ -858,7 +1619,48 @@ codeunit 57409 "SFK Other Kinds Tests"
         X: Code[20];
     begin
         X := 'ABC';
-        Probe.CellsCode(9, X);
+        Probe.FiltersCode(9, X);
+#if BC28PLUS
+        Probe.Expect('a', 'E: The format of the Date ''ABC'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('b', 'E: The format of the Date ''ABC'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The format of the Date ''ABC'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The format of the Date ''ABC'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The format of the Date ''ABC'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The format of the Date ''ABC'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
+    end;
+
+    [Test]
+    procedure CodeABC_D_Value()
+    var
+        Probe: Codeunit "SFK Probe";
+        X: Code[20];
+    begin
+        X := 'ABC';
+        Probe.ValueCode(9, X);
         Probe.Finish();
     end;
 
@@ -869,7 +1671,48 @@ codeunit 57409 "SFK Other Kinds Tests"
         X: Text;
     begin
         X := 'XY';
-        Probe.CellsTxt(9, X);
+        Probe.FiltersTxt(9, X);
+#if BC28PLUS
+        Probe.Expect('a', 'E: The format of the Date ''XY'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('b', 'E: The format of the Date ''XY'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The format of the Date ''XY'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The format of the Date ''XY'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The format of the Date ''XY'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The format of the Date ''XY'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
+    end;
+
+    [Test]
+    procedure TxtXY_D_Value()
+    var
+        Probe: Codeunit "SFK Probe";
+        X: Text;
+    begin
+        X := 'XY';
+        Probe.ValueTxt(9, X);
         Probe.Finish();
     end;
 
@@ -881,7 +1724,26 @@ codeunit 57409 "SFK Other Kinds Tests"
     begin
         X := 'ABC';
         Probe.CellsCode(8, X);
-        Probe.Finish();
+        Probe.Expect('a', 'E: Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits. | InvalidGuidFormat');
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "ABC" can''t be evaluated into type GUID. | Evaluate:Argument');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Invalid Conversion. Source: NavVariant, Destination: NavGuid. | Argument');
+#endif
+        Probe.Expect('c', 'E: Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits. | InvalidGuidFormat');
+        Probe.Expect('e', 'E: Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits. | InvalidGuidFormat');
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "ABC" can''t be evaluated into type GUID. | Evaluate:Argument');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Invalid Conversion. Source: NavVariant, Destination: NavGuid. | Argument');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "ABC" can''t be evaluated into type GUID. | Evaluate:Argument');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Invalid Conversion. Source: NavVariant, Destination: NavGuid. | Argument');
+#endif
+        Probe.Expect('v', 'E: Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits. | InvalidGuidFormat');
+        Probe.Verify();
     end;
 
     [Test]
@@ -892,7 +1754,26 @@ codeunit 57409 "SFK Other Kinds Tests"
     begin
         X := '123';
         Probe.CellsCode(8, X);
-        Probe.Finish();
+        Probe.Expect('a', 'E: Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits. | InvalidGuidFormat');
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "123" can''t be evaluated into type GUID. | Evaluate:Argument');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Invalid Conversion. Source: NavVariant, Destination: NavGuid. | Argument');
+#endif
+        Probe.Expect('c', 'E: Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits. | InvalidGuidFormat');
+        Probe.Expect('e', 'E: Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits. | InvalidGuidFormat');
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "123" can''t be evaluated into type GUID. | Evaluate:Argument');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Invalid Conversion. Source: NavVariant, Destination: NavGuid. | Argument');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "123" can''t be evaluated into type GUID. | Evaluate:Argument');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Invalid Conversion. Source: NavVariant, Destination: NavGuid. | Argument');
+#endif
+        Probe.Expect('v', 'E: Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits. | InvalidGuidFormat');
+        Probe.Verify();
     end;
 
     [Test]
@@ -903,7 +1784,26 @@ codeunit 57409 "SFK Other Kinds Tests"
     begin
         X := 'XY';
         Probe.CellsTxt(8, X);
-        Probe.Finish();
+        Probe.Expect('a', 'E: Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits. | InvalidGuidFormat');
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "XY" can''t be evaluated into type GUID. | Evaluate:Argument');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Invalid Conversion. Source: NavVariant, Destination: NavGuid. | Argument');
+#endif
+        Probe.Expect('c', 'E: Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits. | InvalidGuidFormat');
+        Probe.Expect('e', 'E: Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits. | InvalidGuidFormat');
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "XY" can''t be evaluated into type GUID. | Evaluate:Argument');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Invalid Conversion. Source: NavVariant, Destination: NavGuid. | Argument');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "XY" can''t be evaluated into type GUID. | Evaluate:Argument');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Invalid Conversion. Source: NavVariant, Destination: NavGuid. | Argument');
+#endif
+        Probe.Expect('v', 'E: Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits. | InvalidGuidFormat');
+        Probe.Verify();
     end;
 
     [Test]
@@ -914,7 +1814,26 @@ codeunit 57409 "SFK Other Kinds Tests"
     begin
         X := '{1F2E3D4C-5B6A-4978-8695-A4B3C2D1E0F9}';
         Probe.CellsTxt(8, X);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: {1F2E3D4C-5B6A-4978-8695-A4B3C2D1E0F9}');
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "{1F2E3D4C-5B6A-4978-8695-A4B3C2D1E0F9}" can''t be evaluated into type GUID. | Evaluate:Argument');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Invalid Conversion. Source: NavVariant, Destination: NavGuid. | Argument');
+#endif
+        Probe.Expect('c', 'ok: {1F2E3D4C-5B6A-4978-8695-A4B3C2D1E0F9}');
+        Probe.Expect('e', 'ok: {1F2E3D4C-5B6A-4978-8695-A4B3C2D1E0F9}');
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "{1F2E3D4C-5B6A-4978-8695-A4B3C2D1E0F9}" can''t be evaluated into type GUID. | Evaluate:Argument');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Invalid Conversion. Source: NavVariant, Destination: NavGuid. | Argument');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "{1F2E3D4C-5B6A-4978-8695-A4B3C2D1E0F9}" can''t be evaluated into type GUID. | Evaluate:Argument');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Invalid Conversion. Source: NavVariant, Destination: NavGuid. | Argument');
+#endif
+        Probe.Expect('v', 'ok: {1F2E3D4C-5B6A-4978-8695-A4B3C2D1E0F9}');
+        Probe.Verify();
     end;
 
 }

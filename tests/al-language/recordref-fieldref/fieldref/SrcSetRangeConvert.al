@@ -1,7 +1,8 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/fieldref/fieldref-setrange-method
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); own enum 57400, table 57400, helper codeunit 57401, test codeunits 57402..57405
-// Probe: every literal asserted below was observed on BC 27.5, 28.5 and 29.0 (local containers); the corpus CI matrix checks 27.5, 28.5 and 29.0.
+// Probe: every literal asserted below was observed by the corpus CI on BC 27.5, 28.5 and 29.0; #if BC28PLUS marks the results BC 27.5 gives
+//   differently.
 // Facts: FieldRef.SetRange, FieldRef.SetFilter('%1', ...), Record.SetRange and Record.SetFilter('%1', ...) on a Date, Time and DateTime
 //   field with a value of another type (and of the field's own type, for comparison). Sources: Integer 20240101 (literal and variable),
 //   Integer 0, Integer 120000, BigInteger 20240101L, Decimal 2.5, Boolean true, Text '20240101' (literal and variable), '2024-01-01',
@@ -916,7 +917,22 @@ codeunit 57402 "SRC Numeric Tests"
         Probe: Codeunit "SRC Probe";
     begin
         Probe.Lit('Int', 2);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('aLit', 'E: The format of the Date ''20240101'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('aLit', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('cLit', 'E: The format of the Date ''20240101'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('cLit', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('eLit', 'E: The format of the Date ''20240101'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('eLit', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -925,7 +941,22 @@ codeunit 57402 "SRC Numeric Tests"
         Probe: Codeunit "SRC Probe";
     begin
         Probe.Lit('Int', 3);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('aLit', 'E: The value "20240101" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('aLit', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('cLit', 'E: The value "20240101" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('cLit', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('eLit', 'E: The value "20240101" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('eLit', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -934,7 +965,22 @@ codeunit 57402 "SRC Numeric Tests"
         Probe: Codeunit "SRC Probe";
     begin
         Probe.Lit('Int', 4);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('aLit', 'E: The value "20240101" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('aLit', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('cLit', 'E: The value "20240101" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('cLit', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('eLit', 'E: The value "20240101" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('eLit', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -945,7 +991,22 @@ codeunit 57402 "SRC Numeric Tests"
     begin
         X := 20240101;
         Probe.TypedInt(2, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The format of the Date ''20240101'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The format of the Date ''20240101'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The format of the Date ''20240101'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -956,7 +1017,17 @@ codeunit 57402 "SRC Numeric Tests"
     begin
         X := 20240101;
         Probe.PairInt(2, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The format of the Date ''20240101'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The format of the Date ''20240101'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -969,7 +1040,22 @@ codeunit 57402 "SRC Numeric Tests"
         X := 20240101;
         V := X;
         Probe.Variants(2, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The format of the Date ''20240101'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The format of the Date ''20240101'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The format of the Date ''20240101'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -980,7 +1066,22 @@ codeunit 57402 "SRC Numeric Tests"
     begin
         X := 20240101;
         Probe.TypedInt(3, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "20240101" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "20240101" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "20240101" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -991,7 +1092,17 @@ codeunit 57402 "SRC Numeric Tests"
     begin
         X := 20240101;
         Probe.PairInt(3, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The value "20240101" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The value "20240101" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1004,7 +1115,22 @@ codeunit 57402 "SRC Numeric Tests"
         X := 20240101;
         V := X;
         Probe.Variants(3, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "20240101" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "20240101" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "20240101" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1015,7 +1141,22 @@ codeunit 57402 "SRC Numeric Tests"
     begin
         X := 20240101;
         Probe.TypedInt(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "20240101" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "20240101" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "20240101" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1026,7 +1167,17 @@ codeunit 57402 "SRC Numeric Tests"
     begin
         X := 20240101;
         Probe.PairInt(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The value "20240101" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The value "20240101" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1039,7 +1190,22 @@ codeunit 57402 "SRC Numeric Tests"
         X := 20240101;
         V := X;
         Probe.Variants(4, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "20240101" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "20240101" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "20240101" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1050,7 +1216,22 @@ codeunit 57402 "SRC Numeric Tests"
     begin
         X := 0;
         Probe.TypedInt(2, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The format of the Date ''0'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The format of the Date ''0'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The format of the Date ''0'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1061,7 +1242,17 @@ codeunit 57402 "SRC Numeric Tests"
     begin
         X := 0;
         Probe.PairInt(2, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The format of the Date ''0'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The format of the Date ''0'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1074,7 +1265,22 @@ codeunit 57402 "SRC Numeric Tests"
         X := 0;
         V := X;
         Probe.Variants(2, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The format of the Date ''0'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The format of the Date ''0'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The format of the Date ''0'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1085,7 +1291,22 @@ codeunit 57402 "SRC Numeric Tests"
     begin
         X := 0;
         Probe.TypedInt(3, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "0" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "0" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "0" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1096,7 +1317,17 @@ codeunit 57402 "SRC Numeric Tests"
     begin
         X := 0;
         Probe.PairInt(3, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The value "0" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The value "0" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1109,7 +1340,22 @@ codeunit 57402 "SRC Numeric Tests"
         X := 0;
         V := X;
         Probe.Variants(3, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "0" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "0" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "0" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1120,7 +1366,22 @@ codeunit 57402 "SRC Numeric Tests"
     begin
         X := 0;
         Probe.TypedInt(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "0" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "0" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "0" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1131,7 +1392,17 @@ codeunit 57402 "SRC Numeric Tests"
     begin
         X := 0;
         Probe.PairInt(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The value "0" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The value "0" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1144,7 +1415,22 @@ codeunit 57402 "SRC Numeric Tests"
         X := 0;
         V := X;
         Probe.Variants(4, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "0" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "0" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "0" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1155,7 +1441,22 @@ codeunit 57402 "SRC Numeric Tests"
     begin
         X := 120000;
         Probe.TypedInt(2, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The format of the Date ''120000'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The format of the Date ''120000'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The format of the Date ''120000'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1166,7 +1467,17 @@ codeunit 57402 "SRC Numeric Tests"
     begin
         X := 120000;
         Probe.PairInt(2, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The format of the Date ''120000'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The format of the Date ''120000'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1179,7 +1490,22 @@ codeunit 57402 "SRC Numeric Tests"
         X := 120000;
         V := X;
         Probe.Variants(2, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The format of the Date ''120000'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The format of the Date ''120000'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The format of the Date ''120000'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1190,7 +1516,22 @@ codeunit 57402 "SRC Numeric Tests"
     begin
         X := 120000;
         Probe.TypedInt(3, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "120000" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "120000" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "120000" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1201,7 +1542,17 @@ codeunit 57402 "SRC Numeric Tests"
     begin
         X := 120000;
         Probe.PairInt(3, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The value "120000" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The value "120000" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1214,7 +1565,22 @@ codeunit 57402 "SRC Numeric Tests"
         X := 120000;
         V := X;
         Probe.Variants(3, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "120000" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "120000" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "120000" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1225,7 +1591,22 @@ codeunit 57402 "SRC Numeric Tests"
     begin
         X := 120000;
         Probe.TypedInt(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "120000" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "120000" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "120000" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1236,7 +1617,17 @@ codeunit 57402 "SRC Numeric Tests"
     begin
         X := 120000;
         Probe.PairInt(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The value "120000" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The value "120000" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1249,7 +1640,22 @@ codeunit 57402 "SRC Numeric Tests"
         X := 120000;
         V := X;
         Probe.Variants(4, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "120000" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "120000" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "120000" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1260,7 +1666,22 @@ codeunit 57402 "SRC Numeric Tests"
     begin
         X := 20240101L;
         Probe.TypedBig(2, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The format of the Date ''20240101'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The format of the Date ''20240101'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The format of the Date ''20240101'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1271,7 +1692,17 @@ codeunit 57402 "SRC Numeric Tests"
     begin
         X := 20240101L;
         Probe.PairBig(2, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The format of the Date ''20240101'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The format of the Date ''20240101'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1284,7 +1715,22 @@ codeunit 57402 "SRC Numeric Tests"
         X := 20240101L;
         V := X;
         Probe.Variants(2, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The format of the Date ''20240101'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The format of the Date ''20240101'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The format of the Date ''20240101'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1295,7 +1741,22 @@ codeunit 57402 "SRC Numeric Tests"
     begin
         X := 20240101L;
         Probe.TypedBig(3, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "20240101" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "20240101" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "20240101" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1306,7 +1767,17 @@ codeunit 57402 "SRC Numeric Tests"
     begin
         X := 20240101L;
         Probe.PairBig(3, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The value "20240101" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The value "20240101" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1319,7 +1790,22 @@ codeunit 57402 "SRC Numeric Tests"
         X := 20240101L;
         V := X;
         Probe.Variants(3, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "20240101" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "20240101" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "20240101" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1330,7 +1816,22 @@ codeunit 57402 "SRC Numeric Tests"
     begin
         X := 20240101L;
         Probe.TypedBig(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "20240101" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "20240101" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "20240101" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1341,7 +1842,17 @@ codeunit 57402 "SRC Numeric Tests"
     begin
         X := 20240101L;
         Probe.PairBig(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The value "20240101" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The value "20240101" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1354,7 +1865,22 @@ codeunit 57402 "SRC Numeric Tests"
         X := 20240101L;
         V := X;
         Probe.Variants(4, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "20240101" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "20240101" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "20240101" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1365,7 +1891,22 @@ codeunit 57402 "SRC Numeric Tests"
     begin
         X := 2.5;
         Probe.TypedDec(2, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The format of the Date ''2.5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDecimal to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The format of the Date ''2.5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDecimal to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The format of the Date ''2.5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDecimal to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1376,7 +1917,17 @@ codeunit 57402 "SRC Numeric Tests"
     begin
         X := 2.5;
         Probe.PairDec(2, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The format of the Date ''2.5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDecimal to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The format of the Date ''2.5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDecimal to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1389,7 +1940,22 @@ codeunit 57402 "SRC Numeric Tests"
         X := 2.5;
         V := X;
         Probe.Variants(2, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The format of the Date ''2.5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDecimal to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The format of the Date ''2.5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDecimal to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The format of the Date ''2.5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDecimal to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1400,7 +1966,22 @@ codeunit 57402 "SRC Numeric Tests"
     begin
         X := 2.5;
         Probe.TypedDec(3, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "2.5" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDecimal to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "2.5" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDecimal to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "2.5" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDecimal to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1411,7 +1992,17 @@ codeunit 57402 "SRC Numeric Tests"
     begin
         X := 2.5;
         Probe.PairDec(3, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The value "2.5" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDecimal to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The value "2.5" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDecimal to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1424,7 +2015,22 @@ codeunit 57402 "SRC Numeric Tests"
         X := 2.5;
         V := X;
         Probe.Variants(3, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "2.5" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDecimal to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "2.5" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDecimal to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "2.5" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDecimal to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1435,7 +2041,22 @@ codeunit 57402 "SRC Numeric Tests"
     begin
         X := 2.5;
         Probe.TypedDec(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "2.5" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDecimal to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "2.5" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDecimal to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "2.5" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDecimal to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1446,7 +2067,17 @@ codeunit 57402 "SRC Numeric Tests"
     begin
         X := 2.5;
         Probe.PairDec(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The value "2.5" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDecimal to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The value "2.5" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDecimal to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1459,7 +2090,22 @@ codeunit 57402 "SRC Numeric Tests"
         X := 2.5;
         V := X;
         Probe.Variants(4, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "2.5" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDecimal to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "2.5" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDecimal to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "2.5" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDecimal to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1470,7 +2116,22 @@ codeunit 57402 "SRC Numeric Tests"
     begin
         X := true;
         Probe.TypedBool(2, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The format of the Date ''Yes'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBoolean to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The format of the Date ''Yes'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBoolean to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The format of the Date ''Yes'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBoolean to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1481,7 +2142,17 @@ codeunit 57402 "SRC Numeric Tests"
     begin
         X := true;
         Probe.PairBool(2, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The format of the Date ''Yes'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBoolean to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The format of the Date ''Yes'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBoolean to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1494,7 +2165,22 @@ codeunit 57402 "SRC Numeric Tests"
         X := true;
         V := X;
         Probe.Variants(2, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The format of the Date ''Yes'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBoolean to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The format of the Date ''Yes'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBoolean to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The format of the Date ''Yes'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBoolean to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1505,7 +2191,22 @@ codeunit 57402 "SRC Numeric Tests"
     begin
         X := true;
         Probe.TypedBool(3, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "Yes" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBoolean to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "Yes" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBoolean to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "Yes" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBoolean to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1516,7 +2217,17 @@ codeunit 57402 "SRC Numeric Tests"
     begin
         X := true;
         Probe.PairBool(3, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The value "Yes" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBoolean to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The value "Yes" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBoolean to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1529,7 +2240,22 @@ codeunit 57402 "SRC Numeric Tests"
         X := true;
         V := X;
         Probe.Variants(3, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "Yes" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBoolean to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "Yes" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBoolean to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "Yes" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBoolean to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1540,7 +2266,22 @@ codeunit 57402 "SRC Numeric Tests"
     begin
         X := true;
         Probe.TypedBool(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "Yes" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBoolean to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "Yes" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBoolean to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "Yes" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBoolean to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1551,7 +2292,17 @@ codeunit 57402 "SRC Numeric Tests"
     begin
         X := true;
         Probe.PairBool(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The value "Yes" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBoolean to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The value "Yes" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBoolean to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1564,7 +2315,22 @@ codeunit 57402 "SRC Numeric Tests"
         X := true;
         V := X;
         Probe.Variants(4, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "Yes" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBoolean to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "Yes" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBoolean to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "Yes" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBoolean to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 }
 
@@ -1579,7 +2345,22 @@ codeunit 57403 "SRC Text Tests"
         Probe: Codeunit "SRC Probe";
     begin
         Probe.Lit('Txt', 2);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('aLit', 'E: The format of the Date ''20240101'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('aLit', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('cLit', 'E: The format of the Date ''20240101'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('cLit', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('eLit', 'E: The format of the Date ''20240101'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('eLit', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1588,7 +2369,22 @@ codeunit 57403 "SRC Text Tests"
         Probe: Codeunit "SRC Probe";
     begin
         Probe.Lit('Txt', 3);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('aLit', 'E: The value "20240101" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('aLit', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('cLit', 'E: The value "20240101" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('cLit', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('eLit', 'E: The value "20240101" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('eLit', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1597,7 +2393,22 @@ codeunit 57403 "SRC Text Tests"
         Probe: Codeunit "SRC Probe";
     begin
         Probe.Lit('Txt', 4);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('aLit', 'E: The value "20240101" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('aLit', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('cLit', 'E: The value "20240101" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('cLit', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('eLit', 'E: The value "20240101" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('eLit', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1608,7 +2419,22 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := '20240101';
         Probe.TypedTxt(2, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The format of the Date ''20240101'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The format of the Date ''20240101'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The format of the Date ''20240101'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1619,7 +2445,17 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := '20240101';
         Probe.PairTxt(2, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The format of the Date ''20240101'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The format of the Date ''20240101'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1632,7 +2468,22 @@ codeunit 57403 "SRC Text Tests"
         X := '20240101';
         V := X;
         Probe.Variants(2, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The format of the Date ''20240101'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The format of the Date ''20240101'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The format of the Date ''20240101'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1643,7 +2494,22 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := '20240101';
         Probe.TypedTxt(3, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "20240101" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "20240101" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "20240101" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1654,7 +2520,17 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := '20240101';
         Probe.PairTxt(3, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The value "20240101" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The value "20240101" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1667,7 +2543,22 @@ codeunit 57403 "SRC Text Tests"
         X := '20240101';
         V := X;
         Probe.Variants(3, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "20240101" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "20240101" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "20240101" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1678,7 +2569,22 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := '20240101';
         Probe.TypedTxt(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "20240101" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "20240101" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "20240101" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1689,7 +2595,17 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := '20240101';
         Probe.PairTxt(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The value "20240101" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The value "20240101" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1702,7 +2618,22 @@ codeunit 57403 "SRC Text Tests"
         X := '20240101';
         V := X;
         Probe.Variants(4, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "20240101" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "20240101" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "20240101" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1713,7 +2644,22 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := '2024-01-01';
         Probe.TypedTxt(2, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The format of the Date ''2024-01-01'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The format of the Date ''2024-01-01'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The format of the Date ''2024-01-01'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1724,7 +2670,17 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := '2024-01-01';
         Probe.PairTxt(2, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The format of the Date ''2024-01-01'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The format of the Date ''2024-01-01'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1737,7 +2693,22 @@ codeunit 57403 "SRC Text Tests"
         X := '2024-01-01';
         V := X;
         Probe.Variants(2, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The format of the Date ''2024-01-01'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The format of the Date ''2024-01-01'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The format of the Date ''2024-01-01'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1748,7 +2719,22 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := '2024-01-01';
         Probe.TypedTxt(3, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "2024-01-01" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "2024-01-01" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "2024-01-01" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1759,7 +2745,17 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := '2024-01-01';
         Probe.PairTxt(3, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The value "2024-01-01" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The value "2024-01-01" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1772,7 +2768,22 @@ codeunit 57403 "SRC Text Tests"
         X := '2024-01-01';
         V := X;
         Probe.Variants(3, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "2024-01-01" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "2024-01-01" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "2024-01-01" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1783,7 +2794,22 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := '2024-01-01';
         Probe.TypedTxt(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "2024-01-01" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "2024-01-01" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "2024-01-01" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1794,7 +2820,17 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := '2024-01-01';
         Probe.PairTxt(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The value "2024-01-01" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The value "2024-01-01" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1807,7 +2843,22 @@ codeunit 57403 "SRC Text Tests"
         X := '2024-01-01';
         V := X;
         Probe.Variants(4, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "2024-01-01" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "2024-01-01" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "2024-01-01" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1818,7 +2869,22 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := '01/01/24';
         Probe.TypedTxt(2, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The format of the Date ''01/01/24'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The format of the Date ''01/01/24'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The format of the Date ''01/01/24'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1829,7 +2895,17 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := '01/01/24';
         Probe.PairTxt(2, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The format of the Date ''01/01/24'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The format of the Date ''01/01/24'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1842,7 +2918,22 @@ codeunit 57403 "SRC Text Tests"
         X := '01/01/24';
         V := X;
         Probe.Variants(2, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The format of the Date ''01/01/24'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The format of the Date ''01/01/24'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The format of the Date ''01/01/24'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1853,7 +2944,22 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := '01/01/24';
         Probe.TypedTxt(3, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "01/01/24" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "01/01/24" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "01/01/24" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1864,7 +2970,17 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := '01/01/24';
         Probe.PairTxt(3, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The value "01/01/24" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The value "01/01/24" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1877,7 +2993,22 @@ codeunit 57403 "SRC Text Tests"
         X := '01/01/24';
         V := X;
         Probe.Variants(3, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "01/01/24" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "01/01/24" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "01/01/24" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1888,7 +3019,22 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := '01/01/24';
         Probe.TypedTxt(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "01/01/24" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "01/01/24" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "01/01/24" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1899,7 +3045,17 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := '01/01/24';
         Probe.PairTxt(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The value "01/01/24" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The value "01/01/24" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1912,7 +3068,22 @@ codeunit 57403 "SRC Text Tests"
         X := '01/01/24';
         V := X;
         Probe.Variants(4, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "01/01/24" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "01/01/24" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "01/01/24" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1923,7 +3094,22 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := '10:00:00 AM';
         Probe.TypedTxt(2, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The format of the Date ''10:00:00 AM'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The format of the Date ''10:00:00 AM'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The format of the Date ''10:00:00 AM'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1934,7 +3120,17 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := '10:00:00 AM';
         Probe.PairTxt(2, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The format of the Date ''10:00:00 AM'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The format of the Date ''10:00:00 AM'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1947,7 +3143,22 @@ codeunit 57403 "SRC Text Tests"
         X := '10:00:00 AM';
         V := X;
         Probe.Variants(2, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The format of the Date ''10:00:00 AM'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The format of the Date ''10:00:00 AM'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The format of the Date ''10:00:00 AM'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1958,7 +3169,22 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := '10:00:00 AM';
         Probe.TypedTxt(3, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "10:00:00 AM" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "10:00:00 AM" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "10:00:00 AM" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1969,7 +3195,17 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := '10:00:00 AM';
         Probe.PairTxt(3, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The value "10:00:00 AM" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The value "10:00:00 AM" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1982,7 +3218,22 @@ codeunit 57403 "SRC Text Tests"
         X := '10:00:00 AM';
         V := X;
         Probe.Variants(3, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "10:00:00 AM" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "10:00:00 AM" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "10:00:00 AM" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -1993,7 +3244,22 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := '10:00:00 AM';
         Probe.TypedTxt(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "10:00:00 AM" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "10:00:00 AM" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "10:00:00 AM" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2004,7 +3270,17 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := '10:00:00 AM';
         Probe.PairTxt(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The value "10:00:00 AM" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The value "10:00:00 AM" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2017,7 +3293,22 @@ codeunit 57403 "SRC Text Tests"
         X := '10:00:00 AM';
         V := X;
         Probe.Variants(4, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "10:00:00 AM" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "10:00:00 AM" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "10:00:00 AM" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2028,7 +3319,22 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := 'abc';
         Probe.TypedTxt(2, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The format of the Date ''abc'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The format of the Date ''abc'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The format of the Date ''abc'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2039,7 +3345,17 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := 'abc';
         Probe.PairTxt(2, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The format of the Date ''abc'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The format of the Date ''abc'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2052,7 +3368,22 @@ codeunit 57403 "SRC Text Tests"
         X := 'abc';
         V := X;
         Probe.Variants(2, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The format of the Date ''abc'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The format of the Date ''abc'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The format of the Date ''abc'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2063,7 +3394,22 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := 'abc';
         Probe.TypedTxt(3, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "abc" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "abc" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "abc" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2074,7 +3420,17 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := 'abc';
         Probe.PairTxt(3, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The value "abc" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The value "abc" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2087,7 +3443,22 @@ codeunit 57403 "SRC Text Tests"
         X := 'abc';
         V := X;
         Probe.Variants(3, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "abc" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "abc" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "abc" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2098,7 +3469,22 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := 'abc';
         Probe.TypedTxt(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "abc" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "abc" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "abc" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2109,7 +3495,17 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := 'abc';
         Probe.PairTxt(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The value "abc" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The value "abc" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2122,7 +3518,22 @@ codeunit 57403 "SRC Text Tests"
         X := 'abc';
         V := X;
         Probe.Variants(4, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "abc" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "abc" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "abc" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2133,7 +3544,22 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := '';
         Probe.TypedTxt(2, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The format of the Date '''' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The format of the Date '''' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The format of the Date '''' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2144,7 +3570,17 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := '';
         Probe.PairTxt(2, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The format of the Date '''' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The format of the Date '''' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2157,7 +3593,22 @@ codeunit 57403 "SRC Text Tests"
         X := '';
         V := X;
         Probe.Variants(2, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The format of the Date '''' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The format of the Date '''' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The format of the Date '''' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2168,7 +3619,22 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := '';
         Probe.TypedTxt(3, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2179,7 +3645,17 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := '';
         Probe.PairTxt(3, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The value "" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The value "" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2192,7 +3668,22 @@ codeunit 57403 "SRC Text Tests"
         X := '';
         V := X;
         Probe.Variants(3, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2203,7 +3694,22 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := '';
         Probe.TypedTxt(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2214,7 +3720,17 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := '';
         Probe.PairTxt(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The value "" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The value "" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2227,7 +3743,22 @@ codeunit 57403 "SRC Text Tests"
         X := '';
         V := X;
         Probe.Variants(4, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2238,7 +3769,22 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := 'C1';
         Probe.TypedCode(2, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The format of the Date ''C1'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The format of the Date ''C1'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The format of the Date ''C1'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2249,7 +3795,17 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := 'C1';
         Probe.PairCode(2, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The format of the Date ''C1'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The format of the Date ''C1'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2262,7 +3818,22 @@ codeunit 57403 "SRC Text Tests"
         X := 'C1';
         V := X;
         Probe.Variants(2, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The format of the Date ''C1'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The format of the Date ''C1'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The format of the Date ''C1'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2273,7 +3844,22 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := 'C1';
         Probe.TypedCode(3, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "C1" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "C1" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "C1" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2284,7 +3870,17 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := 'C1';
         Probe.PairCode(3, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The value "C1" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The value "C1" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2297,7 +3893,22 @@ codeunit 57403 "SRC Text Tests"
         X := 'C1';
         V := X;
         Probe.Variants(3, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "C1" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "C1" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "C1" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2308,7 +3919,22 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := 'C1';
         Probe.TypedCode(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "C1" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "C1" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "C1" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2319,7 +3945,17 @@ codeunit 57403 "SRC Text Tests"
     begin
         X := 'C1';
         Probe.PairCode(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The value "C1" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The value "C1" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2332,7 +3968,22 @@ codeunit 57403 "SRC Text Tests"
         X := 'C1';
         V := X;
         Probe.Variants(4, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "C1" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "C1" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "C1" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 }
 
@@ -2349,7 +4000,22 @@ codeunit 57404 "SRC Other Tests"
     begin
         Evaluate(X, '{11111111-2222-3333-4444-555555555555}');
         Probe.TypedGuid(2, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The format of the Date ''{11111111-2222-3333-4444-555555555555}'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The format of the Date ''{11111111-2222-3333-4444-555555555555}'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The format of the Date ''{11111111-2222-3333-4444-555555555555}'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2360,7 +4026,17 @@ codeunit 57404 "SRC Other Tests"
     begin
         Evaluate(X, '{11111111-2222-3333-4444-555555555555}');
         Probe.PairGuid(2, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The format of the Date ''{11111111-2222-3333-4444-555555555555}'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The format of the Date ''{11111111-2222-3333-4444-555555555555}'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2373,7 +4049,22 @@ codeunit 57404 "SRC Other Tests"
         Evaluate(X, '{11111111-2222-3333-4444-555555555555}');
         V := X;
         Probe.Variants(2, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The format of the Date ''{11111111-2222-3333-4444-555555555555}'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The format of the Date ''{11111111-2222-3333-4444-555555555555}'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The format of the Date ''{11111111-2222-3333-4444-555555555555}'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2384,7 +4075,22 @@ codeunit 57404 "SRC Other Tests"
     begin
         Evaluate(X, '{11111111-2222-3333-4444-555555555555}');
         Probe.TypedGuid(3, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "{11111111-2222-3333-4444-555555555555}" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "{11111111-2222-3333-4444-555555555555}" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "{11111111-2222-3333-4444-555555555555}" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2395,7 +4101,17 @@ codeunit 57404 "SRC Other Tests"
     begin
         Evaluate(X, '{11111111-2222-3333-4444-555555555555}');
         Probe.PairGuid(3, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The value "{11111111-2222-3333-4444-555555555555}" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The value "{11111111-2222-3333-4444-555555555555}" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2408,7 +4124,22 @@ codeunit 57404 "SRC Other Tests"
         Evaluate(X, '{11111111-2222-3333-4444-555555555555}');
         V := X;
         Probe.Variants(3, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "{11111111-2222-3333-4444-555555555555}" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "{11111111-2222-3333-4444-555555555555}" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "{11111111-2222-3333-4444-555555555555}" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2419,7 +4150,22 @@ codeunit 57404 "SRC Other Tests"
     begin
         Evaluate(X, '{11111111-2222-3333-4444-555555555555}');
         Probe.TypedGuid(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "{11111111-2222-3333-4444-555555555555}" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "{11111111-2222-3333-4444-555555555555}" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "{11111111-2222-3333-4444-555555555555}" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2430,7 +4176,17 @@ codeunit 57404 "SRC Other Tests"
     begin
         Evaluate(X, '{11111111-2222-3333-4444-555555555555}');
         Probe.PairGuid(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The value "{11111111-2222-3333-4444-555555555555}" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The value "{11111111-2222-3333-4444-555555555555}" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2443,7 +4199,22 @@ codeunit 57404 "SRC Other Tests"
         Evaluate(X, '{11111111-2222-3333-4444-555555555555}');
         V := X;
         Probe.Variants(4, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "{11111111-2222-3333-4444-555555555555}" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "{11111111-2222-3333-4444-555555555555}" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "{11111111-2222-3333-4444-555555555555}" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2454,7 +4225,22 @@ codeunit 57404 "SRC Other Tests"
     begin
         X := 1500;
         Probe.TypedDur(2, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The format of the Date ''1 second 500 milliseconds'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDuration to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The format of the Date ''1 second 500 milliseconds'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDuration to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The format of the Date ''1 second 500 milliseconds'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDuration to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2465,7 +4251,17 @@ codeunit 57404 "SRC Other Tests"
     begin
         X := 1500;
         Probe.PairDur(2, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The format of the Date ''1 second 500 milliseconds'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDuration to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The format of the Date ''1 second 500 milliseconds'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDuration to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2478,7 +4274,22 @@ codeunit 57404 "SRC Other Tests"
         X := 1500;
         V := X;
         Probe.Variants(2, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The format of the Date ''1 second 500 milliseconds'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDuration to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The format of the Date ''1 second 500 milliseconds'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDuration to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The format of the Date ''1 second 500 milliseconds'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDuration to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2489,7 +4300,22 @@ codeunit 57404 "SRC Other Tests"
     begin
         X := 1500;
         Probe.TypedDur(3, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "1 second 500 milliseconds" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDuration to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "1 second 500 milliseconds" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDuration to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "1 second 500 milliseconds" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDuration to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2500,7 +4326,17 @@ codeunit 57404 "SRC Other Tests"
     begin
         X := 1500;
         Probe.PairDur(3, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The value "1 second 500 milliseconds" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDuration to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The value "1 second 500 milliseconds" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDuration to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2513,7 +4349,22 @@ codeunit 57404 "SRC Other Tests"
         X := 1500;
         V := X;
         Probe.Variants(3, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "1 second 500 milliseconds" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDuration to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "1 second 500 milliseconds" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDuration to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "1 second 500 milliseconds" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDuration to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2524,7 +4375,22 @@ codeunit 57404 "SRC Other Tests"
     begin
         X := 1500;
         Probe.TypedDur(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "1 second 500 milliseconds" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDuration to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "1 second 500 milliseconds" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDuration to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "1 second 500 milliseconds" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDuration to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2535,7 +4401,17 @@ codeunit 57404 "SRC Other Tests"
     begin
         X := 1500;
         Probe.PairDur(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The value "1 second 500 milliseconds" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDuration to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The value "1 second 500 milliseconds" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDuration to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2548,7 +4424,22 @@ codeunit 57404 "SRC Other Tests"
         X := 1500;
         V := X;
         Probe.Variants(4, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "1 second 500 milliseconds" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDuration to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "1 second 500 milliseconds" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDuration to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "1 second 500 milliseconds" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDuration to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2559,7 +4450,22 @@ codeunit 57404 "SRC Other Tests"
     begin
         X := X::One;
         Probe.TypedOpt(2, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The format of the Date ''One'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The format of the Date ''One'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The format of the Date ''One'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2570,7 +4476,17 @@ codeunit 57404 "SRC Other Tests"
     begin
         X := X::One;
         Probe.PairOpt(2, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The format of the Date ''One'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The format of the Date ''One'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2583,7 +4499,22 @@ codeunit 57404 "SRC Other Tests"
         X := X::One;
         V := X;
         Probe.Variants(2, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The format of the Date ''One'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The format of the Date ''One'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The format of the Date ''One'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2594,7 +4525,22 @@ codeunit 57404 "SRC Other Tests"
     begin
         X := X::One;
         Probe.TypedOpt(3, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "One" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "One" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "One" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2605,7 +4551,17 @@ codeunit 57404 "SRC Other Tests"
     begin
         X := X::One;
         Probe.PairOpt(3, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The value "One" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The value "One" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2618,7 +4574,22 @@ codeunit 57404 "SRC Other Tests"
         X := X::One;
         V := X;
         Probe.Variants(3, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "One" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "One" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "One" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2629,7 +4600,22 @@ codeunit 57404 "SRC Other Tests"
     begin
         X := X::One;
         Probe.TypedOpt(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "One" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "One" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "One" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2640,7 +4626,17 @@ codeunit 57404 "SRC Other Tests"
     begin
         X := X::One;
         Probe.PairOpt(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The value "One" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The value "One" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2653,7 +4649,22 @@ codeunit 57404 "SRC Other Tests"
         X := X::One;
         V := X;
         Probe.Variants(4, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "One" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "One" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "One" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2664,7 +4675,22 @@ codeunit 57404 "SRC Other Tests"
     begin
         X := "SRC Enum"::One;
         Probe.TypedEnum(2, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The format of the Date ''One'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The format of the Date ''One'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The format of the Date ''One'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2675,7 +4701,17 @@ codeunit 57404 "SRC Other Tests"
     begin
         X := "SRC Enum"::One;
         Probe.PairEnum(2, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The format of the Date ''One'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The format of the Date ''One'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2688,7 +4724,22 @@ codeunit 57404 "SRC Other Tests"
         X := "SRC Enum"::One;
         V := X;
         Probe.Variants(2, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The format of the Date ''One'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The format of the Date ''One'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The format of the Date ''One'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2699,7 +4750,22 @@ codeunit 57404 "SRC Other Tests"
     begin
         X := "SRC Enum"::One;
         Probe.TypedEnum(3, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "One" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "One" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "One" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2710,7 +4776,17 @@ codeunit 57404 "SRC Other Tests"
     begin
         X := "SRC Enum"::One;
         Probe.PairEnum(3, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The value "One" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The value "One" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2723,7 +4799,22 @@ codeunit 57404 "SRC Other Tests"
         X := "SRC Enum"::One;
         V := X;
         Probe.Variants(3, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "One" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "One" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "One" can''t be evaluated into type Time. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2734,7 +4825,22 @@ codeunit 57404 "SRC Other Tests"
     begin
         X := "SRC Enum"::One;
         Probe.TypedEnum(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('a', 'E: The value "One" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('a', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('c', 'E: The value "One" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('c', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('e', 'E: The value "One" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('e', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2745,7 +4851,17 @@ codeunit 57404 "SRC Other Tests"
     begin
         X := "SRC Enum"::One;
         Probe.PairEnum(4, X);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('d1', 'E: The value "One" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d1', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('d2', 'E: The value "One" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('d2', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 
     [Test]
@@ -2758,7 +4874,22 @@ codeunit 57404 "SRC Other Tests"
         X := "SRC Enum"::One;
         V := X;
         Probe.Variants(4, V);
-        Probe.Finish();
+#if BC28PLUS
+        Probe.Expect('b', 'E: The value "One" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('b', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('f', 'E: The value "One" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
+        Probe.Expect('gr', 'E: The value "One" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+#else // BC 27.5 gives another result
+        Probe.Expect('gr', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavOption to System.DateTime. | Conversion');
+#endif
+        Probe.Verify();
     end;
 }
 
@@ -2775,7 +4906,10 @@ codeunit 57405 "SRC DateTime Tests"
     begin
         X := 20240101D;
         Probe.TypedDate(2, X);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: 01/01/24');
+        Probe.Expect('c', 'ok: 01/01/24');
+        Probe.Expect('e', 'ok: 01/01/24');
+        Probe.Verify();
     end;
 
     [Test]
@@ -2786,7 +4920,10 @@ codeunit 57405 "SRC DateTime Tests"
     begin
         X := 20240101D;
         Probe.PairDate(2, X);
-        Probe.Finish();
+        Probe.Expect('d1', 'ok: 01/01/24');
+        Probe.Expect('d2', 'ok: 01/01/24');
+        Probe.Expect('gf', 'ok: 01/01/24');
+        Probe.Verify();
     end;
 
     [Test]
@@ -2799,7 +4936,10 @@ codeunit 57405 "SRC DateTime Tests"
         X := 20240101D;
         V := X;
         Probe.Variants(2, V);
-        Probe.Finish();
+        Probe.Expect('b', 'ok: 01/01/24');
+        Probe.Expect('f', 'ok: 01/01/24');
+        Probe.Expect('gr', 'ok: 01/01/24');
+        Probe.Verify();
     end;
 
     [Test]
@@ -2810,7 +4950,10 @@ codeunit 57405 "SRC DateTime Tests"
     begin
         X := 20240101D;
         Probe.TypedDate(3, X);
-        Probe.Finish();
+        Probe.Expect('a', 'E: The time is not valid. | InvalidTime');
+        Probe.Expect('c', 'E: The time is not valid. | InvalidTime');
+        Probe.Expect('e', 'E: The time is not valid. | InvalidTime');
+        Probe.Verify();
     end;
 
     [Test]
@@ -2821,7 +4964,9 @@ codeunit 57405 "SRC DateTime Tests"
     begin
         X := 20240101D;
         Probe.PairDate(3, X);
-        Probe.Finish();
+        Probe.Expect('d1', 'E: The time is not valid. | InvalidTime');
+        Probe.Expect('d2', 'E: The time is not valid. | InvalidTime');
+        Probe.Verify();
     end;
 
     [Test]
@@ -2834,7 +4979,10 @@ codeunit 57405 "SRC DateTime Tests"
         X := 20240101D;
         V := X;
         Probe.Variants(3, V);
-        Probe.Finish();
+        Probe.Expect('b', 'E: The time is not valid. | InvalidTime');
+        Probe.Expect('f', 'E: The time is not valid. | InvalidTime');
+        Probe.Expect('gr', 'E: The time is not valid. | InvalidTime');
+        Probe.Verify();
     end;
 
     [Test]
@@ -2845,7 +4993,10 @@ codeunit 57405 "SRC DateTime Tests"
     begin
         X := 20240101D;
         Probe.TypedDate(4, X);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: 01/01/24 12:00 AM');
+        Probe.Expect('c', 'ok: 01/01/24 12:00 AM');
+        Probe.Expect('e', 'ok: 01/01/24 12:00 AM');
+        Probe.Verify();
     end;
 
     [Test]
@@ -2856,7 +5007,9 @@ codeunit 57405 "SRC DateTime Tests"
     begin
         X := 20240101D;
         Probe.PairDate(4, X);
-        Probe.Finish();
+        Probe.Expect('d1', 'ok: 01/01/24 10:00 AM..01/01/24 12:00 AM');
+        Probe.Expect('d2', 'ok: 01/01/24 12:00 AM..01/01/24 10:00 AM');
+        Probe.Verify();
     end;
 
     [Test]
@@ -2869,7 +5022,10 @@ codeunit 57405 "SRC DateTime Tests"
         X := 20240101D;
         V := X;
         Probe.Variants(4, V);
-        Probe.Finish();
+        Probe.Expect('b', 'ok: 01/01/24 12:00 AM');
+        Probe.Expect('f', 'ok: 01/01/24 12:00 AM');
+        Probe.Expect('gr', 'ok: 01/01/24 12:00 AM');
+        Probe.Verify();
     end;
 
     [Test]
@@ -2880,7 +5036,10 @@ codeunit 57405 "SRC DateTime Tests"
     begin
         X := 0D;
         Probe.TypedDate(2, X);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: ''''');
+        Probe.Expect('c', 'ok: ''''');
+        Probe.Expect('e', 'ok: ''''');
+        Probe.Verify();
     end;
 
     [Test]
@@ -2891,7 +5050,10 @@ codeunit 57405 "SRC DateTime Tests"
     begin
         X := 0D;
         Probe.PairDate(2, X);
-        Probe.Finish();
+        Probe.Expect('d1', 'ok: 01/01/24..''''');
+        Probe.Expect('d2', 'ok: ''''..01/01/24');
+        Probe.Expect('gf', 'ok: ''''');
+        Probe.Verify();
     end;
 
     [Test]
@@ -2904,7 +5066,10 @@ codeunit 57405 "SRC DateTime Tests"
         X := 0D;
         V := X;
         Probe.Variants(2, V);
-        Probe.Finish();
+        Probe.Expect('b', 'ok: ''''');
+        Probe.Expect('f', 'ok: ''''');
+        Probe.Expect('gr', 'ok: ''''');
+        Probe.Verify();
     end;
 
     [Test]
@@ -2915,7 +5080,10 @@ codeunit 57405 "SRC DateTime Tests"
     begin
         X := 0D;
         Probe.TypedDate(3, X);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: ''''');
+        Probe.Expect('c', 'ok: ''''');
+        Probe.Expect('e', 'ok: ''''');
+        Probe.Verify();
     end;
 
     [Test]
@@ -2926,7 +5094,9 @@ codeunit 57405 "SRC DateTime Tests"
     begin
         X := 0D;
         Probe.PairDate(3, X);
-        Probe.Finish();
+        Probe.Expect('d1', 'ok: 10:00:00 AM..''''');
+        Probe.Expect('d2', 'ok: ''''..10:00:00 AM');
+        Probe.Verify();
     end;
 
     [Test]
@@ -2939,7 +5109,10 @@ codeunit 57405 "SRC DateTime Tests"
         X := 0D;
         V := X;
         Probe.Variants(3, V);
-        Probe.Finish();
+        Probe.Expect('b', 'ok: ''''');
+        Probe.Expect('f', 'ok: ''''');
+        Probe.Expect('gr', 'ok: ''''');
+        Probe.Verify();
     end;
 
     [Test]
@@ -2950,7 +5123,10 @@ codeunit 57405 "SRC DateTime Tests"
     begin
         X := 0D;
         Probe.TypedDate(4, X);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: ''''');
+        Probe.Expect('c', 'ok: ''''');
+        Probe.Expect('e', 'ok: ''''');
+        Probe.Verify();
     end;
 
     [Test]
@@ -2961,7 +5137,9 @@ codeunit 57405 "SRC DateTime Tests"
     begin
         X := 0D;
         Probe.PairDate(4, X);
-        Probe.Finish();
+        Probe.Expect('d1', 'ok: 01/01/24 10:00 AM..''''');
+        Probe.Expect('d2', 'ok: ''''..01/01/24 10:00 AM');
+        Probe.Verify();
     end;
 
     [Test]
@@ -2974,7 +5152,10 @@ codeunit 57405 "SRC DateTime Tests"
         X := 0D;
         V := X;
         Probe.Variants(4, V);
-        Probe.Finish();
+        Probe.Expect('b', 'ok: ''''');
+        Probe.Expect('f', 'ok: ''''');
+        Probe.Expect('gr', 'ok: ''''');
+        Probe.Verify();
     end;
 
     [Test]
@@ -2985,7 +5166,10 @@ codeunit 57405 "SRC DateTime Tests"
     begin
         X := 100000T;
         Probe.TypedTime(2, X);
-        Probe.Finish();
+        Probe.Expect('a', 'E: The date is not valid. | DateInvalid');
+        Probe.Expect('c', 'E: The date is not valid. | DateInvalid');
+        Probe.Expect('e', 'E: The date is not valid. | DateInvalid');
+        Probe.Verify();
     end;
 
     [Test]
@@ -2996,7 +5180,9 @@ codeunit 57405 "SRC DateTime Tests"
     begin
         X := 100000T;
         Probe.PairTime(2, X);
-        Probe.Finish();
+        Probe.Expect('d1', 'E: The date is not valid. | DateInvalid');
+        Probe.Expect('d2', 'E: The date is not valid. | DateInvalid');
+        Probe.Verify();
     end;
 
     [Test]
@@ -3009,7 +5195,10 @@ codeunit 57405 "SRC DateTime Tests"
         X := 100000T;
         V := X;
         Probe.Variants(2, V);
-        Probe.Finish();
+        Probe.Expect('b', 'E: The date is not valid. | DateInvalid');
+        Probe.Expect('f', 'E: The date is not valid. | DateInvalid');
+        Probe.Expect('gr', 'E: The date is not valid. | DateInvalid');
+        Probe.Verify();
     end;
 
     [Test]
@@ -3020,7 +5209,10 @@ codeunit 57405 "SRC DateTime Tests"
     begin
         X := 100000T;
         Probe.TypedTime(3, X);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: 10:00:00 AM');
+        Probe.Expect('c', 'ok: 10:00:00 AM');
+        Probe.Expect('e', 'ok: 10:00:00 AM');
+        Probe.Verify();
     end;
 
     [Test]
@@ -3031,7 +5223,10 @@ codeunit 57405 "SRC DateTime Tests"
     begin
         X := 100000T;
         Probe.PairTime(3, X);
-        Probe.Finish();
+        Probe.Expect('d1', 'ok: 10:00:00 AM');
+        Probe.Expect('d2', 'ok: 10:00:00 AM');
+        Probe.Expect('gf', 'ok: 10:00:00 AM');
+        Probe.Verify();
     end;
 
     [Test]
@@ -3044,7 +5239,10 @@ codeunit 57405 "SRC DateTime Tests"
         X := 100000T;
         V := X;
         Probe.Variants(3, V);
-        Probe.Finish();
+        Probe.Expect('b', 'ok: 10:00:00 AM');
+        Probe.Expect('f', 'ok: 10:00:00 AM');
+        Probe.Expect('gr', 'ok: 10:00:00 AM');
+        Probe.Verify();
     end;
 
     [Test]
@@ -3055,7 +5253,10 @@ codeunit 57405 "SRC DateTime Tests"
     begin
         X := 100000T;
         Probe.TypedTime(4, X);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: 01/02/0001 10:00 AM');
+        Probe.Expect('c', 'ok: 01/02/0001 10:00 AM');
+        Probe.Expect('e', 'ok: 01/02/0001 10:00 AM');
+        Probe.Verify();
     end;
 
     [Test]
@@ -3066,7 +5267,9 @@ codeunit 57405 "SRC DateTime Tests"
     begin
         X := 100000T;
         Probe.PairTime(4, X);
-        Probe.Finish();
+        Probe.Expect('d1', 'ok: 01/01/24 10:00 AM..01/02/0001 10:00 AM');
+        Probe.Expect('d2', 'ok: 01/02/0001 10:00 AM..01/01/24 10:00 AM');
+        Probe.Verify();
     end;
 
     [Test]
@@ -3079,7 +5282,10 @@ codeunit 57405 "SRC DateTime Tests"
         X := 100000T;
         V := X;
         Probe.Variants(4, V);
-        Probe.Finish();
+        Probe.Expect('b', 'ok: 01/02/0001 10:00 AM');
+        Probe.Expect('f', 'ok: 01/02/0001 10:00 AM');
+        Probe.Expect('gr', 'ok: 01/02/0001 10:00 AM');
+        Probe.Verify();
     end;
 
     [Test]
@@ -3090,7 +5296,10 @@ codeunit 57405 "SRC DateTime Tests"
     begin
         X := 0T;
         Probe.TypedTime(2, X);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: ''''');
+        Probe.Expect('c', 'ok: ''''');
+        Probe.Expect('e', 'ok: ''''');
+        Probe.Verify();
     end;
 
     [Test]
@@ -3101,7 +5310,9 @@ codeunit 57405 "SRC DateTime Tests"
     begin
         X := 0T;
         Probe.PairTime(2, X);
-        Probe.Finish();
+        Probe.Expect('d1', 'ok: 01/01/24..''''');
+        Probe.Expect('d2', 'ok: ''''..01/01/24');
+        Probe.Verify();
     end;
 
     [Test]
@@ -3114,7 +5325,10 @@ codeunit 57405 "SRC DateTime Tests"
         X := 0T;
         V := X;
         Probe.Variants(2, V);
-        Probe.Finish();
+        Probe.Expect('b', 'ok: ''''');
+        Probe.Expect('f', 'ok: ''''');
+        Probe.Expect('gr', 'ok: ''''');
+        Probe.Verify();
     end;
 
     [Test]
@@ -3125,7 +5339,10 @@ codeunit 57405 "SRC DateTime Tests"
     begin
         X := 0T;
         Probe.TypedTime(3, X);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: ''''');
+        Probe.Expect('c', 'ok: ''''');
+        Probe.Expect('e', 'ok: ''''');
+        Probe.Verify();
     end;
 
     [Test]
@@ -3136,7 +5353,10 @@ codeunit 57405 "SRC DateTime Tests"
     begin
         X := 0T;
         Probe.PairTime(3, X);
-        Probe.Finish();
+        Probe.Expect('d1', 'ok: 10:00:00 AM..''''');
+        Probe.Expect('d2', 'ok: ''''..10:00:00 AM');
+        Probe.Expect('gf', 'ok: ''''');
+        Probe.Verify();
     end;
 
     [Test]
@@ -3149,7 +5369,10 @@ codeunit 57405 "SRC DateTime Tests"
         X := 0T;
         V := X;
         Probe.Variants(3, V);
-        Probe.Finish();
+        Probe.Expect('b', 'ok: ''''');
+        Probe.Expect('f', 'ok: ''''');
+        Probe.Expect('gr', 'ok: ''''');
+        Probe.Verify();
     end;
 
     [Test]
@@ -3160,7 +5383,10 @@ codeunit 57405 "SRC DateTime Tests"
     begin
         X := 0T;
         Probe.TypedTime(4, X);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: ''''');
+        Probe.Expect('c', 'ok: ''''');
+        Probe.Expect('e', 'ok: ''''');
+        Probe.Verify();
     end;
 
     [Test]
@@ -3171,7 +5397,9 @@ codeunit 57405 "SRC DateTime Tests"
     begin
         X := 0T;
         Probe.PairTime(4, X);
-        Probe.Finish();
+        Probe.Expect('d1', 'ok: 01/01/24 10:00 AM..''''');
+        Probe.Expect('d2', 'ok: ''''..01/01/24 10:00 AM');
+        Probe.Verify();
     end;
 
     [Test]
@@ -3184,7 +5412,10 @@ codeunit 57405 "SRC DateTime Tests"
         X := 0T;
         V := X;
         Probe.Variants(4, V);
-        Probe.Finish();
+        Probe.Expect('b', 'ok: ''''');
+        Probe.Expect('f', 'ok: ''''');
+        Probe.Expect('gr', 'ok: ''''');
+        Probe.Verify();
     end;
 
     [Test]
@@ -3195,7 +5426,10 @@ codeunit 57405 "SRC DateTime Tests"
     begin
         X := CreateDateTime(20240101D, 100000T);
         Probe.TypedDT(2, X);
-        Probe.Finish();
+        Probe.Expect('a', 'E: The date is not valid. | DateInvalid');
+        Probe.Expect('c', 'E: The date is not valid. | DateInvalid');
+        Probe.Expect('e', 'E: The date is not valid. | DateInvalid');
+        Probe.Verify();
     end;
 
     [Test]
@@ -3206,7 +5440,9 @@ codeunit 57405 "SRC DateTime Tests"
     begin
         X := CreateDateTime(20240101D, 100000T);
         Probe.PairDT(2, X);
-        Probe.Finish();
+        Probe.Expect('d1', 'E: The date is not valid. | DateInvalid');
+        Probe.Expect('d2', 'E: The date is not valid. | DateInvalid');
+        Probe.Verify();
     end;
 
     [Test]
@@ -3219,7 +5455,10 @@ codeunit 57405 "SRC DateTime Tests"
         X := CreateDateTime(20240101D, 100000T);
         V := X;
         Probe.Variants(2, V);
-        Probe.Finish();
+        Probe.Expect('b', 'E: The date is not valid. | DateInvalid');
+        Probe.Expect('f', 'E: The date is not valid. | DateInvalid');
+        Probe.Expect('gr', 'E: The date is not valid. | DateInvalid');
+        Probe.Verify();
     end;
 
     [Test]
@@ -3230,7 +5469,10 @@ codeunit 57405 "SRC DateTime Tests"
     begin
         X := CreateDateTime(20240101D, 100000T);
         Probe.TypedDT(3, X);
-        Probe.Finish();
+        Probe.Expect('a', 'E: The time is not valid. | InvalidTime');
+        Probe.Expect('c', 'E: The time is not valid. | InvalidTime');
+        Probe.Expect('e', 'E: The time is not valid. | InvalidTime');
+        Probe.Verify();
     end;
 
     [Test]
@@ -3241,7 +5483,9 @@ codeunit 57405 "SRC DateTime Tests"
     begin
         X := CreateDateTime(20240101D, 100000T);
         Probe.PairDT(3, X);
-        Probe.Finish();
+        Probe.Expect('d1', 'E: The time is not valid. | InvalidTime');
+        Probe.Expect('d2', 'E: The time is not valid. | InvalidTime');
+        Probe.Verify();
     end;
 
     [Test]
@@ -3254,7 +5498,10 @@ codeunit 57405 "SRC DateTime Tests"
         X := CreateDateTime(20240101D, 100000T);
         V := X;
         Probe.Variants(3, V);
-        Probe.Finish();
+        Probe.Expect('b', 'E: The time is not valid. | InvalidTime');
+        Probe.Expect('f', 'E: The time is not valid. | InvalidTime');
+        Probe.Expect('gr', 'E: The time is not valid. | InvalidTime');
+        Probe.Verify();
     end;
 
     [Test]
@@ -3265,7 +5512,10 @@ codeunit 57405 "SRC DateTime Tests"
     begin
         X := CreateDateTime(20240101D, 100000T);
         Probe.TypedDT(4, X);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: 01/01/24 10:00 AM');
+        Probe.Expect('c', 'ok: 01/01/24 10:00 AM');
+        Probe.Expect('e', 'ok: 01/01/24 10:00 AM');
+        Probe.Verify();
     end;
 
     [Test]
@@ -3276,7 +5526,10 @@ codeunit 57405 "SRC DateTime Tests"
     begin
         X := CreateDateTime(20240101D, 100000T);
         Probe.PairDT(4, X);
-        Probe.Finish();
+        Probe.Expect('d1', 'ok: 01/01/24 10:00 AM');
+        Probe.Expect('d2', 'ok: 01/01/24 10:00 AM');
+        Probe.Expect('gf', 'ok: 01/01/24 10:00 AM');
+        Probe.Verify();
     end;
 
     [Test]
@@ -3289,7 +5542,10 @@ codeunit 57405 "SRC DateTime Tests"
         X := CreateDateTime(20240101D, 100000T);
         V := X;
         Probe.Variants(4, V);
-        Probe.Finish();
+        Probe.Expect('b', 'ok: 01/01/24 10:00 AM');
+        Probe.Expect('f', 'ok: 01/01/24 10:00 AM');
+        Probe.Expect('gr', 'ok: 01/01/24 10:00 AM');
+        Probe.Verify();
     end;
 
     [Test]
@@ -3300,7 +5556,10 @@ codeunit 57405 "SRC DateTime Tests"
     begin
         X := 0DT;
         Probe.TypedDT(2, X);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: ''''');
+        Probe.Expect('c', 'ok: ''''');
+        Probe.Expect('e', 'ok: ''''');
+        Probe.Verify();
     end;
 
     [Test]
@@ -3311,7 +5570,9 @@ codeunit 57405 "SRC DateTime Tests"
     begin
         X := 0DT;
         Probe.PairDT(2, X);
-        Probe.Finish();
+        Probe.Expect('d1', 'ok: 01/01/24..''''');
+        Probe.Expect('d2', 'ok: ''''..01/01/24');
+        Probe.Verify();
     end;
 
     [Test]
@@ -3324,7 +5585,10 @@ codeunit 57405 "SRC DateTime Tests"
         X := 0DT;
         V := X;
         Probe.Variants(2, V);
-        Probe.Finish();
+        Probe.Expect('b', 'ok: ''''');
+        Probe.Expect('f', 'ok: ''''');
+        Probe.Expect('gr', 'ok: ''''');
+        Probe.Verify();
     end;
 
     [Test]
@@ -3335,7 +5599,10 @@ codeunit 57405 "SRC DateTime Tests"
     begin
         X := 0DT;
         Probe.TypedDT(3, X);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: ''''');
+        Probe.Expect('c', 'ok: ''''');
+        Probe.Expect('e', 'ok: ''''');
+        Probe.Verify();
     end;
 
     [Test]
@@ -3346,7 +5613,9 @@ codeunit 57405 "SRC DateTime Tests"
     begin
         X := 0DT;
         Probe.PairDT(3, X);
-        Probe.Finish();
+        Probe.Expect('d1', 'ok: 10:00:00 AM..''''');
+        Probe.Expect('d2', 'ok: ''''..10:00:00 AM');
+        Probe.Verify();
     end;
 
     [Test]
@@ -3359,7 +5628,10 @@ codeunit 57405 "SRC DateTime Tests"
         X := 0DT;
         V := X;
         Probe.Variants(3, V);
-        Probe.Finish();
+        Probe.Expect('b', 'ok: ''''');
+        Probe.Expect('f', 'ok: ''''');
+        Probe.Expect('gr', 'ok: ''''');
+        Probe.Verify();
     end;
 
     [Test]
@@ -3370,7 +5642,10 @@ codeunit 57405 "SRC DateTime Tests"
     begin
         X := 0DT;
         Probe.TypedDT(4, X);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: ''''');
+        Probe.Expect('c', 'ok: ''''');
+        Probe.Expect('e', 'ok: ''''');
+        Probe.Verify();
     end;
 
     [Test]
@@ -3381,7 +5656,10 @@ codeunit 57405 "SRC DateTime Tests"
     begin
         X := 0DT;
         Probe.PairDT(4, X);
-        Probe.Finish();
+        Probe.Expect('d1', 'ok: 01/01/24 10:00 AM..''''');
+        Probe.Expect('d2', 'ok: ''''..01/01/24 10:00 AM');
+        Probe.Expect('gf', 'ok: ''''');
+        Probe.Verify();
     end;
 
     [Test]
@@ -3394,6 +5672,9 @@ codeunit 57405 "SRC DateTime Tests"
         X := 0DT;
         V := X;
         Probe.Variants(4, V);
-        Probe.Finish();
+        Probe.Expect('b', 'ok: ''''');
+        Probe.Expect('f', 'ok: ''''');
+        Probe.Expect('gr', 'ok: ''''');
+        Probe.Verify();
     end;
 }
