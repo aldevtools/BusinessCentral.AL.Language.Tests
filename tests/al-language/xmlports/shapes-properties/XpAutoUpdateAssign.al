@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-autoupdate-property
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160), Temp Blob (Base Application); own tables 72915-72921, xmlports 72922-72929, log 72930, test codeunit 72931
+// Fixtures used: Probe Observer (codeunit 69160), Temp Blob (Base Application); own tables 72915-72921, xmlports 72922-72929 and 72932, log 72930, test codeunit 72931
 // Probe: observe probe; every literal asserted below is what the corpus CI service tiers produced.
 // Facts: an XmlPort import into a row that already exists, where triggers assign fields of the row:
 //   - AutoUpdate = true, an OnAfterAssignField of the key field, of a carried field, an OnAfterAssignVariable of a text element, and an
@@ -376,6 +376,65 @@ xmlport 72926 "LT XAU NestUpd"
                 trigger OnBeforeModifyRecord()
                 begin
                     L.Add('bm:' + L.Row(Par));
+                end;
+            }
+        }
+    }
+
+    var
+        L: Codeunit "LT XAU Log";
+}
+
+// No AutoUpdate or AutoReplace: OnAfterAssignField of the key field assigns a field; the parent is stored before its linked
+// child rows and again after them.
+xmlport 72932 "LT XAU Again"
+{
+    Direction = Import;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Root)
+        {
+            tableelement(Par; "LT XAU Par")
+            {
+                XmlName = 'P';
+
+                fieldelement(Id; Par.Id)
+                {
+                    trigger OnAfterAssignField()
+                    begin
+                        L.Add('tr:' + L.Row(Par));
+                        Par.Stamp := 'trig';
+                    end;
+                }
+                fieldelement(Name; Par.Name) { }
+                tableelement(Chi; "LT XAU Chi")
+                {
+                    XmlName = 'C';
+                    LinkTable = Par;
+                    LinkFields = ParentId = field(Id);
+                    MinOccurs = Zero;
+
+                    fieldelement(CId; Chi.Id) { }
+                    fieldelement(Note; Chi.Note) { }
+                }
+
+                trigger OnBeforeInsertRecord()
+                begin
+                    L.Add('bi:' + L.Row(Par));
+                end;
+
+                trigger OnBeforeModifyRecord()
+                begin
+                    L.Add('bm:' + L.Row(Par));
+                end;
+
+                trigger OnAfterModifyRecord()
+                begin
+                    L.Add('am:' + L.Row(Par));
                 end;
             }
         }
@@ -892,6 +951,19 @@ codeunit 72931 "LT XmlPort AutoUpdate Assign"
     begin
         SeedPar();
         RunPort(Xmlport::"LT XAU NestUpd", '<Root><P><Id>2</Id><Name>new</Name><C><CId>10</CId><Note>a</Note></C></P></Root>');
+        Observer.Observe('trace', Log.Take());
+        Observer.Observe('rows', ParRows());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Again_FieldElementTrigger()
+    var
+        Log: Codeunit "LT XAU Log";
+        Observer: Codeunit "Probe Observer";
+    begin
+        SeedPar();
+        RunPort(Xmlport::"LT XAU Again", '<Root><P><Id>2</Id><Name>two</Name><C><CId>10</CId><Note>a</Note></C><C><CId>11</CId><Note>b</Note></C></P><P><Id>3</Id><Name>three</Name></P></Root>');
         Observer.Observe('trace', Log.Take());
         Observer.Observe('rows', ParRows());
         Observer.Finish();
