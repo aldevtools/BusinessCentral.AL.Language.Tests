@@ -780,6 +780,68 @@ codeunit 97501 "AM Kind Tests"
             '1,Yes,10,10,10,10,1,Yes,10,10,10,10,10,1,Yes,10,10,10,10,1,Yes,10,10,10,10,10,',
             Seen, 'fields 10-35 (Code over Code and Code over Text, field(filter()) then field()); database / temporary');
     end;
+
+    // The other Find methods with <>@ alone and @ alone set on a min and on a max FlowField (table 97511): Find('='), Find('-'),
+    // Find('+'), FindLast, and FindSet with the rows Next goes through, of a host in the database and of a temporary host.
+    local procedure MinMaxFinds(var Host: Record "AM Min Max Host"; FieldNo: Integer; Filter: Text): Text
+    var
+        Seen: Text;
+        Rows: Integer;
+    begin
+        Host.SetRange("Min Code");
+        Host.SetRange("Max Code");
+        Host.SetRange("Min Text");
+        Host.SetRange("Max Text");
+        case FieldNo of
+            Host.FieldNo("Min Code"):
+                Host.SetFilter("Min Code", Filter);
+            Host.FieldNo("Max Code"):
+                Host.SetFilter("Max Code", Filter);
+            Host.FieldNo("Min Text"):
+                Host.SetFilter("Min Text", Filter);
+            Host.FieldNo("Max Text"):
+                Host.SetFilter("Max Text", Filter);
+        end;
+        Seen := Format(Host.Find('=')) + ',' + Format(Host.Find('-')) + ',' + Format(Host.Find('+')) + ',' + Format(Host.FindLast());
+        if Host.FindSet() then
+            repeat
+                Rows += 1;
+            until Host.Next() = 0;
+        exit(Seen + ',' + Format(Rows));
+    end;
+
+    local procedure MinMaxFindsAll(var Host: Record "AM Min Max Host"): Text
+    var
+        Seen: Text;
+        No: Integer;
+    begin
+        for No := 2 to 5 do begin
+            Seen += MinMaxFinds(Host, No, '<>@') + ';' + MinMaxFinds(Host, No, '@');
+            if No < 5 then
+                Seen += '|';
+        end;
+        exit(Seen);
+    end;
+
+    [Test]
+    procedure AtSignAloneNegated_MinMaxFlowFieldFilter_FindMethods()
+    var
+        Host: Record "AM Min Max Host";
+        TempHost: Record "AM Min Max Host" temporary;
+        Seen: Text;
+    begin
+        Host."No." := NewGroup();
+        Host.Insert();
+        TempHost := Host;
+        TempHost.Insert();
+        Host.SetRange("No.", Host."No.");
+        TempHost.SetRange("No.", Host."No.");
+        Seen := MinMaxFindsAll(Host) + ' / ' + MinMaxFindsAll(TempHost);
+        Assert.AreEqual(
+            'No,No,No,No,0;Yes,Yes,Yes,Yes,1|Yes,Yes,Yes,Yes,1;Yes,Yes,Yes,Yes,1|No,No,No,No,0;Yes,Yes,Yes,Yes,1|Yes,Yes,Yes,Yes,1;Yes,Yes,Yes,Yes,1 / ' +
+            'No,No,No,No,0;Yes,Yes,Yes,Yes,1|No,No,No,No,0;Yes,Yes,Yes,Yes,1|No,No,No,No,0;Yes,Yes,Yes,Yes,1|No,No,No,No,0;Yes,Yes,Yes,Yes,1',
+            Seen, 'min code, max code, min text, max text: <>@;@; database / temporary');
+    end;
 }
 
 // The FlowFields of AtSignAloneNegated_MinMaxFlowFieldFilter: the min and the max of the Code and of the Text field of a group.
