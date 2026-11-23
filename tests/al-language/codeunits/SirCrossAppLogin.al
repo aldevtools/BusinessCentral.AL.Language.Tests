@@ -9,6 +9,10 @@
 //   (same codeunit, next in declaration order) observes the globals again. This is the shape of a partner test suite that reads
 //   a SingleInstance global another app's login subscriber changed.
 // BC versions: 27 - 29
+// BC result (27.5, 28.5, 29.0, identical): the login subscriber of XApp E ran once before the tests (login calls 1), and the
+//   test app reads its values (cnt 10, txt 'L'). The locals keep the read values after the overwrite (cnt 10, txt 'L'); the
+//   List local is the same list as the global (List of is a reference type: 2 entries after AddName). Test 2 sees the
+//   overwrite of test 1 (cnt 20, txt 'second', 2 names); the login subscriber did not run again.
 
 codeunit 73480 "SIR Cross App Login"
 {
@@ -40,7 +44,15 @@ codeunit 73480 "SIR Cross App Login"
         Observer.Observe('global txt', S.GetTxt());
         Observer.Observe('global names', Format(S.NameCount()));
         Observer.Observe('global login calls', Format(S.GetLoginCalls()));
-        Observer.Finish();
+        Observer.Expect('seen cnt', '10');
+        Observer.Expect('seen txt', 'L');
+        Observer.Expect('seen names', '2');
+        Observer.Expect('seen login calls', '1');
+        Observer.Expect('global cnt', '20');
+        Observer.Expect('global txt', 'second');
+        Observer.Expect('global names', '2');
+        Observer.Expect('global login calls', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -53,6 +65,10 @@ codeunit 73480 "SIR Cross App Login"
         Observer.Observe('global txt', S.GetTxt());
         Observer.Observe('global names', Format(S.NameCount()));
         Observer.Observe('global login calls', Format(S.GetLoginCalls()));
-        Observer.Finish();
+        Observer.Expect('global cnt', '20');
+        Observer.Expect('global txt', 'second');
+        Observer.Expect('global names', '2');
+        Observer.Expect('global login calls', '1');
+        Observer.Verify();
     end;
 }
