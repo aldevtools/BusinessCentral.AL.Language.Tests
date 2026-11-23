@@ -133,7 +133,28 @@ codeunit 98064 "LT HtT Handler Response Shapes"
         ClearLastError();
         Get(1, 'https://lt-hhr.invalid/', Response);
         ResponseCells(Response);
-        Observer.Finish();
+#if BC29PLUS
+        Observer.Expect('get', 'Yes');
+        Observer.Expect('calls', '1');
+        Observer.Expect('get|err|text', '');
+        Observer.Expect('get|err|code', '');
+        Observer.Expect('headers|ok', 'No');
+        Observer.Expect('headers|found', 'Yes');
+        Observer.Expect('headers|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('headers|code', 'InvalidHeader:Argument');
+        Observer.Expect('headers|x-a', 'No');
+        Observer.Expect('content|ok', 'No');
+        Observer.Expect('content|found', 'Yes');
+        Observer.Expect('content|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('content|code', 'InvalidHeader:Argument');
+        Observer.Expect('content|type', 'text/plain; charset=utf-8');
+        Observer.Expect('content|length', 'No');
+        Observer.Expect('content|body', 'x');
+        Observer.Verify();
+#else
+        // BC 27.5 and 28.5 on Windows call the handler too (local observation of this probe); the Linux images of 27 and 28 do not call it (bc-linux issue 192).
+        Observer.Discard();
+#endif
     end;
 
     [Test]
@@ -145,7 +166,28 @@ codeunit 98064 "LT HtT Handler Response Shapes"
         ClearLastError();
         Get(2, 'https://lt-hhr.invalid/', Response);
         ResponseCells(Response);
-        Observer.Finish();
+#if BC29PLUS
+        Observer.Expect('get', 'Yes');
+        Observer.Expect('calls', '1');
+        Observer.Expect('get|err|text', '');
+        Observer.Expect('get|err|code', '');
+        Observer.Expect('headers|ok', 'No');
+        Observer.Expect('headers|found', 'Yes');
+        Observer.Expect('headers|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('headers|code', 'InvalidHeader:Argument');
+        Observer.Expect('headers|x-a', 'No');
+        Observer.Expect('content|ok', 'No');
+        Observer.Expect('content|found', 'Yes');
+        Observer.Expect('content|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('content|code', 'InvalidHeader:Argument');
+        Observer.Expect('content|type', '<absent>');
+        Observer.Expect('content|length', 'No');
+        Observer.Expect('content|body', '');
+        Observer.Verify();
+#else
+        // BC 27.5 and 28.5 on Windows call the handler too (local observation of this probe); the Linux images of 27 and 28 do not call it (bc-linux issue 192).
+        Observer.Discard();
+#endif
     end;
 
     [Test]
@@ -157,7 +199,28 @@ codeunit 98064 "LT HtT Handler Response Shapes"
         ClearLastError();
         Get(3, 'https://lt-hhr.invalid/', Response);
         ResponseCells(Response);
-        Observer.Finish();
+#if BC29PLUS
+        Observer.Expect('get', 'Yes');
+        Observer.Expect('calls', '1');
+        Observer.Expect('get|err|text', '');
+        Observer.Expect('get|err|code', '');
+        Observer.Expect('headers|ok', 'No');
+        Observer.Expect('headers|found', 'Yes');
+        Observer.Expect('headers|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('headers|code', 'InvalidHeader:Argument');
+        Observer.Expect('headers|x-a', 'Yes');
+        Observer.Expect('content|ok', 'No');
+        Observer.Expect('content|found', 'Yes');
+        Observer.Expect('content|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('content|code', 'InvalidHeader:Argument');
+        Observer.Expect('content|type', '<absent>');
+        Observer.Expect('content|length', 'No');
+        Observer.Expect('content|body', '');
+        Observer.Verify();
+#else
+        // BC 27.5 and 28.5 on Windows call the handler too (local observation of this probe); the Linux images of 27 and 28 do not call it (bc-linux issue 192).
+        Observer.Discard();
+#endif
     end;
 
     [Test]
@@ -169,7 +232,28 @@ codeunit 98064 "LT HtT Handler Response Shapes"
         ClearLastError();
         Get(4, 'http://localhost:1/x', Response);
         ResponseCells(Response);
-        Observer.Finish();
+#if BC29PLUS
+        Observer.Expect('get', 'No');
+        Observer.Expect('calls', '1');
+        Observer.Expect('get|err|text', 'There was an error while executing the HTTP request, the connecting endpoint violates security requirements. Make sure you are connecting to a valid endpoint.');
+        Observer.Expect('get|err|code', 'HttpRequest:Security');
+        Observer.Expect('headers|ok', 'No');
+        Observer.Expect('headers|found', 'Yes');
+        Observer.Expect('headers|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('headers|code', 'InvalidHeader:Argument');
+        Observer.Expect('headers|x-a', 'No');
+        Observer.Expect('content|ok', 'No');
+        Observer.Expect('content|found', 'Yes');
+        Observer.Expect('content|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('content|code', 'InvalidHeader:Argument');
+        Observer.Expect('content|type', '<absent>');
+        Observer.Expect('content|length', 'No');
+        Observer.Expect('content|body', '');
+        Observer.Verify();
+#else
+        // BC 27.5 and 28.5 on Windows call the handler too (local observation of this probe); the Linux images of 27 and 28 do not call it (bc-linux issue 192).
+        Observer.Discard();
+#endif
     end;
 
     [Test]
@@ -181,7 +265,28 @@ codeunit 98064 "LT HtT Handler Response Shapes"
         ClearLastError();
         Get(5, 'http://localhost:1/x', Response);
         ResponseCells(Response);
-        Observer.Finish();
+#if BC29PLUS
+        Observer.Expect('get', 'No');
+        Observer.Expect('calls', '1');
+        Observer.Expect('get|err|text', 'There was an error while executing the HTTP request, the connecting endpoint violates security requirements. Make sure you are connecting to a valid endpoint.');
+        Observer.Expect('get|err|code', 'HttpRequest:Security');
+        Observer.Expect('headers|ok', 'No');
+        Observer.Expect('headers|found', 'Yes');
+        Observer.Expect('headers|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('headers|code', 'InvalidHeader:Argument');
+        Observer.Expect('headers|x-a', 'No');
+        Observer.Expect('content|ok', 'No');
+        Observer.Expect('content|found', 'Yes');
+        Observer.Expect('content|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('content|code', 'InvalidHeader:Argument');
+        Observer.Expect('content|type', '<absent>');
+        Observer.Expect('content|length', 'No');
+        Observer.Expect('content|body', '');
+        Observer.Verify();
+#else
+        // BC 27.5 and 28.5 on Windows call the handler too (local observation of this probe); the Linux images of 27 and 28 do not call it (bc-linux issue 192).
+        Observer.Discard();
+#endif
     end;
 
     [Test]
@@ -200,7 +305,15 @@ codeunit 98064 "LT HtT Handler Response Shapes"
         Request.Content.WriteFrom('request body');
         Ok := Client.Send(Request, Response);
         Observer.Observe('send', Format(Ok));
-        Observer.Finish();
+#if BC29PLUS
+        Observer.Expect('handler|requestType', 'Post');
+        Observer.Expect('handler|requestPath', 'https://lt-hhr.invalid/');
+        Observer.Expect('send', 'Yes');
+        Observer.Verify();
+#else
+        // BC 27.5 and 28.5 on Windows call the handler too (local observation of this probe); the Linux images of 27 and 28 do not call it (bc-linux issue 192).
+        Observer.Discard();
+#endif
     end;
 
     [Test]
@@ -211,6 +324,23 @@ codeunit 98064 "LT HtT Handler Response Shapes"
     begin
         ClearLastError();
         Get(7, 'https://lt-hhr.invalid/', Response);
-        Observer.Finish();
+#if BC29PLUS
+        Observer.Expect('handler|ownResponseContent|ok', 'No');
+        Observer.Expect('handler|ownResponseContent|found', 'Yes');
+        Observer.Expect('handler|ownResponseContent|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('handler|ownResponseContent|code', 'InvalidHeader:Argument');
+        Observer.Expect('handler|ownResponseHeaders|ok', 'No');
+        Observer.Expect('handler|ownResponseHeaders|found', 'Yes');
+        Observer.Expect('handler|ownResponseHeaders|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('handler|ownResponseHeaders|code', 'InvalidHeader:Argument');
+        Observer.Expect('get', 'Yes');
+        Observer.Expect('calls', '1');
+        Observer.Expect('get|err|text', '');
+        Observer.Expect('get|err|code', '');
+        Observer.Verify();
+#else
+        // BC 27.5 and 28.5 on Windows call the handler too (local observation of this probe); the Linux images of 27 and 28 do not call it (bc-linux issue 192).
+        Observer.Discard();
+#endif
     end;
 }

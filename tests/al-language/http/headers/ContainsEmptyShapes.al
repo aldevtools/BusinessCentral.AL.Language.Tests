@@ -138,7 +138,13 @@ codeunit 70886 "LT HtT Contains Empty Shapes"
         Headers.Remove('X-A');
         Cell('afterRemove', Headers);
         Observer.Observe('afterRemove|keys', Format(Headers.Keys().Count()));
-        Observer.Finish();
+        Observer.Expect('add|ok', 'Yes');
+        Observer.Expect('afterRemove|ok', 'No');
+        Observer.Expect('afterRemove|found', 'Yes');
+        Observer.Expect('afterRemove|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('afterRemove|code', 'InvalidHeader:Argument');
+        Observer.Expect('afterRemove|keys', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -154,7 +160,16 @@ codeunit 70886 "LT HtT Contains Empty Shapes"
         Cell('afterClear', Headers);
         Headers := Client.DefaultRequestHeaders();
         Cell('newHandle', Headers);
-        Observer.Finish();
+        Observer.Expect('add|ok', 'Yes');
+        Observer.Expect('afterClear|ok', 'No');
+        Observer.Expect('afterClear|found', 'Yes');
+        Observer.Expect('afterClear|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('afterClear|code', 'InvalidHeader:Argument');
+        Observer.Expect('newHandle|ok', 'No');
+        Observer.Expect('newHandle|found', 'Yes');
+        Observer.Expect('newHandle|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('newHandle|code', 'InvalidHeader:Argument');
+        Observer.Verify();
     end;
 
     [Test]
@@ -171,7 +186,23 @@ codeunit 70886 "LT HtT Contains Empty Shapes"
         Observer.Observe('readd|ok', Format(TryAddHeader(Headers, 'Content-Type', 'text/plain; charset=utf-8')));
         Cell('readded', Headers);
         ContentCell('content', Content);
-        Observer.Finish();
+        Observer.Expect('removed|ok', 'No');
+        Observer.Expect('removed|found', 'Yes');
+        Observer.Expect('removed|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('removed|code', 'InvalidHeader:Argument');
+        Observer.Expect('readd|ok', 'Yes');
+        Observer.Expect('readded|ok', 'No');
+        Observer.Expect('readded|found', 'Yes');
+        Observer.Expect('readded|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('readded|code', 'InvalidHeader:Argument');
+        Observer.Expect('content|ok', 'No');
+        Observer.Expect('content|found', 'Yes');
+        Observer.Expect('content|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('content|code', 'InvalidHeader:Argument');
+        Observer.Expect('content|type', 'text/plain; charset=utf-8');
+        Observer.Expect('content|length', 'No');
+        Observer.Expect('content|body', 'body');
+        Observer.Verify();
     end;
 
     // ---- cells 4 to 8 ----
@@ -184,7 +215,14 @@ codeunit 70886 "LT HtT Contains Empty Shapes"
         ClearLastError();
         Content.WriteFrom('body');
         ContentCell('written', Content);
-        Observer.Finish();
+        Observer.Expect('written|ok', 'No');
+        Observer.Expect('written|found', 'Yes');
+        Observer.Expect('written|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('written|code', 'InvalidHeader:Argument');
+        Observer.Expect('written|type', 'text/plain; charset=utf-8');
+        Observer.Expect('written|length', 'No');
+        Observer.Expect('written|body', 'body');
+        Observer.Verify();
     end;
 
     [Test]
@@ -196,7 +234,14 @@ codeunit 70886 "LT HtT Contains Empty Shapes"
         Content.WriteFrom('one');
         Content.WriteFrom('two');
         ContentCell('twice', Content);
-        Observer.Finish();
+        Observer.Expect('twice|ok', 'No');
+        Observer.Expect('twice|found', 'Yes');
+        Observer.Expect('twice|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('twice|code', 'InvalidHeader:Argument');
+        Observer.Expect('twice|type', 'text/plain; charset=utf-8');
+        Observer.Expect('twice|length', 'No');
+        Observer.Expect('twice|body', 'two');
+        Observer.Verify();
     end;
 
     [Test]
@@ -210,7 +255,14 @@ codeunit 70886 "LT HtT Contains Empty Shapes"
         Stream(Blob, InS, 'from stream');
         Content.WriteFrom(InS);
         ContentCell('stream', Content);
-        Observer.Finish();
+        Observer.Expect('stream|ok', 'No');
+        Observer.Expect('stream|found', 'Yes');
+        Observer.Expect('stream|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('stream|code', 'InvalidHeader:Argument');
+        Observer.Expect('stream|type', 'text/plain; charset=utf-8');
+        Observer.Expect('stream|length', 'No');
+        Observer.Expect('stream|body', 'from stream');
+        Observer.Verify();
     end;
 
     [Test]
@@ -222,7 +274,14 @@ codeunit 70886 "LT HtT Contains Empty Shapes"
         Content.WriteFrom('one');
         Content.Clear();
         ContentCell('cleared', Content);
-        Observer.Finish();
+        Observer.Expect('cleared|ok', 'No');
+        Observer.Expect('cleared|found', 'Yes');
+        Observer.Expect('cleared|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('cleared|code', 'InvalidHeader:Argument');
+        Observer.Expect('cleared|type', 'text/plain; charset=utf-8');
+        Observer.Expect('cleared|length', 'No');
+        Observer.Expect('cleared|body', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -236,7 +295,21 @@ codeunit 70886 "LT HtT Contains Empty Shapes"
         Copy := Content;
         ContentCell('copy', Copy);
         ContentCell('source', Content);
-        Observer.Finish();
+        Observer.Expect('copy|ok', 'No');
+        Observer.Expect('copy|found', 'Yes');
+        Observer.Expect('copy|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('copy|code', 'InvalidHeader:Argument');
+        Observer.Expect('copy|type', 'text/plain; charset=utf-8');
+        Observer.Expect('copy|length', 'No');
+        Observer.Expect('copy|body', 'one');
+        Observer.Expect('source|ok', 'No');
+        Observer.Expect('source|found', 'Yes');
+        Observer.Expect('source|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('source|code', 'InvalidHeader:Argument');
+        Observer.Expect('source|type', 'text/plain; charset=utf-8');
+        Observer.Expect('source|length', 'No');
+        Observer.Expect('source|body', 'one');
+        Observer.Verify();
     end;
 
     // ---- cell b: a response never sent ----
@@ -252,7 +325,18 @@ codeunit 70886 "LT HtT Contains Empty Shapes"
         ResponseContentCell('responseContent', Response);
         Headers := Response.Headers();
         Cell('responseHeaders', Headers);
-        Observer.Finish();
+        Observer.Expect('responseContent|ok', 'No');
+        Observer.Expect('responseContent|found', 'Yes');
+        Observer.Expect('responseContent|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('responseContent|code', 'InvalidHeader:Argument');
+        Observer.Expect('responseContent|type', 'text/plain; charset=utf-8');
+        Observer.Expect('responseContent|length', 'No');
+        Observer.Expect('responseContent|body', 'x');
+        Observer.Expect('responseHeaders|ok', 'No');
+        Observer.Expect('responseHeaders|found', 'Yes');
+        Observer.Expect('responseHeaders|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('responseHeaders|code', 'InvalidHeader:Argument');
+        Observer.Verify();
     end;
 
     // ---- A1: a plain Add on the four receivers ----
@@ -279,7 +363,27 @@ codeunit 70886 "LT HtT Contains Empty Shapes"
         Content.GetHeaders(Headers);
         Observer.Observe('content|add', Format(TryAddHeader(Headers, 'X-A', 'v')));
         Cell('content', Headers);
-        Observer.Finish();
+        Observer.Expect('request|add', 'Yes');
+        Observer.Expect('request|ok', 'No');
+        Observer.Expect('request|found', 'Yes');
+        Observer.Expect('request|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('request|code', 'InvalidHeader:Argument');
+        Observer.Expect('response|add', 'Yes');
+        Observer.Expect('response|ok', 'No');
+        Observer.Expect('response|found', 'Yes');
+        Observer.Expect('response|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('response|code', 'InvalidHeader:Argument');
+        Observer.Expect('client|add', 'Yes');
+        Observer.Expect('client|ok', 'No');
+        Observer.Expect('client|found', 'Yes');
+        Observer.Expect('client|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('client|code', 'InvalidHeader:Argument');
+        Observer.Expect('content|add', 'Yes');
+        Observer.Expect('content|ok', 'No');
+        Observer.Expect('content|found', 'Yes');
+        Observer.Expect('content|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('content|code', 'InvalidHeader:Argument');
+        Observer.Verify();
     end;
 
     [Test]
@@ -293,7 +397,12 @@ codeunit 70886 "LT HtT Contains Empty Shapes"
         Content.GetHeaders(Headers);
         Observer.Observe('content|add', Format(TryAddHeader(Headers, 'Content-Language', 'en')));
         Cell('content', Headers);
-        Observer.Finish();
+        Observer.Expect('content|add', 'Yes');
+        Observer.Expect('content|ok', 'No');
+        Observer.Expect('content|found', 'Yes');
+        Observer.Expect('content|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('content|code', 'InvalidHeader:Argument');
+        Observer.Verify();
     end;
 
     // ---- A2: TryAddWithoutValidation ----
@@ -320,7 +429,25 @@ codeunit 70886 "LT HtT Contains Empty Shapes"
         Observer.Observe('client|call', Format(TryAddNoValidation(Headers, 'X-A', 'v', Added)));
         Observer.Observe('client|added', Format(Added));
         Cell('client', Headers);
-        Observer.Finish();
+        Observer.Expect('request|call', 'Yes');
+        Observer.Expect('request|added', 'Yes');
+        Observer.Expect('request|ok', 'No');
+        Observer.Expect('request|found', 'Yes');
+        Observer.Expect('request|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('request|code', 'InvalidHeader:Argument');
+        Observer.Expect('response|call', 'Yes');
+        Observer.Expect('response|added', 'Yes');
+        Observer.Expect('response|ok', 'No');
+        Observer.Expect('response|found', 'Yes');
+        Observer.Expect('response|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('response|code', 'InvalidHeader:Argument');
+        Observer.Expect('client|call', 'Yes');
+        Observer.Expect('client|added', 'Yes');
+        Observer.Expect('client|ok', 'No');
+        Observer.Expect('client|found', 'Yes');
+        Observer.Expect('client|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('client|code', 'InvalidHeader:Argument');
+        Observer.Verify();
     end;
 
     [Test]
@@ -336,7 +463,15 @@ codeunit 70886 "LT HtT Contains Empty Shapes"
         Observer.Observe('bad|added', Format(Added));
         Observer.ObserveError('bad|err');
         Cell('afterBad', Headers);
-        Observer.Finish();
+        Observer.Expect('bad|call', 'Yes');
+        Observer.Expect('bad|added', 'No');
+        Observer.Expect('bad|err|text', '');
+        Observer.Expect('bad|err|code', '');
+        Observer.Expect('afterBad|ok', 'No');
+        Observer.Expect('afterBad|found', 'Yes');
+        Observer.Expect('afterBad|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('afterBad|code', 'InvalidHeader:Argument');
+        Observer.Verify();
     end;
 
     // ---- A3: SetCookie ----
@@ -352,48 +487,99 @@ codeunit 70886 "LT HtT Contains Empty Shapes"
         Request.GetHeaders(Headers);
         Cell('request', Headers);
         Observer.Observe('request|cookie', Format(Headers.Contains('Cookie')));
-        Observer.Finish();
+        Observer.Expect('set', 'Yes');
+        Observer.Expect('request|ok', 'No');
+        Observer.Expect('request|found', 'Yes');
+        Observer.Expect('request|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('request|code', 'InvalidHeader:Argument');
+        Observer.Expect('request|cookie', 'Yes');
+        Observer.Verify();
     end;
 
     // ---- A4: a client setting that rebuilds the client ----
 
-    [Test]
-    procedure A4_ClientSettings_OldAndNewHandle()
+    local procedure ClientSettingCells(Setting: Integer)
     var
         Client: HttpClient;
         Old: HttpHeaders;
         Fresh: HttpHeaders;
+    begin
+        Old := Client.DefaultRequestHeaders();
+        Old.Add('X-A', 'v');
+        Observer.Observe('set' + Format(Setting), Format(TryClient(Client, Setting)));
+        Observer.ObserveError('set' + Format(Setting) + '|err');
+        Cell('old' + Format(Setting), Old);
+        Fresh := Client.DefaultRequestHeaders();
+        Cell('new' + Format(Setting), Fresh);
+        Observer.Observe('new' + Format(Setting) + '|x-a', Format(Fresh.Contains('X-A')));
+    end;
+
+    [Test]
+    procedure A4_ClientSettings_OldAndNewHandle()
+    var
         Setting: Integer;
     begin
         ClearLastError();
-        for Setting := 1 to 5 do begin
-            Clear(Client);
-            Old := Client.DefaultRequestHeaders();
-            Old.Add('X-A', 'v');
-            Observer.Observe('set' + Format(Setting), Format(TryClient(Client, Setting)));
-            Observer.ObserveError('set' + Format(Setting) + '|err');
-            Cell('old' + Format(Setting), Old);
-            Fresh := Client.DefaultRequestHeaders();
-            Cell('new' + Format(Setting), Fresh);
-            Observer.Observe('new' + Format(Setting) + '|x-a', Format(Fresh.Contains('X-A')));
-        end;
+        for Setting := 1 to 4 do
+            ClientSettingCells(Setting);
+        Observer.Expect('set1', 'Yes');
+        Observer.Expect('set1|err|text', '');
+        Observer.Expect('set1|err|code', '');
+        Observer.Expect('old1|ok', 'No');
+        Observer.Expect('old1|found', 'Yes');
+        Observer.Expect('old1|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('old1|code', 'InvalidHeader:Argument');
+        Observer.Expect('new1|ok', 'No');
+        Observer.Expect('new1|found', 'Yes');
+        Observer.Expect('new1|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('new1|code', 'InvalidHeader:Argument');
+        Observer.Expect('new1|x-a', 'Yes');
+        Observer.Expect('set2', 'Yes');
+        Observer.Expect('set2|err|text', '');
+        Observer.Expect('set2|err|code', '');
+        Observer.Expect('old2|ok', 'No');
+        Observer.Expect('old2|found', 'Yes');
+        Observer.Expect('old2|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('old2|code', 'InvalidHeader:Argument');
+        Observer.Expect('new2|ok', 'No');
+        Observer.Expect('new2|found', 'Yes');
+        Observer.Expect('new2|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('new2|code', 'InvalidHeader:Argument');
+        Observer.Expect('new2|x-a', 'No');
+        Observer.Expect('set3', 'Yes');
+        Observer.Expect('set3|err|text', '');
+        Observer.Expect('set3|err|code', '');
+        Observer.Expect('old3|ok', 'No');
+        Observer.Expect('old3|found', 'Yes');
+        Observer.Expect('old3|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('old3|code', 'InvalidHeader:Argument');
+        Observer.Expect('new3|ok', 'No');
+        Observer.Expect('new3|found', 'Yes');
+        Observer.Expect('new3|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('new3|code', 'InvalidHeader:Argument');
+        Observer.Expect('new3|x-a', 'Yes');
+        Observer.Expect('set4', 'Yes');
+        Observer.Expect('set4|err|text', '');
+        Observer.Expect('set4|err|code', '');
+        Observer.Expect('old4|ok', 'No');
+        Observer.Expect('old4|found', 'Yes');
+        Observer.Expect('old4|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('old4|code', 'InvalidHeader:Argument');
+        Observer.Expect('new4|ok', 'No');
+        Observer.Expect('new4|found', 'Yes');
+        Observer.Expect('new4|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('new4|code', 'InvalidHeader:Argument');
+        Observer.Expect('new4|x-a', 'Yes');
+        Observer.Verify();
+    end;
+
+    // AddCertificate with a value that is not a certificate (split from the loop above: one observation message holds at most 1800 characters).
+    [Test]
+    procedure A4_ClientSettings_AddCertificate()
+    begin
+        ClearLastError();
+        ClientSettingCells(5);
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure A4_ClientSettings_OldAndNewHandle_More1()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure A4_ClientSettings_OldAndNewHandle_More2()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        Observer.More();
     end;
 
     // ---- A5: a secret content ----
@@ -417,7 +603,20 @@ codeunit 70886 "LT HtT Contains Empty Shapes"
         Observer.Observe('secret|read', Format(Content.ReadAs(Body)));
         Observer.Observe('secret|isEmpty', Format(Body.IsEmpty()));
         Cell('afterRead', Headers);
-        Observer.Finish();
+        Observer.Expect('secret|ok', 'No');
+        Observer.Expect('secret|found', 'Yes');
+        Observer.Expect('secret|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('secret|code', 'InvalidHeader:Argument');
+        Observer.Expect('secret|type', '<absent>');
+        Observer.Expect('secret|length', 'No');
+        Observer.Expect('secret|isSecret', 'Yes');
+        Observer.Expect('secret|read', 'Yes');
+        Observer.Expect('secret|isEmpty', 'No');
+        Observer.Expect('afterRead|ok', 'No');
+        Observer.Expect('afterRead|found', 'Yes');
+        Observer.Expect('afterRead|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('afterRead|code', 'InvalidHeader:Argument');
+        Observer.Verify();
     end;
 
     // ---- A6: a content after ReadAs ----
@@ -437,7 +636,15 @@ codeunit 70886 "LT HtT Contains Empty Shapes"
         Observer.Observe('afterRead|type', ContentType(Headers));
         Observer.Observe('afterRead|length', Format(Headers.Contains('Content-Length')));
         Observer.Observe('afterRead|body', Txt);
-        Observer.Finish();
+        Observer.Expect('read', 'Yes');
+        Observer.Expect('afterRead|ok', 'No');
+        Observer.Expect('afterRead|found', 'Yes');
+        Observer.Expect('afterRead|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('afterRead|code', 'InvalidHeader:Argument');
+        Observer.Expect('afterRead|type', 'text/plain; charset=utf-8');
+        Observer.Expect('afterRead|length', 'Yes');
+        Observer.Expect('afterRead|body', 'x');
+        Observer.Verify();
     end;
 
     [Test]
@@ -453,7 +660,13 @@ codeunit 70886 "LT HtT Contains Empty Shapes"
         Content.GetHeaders(Headers);
         Cell('afterRead', Headers);
         Observer.Observe('afterRead|length', Format(Headers.Contains('Content-Length')));
-        Observer.Finish();
+        Observer.Expect('read', 'Yes');
+        Observer.Expect('afterRead|ok', 'No');
+        Observer.Expect('afterRead|found', 'Yes');
+        Observer.Expect('afterRead|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('afterRead|code', 'InvalidHeader:Argument');
+        Observer.Expect('afterRead|length', 'No');
+        Observer.Verify();
     end;
 
     // ---- A7: Request.Content := C ----
@@ -469,7 +682,21 @@ codeunit 70886 "LT HtT Contains Empty Shapes"
         Request.Content := Content;
         RequestContentCell('assigned', Request);
         ContentCell('source', Content);
-        Observer.Finish();
+        Observer.Expect('assigned|ok', 'No');
+        Observer.Expect('assigned|found', 'Yes');
+        Observer.Expect('assigned|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('assigned|code', 'InvalidHeader:Argument');
+        Observer.Expect('assigned|type', 'text/plain; charset=utf-8');
+        Observer.Expect('assigned|length', 'No');
+        Observer.Expect('assigned|body', 'x');
+        Observer.Expect('source|ok', 'No');
+        Observer.Expect('source|found', 'Yes');
+        Observer.Expect('source|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('source|code', 'InvalidHeader:Argument');
+        Observer.Expect('source|type', 'text/plain; charset=utf-8');
+        Observer.Expect('source|length', 'No');
+        Observer.Expect('source|body', 'x');
+        Observer.Verify();
     end;
 
     [Test]
@@ -481,7 +708,14 @@ codeunit 70886 "LT HtT Contains Empty Shapes"
         ClearLastError();
         Request.Content := Content;
         RequestContentCell('assigned', Request);
-        Observer.Finish();
+        Observer.Expect('assigned|ok', 'No');
+        Observer.Expect('assigned|found', 'Yes');
+        Observer.Expect('assigned|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('assigned|code', 'InvalidHeader:Argument');
+        Observer.Expect('assigned|type', 'text/plain; charset=utf-8');
+        Observer.Expect('assigned|length', 'No');
+        Observer.Expect('assigned|body', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -495,7 +729,14 @@ codeunit 70886 "LT HtT Contains Empty Shapes"
         Request.Content := Content;
         Request.Content.WriteFrom('y');
         RequestContentCell('assigned', Request);
-        Observer.Finish();
+        Observer.Expect('assigned|ok', 'No');
+        Observer.Expect('assigned|found', 'Yes');
+        Observer.Expect('assigned|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('assigned|code', 'InvalidHeader:Argument');
+        Observer.Expect('assigned|type', 'text/plain; charset=utf-8');
+        Observer.Expect('assigned|length', 'No');
+        Observer.Expect('assigned|body', 'y');
+        Observer.Verify();
     end;
 
 #if BC28PLUS
@@ -517,7 +758,21 @@ codeunit 70886 "LT HtT Contains Empty Shapes"
         Headers := Response.Headers();
         Cell('headers', Headers);
         ResponseContentCell('content', Response);
-        Observer.Finish();
+        Observer.Expect('get', 'No');
+        Observer.Expect('get|err|text', 'There was an error while executing the HTTP request. Make sure you are connecting to a valid endpoint.');
+        Observer.Expect('get|err|code', 'HttpRequest:Socket');
+        Observer.Expect('headers|ok', 'No');
+        Observer.Expect('headers|found', 'Yes');
+        Observer.Expect('headers|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('headers|code', 'InvalidHeader:Argument');
+        Observer.Expect('content|ok', 'No');
+        Observer.Expect('content|found', 'Yes');
+        Observer.Expect('content|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('content|code', 'InvalidHeader:Argument');
+        Observer.Expect('content|type', '<absent>');
+        Observer.Expect('content|length', 'No');
+        Observer.Expect('content|body', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -537,7 +792,13 @@ codeunit 70886 "LT HtT Contains Empty Shapes"
         Cell('contentHeaders', Headers);
         Headers := Response.Headers();
         Observer.Observe('headers|x-a', Format(Headers.Contains('X-A')));
-        Observer.Finish();
+        Observer.Expect('get', 'No');
+        Observer.Expect('contentHeaders|ok', 'No');
+        Observer.Expect('contentHeaders|found', 'Yes');
+        Observer.Expect('contentHeaders|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('contentHeaders|code', 'InvalidHeader:Argument');
+        Observer.Expect('headers|x-a', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -562,7 +823,23 @@ codeunit 70886 "LT HtT Contains Empty Shapes"
         Headers := Response.Headers();
         Cell('responseHeaders', Headers);
         ResponseContentCell('responseContent', Response);
-        Observer.Finish();
+        Observer.Expect('send', 'No');
+        Observer.Expect('requestHeaders|ok', 'No');
+        Observer.Expect('requestHeaders|found', 'Yes');
+        Observer.Expect('requestHeaders|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('requestHeaders|code', 'InvalidHeader:Argument');
+        Observer.Expect('responseHeaders|ok', 'No');
+        Observer.Expect('responseHeaders|found', 'Yes');
+        Observer.Expect('responseHeaders|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('responseHeaders|code', 'InvalidHeader:Argument');
+        Observer.Expect('responseContent|ok', 'No');
+        Observer.Expect('responseContent|found', 'Yes');
+        Observer.Expect('responseContent|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('responseContent|code', 'InvalidHeader:Argument');
+        Observer.Expect('responseContent|type', '<absent>');
+        Observer.Expect('responseContent|length', 'No');
+        Observer.Expect('responseContent|body', '');
+        Observer.Verify();
     end;
 
     // ---- a text write on Request.Content after the request was sent ----
@@ -585,7 +862,15 @@ codeunit 70886 "LT HtT Contains Empty Shapes"
         ClearLastError();
         Request.Content.WriteFrom('late');
         RequestContentCell('afterSend', Request);
-        Observer.Finish();
+        Observer.Expect('send', 'No');
+        Observer.Expect('afterSend|ok', 'No');
+        Observer.Expect('afterSend|found', 'Yes');
+        Observer.Expect('afterSend|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('afterSend|code', 'InvalidHeader:Argument');
+        Observer.Expect('afterSend|type', 'text/plain; charset=utf-8');
+        Observer.Expect('afterSend|length', 'No');
+        Observer.Expect('afterSend|body', 'late');
+        Observer.Verify();
     end;
 
     [Test]
@@ -605,7 +890,15 @@ codeunit 70886 "LT HtT Contains Empty Shapes"
         ClearLastError();
         Request.Content.WriteFrom('late');
         RequestContentCell('afterSend', Request);
-        Observer.Finish();
+        Observer.Expect('send', 'No');
+        Observer.Expect('afterSend|ok', 'No');
+        Observer.Expect('afterSend|found', 'Yes');
+        Observer.Expect('afterSend|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('afterSend|code', 'InvalidHeader:Argument');
+        Observer.Expect('afterSend|type', 'text/plain; charset=utf-8');
+        Observer.Expect('afterSend|length', 'No');
+        Observer.Expect('afterSend|body', 'late');
+        Observer.Verify();
     end;
 
     [Test]
@@ -624,7 +917,15 @@ codeunit 70886 "LT HtT Contains Empty Shapes"
         ClearLastError();
         Content.WriteFrom('late');
         ContentCell('afterPost', Content);
-        Observer.Finish();
+        Observer.Expect('post', 'No');
+        Observer.Expect('afterPost|ok', 'No');
+        Observer.Expect('afterPost|found', 'Yes');
+        Observer.Expect('afterPost|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect('afterPost|code', 'InvalidHeader:Argument');
+        Observer.Expect('afterPost|type', 'text/plain; charset=utf-8');
+        Observer.Expect('afterPost|length', 'No');
+        Observer.Expect('afterPost|body', 'late');
+        Observer.Verify();
     end;
 #endif
 }

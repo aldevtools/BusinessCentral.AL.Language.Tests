@@ -135,7 +135,8 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         Before := TypeOf(Content);
         Stream(Blob, InS, 'stream body');
         WriteCell('readText|remove', Content, InS, Before);
-        Observer.Finish();
+        Observer.Expect('readText|remove', 'Yes|||<absent>|<absent>|stream body');
+        Observer.Verify();
     end;
 
     [Test]
@@ -156,7 +157,8 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         Before := TypeOf(Content);
         Stream(Blob, InS, 'stream body');
         WriteCell('readStream|remove', Content, InS, Before);
-        Observer.Finish();
+        Observer.Expect('readStream|remove', 'Yes|||<absent>|<absent>|stream body');
+        Observer.Verify();
     end;
 
     [Test]
@@ -177,7 +179,8 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         Before := TypeOf(Content);
         Stream(Blob, InS, 'stream body');
         WriteCell('readText|clear', Content, InS, Before);
-        Observer.Finish();
+        Observer.Expect('readText|clear', 'Yes|||<absent>|<absent>|stream body');
+        Observer.Verify();
     end;
 
     // ---- S2, cell 14: other Content-Type values ----
@@ -212,7 +215,14 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         ReaddedType('text/plain; charset=utf-8');
         ReaddedType('text/plain');
         ReaddedType('application/octet-stream');
-        Observer.Finish();
+        Observer.Expect('application/xml', 'Yes|||application/xml|application/xml|stream body');
+        Observer.Expect('text/xml', 'Yes|||text/xml|text/xml|stream body');
+        Observer.Expect('text/html; charset=utf-8', 'Yes|||text/html; charset=utf-8|text/html; charset=utf-8|stream body');
+        Observer.Expect('application/json; charset=utf-8', 'Yes|||application/json; charset=utf-8|application/json; charset=utf-8|stream body');
+        Observer.Expect('text/plain; charset=utf-8', 'Yes|||text/plain; charset=utf-8|text/plain; charset=utf-8|stream body');
+        Observer.Expect('text/plain', 'Yes|||text/plain|text/plain|stream body');
+        Observer.Expect('application/octet-stream', 'Yes|||application/octet-stream|application/octet-stream|stream body');
+        Observer.Verify();
     end;
 
     // ---- S3: other headers next to it ----
@@ -237,7 +247,12 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         Content.GetHeaders(Headers);
         Observer.Observe('other|x-a', Format(Headers.Contains('X-A')));
         Observer.Observe('other|language', Format(Headers.Contains('Content-Language')));
-        Observer.Finish();
+        Observer.Expect('add|ok', 'Yes');
+        Observer.Expect('addLanguage|ok', 'Yes');
+        Observer.Expect('other', 'Yes|||<absent>|<absent>|stream body');
+        Observer.Expect('other|x-a', 'Yes');
+        Observer.Expect('other|language', 'Yes');
+        Observer.Verify();
     end;
 
     // ---- S4: application/json on a never-written content ----
@@ -258,7 +273,9 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         Before := TypeOf(Content);
         Stream(Blob, InS, 'stream body');
         WriteCell('neverWritten|json', Content, InS, Before);
-        Observer.Finish();
+        Observer.Expect('add|ok', 'Yes');
+        Observer.Expect('neverWritten|json', 'Yes|||application/json|application/json|stream body');
+        Observer.Verify();
     end;
 
     [Test]
@@ -276,7 +293,8 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         Before := TypeOf(Content);
         Stream(Blob, InS, 'stream body');
         WriteCell('neverWritten|removed', Content, InS, Before);
-        Observer.Finish();
+        Observer.Expect('neverWritten|removed', 'Yes|||<absent>|<absent>|stream body');
+        Observer.Verify();
     end;
 
     // ---- S5: a body handed out as a stream ----
@@ -299,7 +317,8 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         Before := TypeOf(Content);
         Stream(Blob, InS, 'stream body');
         WriteCell('handedOut|otherStream', Content, InS, Before);
-        Observer.Finish();
+        Observer.Expect('handedOut|otherStream', 'Yes|||<absent>|<absent>|stream body');
+        Observer.Verify();
     end;
 
     [Test]
@@ -317,7 +336,8 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         Headers.Remove('Content-Type');
         Before := TypeOf(Content);
         WriteCell('handedOut|sameStream', Content, Handed, Before);
-        Observer.Finish();
+        Observer.Expect('handedOut|sameStream', 'Yes|||<absent>|<absent>|x');
+        Observer.Verify();
     end;
 
     // ---- S6: a secret header ----
@@ -343,7 +363,12 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         WriteCell('secretHeader', Content, InS, Before);
         Content.GetHeaders(Headers);
         Observer.Observe('secretHeader|contains', Format(Headers.ContainsSecret('X-Secret')));
-        Observer.Finish();
+        Observer.Expect('add|ok', 'Yes');
+        Observer.Expect('add|err|text', '');
+        Observer.Expect('add|err|code', '');
+        Observer.Expect('secretHeader', 'Yes|||<absent>|<absent>|stream body');
+        Observer.Expect('secretHeader|contains', 'Yes');
+        Observer.Verify();
     end;
 
     // ---- S7: the request's own content that has none ----
@@ -364,7 +389,11 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         Observer.ObserveError('getHeaders|err');
         Stream(Blob, InS, 'stream body');
         WriteRequestCell('noContent|direct', Request, InS, '<n/a>');
-        Observer.Finish();
+        Observer.Expect('getHeaders|ok', 'No');
+        Observer.Expect('getHeaders|err|text', 'Microsoft.Dynamics.Nav.Runtime.NavHttpContent variable not initialized.');
+        Observer.Expect('getHeaders|err|code', 'NotInitialized');
+        Observer.Expect('noContent|direct', 'Yes|||<n/a>|<absent>|stream body');
+        Observer.Verify();
     end;
 
     [Test]
@@ -381,7 +410,8 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         Headers.Remove('Content-Type');
         Stream(Blob, InS, 'stream body');
         WriteRequestCell('writtenFirst', Request, InS, '<absent>');
-        Observer.Finish();
+        Observer.Expect('writtenFirst', 'Yes|||<absent>|<absent>|stream body');
+        Observer.Verify();
     end;
 
     // ---- S8: an assigned or reused InStream ----
@@ -403,7 +433,8 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         Stream(Blob, InS, 'stream body');
         Assigned := InS;
         WriteCell('assigned', Content, Assigned, Before);
-        Observer.Finish();
+        Observer.Expect('assigned', 'Yes|||<absent>|<absent>|stream body');
+        Observer.Verify();
     end;
 
     [Test]
@@ -424,7 +455,9 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         Before := TypeOf(Second);
         WriteCell('reused', Second, InS, Before);
         Observer.Observe('first|body', ReadBody(First));
-        Observer.Finish();
+        Observer.Expect('reused', 'Yes|||<absent>|<absent>|stream body');
+        Observer.Expect('first|body', 'stream body');
+        Observer.Verify();
     end;
 
     [Test]
@@ -441,7 +474,8 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         Before := TypeOf(Content);
         GoneStream(InS);
         WriteCell('gone', Content, InS, Before);
-        Observer.Finish();
+        Observer.Expect('gone', 'Yes|||<absent>|<absent>|');
+        Observer.Verify();
     end;
 
     local procedure GoneStream(var InS: InStream)
@@ -477,7 +511,8 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         Headers.Remove('Content-Type');
         Before := TypeOf(Content);
         WriteCell('fromContent', Content, InS, Before);
-        Observer.Finish();
+        Observer.Expect('fromContent', 'Yes|||<absent>|<absent>|source body');
+        Observer.Verify();
     end;
 
     [Test]
@@ -499,7 +534,9 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         WriteCell('first', Content, InS, Before);
         Stream(Blob2, InS2, 'second stream');
         WriteCell('second', Content, InS2, TypeOf(Content));
-        Observer.Finish();
+        Observer.Expect('first', 'Yes|||<absent>|<absent>|first stream');
+        Observer.Expect('second', 'Yes|||<absent>|<absent>|second stream');
+        Observer.Verify();
     end;
 
     // ---- S9: the stream after the write ----
@@ -573,7 +610,30 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         Stream(Blob, InS, 'stream body');
         Content.WriteFrom(InS);
         StreamState('fresh', InS);
-        Observer.Finish();
+        Observer.Expect('fresh|eos|ok', 'Yes');
+        Observer.Expect('fresh|eos', 'No');
+        Observer.Expect('fresh|eos|text', '');
+        Observer.Expect('fresh|eos|code', '');
+        Observer.Expect('fresh|length|ok', 'Yes');
+        Observer.Expect('fresh|length', '11');
+        Observer.Expect('fresh|length|text', '');
+        Observer.Expect('fresh|length|code', '');
+        Observer.Expect('fresh|position|ok', 'Yes');
+        Observer.Expect('fresh|position', '1');
+        Observer.Expect('fresh|position|text', '');
+        Observer.Expect('fresh|position|code', '');
+        Observer.Expect('fresh|read|ok', 'Yes');
+        Observer.Expect('fresh|read', 'stream body');
+        Observer.Expect('fresh|read|text', '');
+        Observer.Expect('fresh|read|code', '');
+        Observer.Expect('fresh|reset|ok', 'Yes');
+        Observer.Expect('fresh|reset|text', '');
+        Observer.Expect('fresh|reset|code', '');
+        Observer.Expect('fresh|readAfterReset|ok', 'Yes');
+        Observer.Expect('fresh|readAfterReset', 'stream body');
+        Observer.Expect('fresh|readAfterReset|text', '');
+        Observer.Expect('fresh|readAfterReset|code', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -590,7 +650,31 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         Content.WriteFrom(InS);
         StreamState('partly', InS);
         Observer.Observe('content|body', ReadBody(Content));
-        Observer.Finish();
+        Observer.Expect('partly|eos|ok', 'Yes');
+        Observer.Expect('partly|eos', 'No');
+        Observer.Expect('partly|eos|text', '');
+        Observer.Expect('partly|eos|code', '');
+        Observer.Expect('partly|length|ok', 'Yes');
+        Observer.Expect('partly|length', '11');
+        Observer.Expect('partly|length|text', '');
+        Observer.Expect('partly|length|code', '');
+        Observer.Expect('partly|position|ok', 'Yes');
+        Observer.Expect('partly|position', '4');
+        Observer.Expect('partly|position|text', '');
+        Observer.Expect('partly|position|code', '');
+        Observer.Expect('partly|read|ok', 'Yes');
+        Observer.Expect('partly|read', 'eam body');
+        Observer.Expect('partly|read|text', '');
+        Observer.Expect('partly|read|code', '');
+        Observer.Expect('partly|reset|ok', 'Yes');
+        Observer.Expect('partly|reset|text', '');
+        Observer.Expect('partly|reset|code', '');
+        Observer.Expect('partly|readAfterReset|ok', 'Yes');
+        Observer.Expect('partly|readAfterReset', 'stream body');
+        Observer.Expect('partly|readAfterReset|text', '');
+        Observer.Expect('partly|readAfterReset|code', '');
+        Observer.Expect('content|body', 'eam body');
+        Observer.Verify();
     end;
 
     [Test]
@@ -607,7 +691,31 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         Content.ReadAs(Body);
         Observer.Observe('content|body', Body);
         StreamState('afterContentRead', InS);
-        Observer.Finish();
+        Observer.Expect('content|body', 'stream body');
+        Observer.Expect('afterContentRead|eos|ok', 'Yes');
+        Observer.Expect('afterContentRead|eos', 'No');
+        Observer.Expect('afterContentRead|eos|text', '');
+        Observer.Expect('afterContentRead|eos|code', '');
+        Observer.Expect('afterContentRead|length|ok', 'Yes');
+        Observer.Expect('afterContentRead|length', '11');
+        Observer.Expect('afterContentRead|length|text', '');
+        Observer.Expect('afterContentRead|length|code', '');
+        Observer.Expect('afterContentRead|position|ok', 'Yes');
+        Observer.Expect('afterContentRead|position', '1');
+        Observer.Expect('afterContentRead|position|text', '');
+        Observer.Expect('afterContentRead|position|code', '');
+        Observer.Expect('afterContentRead|read|ok', 'Yes');
+        Observer.Expect('afterContentRead|read', 'stream body');
+        Observer.Expect('afterContentRead|read|text', '');
+        Observer.Expect('afterContentRead|read|code', '');
+        Observer.Expect('afterContentRead|reset|ok', 'Yes');
+        Observer.Expect('afterContentRead|reset|text', '');
+        Observer.Expect('afterContentRead|reset|code', '');
+        Observer.Expect('afterContentRead|readAfterReset|ok', 'Yes');
+        Observer.Expect('afterContentRead|readAfterReset', 'stream body');
+        Observer.Expect('afterContentRead|readAfterReset|text', '');
+        Observer.Expect('afterContentRead|readAfterReset|code', '');
+        Observer.Verify();
     end;
 
     // ---- S10: a secret content around a stream write; other charsets ----
@@ -636,7 +744,17 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         Observer.Observe('after|text', Txt);
         Observer.Observe('after|readSecret', Format(Content.ReadAs(Body)));
         Observer.Observe('after|secretIsEmpty', Format(Body.IsEmpty()));
-        Observer.Finish();
+        Observer.Expect('before|isSecret', 'Yes');
+        Observer.Expect('write|ok', 'Yes');
+        Observer.Expect('write|err|text', '');
+        Observer.Expect('write|err|code', '');
+        Observer.Expect('after|isSecret', 'No');
+        Observer.Expect('after|type', '<absent>');
+        Observer.Expect('after|readText', 'Yes');
+        Observer.Expect('after|text', 'stream body');
+        Observer.Expect('after|readSecret', 'Yes');
+        Observer.Expect('after|secretIsEmpty', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -658,7 +776,11 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         Txt := 'preset';
         Observer.Observe('readText', Format(Content.ReadAs(Txt)));
         Observer.Observe('text', Txt);
-        Observer.Finish();
+        Observer.Expect('isSecret', 'Yes');
+        Observer.Expect('type', '<absent>');
+        Observer.Expect('readText', 'No');
+        Observer.Expect('text', 'preset');
+        Observer.Verify();
     end;
 
     local procedure CharsetRead(Charset: Text): Text
@@ -695,6 +817,14 @@ codeunit 70887 "LT HtT Content WriteStream Sh"
         Observer.Observe('bogus', CharsetRead('lt-bogus'));
         Observer.Observe('quoted', CharsetRead('"utf-8"'));
         Observer.Observe('upper', CharsetRead('UTF-8'));
-        Observer.Finish();
+        Observer.Expect('us-ascii', 'Yes|7|caf?? x');
+        Observer.Expect('windows-1252', 'Yes|7|cafÃ© x');
+        Observer.Expect('utf-32', 'Yes|2|��');
+        Observer.Expect('utf-16be', 'Yes|4|捡曃ꤠ�');
+        Observer.Expect('unicode', 'Yes|4|慣썦₩�');
+        Observer.Expect('bogus', 'No|6|preset');
+        Observer.Expect('quoted', 'Yes|6|café x');
+        Observer.Expect('upper', 'Yes|6|café x');
+        Observer.Verify();
     end;
 }
