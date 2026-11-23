@@ -14,6 +14,7 @@ table 99451 "LT Install Builder Obs"
         field(2; "Local Text"; Text[100]) { }
         field(3; "Session Text"; Text[100]) { }
         field(4; "Probe Error"; Text[250]) { }
+        field(5; "API Flags"; Text[10]) { }
     }
 
     keys { key(PK; "Code") { Clustered = true; } }

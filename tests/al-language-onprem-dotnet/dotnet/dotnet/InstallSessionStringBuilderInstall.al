@@ -16,8 +16,9 @@ codeunit 99452 "LT Install Builder"
         LocalText: Text;
         SessionText: Text;
         ProbeError: Text;
+        ApiFlags: Text;
     begin
-        if not TryCapture(LocalText, SessionText) then
+        if not TryCapture(LocalText, SessionText, ApiFlags) then
             ProbeError := CopyStr(GetLastErrorText(), 1, 250);
         ClearLastError();
         if not Observation.Get('BUILDER') then begin
@@ -28,19 +29,29 @@ codeunit 99452 "LT Install Builder"
         Observation."Local Text" := CopyStr(LocalText, 1, 100);
         Observation."Session Text" := CopyStr(SessionText, 1, 100);
         Observation."Probe Error" := CopyStr(ProbeError, 1, 250);
+        Observation."API Flags" := CopyStr(ApiFlags, 1, 10);
         Observation.Modify(false);
     end;
 
     [TryFunction]
-    local procedure TryCapture(var LocalText: Text; var SessionText: Text)
+    local procedure TryCapture(var LocalText: Text; var SessionText: Text; var ApiFlags: Text)
     var
         Builder: DotNet LtInstallSessionBuilder;
         State: Codeunit "LT Install Builder State";
+        Settings: DotNet LtInstallSettings;
+        UserAccount: DotNet LtInstallUserAccount;
     begin
         Builder := Builder.StringBuilder();
         Builder.Append('LOCAL-INSTALL');
         LocalText := Builder.ToString();
         State.SetValue('SESSION-INSTALL');
         SessionText := State.ReadValue();
+        Settings := Settings.Instance;
+        if Settings.ApiServicesEnabled then
+            ApiFlags += 'S';
+        if Settings.ApiSubscriptionsEnabled then
+            ApiFlags += 'N';
+        if UserAccount.IsAzure() then
+            ApiFlags += 'A';
     end;
 }

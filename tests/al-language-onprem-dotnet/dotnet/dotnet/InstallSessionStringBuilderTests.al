@@ -14,6 +14,7 @@ codeunit 99454 "LT Install Builder Tests"
         LocalInstallText: Text;
         SessionInstallText: Text;
         InstallError: Text;
+        InstallApiFlags: Text;
 
     [Test]
     procedure Install_StringBuilder_PreservesAppendedText()
@@ -43,6 +44,15 @@ codeunit 99454 "LT Install Builder Tests"
         Assert.AreEqual('TEST-SESSION', After, 'Test session must hold its own non-default builder.');
     end;
 
+    [Test]
+    procedure Install_ApiConfigurationGetters_ReturnEnabledFlags()
+    // CLAIM: the install-time API getters are enabled and IsAzure is false on the OnPrem CI host.
+    begin
+        Initialize();
+        Assert.AreEqual('', InstallError, 'Installation probe must complete.');
+        Assert.AreEqual('SN', InstallApiFlags, 'Services and subscriptions enabled; host is OnPrem.');
+    end;
+
     local procedure Initialize()
     var
         Observation: Record "LT Install Builder Obs";
@@ -52,6 +62,7 @@ codeunit 99454 "LT Install Builder Tests"
         LocalInstallText := Observation."Local Text";
         SessionInstallText := Observation."Session Text";
         InstallError := Observation."Probe Error";
+        InstallApiFlags := Observation."API Flags";
         // Snapshot the install evidence before clearing the probe table, then restore it for repeated test runs.
         Saved := Observation;
         Observation.DeleteAll(false);

@@ -6,6 +6,14 @@
 
 dotnet
 {
+    assembly("Microsoft.Dynamics.Nav.Types")
+    {
+        type("Microsoft.Dynamics.Nav.Types.ALConfigSettings"; LtInstallSettings) { }
+    }
+    assembly("Microsoft.Dynamics.Nav.NavUserAccount")
+    {
+        type("Microsoft.Dynamics.Nav.NavUserAccount.NavUserAccountHelper"; LtInstallUserAccount) { }
+    }
     assembly("mscorlib")
     {
         type("System.Text.StringBuilder"; LtInstallSessionBuilder) { }
