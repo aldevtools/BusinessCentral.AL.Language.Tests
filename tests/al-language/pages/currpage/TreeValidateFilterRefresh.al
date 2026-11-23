@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/page/page-update-method
 // Scope: in-scope
 // local object: the control's OnValidate and the action that change a tree page's view, and the page triggers that log, are what is under test
-// Fixtures used: shared Assert (60021); own tables 97716, 97719, log codeunit 97717, pages 97718, 97720-97723, 97727, tests 97724
+// Fixtures used: shared Assert (60021); own tables 97716, 97719, log codeunit 97717, pages 97714, 97718, 97720-97723, 97727, tests 97724
 // Probe (al-runner issue 8833): a tree page (ShowAsTree over Indentation, C indented under B) stands on its last top-level row B of
 //   three rows A (group G0), B and C (group G1), opened with OpenEdit. SetValue on Name runs the control's OnValidate, which sets a
 //   filter on Rec and calls CurrPage.Update; on the configurable pages a SetValue on Value, whose OnValidate calls
@@ -1330,6 +1330,77 @@ codeunit 97724 "LT TVF Tests"
         Expect('setname', 'P.AGR(C);P.V(X2);P.AGR(B);');
         Expect('stored', 'A/,B/,X2/,');
     end;
+    [TryFunction]
+    local procedure TrySetIssueName(var Rows: TestPage "LT TVF Issue Tree"; NewName: Text)
+    begin
+        Rows.Name.SetValue(NewName);
+    end;
+
+    [TryFunction]
+    local procedure TrySetDropName(var Rows: TestPage "LT TVF Drop Tree"; NewName: Text)
+    begin
+        Rows.Name.SetValue(NewName);
+    end;
+
+    // The issue's tree page 97718 on its first row A (group G0): the control's SetRange on G1 leaves A out of the view.
+    [Test]
+    procedure IssueTree_FirstRowSetRangeDropsUpdateFalse_Fails()
+    var
+        Rows: TestPage "LT TVF Issue Tree";
+    begin
+        Initialize();
+        Rows.OpenEdit();
+        Note('open', Rows.Name.Value() + ':' + Log.Take());
+        ClearLastError();
+        if TrySetIssueName(Rows, 'A2') then
+            Note('error', 'none')
+        else
+            Note('error', GetLastErrorCode() + ': ' + GetLastErrorText());
+        Note('setname', Log.Take());
+        Note('stored', StoredRows());
+        Expect('open', 'A:AGR(A);AGR(B);AGR(C);AGR(A);');
+        Expect('error', 'TestValidation: Validation error for Field: ,  Message = ''The view is filtered, and the entry is outside the filter. Some actions may not work.''');
+        Expect('setname', 'AGR(B);AGR(C);AGR(B);');
+        Expect('stored', 'A2,B,C,');
+    end;
+
+    // Page 97714, the page of al-runner issue 8846's repro line for line (the issue's tree without OnAfterGetRecord), on its first
+    // row A: the SetValue in a TryFunction.
+    [Test]
+    procedure DropTree_FirstRowSetRangeDropsUpdateFalse_Fails()
+    var
+        Rows: TestPage "LT TVF Drop Tree";
+    begin
+        Initialize();
+        Rows.OpenEdit();
+        Note('open', Rows.Name.Value());
+        ClearLastError();
+        if TrySetDropName(Rows, 'A2') then
+            Note('error', 'none')
+        else
+            Note('error', GetLastErrorCode() + ': ' + GetLastErrorText());
+        Note('stored', StoredRows());
+        Expect('open', 'A');
+        Expect('error', 'TestValidation: Validation error for Field: ,  Message = ''The view is filtered, and the entry is outside the filter. Some actions may not work.''');
+        Expect('stored', 'A2,B,C,');
+    end;
+
+    // The same SetValue under asserterror.
+    [Test]
+    procedure DropTree_FirstRowSetRangeDropsUpdateFalse_AssertError()
+    var
+        Rows: TestPage "LT TVF Drop Tree";
+    begin
+        Initialize();
+        Rows.OpenEdit();
+        Note('open', Rows.Name.Value());
+        asserterror Rows.Name.SetValue('A2');
+        Note('error', GetLastErrorCode() + ': ' + GetLastErrorText());
+        Note('stored', StoredRows());
+        Expect('open', 'A');
+        Expect('error', 'TestValidation: Validation error for Field: ,  Message = ''The view is filtered, and the entry is outside the filter. Some actions may not work.''');
+        Expect('stored', 'A,B,C,');
+    end;
 }
 
 // A List over the tree's table, without ShowAsTree; otherwise page 97720.
@@ -1413,4 +1484,36 @@ page 97727 "LT TVF Lines"
                 CurrPage.Update(true);
         end;
     end;
+}
+
+// The page of al-runner issue 8846's repro, line for line: the issue's tree page 97718 without OnAfterGetRecord.
+page 97714 "LT TVF Drop Tree"
+{
+    PageType = List;
+    SourceTable = "LT TVF Row";
+    ApplicationArea = All;
+    UsageCategory = Lists;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Lines)
+            {
+                IndentationColumn = Rec.Indentation;
+                IndentationControls = Name;
+                ShowAsTree = true;
+                TreeInitialState = ExpandAll;
+
+                field(Name; Rec.Name)
+                {
+                    trigger OnValidate()
+                    begin
+                        Rec.SetRange("Group Code", 'G1');
+                        CurrPage.Update(false);
+                    end;
+                }
+            }
+        }
+    }
 }
