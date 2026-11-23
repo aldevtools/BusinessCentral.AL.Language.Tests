@@ -2,18 +2,18 @@
 // Scope: in-scope
 // local object: the control's OnValidate and the action that change a tree page's view, and the page triggers that log, are what is under test
 // Fixtures used: shared Assert (60021); own tables 97716, 97719, log codeunit 97717, pages 97714, 97718, 97720-97723, 97727, tests 97724
-// Probe (al-runner issue 8833): a tree page (ShowAsTree over Indentation, C indented under B) stands on its last top-level row B of
-//   three rows A (group G0), B and C (group G1), opened with OpenEdit. SetValue on Name runs the control's OnValidate, which sets a
-//   filter on Rec and calls CurrPage.Update; on the configurable pages a SetValue on Value, whose OnValidate calls
-//   CurrPage.Update(false), follows. Then First() and a walk with Next(), Close, and the rows the table holds. Readings: the page
-//   triggers each step runs, in order; the Name and Value the page shows; the row First lands on and the rows the walk reaches; the
-//   stored rows. Cells: the issue's page (97718, line for line the page of the issue's repro), also with B expanded first; on the
-//   configurable pages Update(false), Update(true) and no Update, a filter that keeps the row (SetRange or SetFilter on G1), one that drops it
-//   (SetRange on G0), no filter change and Reset of no filter, the same from an action, B expanded first (Expand(true)), and the
-//   SetValue on Value alone; a tree with
-//   OnAfterGetRecord only (97720), with OnAfterGetRecord and OnAfterGetCurrRecord (97721), with OnAfterGetCurrRecord only (97722), and
-//   with TreeInitialState = CollapseAll (97723). No test leaves a page open: a page that a failed SetValue leaves behind reads its
-//   row again when another page saves it.
+// Probe (al-runner issues 8833, 8846): a tree page (ShowAsTree over Indentation, C indented under B) stands on its last top-level
+//   row B of three rows A (group G0), B and C (G1), opened with OpenEdit. SetValue on Name runs the control's OnValidate, which sets
+//   a filter on Rec and calls CurrPage.Update; on the configurable pages a SetValue on Value (CurrPage.Update(false)) follows. Then
+//   First(), a walk with Next(), Close, and the rows the table holds. Readings: the page triggers each step runs, in order; the
+//   values the page shows; the rows First and the walk reach; the stored rows. Cells: the issue's page (97718, the repro's page),
+//   also with B expanded first; on the configurable pages Update(false), Update(true) and no Update, a filter that keeps the row
+//   (SetRange or SetFilter on G1), no filter change and Reset of no filter, the same from an action, B expanded first, and the
+//   SetValue on Value alone, on a tree with OnAfterGetRecord only (97720), with both row triggers (97721), with
+//   OnAfterGetCurrRecord only (97722), and with TreeInitialState = CollapseAll (97723); a filter that leaves the row out, from the
+//   first, middle and last row, on 97720 over the tree's rows, over rows none indented and in other groups, on the List 97727
+//   (97720 without ShowAsTree), on 97718 and on 97714 (97718 without OnAfterGetRecord, the page of issue 8846's repro). The cells
+//   whose SetValue raises the filtered-view error leave their tree page behind, so they run after the other cells.
 // BC versions: 27, 28, 29
 
 table 97716 "LT TVF Row"
