@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/testpage/testpage-getfield-method
 // Scope: in-scope
 // local object: the pages' controls and the ids the compiler gives them are what is under test
-// Fixtures used: shared Assert (60021); own tables 97701 and 97711, enum 97713, pages 97680-97690, 97695, 97696, 97699, 97700, 97702-97705, 97708, 97709 and 97712, page extensions 97706 and 97710, tests 97707 and 97691
+// Fixtures used: shared Assert (60021); own tables 97701, 97711 and 97735, enum 97713, pages 97680-97690, 97695, 97696, 97699, 97700, 97702-97705, 97708, 97709, 97712 and 97734-97736, page extensions 97706 and 97710, tests 97707, 97691 and 97734
 // Probe (al-runner issue 8832): TestPage.GetField and TestPart.GetField take the id the compiler gives a page control. The ids in
 //   this file are FNV-1a (32 bit) over the UTF-16LE text of the declaring object's id followed by the control name as declared,
 //   read as a signed number and made positive; the compiled app's SymbolReference.json lists the same ids. The issue's page (a List
@@ -1905,4 +1905,324 @@ page 97699 "LT GFI Headline"
 
     var
         Title: Text;
+}
+
+// The cuegroups of page 97712 on a Document page (97734), and of the CardPart 97680 read through a Card that shows it as a part
+// (97735); a DateFormula field in a cuegroup and a Boolean field in a cuegroup with CuegroupLayout = Wide on a Card (97736).
+page 97734 "LT GFI Cue Doc"
+{
+    PageType = Document;
+    SourceTable = "LT GFI Cue Row";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            cuegroup(Cues)
+            {
+                field(CueTextWord; Rec.TextWord) { }
+                field(CueTextNumber; Rec.TextNumber) { }
+                field(CueCodeWord; Rec.CodeWord) { }
+                field(CueCodeNumber; Rec.CodeNumber) { }
+                field(CueIntValue; Rec.IntValue) { }
+                field(CueIntZero; Rec.IntZero) { }
+                field(CueDecValue; Rec.DecValue) { }
+                field(CueDecBig; Rec.DecBig) { }
+                field(CueBoolValue; Rec.BoolValue) { }
+                field(CueDayValue; Rec.DayValue) { }
+                field(CueBigValue; Rec.BigValue) { }
+                field(CueOptValue; Rec.OptValue) { }
+                field(CueAtValue; Rec.AtValue) { }
+                field(CueStampValue; Rec.StampValue) { }
+                field(CueGuidValue; Rec.GuidValue) { }
+                field(CueKindValue; Rec.KindValue) { }
+                field(CueSpanValue; Rec.SpanValue) { }
+            }
+            cuegroup(WideCues)
+            {
+                CuegroupLayout = Wide;
+
+                field(WideCodeWord; Rec.CodeWord) { }
+                field(WideIntValue; Rec.IntValue) { }
+            }
+        }
+    }
+}
+
+page 97735 "LT GFI Cue Part Host"
+{
+    PageType = Card;
+    SourceTable = "LT GFI Cue Row";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            field("No."; Rec."No.") { }
+            part(CuePart; "LT GFI Cue Part")
+            {
+                SubPageLink = "No." = field("No.");
+            }
+        }
+    }
+}
+
+table 97735 "LT GFI Cue Extra Row"
+{
+    DataClassification = CustomerContent;
+
+    fields
+    {
+        field(1; "No."; Code[20]) { }
+        field(2; FormulaValue; DateFormula) { }
+        field(3; FlagValue; Boolean) { }
+    }
+
+    keys
+    {
+        key(PK; "No.") { Clustered = true; }
+    }
+}
+
+page 97736 "LT GFI Cue Extra"
+{
+    PageType = Card;
+    SourceTable = "LT GFI Cue Extra Row";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            cuegroup(Cues)
+            {
+                field(CueFormulaValue; Rec.FormulaValue) { }
+            }
+            cuegroup(WideCues)
+            {
+                CuegroupLayout = Wide;
+
+                field(WideFlagValue; Rec.FlagValue) { }
+            }
+        }
+    }
+}
+
+codeunit 97734 "LT GFI Cue More Tests"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        Assert: Codeunit Assert;
+        Seen: Dictionary of [Text, Text];
+
+    local procedure Initialize()
+    var
+        Row: Record "LT GFI Cue Row";
+        Extra: Record "LT GFI Cue Extra Row";
+    begin
+        Row.DeleteAll();
+        Extra.DeleteAll();
+        Extra."No." := 'R1';
+        Evaluate(Extra.FormulaValue, '<1D>');
+        Extra.FlagValue := true;
+        Extra.Insert();
+        Commit();
+        Clear(Seen);
+    end;
+
+    local procedure SeedCueRow()
+    var
+        Row: Record "LT GFI Cue Row";
+    begin
+        Row.DeleteAll();
+        Row."No." := 'R1';
+        Row.TextWord := 'Alpha';
+        Row.TextNumber := '42';
+        Row.CodeWord := 'R1';
+        Row.CodeNumber := '7';
+        Row.IntValue := 5;
+        Row.IntZero := 0;
+        Row.DecValue := 1.5;
+        Row.DecBig := 1234.5;
+        Row.BoolValue := true;
+        Row.DayValue := DMY2Date(3, 3, 2026);
+        Row.BigValue := 77;
+        Row.OptValue := Row.OptValue::Beta;
+        Row.AtValue := 103000T;
+        Row.StampValue := CreateDateTime(DMY2Date(3, 3, 2026), 103000T);
+        Row.GuidValue := '{0F2E7C52-6E0B-4F51-9C3A-1B2C3D4E5F60}';
+        Row.KindValue := Row.KindValue::Beta;
+        Row.SpanValue := 90000;
+        Row.Insert();
+    end;
+
+    local procedure Note(What: Text; Actual: Text)
+    begin
+        Seen.Set(What, Actual);
+    end;
+
+    local procedure Expect(What: Text; Expected: Text)
+    begin
+        Assert.AreEqual(Expected, Seen.Get(What), What);
+    end;
+
+    local procedure Failure(): Text
+    begin
+        exit('error ' + GetLastErrorCode() + ': ' + GetLastErrorText());
+    end;
+
+    [TryFunction]
+    local procedure TryDoc(var Pg: TestPage "LT GFI Cue Doc"; Id: Integer; var Shown: Text)
+    begin
+        Shown := Pg.GetField(Id).Value();
+    end;
+
+    local procedure ReadDoc(var Pg: TestPage "LT GFI Cue Doc"; Id: Integer): Text
+    var
+        Shown: Text;
+    begin
+        ClearLastError();
+        if TryDoc(Pg, Id, Shown) then
+            exit(Shown);
+        exit(Failure());
+    end;
+
+    [TryFunction]
+    local procedure TryExtra(var Pg: TestPage "LT GFI Cue Extra"; Id: Integer; var Shown: Text)
+    begin
+        Shown := Pg.GetField(Id).Value();
+    end;
+
+    local procedure ReadExtra(var Pg: TestPage "LT GFI Cue Extra"; Id: Integer): Text
+    var
+        Shown: Text;
+    begin
+        ClearLastError();
+        if TryExtra(Pg, Id, Shown) then
+            exit(Shown);
+        exit(Failure());
+    end;
+
+    // The cuegroups of CueTypes_ValueByNameAndById on a Document page: each field's Value by its name, then through GetField by
+    // its id.
+    [Test]
+    procedure CueTypesDocument_ValueByNameAndById()
+    var
+        Pg: TestPage "LT GFI Cue Doc";
+    begin
+        Initialize();
+        SeedCueRow();
+        Pg.OpenView();
+        Note('CueTextWord', Pg.CueTextWord.Value() + '|' + ReadDoc(Pg, 774306315));
+        Note('CueTextNumber', Pg.CueTextNumber.Value() + '|' + ReadDoc(Pg, 1173125942));
+        Note('CueCodeWord', Pg.CueCodeWord.Value() + '|' + ReadDoc(Pg, 1605813843));
+        Note('CueCodeNumber', Pg.CueCodeNumber.Value() + '|' + ReadDoc(Pg, 1682521106));
+        Note('CueIntValue', Pg.CueIntValue.Value() + '|' + ReadDoc(Pg, 1446471016));
+        Note('CueIntZero', Pg.CueIntZero.Value() + '|' + ReadDoc(Pg, 1555023967));
+        Note('CueDecValue', Pg.CueDecValue.Value() + '|' + ReadDoc(Pg, 928580449));
+        Note('CueDecBig', Pg.CueDecBig.Value() + '|' + ReadDoc(Pg, 382669622));
+        Note('CueBoolValue', Pg.CueBoolValue.Value() + '|' + ReadDoc(Pg, 671714541));
+        Note('CueDayValue', Pg.CueDayValue.Value() + '|' + ReadDoc(Pg, 1733444401));
+        Note('CueBigValue', Pg.CueBigValue.Value() + '|' + ReadDoc(Pg, 2012819407));
+        Note('CueOptValue', Pg.CueOptValue.Value() + '|' + ReadDoc(Pg, 1432903760));
+        Note('CueAtValue', Pg.CueAtValue.Value() + '|' + ReadDoc(Pg, 1712542342));
+        Note('CueStampValue', Pg.CueStampValue.Value() + '|' + ReadDoc(Pg, 761028584));
+        Note('CueGuidValue', Pg.CueGuidValue.Value() + '|' + ReadDoc(Pg, 25729340));
+        Note('CueKindValue', Pg.CueKindValue.Value() + '|' + ReadDoc(Pg, 1342154251));
+        Note('CueSpanValue', Pg.CueSpanValue.Value() + '|' + ReadDoc(Pg, 227380503));
+        Note('WideCodeWord', Pg.WideCodeWord.Value() + '|' + ReadDoc(Pg, 140578137));
+        Note('WideIntValue', Pg.WideIntValue.Value() + '|' + ReadDoc(Pg, 331060748));
+        Pg.Close();
+        Expect('CueTextWord', '0|0');
+        Expect('CueTextNumber', '0|0');
+        Expect('CueCodeWord', '0|0');
+        Expect('CueCodeNumber', '0|0');
+        Expect('CueIntValue', '5|5');
+        Expect('CueIntZero', '0|0');
+        Expect('CueDecValue', '1.50|1.50');
+        Expect('CueDecBig', '1,234.50|1,234.50');
+        Expect('CueBoolValue', '0|0');
+        Expect('CueDayValue', '0|0');
+        Expect('CueBigValue', '0|0');
+        Expect('CueOptValue', '1|1');
+        Expect('CueAtValue', '0|0');
+        Expect('CueStampValue', '0|0');
+        Expect('CueGuidValue', '0|0');
+        Expect('CueKindValue', '1|1');
+        Expect('CueSpanValue', '0|0');
+        Expect('WideCodeWord', '0|0');
+        Expect('WideIntValue', '5|5');
+    end;
+
+    // The same cuegroups on the CardPart 97680, read through the Card 97735 that shows it: each field's Value by its name.
+    [Test]
+    procedure CueTypesPartThroughHost_ValueByName()
+    var
+        Host: TestPage "LT GFI Cue Part Host";
+    begin
+        Initialize();
+        SeedCueRow();
+        Host.OpenView();
+        Note('CueTextWord', Host.CuePart.CueTextWord.Value());
+        Note('CueTextNumber', Host.CuePart.CueTextNumber.Value());
+        Note('CueCodeWord', Host.CuePart.CueCodeWord.Value());
+        Note('CueCodeNumber', Host.CuePart.CueCodeNumber.Value());
+        Note('CueIntValue', Host.CuePart.CueIntValue.Value());
+        Note('CueIntZero', Host.CuePart.CueIntZero.Value());
+        Note('CueDecValue', Host.CuePart.CueDecValue.Value());
+        Note('CueDecBig', Host.CuePart.CueDecBig.Value());
+        Note('CueBoolValue', Host.CuePart.CueBoolValue.Value());
+        Note('CueDayValue', Host.CuePart.CueDayValue.Value());
+        Note('CueBigValue', Host.CuePart.CueBigValue.Value());
+        Note('CueOptValue', Host.CuePart.CueOptValue.Value());
+        Note('CueAtValue', Host.CuePart.CueAtValue.Value());
+        Note('CueStampValue', Host.CuePart.CueStampValue.Value());
+        Note('CueGuidValue', Host.CuePart.CueGuidValue.Value());
+        Note('CueKindValue', Host.CuePart.CueKindValue.Value());
+        Note('CueSpanValue', Host.CuePart.CueSpanValue.Value());
+        Note('WideCodeWord', Host.CuePart.WideCodeWord.Value());
+        Note('WideIntValue', Host.CuePart.WideIntValue.Value());
+        Host.Close();
+        Expect('CueTextWord', '0');
+        Expect('CueTextNumber', '0');
+        Expect('CueCodeWord', '0');
+        Expect('CueCodeNumber', '0');
+        Expect('CueIntValue', '5');
+        Expect('CueIntZero', '0');
+        Expect('CueDecValue', '1.50');
+        Expect('CueDecBig', '1,234.50');
+        Expect('CueBoolValue', '0');
+        Expect('CueDayValue', '0');
+        Expect('CueBigValue', '0');
+        Expect('CueOptValue', '1');
+        Expect('CueAtValue', '0');
+        Expect('CueStampValue', '0');
+        Expect('CueGuidValue', '0');
+        Expect('CueKindValue', '1');
+        Expect('CueSpanValue', '0');
+        Expect('WideCodeWord', '0');
+        Expect('WideIntValue', '5');
+    end;
+
+    // A DateFormula field in a cuegroup and a Boolean field in a wide cuegroup on a Card: by name, then through GetField by id.
+    [Test]
+    procedure CueDateFormulaAndWideBoolean_ValueByNameAndById()
+    var
+        Pg: TestPage "LT GFI Cue Extra";
+    begin
+        Initialize();
+        Pg.OpenView();
+        Note('FormulaValue', Pg.CueFormulaValue.Value() + '|' + ReadExtra(Pg, 1631619223));
+        Note('WideFlagValue', Pg.WideFlagValue.Value() + '|' + ReadExtra(Pg, 1182527305));
+        Pg.Close();
+        Expect('FormulaValue', '0|0');
+        Expect('WideFlagValue', '0|0');
+    end;
 }
