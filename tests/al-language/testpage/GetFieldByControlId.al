@@ -2710,3 +2710,120 @@ codeunit 97737 "LT GFI Kinds Tests"
         Expect('own', 'found Alpha');
     end;
 }
+
+// al-runner issue 8944: a field a page extension adds with an ApplicationArea of its own, next to one without, on a Card.
+page 97746 "LT GFI Area Card"
+{
+    PageType = Card;
+    SourceTable = "LT GFI Row";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            group(General)
+            {
+                field("No."; Rec."No.") { }
+                field(Name; Rec.Name) { }
+            }
+        }
+    }
+}
+
+pageextension 97747 "LT GFI Area Card Ext" extends "LT GFI Area Card"
+{
+    layout
+    {
+        addlast(General)
+        {
+            field(AreaNote; Rec.Note) { ApplicationArea = All; }
+            field(PlainExtra; Rec.Extra) { }
+        }
+    }
+}
+
+codeunit 97748 "LT GFI Ext Area Tests"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        Assert: Codeunit Assert;
+        Seen: Dictionary of [Text, Text];
+
+    local procedure Initialize()
+    var
+        Row: Record "LT GFI Row";
+    begin
+        Row.DeleteAll();
+        Row."No." := 'R1';
+        Row.Name := 'Alpha';
+        Row.Note := 'n1';
+        Row.Extra := 'x1';
+        Row.Insert();
+        Commit();
+        Clear(Seen);
+    end;
+
+    local procedure Note(What: Text; Actual: Text)
+    begin
+        Seen.Set(What, Actual);
+    end;
+
+    local procedure Expect(What: Text; Expected: Text)
+    begin
+        Assert.AreEqual(Expected, Seen.Get(What), What);
+    end;
+
+    local procedure Failure(): Text
+    begin
+        exit('error ' + GetLastErrorCode() + ': ' + GetLastErrorText());
+    end;
+
+    [TryFunction]
+    local procedure TryAreaCard(var Pg: TestPage "LT GFI Area Card"; Id: Integer; var Shown: Text)
+    begin
+        Shown := Pg.GetField(Id).Value();
+    end;
+
+    local procedure ReadAreaCard(var Pg: TestPage "LT GFI Area Card"; Id: Integer): Text
+    var
+        Shown: Text;
+    begin
+        ClearLastError();
+        if TryAreaCard(Pg, Id, Shown) then
+            exit('found ' + Shown);
+        exit(Failure());
+    end;
+
+    // The extension's AreaNote states ApplicationArea = All; PlainExtra states none. The ids: the extension's (97747) and the base
+    // page's (97746), each with the control's name. GetField finds AreaNote by the extension's id on every version; neither field
+    // by the base page's id.
+    [Test]
+    procedure Card_ExtensionFieldWithArea_ByEitherId()
+    var
+        Pg: TestPage "LT GFI Area Card";
+    begin
+        Initialize();
+        Pg.OpenView();
+        Note('byname', Pg.AreaNote.Value());
+        Note('areaext', ReadAreaCard(Pg, 15870752));
+        Note('areabase', ReadAreaCard(Pg, 1272101127));
+        Note('plainext', ReadAreaCard(Pg, 554948809));
+        Note('plainbase', ReadAreaCard(Pg, 1463453138));
+        Pg.Close();
+        Expect('byname', 'n1');
+        Expect('areaext', 'found n1');
+        Expect('areabase', 'error TestFieldNotFound: The field with ID = 1272101127 is not found on the page.');
+#if BC28PLUS
+        // BC 28 and later: the field without an ApplicationArea is not found by the extension's id (as at :589).
+        Expect('plainext', 'error TestFieldNotFound: The field with ID = 554948809 is not found on the page.');
+#else
+        // BC 27: GetField finds it by the extension's id (as at :589).
+        Expect('plainext', 'found x1');
+#endif
+        Expect('plainbase', 'error TestFieldNotFound: The field with ID = 1463453138 is not found on the page.');
+    end;
+}
