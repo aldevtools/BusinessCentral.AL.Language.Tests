@@ -1,15 +1,15 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/page/page-update-method
 // Scope: in-scope
 // local object: the control's OnValidate that changes a tree page's view, and the page triggers that log, are what is under test
-// Fixtures used: shared Assert (60021); own table 97670, log codeunit 97671, pages 97672-97675, tests 97676
+// Fixtures used: shared Assert (60021); own tables 97670, 97677, logs 97671, 97681, pages 97672-97675, 97678-97679, tests 97676, 97680
 // Probe (al-runner issue 8882): the tree pages of TreeValidateFilterRefresh.al, line for line (a tree with OnAfterGetRecord only,
-//   with both row triggers, with OnAfterGetCurrRecord only, and with TreeInitialState = CollapseAll), over rows and with calls its
-//   cells do not hold. The Name control's OnValidate runs SetRange on G1 and CurrPage.Update(false) (Log.Setup(1, 1)). Cells: on the
-//   tree with OnAfterGetRecord, rows indented 0, 1, 1 and 0, 1, 2 with the first two in G1 (Last stands on the first row), 0, 0, 2,
-//   a fourth row, Expand(false) after Last, and Expand(true) on the first row, each then the SetValue on Name, First, the walk and
-//   Close; on each of the four trees the SetValue on Name from the first row right after the open, where the filter leaves the row
-//   out of the view. Readings: the page triggers each step runs, in order; the error of the SetValue; the row the page stands on;
-//   the rows the walk reaches; the stored rows.
+//   with both row triggers, with OnAfterGetCurrRecord only, and with TreeInitialState = CollapseAll), and its page 97714 (no row
+//   trigger) with CollapseAll and with OnAfterGetCurrRecord, over rows and with calls its cells do not hold. The Name control's
+//   OnValidate runs SetRange on G1 and CurrPage.Update(false). Cells: on the tree with OnAfterGetRecord, rows indented 0, 1, 1 and
+//   0, 1, 2 with the first two in G1 (Last stands on the first row), 0, 0, 2, a fourth row, Expand(false) after Last, and
+//   Expand(true) on the first row, each then the SetValue on Name, First, the walk and Close; on each of the six trees the SetValue
+//   on Name from the first row right after the open, where the filter leaves the row out of the view. Readings: the page triggers
+//   each step runs, in order; the error of the SetValue; the row the page stands on; the rows the walk reaches; the stored rows.
 // BC versions: 27, 28, 29
 
 table 97670 "LT TVS Line"
@@ -781,5 +781,235 @@ codeunit 97676 "LT TVS Tests"
         Expect('error', 'TestValidation: Validation error for Field: ,  Message = ''The view is filtered, and the entry is outside the filter. Some actions may not work.''');
         Expect('setname', 'P.V(A2);P.AGR(B);P.AGR(C);P.AGR(B);');
         Expect('stored', 'A2/,B/,C/,');
+    end;
+}
+
+// The issue's tree of TreeValidateFilterRefresh.al without OnAfterGetRecord (page 97714 there, the page of al-runner issue 8846's
+// repro), with TreeInitialState = CollapseAll, and with OnAfterGetCurrRecord: the SetValue on Name from the first row A right
+// after the open, whose SetRange on G1 leaves A out of the view of B and C (rows A (G0), B and C (G1), C under B).
+
+// The log of page 97679.
+codeunit 97681 "LT TVS Drop Log"
+{
+    SingleInstance = true;
+
+    var
+        Buffer: Text;
+
+    procedure Add(Entry: Text)
+    begin
+        Buffer += Entry + ';';
+    end;
+
+    procedure Take(): Text
+    var
+        Result: Text;
+    begin
+        Result := Buffer;
+        Buffer := '';
+        exit(Result);
+    end;
+}
+
+table 97677 "LT TVS Row"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "Group Code"; Code[10]) { }
+        field(2; "Entry No."; Integer) { }
+        field(3; Name; Text[30]) { }
+        field(4; Indentation; Integer) { }
+    }
+
+    keys
+    {
+        key(PK; "Group Code", "Entry No.") { Clustered = true; }
+    }
+}
+
+// Page 97714 of TreeValidateFilterRefresh.al with TreeInitialState = CollapseAll.
+page 97678 "LT TVS Drop Tree Collapsed"
+{
+    PageType = List;
+    SourceTable = "LT TVS Row";
+    ApplicationArea = All;
+    UsageCategory = Lists;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Lines)
+            {
+                IndentationColumn = Rec.Indentation;
+                IndentationControls = Name;
+                ShowAsTree = true;
+                TreeInitialState = CollapseAll;
+
+                field(Name; Rec.Name)
+                {
+                    trigger OnValidate()
+                    begin
+                        Rec.SetRange("Group Code", 'G1');
+                        CurrPage.Update(false);
+                    end;
+                }
+            }
+        }
+    }
+}
+
+// Page 97714 of TreeValidateFilterRefresh.al with OnAfterGetCurrRecord.
+page 97679 "LT TVS Drop Tree Curr"
+{
+    PageType = List;
+    SourceTable = "LT TVS Row";
+    ApplicationArea = All;
+    UsageCategory = Lists;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Lines)
+            {
+                IndentationColumn = Rec.Indentation;
+                IndentationControls = Name;
+                ShowAsTree = true;
+                TreeInitialState = ExpandAll;
+
+                field(Name; Rec.Name)
+                {
+                    trigger OnValidate()
+                    begin
+                        Rec.SetRange("Group Code", 'G1');
+                        CurrPage.Update(false);
+                    end;
+                }
+            }
+        }
+    }
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        Log.Add('P.AGCR(' + Rec.Name + ')');
+    end;
+
+    var
+        Log: Codeunit "LT TVS Drop Log";
+}
+
+codeunit 97680 "LT TVS Drop Tests"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        Assert: Codeunit Assert;
+        Log: Codeunit "LT TVS Drop Log";
+        Seen: Dictionary of [Text, Text];
+
+    local procedure Initialize()
+    var
+        Row: Record "LT TVS Row";
+    begin
+        Row.DeleteAll();
+        AddRow('G0', 1, 'A', 0);
+        AddRow('G1', 2, 'B', 0);
+        AddRow('G1', 3, 'C', 1);
+        Commit();
+        Log.Take();
+        Clear(Seen);
+    end;
+
+    local procedure AddRow(GroupCode: Code[10]; EntryNo: Integer; Name: Text[30]; Indentation: Integer)
+    var
+        Row: Record "LT TVS Row";
+    begin
+        Row."Group Code" := GroupCode;
+        Row."Entry No." := EntryNo;
+        Row.Name := Name;
+        Row.Indentation := Indentation;
+        Row.Insert();
+    end;
+
+    local procedure StoredRows(): Text
+    var
+        Row: Record "LT TVS Row";
+        Result: Text;
+    begin
+        if Row.FindSet() then
+            repeat
+                Result += Row.Name + ',';
+            until Row.Next() = 0;
+        exit(Result);
+    end;
+
+    local procedure Note(What: Text; Actual: Text)
+    begin
+        Seen.Set(What, Actual);
+    end;
+
+    local procedure Expect(What: Text; Expected: Text)
+    begin
+        Assert.AreEqual(Expected, Seen.Get(What), What);
+    end;
+
+    [TryFunction]
+    local procedure TrySetNameCollapsed(var Rows: TestPage "LT TVS Drop Tree Collapsed"; NewName: Text)
+    begin
+        Rows.Name.SetValue(NewName);
+    end;
+
+    // CollapseAll, no row trigger.
+    [Test]
+    procedure DropCollapsed_FirstRowSetRangeDropsUpdateFalse()
+    var
+        Rows: TestPage "LT TVS Drop Tree Collapsed";
+    begin
+        Initialize();
+        Rows.OpenEdit();
+        Note('open', Rows.Name.Value() + ':' + Log.Take());
+        ClearLastError();
+        if TrySetNameCollapsed(Rows, 'A2') then
+            Note('error', 'none')
+        else
+            Note('error', GetLastErrorCode() + ': ' + GetLastErrorText());
+        Note('setname', Log.Take());
+        Note('stored', StoredRows());
+        Expect('open', 'A:');
+        Expect('error', 'TestValidation: Validation error for Field: ,  Message = ''The view is filtered, and the entry is outside the filter. Some actions may not work.''');
+        Expect('setname', '');
+        Expect('stored', 'A2,B,C,');
+    end;
+
+    [TryFunction]
+    local procedure TrySetNameCurr(var Rows: TestPage "LT TVS Drop Tree Curr"; NewName: Text)
+    begin
+        Rows.Name.SetValue(NewName);
+    end;
+
+    // OnAfterGetCurrRecord only.
+    [Test]
+    procedure DropCurr_FirstRowSetRangeDropsUpdateFalse()
+    var
+        Rows: TestPage "LT TVS Drop Tree Curr";
+    begin
+        Initialize();
+        Rows.OpenEdit();
+        Note('open', Rows.Name.Value() + ':' + Log.Take());
+        ClearLastError();
+        if TrySetNameCurr(Rows, 'A2') then
+            Note('error', 'none')
+        else
+            Note('error', GetLastErrorCode() + ': ' + GetLastErrorText());
+        Note('setname', Log.Take());
+        Note('stored', StoredRows());
+        Expect('open', 'A:P.AGCR(A);');
+        Expect('error', 'TestValidation: Validation error for Field: ,  Message = ''The view is filtered, and the entry is outside the filter. Some actions may not work.''');
+        Expect('setname', 'P.AGCR(B);');
+        Expect('stored', 'A2,B,C,');
     end;
 }
