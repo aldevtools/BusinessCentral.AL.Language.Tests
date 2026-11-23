@@ -7,9 +7,9 @@
 //   codeunit 97347 "CEM Caught Failing" of CemHandlerCaughtErrors.al (fails)
 // Probe (al-runner issue 8729): the six other ways of catching of CemHandlerCaughtErrors.al (a TryFunction, two errors,
 //   asserterror and then ClearLastError, Codeunit.Run, JsonObject.ReadFrom, a procedure of the handler) before the handler
-//   handles the wizard or the card run from a Page variable, as the pinned cells of CemPageHandlerTests.al do. The page
-//   closes as in the pinned cell of a handler that catches nothing. CemPageHandlerCaughtTests.al has these pages with
-//   asserterror.
+//   handles the wizard, the card run from a Page variable or the list, as the pinned cells of CemPageHandlerTests.al do.
+//   The page closes as in the pinned cell of a handler that catches nothing. CemPageHandlerCaughtTests.al has these pages
+//   with asserterror.
 // Readings: how the call ended (GetLastErrorText and GetLastErrorCode after an asserterror around it, CEM_NO_ERROR when it
 //   came back), the triggers that ran (Cfg.Take()) and the rows afterwards (Help.Names()).
 // Cells, each after the handler caught an error in each of the six ways:
@@ -17,7 +17,9 @@
 //     WizardRun_HandlerError_NoError) or returns while OnQueryClosePage raises (as WizardRun_HandlerReturns_QueryCloseError);
 //   - Page.Run of the card from a Page variable, the handler returns while OnQueryClosePage raises (as
 //     CardVariableRun_HandlerReturns_QueryCloseError) or invokes OK while OnClosePage raises (as
-//     CardVariableRun_HandlerOk_ClosePageError).
+//     CardVariableRun_HandlerOk_ClosePageError);
+//   - Page.Run of the list by object id, the handler raises an error (as ListStaticRun_HandlerError_NoError) or returns
+//     while OnQueryClosePage raises (as ListStaticRun_HandlerReturns_QueryCloseError).
 // BC versions: 29.1 (local W1 container).
 
 // Every test binds only PageHandlers, as in CemPageHandlerTests.al.
@@ -112,6 +114,21 @@ codeunit 97374 "CEM Caught Ways Run Tests"
         Check(Text, Code, Log, GetLastErrorText(), GetLastErrorCode());
     end;
 
+    local procedure RunListCell(Source: Text; Mode: Integer; CatchMode: Integer; Text: Text; Code: Text; Log: Text)
+    var
+        Row: Record "CEM Row";
+    begin
+        Help.Setup(Source, 'list', Mode);
+        Catch := CatchMode;
+        Row.Get('R1');
+        Row.SetRange("Code", 'R1');
+        asserterror begin
+            Runner.RunListStatic(Row);
+            Error('CEM_NO_ERROR');
+        end;
+        Check(Text, Code, Log, GetLastErrorText(), GetLastErrorCode());
+    end;
+
     [PageHandler]
     procedure WizardCatches(var P: TestPage "CEM Wizard")
     begin
@@ -126,6 +143,14 @@ codeunit 97374 "CEM Caught Ways Run Tests"
         CatchErrors();
         if Cfg.Mode() = 1 then
             P.OK().Invoke();
+    end;
+
+    [PageHandler]
+    procedure ListCatches(var P: TestPage "CEM List")
+    begin
+        CatchErrors();
+        if Cfg.Mode() = 7 then
+            Error('CEM handler error');
     end;
 
     [Test]
@@ -294,5 +319,89 @@ codeunit 97374 "CEM Caught Ways Run Tests"
     procedure CardVariableRun_CaughtInAProcedure_HandlerOk_ClosePageError()
     begin
         RunCardVariableCell('close', 1, 7, 'One or more errors occurred while closing the page.\\CEM close page error', 'TestWrapped', 'Q-card OK; C-card; ');
+    end;
+
+    [Test]
+    [HandlerFunctions('ListCatches')]
+    procedure ListStaticRun_CaughtWithTryFunction_HandlerError_NoError()
+    begin
+        RunListCell('none', 7, 2, 'CEM handler error', 'Dialog', 'Q-list OK; C-list; ');
+    end;
+
+    [Test]
+    [HandlerFunctions('ListCatches')]
+    procedure ListStaticRun_CaughtTwoErrors_HandlerError_NoError()
+    begin
+        RunListCell('none', 7, 3, 'CEM handler error', 'Dialog', 'Q-list OK; C-list; ');
+    end;
+
+    [Test]
+    [HandlerFunctions('ListCatches')]
+    procedure ListStaticRun_CaughtThenClearLastError_HandlerError_NoError()
+    begin
+        RunListCell('none', 7, 4, 'CEM handler error', 'Dialog', 'Q-list OK; C-list; ');
+    end;
+
+    [Test]
+    [HandlerFunctions('ListCatches')]
+    procedure ListStaticRun_CaughtByCodeunitRun_HandlerError_NoError()
+    begin
+        RunListCell('none', 7, 5, 'CEM handler error', 'Dialog', 'Q-list OK; C-list; ');
+    end;
+
+    [Test]
+    [HandlerFunctions('ListCatches')]
+    procedure ListStaticRun_CaughtByJsonReadFrom_HandlerError_NoError()
+    begin
+        RunListCell('none', 7, 6, 'CEM handler error', 'Dialog', 'Q-list OK; C-list; ');
+    end;
+
+    [Test]
+    [HandlerFunctions('ListCatches')]
+    procedure ListStaticRun_CaughtInAProcedure_HandlerError_NoError()
+    begin
+        RunListCell('none', 7, 7, 'CEM handler error', 'Dialog', 'Q-list OK; C-list; ');
+    end;
+
+    [Test]
+    [HandlerFunctions('ListCatches')]
+    procedure ListStaticRun_CaughtWithTryFunction_HandlerReturns_QueryCloseError()
+    begin
+        RunListCell('query', 0, 2, 'CEM_NO_ERROR', 'Dialog', 'Q-list OK; ');
+    end;
+
+    [Test]
+    [HandlerFunctions('ListCatches')]
+    procedure ListStaticRun_CaughtTwoErrors_HandlerReturns_QueryCloseError()
+    begin
+        RunListCell('query', 0, 3, 'CEM_NO_ERROR', 'Dialog', 'Q-list OK; ');
+    end;
+
+    [Test]
+    [HandlerFunctions('ListCatches')]
+    procedure ListStaticRun_CaughtThenClearLastError_HandlerReturns_QueryCloseError()
+    begin
+        RunListCell('query', 0, 4, 'CEM_NO_ERROR', 'Dialog', 'Q-list OK; ');
+    end;
+
+    [Test]
+    [HandlerFunctions('ListCatches')]
+    procedure ListStaticRun_CaughtByCodeunitRun_HandlerReturns_QueryCloseError()
+    begin
+        RunListCell('query', 0, 5, 'CEM_NO_ERROR', 'Dialog', 'Q-list OK; ');
+    end;
+
+    [Test]
+    [HandlerFunctions('ListCatches')]
+    procedure ListStaticRun_CaughtByJsonReadFrom_HandlerReturns_QueryCloseError()
+    begin
+        RunListCell('query', 0, 6, 'CEM_NO_ERROR', 'Dialog', 'Q-list OK; ');
+    end;
+
+    [Test]
+    [HandlerFunctions('ListCatches')]
+    procedure ListStaticRun_CaughtInAProcedure_HandlerReturns_QueryCloseError()
+    begin
+        RunListCell('query', 0, 7, 'CEM_NO_ERROR', 'Dialog', 'Q-list OK; ');
     end;
 }
