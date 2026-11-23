@@ -11,11 +11,14 @@
 //   table 97487, or a Tenant Media row, without a commit, and reads the table it wrote (so no insert is held back); the worker
 //   reads again: 'first / again'. Measured on a local BC 29.1 OnPrem w1 container, 3 runs. BC answers the first answer in these
 //   shapes: a negated sum, FieldRef.CalcField of a RecordRef, a FlowFilter range, a filter on a field that is no FlowFilter, a
-//   CalcSums with a range or with no filter, a count whose field() is a sum FlowField of the row, a temporary record, a sum whose
+//   CalcSums with a > filter or with no filter, a count whose field() is a sum FlowField of the row, a temporary record, a sum whose
 //   field(filter()) reads a stored field of the row (keyed by its text), an exist over Tenant Media, a count, min, exist or lookup
 //   whose field() is a count FlowField of the row, and a CalcFields or CalcSums after SetAscending(false). The exist over Tenant
 //   Media answers No both times, but a Get of the Tenant Media row the worker never read does not find the test session's
 //   Insert(false) either: the worker does not see that row, so that cell tells nothing of a cache.
+// From the review of al-runner PR 8872: a | of values on a field that is no FlowFilter, a CalcFields and a CalcSums ascending
+//   first and after SetAscending(field, false) again, and a count whose field() is a sum FlowField of the row that reads a stored
+//   field of the row by field(filter()) (Kind Text A|K, so the inner sum takes line 0): BC answers the first answer in each.
 
 table 97485 "BCC Parent"
 {
@@ -88,6 +91,11 @@ table 97485 "BCC Parent"
         {
             FieldClass = FlowField;
             CalcFormula = lookup("BCC Line".Kind where(Parent = field("No."), "Line No." = field("Note Count")));
+        }
+        field(18; "Lines At Kind Text Sum"; Integer)
+        {
+            FieldClass = FlowField;
+            CalcFormula = count("BCC Line" where(Parent = field("No."), Amount = field("Kind Text Sum")));
         }
     }
 
@@ -211,7 +219,7 @@ codeunit 97489 "BCC Reader"
                     Parent.CalcFields("Line Count");
                     exit(Format(Parent."Line Count"));
                 end;
-            'calcsumsrange':
+            'calcsumsgt':
                 begin
                     Line.SetRange(Parent, Group);
                     Line.SetFilter(Amount, '>0');
@@ -296,6 +304,32 @@ codeunit 97489 "BCC Reader"
                     Line.CalcSums(Amount);
                     exit(D(Line.Amount));
                 end;
+            'otherfilteror':
+                begin
+                    Parent.Get(Group);
+                    Parent.SetFilter(Description, '%1|%2', '', 'X');
+                    Parent.CalcFields("Line Count");
+                    exit(Format(Parent."Line Count"));
+                end;
+            'linecount':
+                begin
+                    Parent.Get(Group);
+                    Parent.CalcFields("Line Count");
+                    exit(Format(Parent."Line Count"));
+                end;
+            'sums':
+                begin
+                    Line.SetRange(Parent, Group);
+                    Line.CalcSums(Amount);
+                    exit(D(Line.Amount));
+                end;
+            'innerfieldfilter':
+                begin
+                    Parent.Get(Group);
+                    Parent."Kind Text" := 'A|K';
+                    Parent.CalcFields("Lines At Kind Text Sum");
+                    exit(Format(Parent."Lines At Kind Text Sum"));
+                end;
         end;
         Error('Mode %1', Mode);
     end;
@@ -336,9 +370,15 @@ codeunit 97490 "BCC Tests"
         if Line.FindFirst() then;
     end;
 
-    // A parent with line 1 (Kind A, Amount 5) and a Media Id, committed; the worker (Mode); the change without a commit
-    // ('lines': lines 0 and 2; 'note': a note; 'media': a Tenant Media row of the Media Id); the worker again: 'first / again'.
     local procedure Reads(Mode: Text; Change: Text): Text
+    begin
+        exit(ReadsAcross(Mode, Mode, Change));
+    end;
+
+    // A parent with line 1 (Kind A, Amount 5) and a Media Id, committed; the worker (First); the change without a commit
+    // ('lines': lines 0 and 2; 'note': a note; 'media': a Tenant Media row of the Media Id); the worker again (Again):
+    // 'first / again'.
+    local procedure ReadsAcross(First: Text; Again: Text; Change: Text): Text
     var
         Lines: TestPage "BCC Lines";
         Parent: Record "BCC Parent";
@@ -354,7 +394,7 @@ codeunit 97490 "BCC Tests"
         AddLine(G, 1, 'A', 5);
         Commit();
         Lines.OpenView();
-        Seen := Run(Lines, Mode, G, Parent."Media Id");
+        Seen := Run(Lines, First, G, Parent."Media Id");
         case Change of
             'lines':
                 begin
@@ -376,7 +416,7 @@ codeunit 97490 "BCC Tests"
                     TenantMedia.Insert(false);
                 end;
         end;
-        Seen += ' / ' + Run(Lines, Mode, G, Parent."Media Id");
+        Seen += ' / ' + Run(Lines, Again, G, Parent."Media Id");
         Lines.Close();
         exit(Seen);
     end;
@@ -406,9 +446,9 @@ codeunit 97490 "BCC Tests"
     end;
 
     [Test]
-    procedure BgCalcCache_CalcSumsRange_FirstAnswer()
+    procedure BgCalcCache_CalcSumsGreaterThan_FirstAnswer()
     begin
-        Assert.AreEqual('5 / 5', Reads('calcsumsrange', 'lines'), 'CalcSums with a range');
+        Assert.AreEqual('5 / 5', Reads('calcsumsgt', 'lines'), 'CalcSums with a > filter');
     end;
 
     [Test]
@@ -488,6 +528,30 @@ codeunit 97490 "BCC Tests"
     procedure BgCalcCache_CalcSumsAfterSetAscendingFalse_FirstAnswer()
     begin
         Assert.AreEqual('5 / 5', Reads('descendingsums', 'lines'), 'CalcSums after SetAscending(false)');
+    end;
+
+    [Test]
+    procedure BgCalcCache_OrOfValuesOnAStoredField_FirstAnswer()
+    begin
+        Assert.AreEqual('1 / 1', Reads('otherfilteror', 'lines'), 'a | of values on Description');
+    end;
+
+    [Test]
+    procedure BgCalcCache_CalcFieldsAscendingThenDescending_FirstAnswer()
+    begin
+        Assert.AreEqual('1 / 1', ReadsAcross('linecount', 'descendingcalc', 'lines'), 'CalcFields, then after SetAscending(false)');
+    end;
+
+    [Test]
+    procedure BgCalcCache_CalcSumsAscendingThenDescending_FirstAnswer()
+    begin
+        Assert.AreEqual('5 / 5', ReadsAcross('sums', 'descendingsums', 'lines'), 'CalcSums, then after SetAscending(false)');
+    end;
+
+    [Test]
+    procedure BgCalcCache_CountAtASumWithAFieldFilterOfTheRow_FirstAnswer()
+    begin
+        Assert.AreEqual('1 / 1', Reads('innerfieldfilter', 'lines'), 'field() of a sum whose field(filter()) reads Kind Text');
     end;
 }
 
