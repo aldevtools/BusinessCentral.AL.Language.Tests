@@ -617,7 +617,7 @@ codeunit 97707 "LT GFI Tests"
         Expect('repeater', 'error TestFieldNotFound: The field with ID = 992006240 is not found on the page.');
         Expect('onhost', 'error TestFieldNotFound: The field with ID = 1064400143 is not found on the page.');
     end;
-    // Fields in a cuegroup, in a fixed and in a grid, the ids of those containers, and a FactBox part: its id on the host, and
+    // Fields in a fixed and in a grid, the ids of a cuegroup, a fixed and a grid, and a FactBox part: its id on the host, and
     // TestPart.GetField with the ListPart's ids.
     [Test]
     procedure CueCard_OtherContainers()
@@ -626,22 +626,37 @@ codeunit 97707 "LT GFI Tests"
     begin
         Initialize();
         Card.OpenView();
-        Note('fields', ReadCue(Card, 1246435368) + '/' + ReadCue(Card, 710836701) + '/' + ReadCue(Card, 373308387));
+        Note('fields', ReadCue(Card, 710836701) + '/' + ReadCue(Card, 373308387));
         Note('cues', ReadCue(Card, 518652348));
         Note('fixed', ReadCue(Card, 923386085));
         Note('grid', ReadCue(Card, 393395371));
         Note('factbox', ReadCue(Card, 345689153));
         Note('facts', ReadFacts(Card, 1064400143) + '/' + ReadFacts(Card, 134725455));
         Card.Close();
-        Expect('fields', '0/Alpha/Alpha');
+        Expect('fields', 'Alpha/Alpha');
         Expect('cues', '');
         Expect('fixed', '');
         Expect('grid', '');
         Expect('factbox', '');
         Expect('facts', 'Alpha/R1');
     end;
+
+    // A Text field in a cuegroup, through GetField and by its name.
+    [Test]
+    procedure CueCard_CueField()
+    var
+        Card: TestPage "LT GFI Cue Card";
+    begin
+        Initialize();
+        Card.OpenView();
+        Note('byid', ReadCue(Card, 1246435368));
+        Note('direct', Card.CueName.Value());
+        Card.Close();
+        Expect('byid', '0');
+        Expect('direct', '0');
+    end;
     // The other read-only calls through GetField answer as on the control by its name: the Decimal control, the label and the
-    // control bound to a page variable; Caption and Visible of what the part control's id gives.
+    // control bound to a page variable.
     [Test]
     procedure Card_ReadsThroughGetField()
     var
@@ -660,10 +675,21 @@ codeunit 97707 "LT GFI Tests"
           Format(Card."Unit Price".ValidationErrorCount()) + '/' + Format(Card.InfoLabel.Visible()) + '/' +
           Format(Card.GlobalText.Editable()));
         Card.GetField(669412059).AssertEquals(1.5);
-        Note('part', CardCaption(Card, 2105193259) + '|' + CardVisible(Card, 2105193259));
         Card.Close();
         Expect('byid', 'Yes/Yes/Yes/1.5/No/No/0/Yes/Yes');
         Expect('direct', 'Yes/Yes/Yes/1.5/No/No/0/Yes/Yes');
+    end;
+
+    // Caption and Visible of what the part control's id gives.
+    [Test]
+    procedure Card_PartIdCaptionAndVisible()
+    var
+        Card: TestPage "LT GFI Card";
+    begin
+        Initialize();
+        Card.OpenView();
+        Note('part', CardCaption(Card, 2105193259) + '|' + CardVisible(Card, 2105193259));
+        Card.Close();
         Expect('part', 'LT GFI Lines Part|Yes');
     end;
     // A base field whose caption a page extension modifies keeps the base page's id; a field the application area hides
