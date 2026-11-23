@@ -344,6 +344,38 @@ codeunit 97707 "LT GFI Tests"
         exit(Failure());
     end;
 
+    [TryFunction]
+    local procedure TryCardCaption(var Card: TestPage "LT GFI Card"; Id: Integer; var Shown: Text)
+    begin
+        Shown := Card.GetField(Id).Caption();
+    end;
+
+    [TryFunction]
+    local procedure TryCardVisible(var Card: TestPage "LT GFI Card"; Id: Integer; var Shown: Text)
+    begin
+        Shown := Format(Card.GetField(Id).Visible());
+    end;
+
+    local procedure CardCaption(var Card: TestPage "LT GFI Card"; Id: Integer): Text
+    var
+        Shown: Text;
+    begin
+        ClearLastError();
+        if TryCardCaption(Card, Id, Shown) then
+            exit(Shown);
+        exit(Failure());
+    end;
+
+    local procedure CardVisible(var Card: TestPage "LT GFI Card"; Id: Integer): Text
+    var
+        Shown: Text;
+    begin
+        ClearLastError();
+        if TryCardVisible(Card, Id, Shown) then
+            exit(Shown);
+        exit(Failure());
+    end;
+
     // The issue's shape: the List stands on R1, then on R2; GetField by the id of Name and of "No." reads the row it stands on.
     [Test]
     procedure List_GetFieldByControlId_ReadsTheRow()
@@ -539,5 +571,31 @@ codeunit 97707 "LT GFI Tests"
         Expect('grid', '');
         Expect('factbox', '');
         Expect('facts', 'Alpha/R1');
+    end;
+    // The other read-only calls through GetField answer as on the control by its name: the Decimal control, the label and the
+    // control bound to a page variable; Caption and Visible of what the part control's id gives.
+    [Test]
+    procedure Card_ReadsThroughGetField()
+    var
+        Card: TestPage "LT GFI Card";
+    begin
+        Initialize();
+        Card.OpenEdit();
+        Note('byid', Format(Card.GetField(669412059).Visible()) + '/' + Format(Card.GetField(669412059).Enabled()) + '/' +
+          Format(Card.GetField(669412059).Editable()) + '/' + Format(Card.GetField(669412059).AsDecimal()) + '/' +
+          Format(Card.GetField(669412059).HideValue()) + '/' + Format(Card.GetField(669412059).ShowMandatory()) + '/' +
+          Format(Card.GetField(669412059).ValidationErrorCount()) + '/' + Format(Card.GetField(1397552416).Visible()) + '/' +
+          Format(Card.GetField(1921904910).Editable()));
+        Note('direct', Format(Card."Unit Price".Visible()) + '/' + Format(Card."Unit Price".Enabled()) + '/' +
+          Format(Card."Unit Price".Editable()) + '/' + Format(Card."Unit Price".AsDecimal()) + '/' +
+          Format(Card."Unit Price".HideValue()) + '/' + Format(Card."Unit Price".ShowMandatory()) + '/' +
+          Format(Card."Unit Price".ValidationErrorCount()) + '/' + Format(Card.InfoLabel.Visible()) + '/' +
+          Format(Card.GlobalText.Editable()));
+        Card.GetField(669412059).AssertEquals(1.5);
+        Note('part', CardCaption(Card, 2105193259) + '|' + CardVisible(Card, 2105193259));
+        Card.Close();
+        Expect('byid', 'Yes/Yes/Yes/1.5/No/No/0/Yes/Yes');
+        Expect('direct', 'Yes/Yes/Yes/1.5/No/No/0/Yes/Yes');
+        Expect('part', 'LT GFI Lines Part|Yes');
     end;
 }
