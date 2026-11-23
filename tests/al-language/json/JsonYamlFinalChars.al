@@ -27,7 +27,7 @@ codeunit 79895 "YFN Yaml Chars"
         Res: Text;
     begin
         Res := 'p=' + Y.Both('q: a' + C + 'b~n: 1', '{"q":"a' + C + 'b","n":"1"}');
-        Res += ' s=' + Y.Both('q: \'a' + C + 'b\'~n: 1', '{"q":"a' + C + 'b","n":"1"}');
+        Res += ' s=' + Y.Both('q: ''a' + C + 'b''~n: 1', '{"q":"a' + C + 'b","n":"1"}');
         Res += ' d=' + Y.Both('q: "a' + C + 'b"~n: 1', '{"q":"a' + C + 'b","n":"1"}');
         Res += ' l=' + Y.Both('q: |-~  a' + C + 'b~n: 1', '{"q":"a' + C + 'b","n":"1"}');
         Res += ' f=' + Y.Both('q: >-~  a' + C + 'b~n: 1', '{"q":"a' + C + 'b","n":"1"}');
