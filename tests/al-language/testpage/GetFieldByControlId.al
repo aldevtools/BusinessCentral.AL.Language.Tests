@@ -1,13 +1,14 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/testpage/testpage-getfield-method
 // Scope: in-scope
 // local object: the pages' controls and the ids the compiler gives them are what is under test
-// Fixtures used: shared Assert (60021); own table 97701, pages 97702-97705 and 97708, page extension 97706, tests 97707
+// Fixtures used: shared Assert (60021); own table 97701, pages 97702-97705, 97708 and 97709, page extensions 97706 and 97710, tests 97707
 // Probe (al-runner issue 8832): TestPage.GetField and TestPart.GetField take the id the compiler gives a page control. The ids in
 //   this file are FNV-1a (32 bit) over the UTF-16LE text of the declaring object's id followed by the control name as declared,
 //   read as a signed number and made positive; the compiled app's SymbolReference.json lists the same ids. The issue's page (a List
 //   with "No." and Name, page 97702), a second List with the same control names (97703), a Card with field controls of several
 //   kinds, a label, groups, a part and an action (97704), the part's ListPart (97705), a page extension that adds a field (97706)
-//   and a Card with a cuegroup, a fixed, a grid and a FactBox part (97708).
+//   a Card with a cuegroup, a fixed, a grid and a FactBox part (97708), and a Card (97709) with a field the application area
+//   hides, an action group and a field whose caption a page extension (97710) modifies.
 //   Readings: the control's Value (and Caption) through GetField on the row the page stands on, a SetValue through GetField, and the
 //   error text and code where GetField finds no field.
 // BC versions: 27, 28, 29
@@ -201,6 +202,57 @@ page 97708 "LT GFI Cue Card"
     }
 }
 
+page 97709 "LT GFI Mod Card"
+{
+    PageType = Card;
+    SourceTable = "LT GFI Row";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            group(General)
+            {
+                field(Name; Rec.Name) { }
+                field(SuiteNote; Rec.Note)
+                {
+                    ApplicationArea = Suite;
+                }
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            group(Grp)
+            {
+                action(InnerAction)
+                {
+                    trigger OnAction()
+                    begin
+                        Rec.Note := 'acted';
+                    end;
+                }
+            }
+        }
+    }
+}
+
+pageextension 97710 "LT GFI Mod Card Ext" extends "LT GFI Mod Card"
+{
+    layout
+    {
+        modify(Name)
+        {
+            Caption = 'Changed Name';
+        }
+    }
+}
+
 codeunit 97707 "LT GFI Tests"
 {
     Subtype = Test;
@@ -372,6 +424,22 @@ codeunit 97707 "LT GFI Tests"
     begin
         ClearLastError();
         if TryCardVisible(Card, Id, Shown) then
+            exit(Shown);
+        exit(Failure());
+    end;
+
+    [TryFunction]
+    local procedure TryMod(var Card: TestPage "LT GFI Mod Card"; Id: Integer; var Shown: Text)
+    begin
+        Shown := Card.GetField(Id).Value();
+    end;
+
+    local procedure ReadMod(var Card: TestPage "LT GFI Mod Card"; Id: Integer): Text
+    var
+        Shown: Text;
+    begin
+        ClearLastError();
+        if TryMod(Card, Id, Shown) then
             exit(Shown);
         exit(Failure());
     end;
@@ -597,5 +665,26 @@ codeunit 97707 "LT GFI Tests"
         Expect('byid', 'Yes/Yes/Yes/1.5/No/No/0/Yes/Yes');
         Expect('direct', 'Yes/Yes/Yes/1.5/No/No/0/Yes/Yes');
         Expect('part', 'LT GFI Lines Part|Yes');
+    end;
+    // A base field whose caption a page extension modifies keeps the base page's id; a field the application area hides
+    // (#Basic, the field Suite) and an action group are not found.
+    [Test]
+    procedure ModCard_ModifiedHiddenAndActionGroup()
+    var
+        Card: TestPage "LT GFI Mod Card";
+        Areas: Text;
+    begin
+        Initialize();
+        Areas := ApplicationArea();
+        ApplicationArea('#Basic');
+        Card.OpenView();
+        Note('modified', ReadMod(Card, 1331314946) + '/' + Card.GetField(1331314946).Caption());
+        Note('hidden', ReadMod(Card, 651490805));
+        Note('group', ReadMod(Card, 298019664));
+        Card.Close();
+        ApplicationArea(Areas);
+        Expect('modified', 'Alpha/Changed Name');
+        Expect('hidden', 'error TestFieldNotFound: The field with ID = 651490805 is not found on the page.');
+        Expect('group', 'error TestFieldNotFound: The field with ID = 298019664 is not found on the page.');
     end;
 }
