@@ -1,12 +1,13 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/testpage/testpage-getfield-method
 // Scope: in-scope
 // local object: the pages' controls and the ids the compiler gives them are what is under test
-// Fixtures used: shared Assert (60021); own table 97701, pages 97702-97705, page extension 97706, tests 97707
+// Fixtures used: shared Assert (60021); own table 97701, pages 97702-97705 and 97708, page extension 97706, tests 97707
 // Probe (al-runner issue 8832): TestPage.GetField and TestPart.GetField take the id the compiler gives a page control. The ids in
 //   this file are FNV-1a (32 bit) over the UTF-16LE text of the declaring object's id followed by the control name as declared,
 //   read as a signed number and made positive; the compiled app's SymbolReference.json lists the same ids. The issue's page (a List
 //   with "No." and Name, page 97702), a second List with the same control names (97703), a Card with field controls of several
-//   kinds, a label, groups, a part and an action (97704), the part's ListPart (97705) and a page extension that adds a field (97706).
+//   kinds, a label, groups, a part and an action (97704), the part's ListPart (97705), a page extension that adds a field (97706)
+//   and a Card with a cuegroup, a fixed, a grid and a FactBox part (97708).
 //   Readings: the control's Value (and Caption) through GetField on the row the page stands on, a SetValue through GetField, and the
 //   error text and code where GetField finds no field.
 // BC versions: 27, 28, 29
@@ -166,6 +167,40 @@ pageextension 97706 "LT GFI Card Ext" extends "LT GFI Card"
     }
 }
 
+page 97708 "LT GFI Cue Card"
+{
+    PageType = Card;
+    SourceTable = "LT GFI Row";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            cuegroup(Cues)
+            {
+                field(CueName; Rec.Name) { }
+            }
+            fixed(FixedPart)
+            {
+                group(FixedGroup)
+                {
+                    field(FixedName; Rec.Name) { }
+                }
+            }
+            grid(GridPart)
+            {
+                field(GridName; Rec.Name) { }
+            }
+        }
+        area(FactBoxes)
+        {
+            part(Facts; "LT GFI Lines Part") { }
+        }
+    }
+}
+
 codeunit 97707 "LT GFI Tests"
 {
     Subtype = Test;
@@ -273,6 +308,38 @@ codeunit 97707 "LT GFI Tests"
     begin
         ClearLastError();
         if TryPart(Card, Id, Shown) then
+            exit(Shown);
+        exit(Failure());
+    end;
+
+    [TryFunction]
+    local procedure TryCue(var Card: TestPage "LT GFI Cue Card"; Id: Integer; var Shown: Text)
+    begin
+        Shown := Card.GetField(Id).Value();
+    end;
+
+    [TryFunction]
+    local procedure TryFacts(var Card: TestPage "LT GFI Cue Card"; Id: Integer; var Shown: Text)
+    begin
+        Shown := Card.Facts.GetField(Id).Value();
+    end;
+
+    local procedure ReadCue(var Card: TestPage "LT GFI Cue Card"; Id: Integer): Text
+    var
+        Shown: Text;
+    begin
+        ClearLastError();
+        if TryCue(Card, Id, Shown) then
+            exit(Shown);
+        exit(Failure());
+    end;
+
+    local procedure ReadFacts(var Card: TestPage "LT GFI Cue Card"; Id: Integer): Text
+    var
+        Shown: Text;
+    begin
+        ClearLastError();
+        if TryFacts(Card, Id, Shown) then
             exit(Shown);
         exit(Failure());
     end;
@@ -449,5 +516,28 @@ codeunit 97707 "LT GFI Tests"
         Expect('hostid', 'error TestFieldNotFound: The field with ID = 201861513 is not found on the page.');
         Expect('repeater', 'error TestFieldNotFound: The field with ID = 992006240 is not found on the page.');
         Expect('onhost', 'error TestFieldNotFound: The field with ID = 1064400143 is not found on the page.');
+    end;
+    // Fields in a cuegroup, in a fixed and in a grid, the ids of those containers, and a FactBox part: its id on the host, and
+    // TestPart.GetField with the ListPart's ids.
+    [Test]
+    procedure CueCard_OtherContainers()
+    var
+        Card: TestPage "LT GFI Cue Card";
+    begin
+        Initialize();
+        Card.OpenView();
+        Note('fields', ReadCue(Card, 1246435368) + '/' + ReadCue(Card, 710836701) + '/' + ReadCue(Card, 373308387));
+        Note('cues', ReadCue(Card, 518652348));
+        Note('fixed', ReadCue(Card, 923386085));
+        Note('grid', ReadCue(Card, 393395371));
+        Note('factbox', ReadCue(Card, 345689153));
+        Note('facts', ReadFacts(Card, 1064400143) + '/' + ReadFacts(Card, 134725455));
+        Card.Close();
+        Expect('fields', '0/Alpha/Alpha');
+        Expect('cues', '');
+        Expect('fixed', '');
+        Expect('grid', '');
+        Expect('factbox', '');
+        Expect('facts', 'Alpha/R1');
     end;
 }
