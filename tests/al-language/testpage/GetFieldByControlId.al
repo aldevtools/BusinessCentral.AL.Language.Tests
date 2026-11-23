@@ -2645,16 +2645,16 @@ codeunit 97737 "LT GFI Kinds Tests"
         Pg: TestPage "LT GFI Report Preview";
     begin
         Initialize();
-#if BC29PLUS
-        Pg.OpenEdit();
-        Note('missing', ReadPreview(Pg, 1));
-        Pg.Close();
-        Expect('missing', 'error TestFieldNotFound: The field with ID = 1 is not found on the page.');
-#else
+#if BC27PLUS and not BC29PLUS
         // BC 27 and 28: the open raises, so GetField is never reached.
         asserterror Pg.OpenEdit();
         Note('open', GetLastErrorText());
         Expect('open', 'The identifier ''ReportLayoutFormat'' could not be found.');
+#else
+        Pg.OpenEdit();
+        Note('missing', ReadPreview(Pg, 1));
+        Pg.Close();
+        Expect('missing', 'error TestFieldNotFound: The field with ID = 1 is not found on the page.');
 #endif
     end;
 
