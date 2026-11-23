@@ -1,7 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/record/record-setfilter-method
 // Scope: in-scope
-// Fixtures used: Assert (60021); own tables 97502, 97503 and 97505, report 97500, page 97500, queries 97500-97502 and test
-//   codeunit 97500
+// Fixtures used: Assert (60021); own tables 97502, 97503, 97505, report 97500, page 97500, queries 97500-97502, test codeunit 97500
 // Probe (al-runner issue 8637, review of al-runner PR 8716): `@` alone and `<>@` alone on a Code and a Text field, read from the
 //   database and from a temporary record. pages/background-tasks/BgTaskQueryCache.al (BQ Tests 9b, 9c) measures SetFilter read by
 //   Count, a FlowFilter that CalcFields applies, a lookup FlowField's filter read by Count and a query's filters; this file
@@ -15,8 +14,6 @@
 //   keep the empty rows for `@`. A temporary record keeps every row for `@` and none for `<>@`. Filter places: Record.SetFilter
 //   in filter groups 0, 1 and 2, SetView, FieldRef.SetFilter, RecordRef.SetView, a CalcFormula's field(filter()) over a normal
 //   field that holds `@` and over a FlowFilter set to `@`, a CalcFormula's filter('@') and filter('<>@'); GetFilter, GetFilters, GetView.
-//   `<>@` alone keeps the rows that are not empty in a query's SetFilter, a query's DataItemTableFilter and a FlowFilter that
-//   CalcFields applies, the last for a host in the database and a temporary host alike.
 // BC versions: 27, 28, 29
 
 table 97502 "AS Kind Row"
@@ -840,7 +837,9 @@ codeunit 97500 "AS Kind Tests"
             Seen, 'code @, code <>@, text @, text <>@');
     end;
 
-    // <>@ alone as a query's SetFilter on the Code and on the Text column (query 97500).
+    // <>@ alone keeps the rows that are not empty in a query's SetFilter, a query's DataItemTableFilter and a FlowFilter that
+    // CalcFields applies, the last for a host in the database and a temporary host alike. The query's SetFilter on the Code and on
+    // the Text column (query 97500):
     local procedure QueryNotAt(G: Code[20]; OnCode: Boolean): Text
     var
         Columns: Query "AS Kind Columns";
