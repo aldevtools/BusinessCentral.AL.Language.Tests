@@ -276,8 +276,13 @@ codeunit 90926 "LT Y1 Reapply Tests"
         ReapplyPage.Close();
 #if BC29_1PLUS
         // version change: 29.1-gotorecord-after-refresh (29.1: GoToRecord of row 2 right after the refresh returns true with row 2
-        // current; 27, 28 and 29.0 return false with row 1 current). Observed on the 29.1 CI leg; assertions follow from that run.
-        Observer.Finish();
+        // current, and the second GoToRecord returns false with row 1 current again; 27, 28 and 29.0 return false with row 1
+        // current both times). Observed on the 29.1 CI leg.
+        Observer.Expect('after drilldown', '1');
+        Observer.Expect('goto 2', 'true/2');
+        Observer.Expect('refresh still pending', 'false');
+        Observer.Expect('goto 2 again', 'false/1');
+        Observer.Verify();
 #else
         Observer.Expect('after drilldown', '1');
         Observer.Expect('goto 2', 'false/1');
