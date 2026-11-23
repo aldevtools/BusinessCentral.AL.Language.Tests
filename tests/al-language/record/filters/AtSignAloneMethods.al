@@ -498,9 +498,20 @@ codeunit 97501 "AM Kind Tests"
         R.SetRange("Group", G);
         Seen := GroupNotAt(R, 1, R.FieldNo("Code Kind")) + '|' + GroupNotAt(R, 1, R.FieldNo("Text Kind"));
         Seen += '|' + GroupNotAt(R, 2, R.FieldNo("Code Kind")) + '|' + GroupNotAt(R, 2, R.FieldNo("Text Kind"));
-        Seen += '|' + GroupNotAt(Temp, 1, Temp.FieldNo("Code Kind")) + '|' + GroupNotAt(Temp, 1, Temp.FieldNo("Text Kind"));
         Seen += '|' + GroupNotAt(Temp, 2, Temp.FieldNo("Code Kind")) + '|' + GroupNotAt(Temp, 2, Temp.FieldNo("Text Kind"));
-        Assert.AreEqual('1:1,|1:1,|1:1,|1:1,|0:|0:|0:|0:', Seen, 'database group 1 code, text, group 2 code, text; temporary the same');
+        Assert.AreEqual('1:1,|1:1,|1:1,|1:1,|0:|0:', Seen, 'database group 1 code, text, group 2 code, text; temporary group 2 code, text');
+    end;
+
+    // The same in filter group 1 of a temporary record.
+    [Test]
+    procedure AtSignAloneNegated_FilterGroupOne_Temporary()
+    var
+        Temp: Record "AM Kind Row" temporary;
+        Seen: Text;
+    begin
+        CopyGroup(NewGroup(), Temp);
+        Seen := GroupNotAt(Temp, 1, Temp.FieldNo("Code Kind")) + '|' + GroupNotAt(Temp, 1, Temp.FieldNo("Text Kind"));
+        Assert.AreEqual('0:|0:', Seen, 'temporary group 1 code, text');
     end;
 
     // <>@ alone and @ alone set on a min and on a max FlowField of Code and of Text type (table 97511): Count, IsEmpty and
