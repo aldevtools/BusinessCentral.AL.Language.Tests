@@ -1,7 +1,7 @@
 name: AL Language Test Suite
 
 # Runs the AL language coverage suite against a BC service tier on the newest
-# minor of each supported major (27.5, 28.5, 29.0). al-runtime-rs
+# minor of each supported major (27.5, 28.5, 29.1). al-runtime-rs
 # (StefanMaron/al-runtime-rs) reads the JUnit files of these legs as its oracle.
 # The bc_version input runs one other minor on request.
 # All matrix legs boot BC on Linux (no Windows runner required) via
@@ -9,9 +9,15 @@ name: AL Language Test Suite
 #
 # Adding a new BC version:
 #   1. In the prepare job, add an include entry to the else-branch JSON:
-#      {"bc_version":"29.0","runtime":"18.0","preprocessor_symbols":"BC27PLUS,BC28PLUS,BC29PLUS"}
+#      {"bc_version":"29.1","leg":"29","runtime":"18.0","preprocessor_symbols":"BC27PLUS,BC28PLUS,BC29PLUS,BC29_1PLUS"}
+#      `leg` is the major only: the check names ("BC 29 / test") stay the same when the leg moves to a newer minor.
 #   2. If new API/keywords only exist from that version, guard tests with
 #      #if BC29PLUS and define the symbol in the include entry above.
+#   3. Minor symbols: BC<major>_<minor>PLUS (BC29_1PLUS) is defined on that minor, every later minor of the same
+#      major and every later major. Guard a value that changed in a minor with it, newest first:
+#      #if BC29_1PLUS ... #elif BC29PLUS ... #else ... #endif, and name the change in a comment
+#      (`// version change: <minor>-<short-id>`). Add a new minor symbol to MINOR_SYMBOLS in the prepare job and to
+#      the include entries of the legs that run that minor or a later one.
 #   al_tool_version and runtime_version are auto-derived from bc_version
 #   by the bc-linux reusable workflow — no manual entry needed.
 
@@ -85,8 +91,9 @@ on:
 #     selects exactly the runs that may be cancelled. The nightly (schedule) has a group of its own; the
 #     next night's run would cancel one that still runs.
 #
-# The required checks of the master ruleset are the `BC <version> / test`, `BC OnPrem <version> / test`
-# and `BC OnPrem DotNet <version> / test` legs for 27.5, 28.5 and 29.0, plus the object-id gate. Each
+# The required checks of the master ruleset are the `BC <major> / test`, `BC OnPrem <major> / test`
+# and `BC OnPrem DotNet <major> / test` legs for 27, 28 and 29 (the matrix field `leg`; the legs run 27.5, 28.5
+# and 29.1), plus the object-id gate. Each
 # leg's check is the job `test` of bc-leg.yml, which runs with `if: always()` and fails unless every
 # shard succeeded, so a cancelled run reports it as failed or cancelled, never as skipped or green, and
 # a superseded run can never satisfy a required check. The one green without shards is a subset-run
@@ -301,17 +308,26 @@ jobs:
         run: |
           if [ -n "$OVERRIDE" ]; then
             MAJOR=$(echo "$OVERRIDE" | cut -d. -f1)
+            MINOR=$(echo "$OVERRIDE" | cut -d. -f2)
             SYMS=""
             for v in 27 28 29; do
               [ "$v" -le "$MAJOR" ] || break
               SYMS="${SYMS:+$SYMS,}BC${v}PLUS"
             done
+            # Minor symbols BC<major>_<minor>PLUS: defined on that minor, every later minor of its major and every later major.
+            MINOR_SYMBOLS="29.1"
+            for mv in $MINOR_SYMBOLS; do
+              MJ=${mv%.*}; MN=${mv#*.}
+              if [ "$MAJOR" -gt "$MJ" ] || { [ "$MAJOR" -eq "$MJ" ] && [ "${MINOR:-0}" -ge "$MN" ]; }; then
+                SYMS="${SYMS:+$SYMS,}BC${MJ}_${MN}PLUS"
+              fi
+            done
             case "$MAJOR" in 27) RT=16.1;; 28) RT=17.1;; *) RT=18.0;; esac
-            JSON=$(python3 -c 'import json,sys; v,rt,s=sys.argv[1:]; print(json.dumps({"include":[{"bc_version":v,"runtime":rt,"preprocessor_symbols":s}]}))' "$OVERRIDE" "$RT" "$SYMS")
+            JSON=$(python3 -c 'import json,sys; v,rt,s=sys.argv[1:]; print(json.dumps({"include":[{"bc_version":v,"leg":v.split(".")[0],"runtime":rt,"preprocessor_symbols":s}]}))' "$OVERRIDE" "$RT" "$SYMS")
           else
             # The newest minor of each major: al-runtime-rs reads these legs as its oracle.
-            # Use the bc_version input to run another minor.
-            JSON='{"include":[{"bc_version":"27.5","runtime":"16.1","preprocessor_symbols":"BC27PLUS"},{"bc_version":"28.5","runtime":"17.1","preprocessor_symbols":"BC27PLUS,BC28PLUS"},{"bc_version":"29.1","runtime":"18.0","preprocessor_symbols":"BC27PLUS,BC28PLUS,BC29PLUS"}]}'
+            # Use the bc_version input to run another minor. `leg` (the major) names the checks.
+            JSON='{"include":[{"bc_version":"27.5","leg":"27","runtime":"16.1","preprocessor_symbols":"BC27PLUS"},{"bc_version":"28.5","leg":"28","runtime":"17.1","preprocessor_symbols":"BC27PLUS,BC28PLUS"},{"bc_version":"29.1","leg":"29","runtime":"18.0","preprocessor_symbols":"BC27PLUS,BC28PLUS,BC29PLUS,BC29_1PLUS"}]}'
           fi
           # The BC build of each version, resolved once here for every leg and shard of the run, and added to the matrix
           # as bc_artifact_url and bc_build (CONTRIBUTING.md, "BC build and result provenance"). A version without a build
@@ -332,7 +348,7 @@ jobs:
             --file .github/ci-shards.json --event "$EVENT" --selection "$RUNNER_TEMP/selection.json" --github
 
   test:
-    name: BC ${{ matrix.bc_version }}
+    name: BC ${{ matrix.leg }}
     needs: prepare
     strategy:
       fail-fast: false
@@ -434,7 +450,7 @@ jobs:
   # This job's checks are named "BC OnPrem <ver> / test". They are required checks of the
   # master ruleset, like the "BC <ver> / test" checks of the job above.
   test-onprem:
-    name: BC OnPrem ${{ matrix.bc_version }}
+    name: BC OnPrem ${{ matrix.leg }}
     needs: prepare
     strategy:
       fail-fast: false
@@ -483,7 +499,7 @@ jobs:
   # in the assembly probing paths). al_tool_version pins 18.0.43.1464 for every BC version; a newer compiler accepts the
   # app's runtime 16.0.
   test-onprem-dotnet:
-    name: BC OnPrem DotNet ${{ matrix.bc_version }}
+    name: BC OnPrem DotNet ${{ matrix.leg }}
     needs: prepare
     strategy:
       fail-fast: false
@@ -547,7 +563,7 @@ jobs:
   # Not a required status check yet: its checks are named "BC TestLibraries <ver> / test", and the repository's
   # rulesets list only "BC <ver> / test" (add them there once the job has run green for a while).
   test-testlibraries:
-    name: BC TestLibraries ${{ matrix.bc_version }}
+    name: BC TestLibraries ${{ matrix.leg }}
     # Second wave: starts when the OnPrem legs are done, so that a full run holds at most 16 BC containers at once
     # (10 al-language shards + OnPrem + OnPrem DotNet). The organization has 20 concurrent jobs for this repository and
     # al-runtime-rs together. It runs whatever the OnPrem legs' result.
@@ -613,7 +629,7 @@ jobs:
   #
   # Not a required status check yet: its checks are named "BC TryWrites <ver> / test".
   test-trywrite-allowed:
-    name: BC TryWrites ${{ matrix.bc_version }}
+    name: BC TryWrites ${{ matrix.leg }}
     # Second wave, like test-testlibraries: starts when the OnPrem legs are done (container limit).
     needs: [prepare, test-onprem]
     if: ${{ !cancelled() && needs.prepare.result == 'success' }}

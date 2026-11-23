@@ -261,8 +261,24 @@ The CI matrix defines these symbols per version:
 | `BC27PLUS` | Available from BC 27.0 onwards (always defined) |
 | `BC28PLUS` | Available from BC 28.0 onwards |
 | `BC29PLUS` | Available from BC 29.0 onwards |
+| `BC29_1PLUS` | BC 29.1 and every later minor of 29, and every later major |
 
-The guard comment must explain **why** the guard exists — which API or behavior changed.
+Minor symbols have the form `BC<major>_<minor>PLUS`. Use one when a value or a behavior changed in a minor update. Guard newest first and
+keep the older values, they document the older builds:
+
+```al
+#if BC29_1PLUS
+    // version change: 29.1-page-part-refresh
+    Observer.Expect('send', '...');   // 29.1 and later
+#elif BC29PLUS
+    Observer.Expect('send', '...');   // 29.0
+#else
+    Observer.Expect('send', '...');   // 27 and 28
+#endif
+```
+
+The guard comment must explain **why** the guard exists — which API or behavior changed. A guard for a version change names the change
+with a short id (`// version change: <minor>-<short-id>`), the id the version-changes page of the docs links to.
 
 If you are writing a test for a feature available in all supported BC versions (27.5+), **no guard is needed**.
 
@@ -423,7 +439,7 @@ python3 .github/scripts/select-tests.py --head HEAD --codeunits '{"tests/al-lang
 
 Each test job of `ci.yml` (one test app on one BC version, a "leg") calls `.github/workflows/bc-leg.yml`. That workflow runs the leg in one or more shards, each in a BC container of its own, and then merges their JUnit. The `al-language` legs run in three or four shards; the other test apps run in one.
 
-- **Check names.** The leg "BC 29.0" has the checks `BC 29.0 / shard 1 of 3 / test` to `BC 29.0 / shard 3 of 3 / test`, one per shard, and `BC 29.0 / test`. The last one is the job that merges and reports; it is the check the master ruleset requires. It fails when any shard failed or was cancelled.
+- **Check names.** A leg is named by its major only (matrix field `leg`), so the names stay the same when the leg moves to a newer minor. The leg "BC 29" (it runs 29.1) has the checks `BC 29 / shard 1 of 3 / test` to `BC 29 / shard 3 of 3 / test`, one per shard, and `BC 29 / test`. The last one is the job that merges and reports; it is the check the master ruleset requires. It fails when any shard failed or was cancelled.
 - **Artifact.** Each shard uploads `junit-test-results-<bc version>`. The merging job merges them (also when there is only one), adds the provenance of each codeunit (see "BC build and result provenance"), uploads the result under the same name and deletes the shards' artifacts, so each leg still has one artifact with one JUnit file. After **Re-run failed jobs**, the merge takes the earlier merged file and replaces the codeunits of the re-run shard.
 - **Shard ranges.** A shard is a range of codeunit ids. `.github/ci-shards.json` holds the first id of each shard per BC major. The ranges are balanced by the wall time of each codeunit in a full master run. A new codeunit falls into the shard of its neighbours, so adding tests needs no edit there. When the shards' times drift apart (see the "Run AL tests" step of each shard), measure them again from the JUnit files of a green master run:
 

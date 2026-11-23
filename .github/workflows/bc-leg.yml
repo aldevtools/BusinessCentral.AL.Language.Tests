@@ -5,9 +5,9 @@ name: BC leg (shards of one test app on one BC version)
 # bc-test-from-source.yml, and then the job `test`, which merges the shards' JUnit into the one artifact the leg has
 # always had and reports the leg's result.
 #
-# CHECK NAMES. A caller job named "BC 29.0" gets the checks "BC 29.0 / shard 1 of 3 / test" (one per shard) and
-# "BC 29.0 / test" (the job `test` below). The second is the name the master ruleset requires, so the required checks
-# and the names the CI batcher and corpus_bump.sh read did not change when the legs were split into shards.
+# CHECK NAMES. A caller job named "BC 29" (ci.yml names its jobs by the major, matrix field `leg`) gets the checks
+# "BC 29 / shard 1 of 3 / test" (one per shard) and "BC 29 / test" (the job `test` below). The second is the name the
+# master ruleset requires. The names carry the major only, so they stay the same when a leg moves to a newer minor.
 #
 # ARTIFACT. Every shard uploads junit-test-results-<bc_version> (the name is fixed in bc-linux). The job `test` merges
 # them (also a single one), gives each <testsuite> its provenance properties (run, attempt, commit, BC build; provenance.py
