@@ -2798,9 +2798,8 @@ codeunit 97748 "LT GFI Ext Area Tests"
         exit(Failure());
     end;
 
-    // The extension's AreaNote states ApplicationArea = All; PlainExtra states none. The ids: the extension's (97747) and the base
-    // page's (97746), each with the control's name. GetField finds AreaNote by the extension's id on every version; neither field
-    // by the base page's id.
+    // The extension's AreaNote states ApplicationArea = All. The ids: the extension's (97747) and the base page's (97746), each with
+    // the control's name. GetField finds it by the extension's id; not by the base page's id.
     [Test]
     procedure Card_ExtensionFieldWithArea_ByEitherId()
     var
@@ -2811,17 +2810,29 @@ codeunit 97748 "LT GFI Ext Area Tests"
         Note('byname', Pg.AreaNote.Value());
         Note('areaext', ReadAreaCard(Pg, 15870752));
         Note('areabase', ReadAreaCard(Pg, 1272101127));
-        Note('plainext', ReadAreaCard(Pg, 554948809));
-        Note('plainbase', ReadAreaCard(Pg, 1463453138));
         Pg.Close();
         Expect('byname', 'n1');
         Expect('areaext', 'found n1');
         Expect('areabase', 'error TestFieldNotFound: The field with ID = 1272101127 is not found on the page.');
+    end;
+
+    // The extension's PlainExtra on the same page states no ApplicationArea: as at :589, BC 27 finds it by the extension's id,
+    // BC 28 and later do not; neither finds it by the base page's id.
+    [Test]
+    procedure Card_ExtensionFieldWithoutArea_ByEitherId()
+    var
+        Pg: TestPage "LT GFI Area Card";
+    begin
+        Initialize();
+        Pg.OpenView();
+        Note('plainext', ReadAreaCard(Pg, 554948809));
+        Note('plainbase', ReadAreaCard(Pg, 1463453138));
+        Pg.Close();
 #if BC28PLUS
-        // BC 28 and later: the field without an ApplicationArea is not found by the extension's id (as at :589).
+        // BC 28 and later: not found by the extension's id.
         Expect('plainext', 'error TestFieldNotFound: The field with ID = 554948809 is not found on the page.');
 #else
-        // BC 27: GetField finds it by the extension's id (as at :589).
+        // BC 27: found by the extension's id.
         Expect('plainext', 'found x1');
 #endif
         Expect('plainbase', 'error TestFieldNotFound: The field with ID = 1463453138 is not found on the page.');
