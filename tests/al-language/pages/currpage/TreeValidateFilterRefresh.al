@@ -1140,8 +1140,8 @@ codeunit 97724 "LT TVF Tests"
         Expect('stored', 'A/,B/V,C/,');
     end;
 
-    // The SetValue on Name with SetRangeDrops and UpdateFalse: the row leaves the view. Last in the codeunit: the page that the
-    // failed SetValue leaves behind would read the rows later tests save.
+    // The SetValue on Name with SetRangeDrops and UpdateFalse: the row leaves the view. The failed SetValue leaves its page behind;
+    // a left page does not read the rows later tests save (the cells at :1472 and :1484 run after this one).
     [Test]
     procedure Tree_SetRangeDropsUpdateFalse_Fails()
     var
