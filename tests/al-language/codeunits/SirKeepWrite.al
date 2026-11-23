@@ -21,6 +21,10 @@ codeunit 73478 "SIR Keep Write"
         Observer.Observe('global text', S.GetTxt());
         Observer.Observe('global list', Format(S.GetListNew().Count()));
         Observer.Observe('kept int', Format(K.KeptIntNow()));
-        Observer.Finish();
+        Observer.Expect('global int', '2');
+        Observer.Expect('global text', 'second');
+        Observer.Expect('global list', '1');
+        Observer.Expect('kept int', '1');
+        Observer.Verify();
     end;
 }

@@ -3,6 +3,9 @@
 // Fixtures: the state of the SingleInstance probe for al-runner issue 8696. "SIR State" holds one global per
 // cell (a value kind and a way to read and a way to overwrite it); the Setter test codeunits put every global into its
 // start value, the reader codeunits read a global into a local, overwrite it, then observe the local and the global.
+// BC result (27.5 and 28.5 the same; 29 measured by corpus CI): a local copy of a scalar, Text, Code, a Record row or a List or
+// Dictionary assigned from a getter keeps the value read; an in-place change (List.Add/Remove, Dictionary.Set/Remove, a codeunit
+// Put) is seen through the local too; a guard refill leaves the refilled value. A value kept across tests or codeunits stays.
 //
 // singleinstance-shared-on-purpose: the probe measures what one test codeunit leaves for the next one in the same run.
 

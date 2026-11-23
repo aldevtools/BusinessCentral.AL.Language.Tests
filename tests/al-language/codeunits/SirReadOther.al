@@ -19,7 +19,9 @@ codeunit 73473 "SIR Read Other"
         Wr.WInt();
         Observer.Observe('seen', Format(SeenInt));
         Observer.Observe('global', Format(S.GetInt()));
-        Observer.Finish();
+        Observer.Expect('seen', '1');
+        Observer.Expect('global', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -34,7 +36,9 @@ codeunit 73473 "SIR Read Other"
         Wr.WTxt();
         Observer.Observe('seen', Format(SeenTxt));
         Observer.Observe('global', Format(S.GetTxt()));
-        Observer.Finish();
+        Observer.Expect('seen', 'set');
+        Observer.Expect('global', 'second');
+        Observer.Verify();
     end;
 
     [Test]
@@ -49,7 +53,9 @@ codeunit 73473 "SIR Read Other"
         Wr.WBool();
         Observer.Observe('seen', Format(SeenBool));
         Observer.Observe('global', Format(S.GetBool()));
-        Observer.Finish();
+        Observer.Expect('seen', 'Yes');
+        Observer.Expect('global', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -64,7 +70,9 @@ codeunit 73473 "SIR Read Other"
         Wr.WDec();
         Observer.Observe('seen', Format(SeenDec));
         Observer.Observe('global', Format(S.GetDec()));
-        Observer.Finish();
+        Observer.Expect('seen', '1.5');
+        Observer.Expect('global', '2.5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -79,7 +87,9 @@ codeunit 73473 "SIR Read Other"
         Wr.WCode();
         Observer.Observe('seen', Format(SeenCode));
         Observer.Observe('global', Format(S.GetCode()));
-        Observer.Finish();
+        Observer.Expect('seen', 'SET');
+        Observer.Expect('global', 'SECOND');
+        Observer.Verify();
     end;
 
     [Test]
@@ -94,7 +104,9 @@ codeunit 73473 "SIR Read Other"
         Wr.WTxt10();
         Observer.Observe('seen', Format(SeenTxt10));
         Observer.Observe('global', Format(S.GetTxt10()));
-        Observer.Finish();
+        Observer.Expect('seen', 'set');
+        Observer.Expect('global', 'second');
+        Observer.Verify();
     end;
 
     [Test]
@@ -109,7 +121,9 @@ codeunit 73473 "SIR Read Other"
         Wr.WTxtSame();
         Observer.Observe('seen', SeenTxtSame);
         Observer.Observe('global', S.GetTxtSame());
-        Observer.Finish();
+        Observer.Expect('seen', 'set');
+        Observer.Expect('global', 'set');
+        Observer.Verify();
     end;
 
     [Test]
@@ -124,7 +138,9 @@ codeunit 73473 "SIR Read Other"
         Wr.WTxtOut();
         Observer.Observe('seen', SeenTxtOut);
         Observer.Observe('global', S.GetTxtOutNow());
-        Observer.Finish();
+        Observer.Expect('seen', 'set');
+        Observer.Expect('global', 'second');
+        Observer.Verify();
     end;
 
     [Test]
@@ -139,7 +155,9 @@ codeunit 73473 "SIR Read Other"
         Wr.WIntEval();
         Observer.Observe('seen', Format(SeenIntEval));
         Observer.Observe('global', Format(S.GetIntEval()));
-        Observer.Finish();
+        Observer.Expect('seen', '1');
+        Observer.Expect('global', '7');
+        Observer.Verify();
     end;
 
     [Test]
@@ -154,7 +172,9 @@ codeunit 73473 "SIR Read Other"
         Wr.WTxtClear();
         Observer.Observe('seen', SeenTxtClear);
         Observer.Observe('global', S.GetTxtClear());
-        Observer.Finish();
+        Observer.Expect('seen', 'set');
+        Observer.Expect('global', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -167,7 +187,8 @@ codeunit 73473 "SIR Read Other"
         if S.GetGuard() <> 'refilled' then
             Wr.WGuard();
         Observer.Observe('global', S.GetGuard());
-        Observer.Finish();
+        Observer.Expect('global', 'refilled');
+        Observer.Verify();
     end;
 
     [Test]
@@ -183,7 +204,9 @@ codeunit 73473 "SIR Read Other"
             Wr.WGuardSeen();
         Observer.Observe('seen', SeenGuardSeen);
         Observer.Observe('global', S.GetGuardSeen());
-        Observer.Finish();
+        Observer.Expect('seen', 'set');
+        Observer.Expect('global', 'refilled');
+        Observer.Verify();
     end;
 
     [Test]
@@ -198,7 +221,9 @@ codeunit 73473 "SIR Read Other"
         Wr.WRecField();
         Observer.Observe('local', R.Txt);
         Observer.Observe('global', S.TxtRecField());
-        Observer.Finish();
+        Observer.Expect('local', 'set');
+        Observer.Expect('global', 'second');
+        Observer.Verify();
     end;
 
     [Test]
@@ -213,7 +238,9 @@ codeunit 73473 "SIR Read Other"
         Wr.WRecAssign();
         Observer.Observe('local', R.Txt);
         Observer.Observe('global', S.TxtRecAssign());
-        Observer.Finish();
+        Observer.Expect('local', 'set');
+        Observer.Expect('global', 'second');
+        Observer.Verify();
     end;
 
     [Test]
@@ -230,7 +257,10 @@ codeunit 73473 "SIR Read Other"
         Observer.Observe('local buffer', R.Txt);
         Observer.Observe('local after find', Format(R.Get('K')) + '/' + R.Txt);
         Observer.Observe('global', S.TxtRecShared());
-        Observer.Finish();
+        Observer.Expect('local buffer', 'set');
+        Observer.Expect('local after find', 'Yes/second');
+        Observer.Expect('global', 'second');
+        Observer.Verify();
     end;
 
     [Test]
@@ -245,7 +275,9 @@ codeunit 73473 "SIR Read Other"
         Wr.WRecDelete();
         Observer.Observe('local count', Format(R.Count()));
         Observer.Observe('global count', Format(S.CountRecDelete()));
-        Observer.Finish();
+        Observer.Expect('local count', '0');
+        Observer.Expect('global count', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -260,7 +292,9 @@ codeunit 73473 "SIR Read Other"
         Wr.WRecClear();
         Observer.Observe('local', R.Txt);
         Observer.Observe('global', S.TxtRecClear());
-        Observer.Finish();
+        Observer.Expect('local', 'set');
+        Observer.Expect('global', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -275,7 +309,9 @@ codeunit 73473 "SIR Read Other"
         Wr.WListNew();
         Observer.Observe('seen', Join(SeenListNew));
         Observer.Observe('global', Join(S.GetListNew()));
-        Observer.Finish();
+        Observer.Expect('seen', '2:a,b,');
+        Observer.Expect('global', '1:z,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -290,7 +326,9 @@ codeunit 73473 "SIR Read Other"
         Wr.WListAdd();
         Observer.Observe('seen', Join(SeenListAdd));
         Observer.Observe('global', Join(S.GetListAdd()));
-        Observer.Finish();
+        Observer.Expect('seen', '3:a,b,c,');
+        Observer.Expect('global', '3:a,b,c,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -305,7 +343,9 @@ codeunit 73473 "SIR Read Other"
         Wr.WListRemove();
         Observer.Observe('seen', Join(SeenListRemove));
         Observer.Observe('global', Join(S.GetListRemove()));
-        Observer.Finish();
+        Observer.Expect('seen', '0:');
+        Observer.Expect('global', '0:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -320,7 +360,9 @@ codeunit 73473 "SIR Read Other"
         Wr.WListClear();
         Observer.Observe('seen', Join(SeenListClear));
         Observer.Observe('global', Join(S.GetListClear()));
-        Observer.Finish();
+        Observer.Expect('seen', '2:a,b,');
+        Observer.Expect('global', '0:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -335,7 +377,9 @@ codeunit 73473 "SIR Read Other"
         Wr.WDictNew();
         Observer.Observe('seen', DictText(SeenDictNew));
         Observer.Observe('global', DictText(S.GetDictNew()));
-        Observer.Finish();
+        Observer.Expect('seen', '1:k=v1,');
+        Observer.Expect('global', '1:k=v2,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -350,7 +394,9 @@ codeunit 73473 "SIR Read Other"
         Wr.WDictSet();
         Observer.Observe('seen', DictText(SeenDictSet));
         Observer.Observe('global', DictText(S.GetDictSet()));
-        Observer.Finish();
+        Observer.Expect('seen', '2:k=v2,n=x,');
+        Observer.Expect('global', '2:k=v2,n=x,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -365,7 +411,9 @@ codeunit 73473 "SIR Read Other"
         Wr.WDictRemove();
         Observer.Observe('seen', DictText(SeenDictRemove));
         Observer.Observe('global', DictText(S.GetDictRemove()));
-        Observer.Finish();
+        Observer.Expect('seen', '0:');
+        Observer.Expect('global', '0:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -380,7 +428,9 @@ codeunit 73473 "SIR Read Other"
         Wr.WDictClear();
         Observer.Observe('seen', DictText(SeenDictClear));
         Observer.Observe('global', DictText(S.GetDictClear()));
-        Observer.Finish();
+        Observer.Expect('seen', '1:k=v1,');
+        Observer.Expect('global', '0:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -395,7 +445,9 @@ codeunit 73473 "SIR Read Other"
         Wr.WCuPut();
         Observer.Observe('seen', Format(HCuPut.Value()));
         Observer.Observe('global', Format(S.NowCuPut()));
-        Observer.Finish();
+        Observer.Expect('seen', '2');
+        Observer.Expect('global', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -410,7 +462,9 @@ codeunit 73473 "SIR Read Other"
         Wr.WCuClear();
         Observer.Observe('seen', Format(HCuClear.Value()));
         Observer.Observe('global', Format(S.NowCuClear()));
-        Observer.Finish();
+        Observer.Expect('seen', '1');
+        Observer.Expect('global', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -425,7 +479,9 @@ codeunit 73473 "SIR Read Other"
         Wr.WIfNew();
         Observer.Observe('seen', HIfNew.Get());
         Observer.Observe('global', S.NowIfNew());
-        Observer.Finish();
+        Observer.Expect('seen', 'set');
+        Observer.Expect('global', 'second');
+        Observer.Verify();
     end;
 
     [Test]
@@ -440,7 +496,9 @@ codeunit 73473 "SIR Read Other"
         Wr.WIfPut();
         Observer.Observe('seen', HIfPut.Get());
         Observer.Observe('global', S.NowIfPut());
-        Observer.Finish();
+        Observer.Expect('seen', 'second');
+        Observer.Expect('global', 'second');
+        Observer.Verify();
     end;
 
     local procedure Join(Items: List of [Text]) Result: Text

@@ -19,7 +19,9 @@ codeunit 73471 "SIR Read Same"
         S.WInt();
         Observer.Observe('seen', Format(SeenInt));
         Observer.Observe('global', Format(S.GetInt()));
-        Observer.Finish();
+        Observer.Expect('seen', '1');
+        Observer.Expect('global', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -33,7 +35,9 @@ codeunit 73471 "SIR Read Same"
         S.WTxt();
         Observer.Observe('seen', Format(SeenTxt));
         Observer.Observe('global', Format(S.GetTxt()));
-        Observer.Finish();
+        Observer.Expect('seen', 'set');
+        Observer.Expect('global', 'second');
+        Observer.Verify();
     end;
 
     [Test]
@@ -47,7 +51,9 @@ codeunit 73471 "SIR Read Same"
         S.WBool();
         Observer.Observe('seen', Format(SeenBool));
         Observer.Observe('global', Format(S.GetBool()));
-        Observer.Finish();
+        Observer.Expect('seen', 'Yes');
+        Observer.Expect('global', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -61,7 +67,9 @@ codeunit 73471 "SIR Read Same"
         S.WDec();
         Observer.Observe('seen', Format(SeenDec));
         Observer.Observe('global', Format(S.GetDec()));
-        Observer.Finish();
+        Observer.Expect('seen', '1.5');
+        Observer.Expect('global', '2.5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -75,7 +83,9 @@ codeunit 73471 "SIR Read Same"
         S.WCode();
         Observer.Observe('seen', Format(SeenCode));
         Observer.Observe('global', Format(S.GetCode()));
-        Observer.Finish();
+        Observer.Expect('seen', 'SET');
+        Observer.Expect('global', 'SECOND');
+        Observer.Verify();
     end;
 
     [Test]
@@ -89,7 +99,9 @@ codeunit 73471 "SIR Read Same"
         S.WTxt10();
         Observer.Observe('seen', Format(SeenTxt10));
         Observer.Observe('global', Format(S.GetTxt10()));
-        Observer.Finish();
+        Observer.Expect('seen', 'set');
+        Observer.Expect('global', 'second');
+        Observer.Verify();
     end;
 
     [Test]
@@ -103,7 +115,9 @@ codeunit 73471 "SIR Read Same"
         S.WTxtSame();
         Observer.Observe('seen', SeenTxtSame);
         Observer.Observe('global', S.GetTxtSame());
-        Observer.Finish();
+        Observer.Expect('seen', 'set');
+        Observer.Expect('global', 'set');
+        Observer.Verify();
     end;
 
     [Test]
@@ -117,7 +131,9 @@ codeunit 73471 "SIR Read Same"
         S.WTxtOut();
         Observer.Observe('seen', SeenTxtOut);
         Observer.Observe('global', S.GetTxtOutNow());
-        Observer.Finish();
+        Observer.Expect('seen', 'set');
+        Observer.Expect('global', 'second');
+        Observer.Verify();
     end;
 
     [Test]
@@ -131,7 +147,9 @@ codeunit 73471 "SIR Read Same"
         S.WIntEval();
         Observer.Observe('seen', Format(SeenIntEval));
         Observer.Observe('global', Format(S.GetIntEval()));
-        Observer.Finish();
+        Observer.Expect('seen', '1');
+        Observer.Expect('global', '7');
+        Observer.Verify();
     end;
 
     [Test]
@@ -145,7 +163,9 @@ codeunit 73471 "SIR Read Same"
         S.WTxtClear();
         Observer.Observe('seen', SeenTxtClear);
         Observer.Observe('global', S.GetTxtClear());
-        Observer.Finish();
+        Observer.Expect('seen', 'set');
+        Observer.Expect('global', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -157,7 +177,8 @@ codeunit 73471 "SIR Read Same"
         if S.GetGuard() <> 'refilled' then
             S.WGuard();
         Observer.Observe('global', S.GetGuard());
-        Observer.Finish();
+        Observer.Expect('global', 'refilled');
+        Observer.Verify();
     end;
 
     [Test]
@@ -172,7 +193,9 @@ codeunit 73471 "SIR Read Same"
             S.WGuardSeen();
         Observer.Observe('seen', SeenGuardSeen);
         Observer.Observe('global', S.GetGuardSeen());
-        Observer.Finish();
+        Observer.Expect('seen', 'set');
+        Observer.Expect('global', 'refilled');
+        Observer.Verify();
     end;
 
     [Test]
@@ -186,7 +209,9 @@ codeunit 73471 "SIR Read Same"
         S.WRecField();
         Observer.Observe('local', R.Txt);
         Observer.Observe('global', S.TxtRecField());
-        Observer.Finish();
+        Observer.Expect('local', 'set');
+        Observer.Expect('global', 'second');
+        Observer.Verify();
     end;
 
     [Test]
@@ -200,7 +225,9 @@ codeunit 73471 "SIR Read Same"
         S.WRecAssign();
         Observer.Observe('local', R.Txt);
         Observer.Observe('global', S.TxtRecAssign());
-        Observer.Finish();
+        Observer.Expect('local', 'set');
+        Observer.Expect('global', 'second');
+        Observer.Verify();
     end;
 
     [Test]
@@ -216,7 +243,10 @@ codeunit 73471 "SIR Read Same"
         Observer.Observe('local buffer', R.Txt);
         Observer.Observe('local after find', Format(R.Get('K')) + '/' + R.Txt);
         Observer.Observe('global', S.TxtRecShared());
-        Observer.Finish();
+        Observer.Expect('local buffer', 'set');
+        Observer.Expect('local after find', 'Yes/second');
+        Observer.Expect('global', 'second');
+        Observer.Verify();
     end;
 
     [Test]
@@ -230,7 +260,9 @@ codeunit 73471 "SIR Read Same"
         S.WRecDelete();
         Observer.Observe('local count', Format(R.Count()));
         Observer.Observe('global count', Format(S.CountRecDelete()));
-        Observer.Finish();
+        Observer.Expect('local count', '0');
+        Observer.Expect('global count', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -244,7 +276,9 @@ codeunit 73471 "SIR Read Same"
         S.WRecClear();
         Observer.Observe('local', R.Txt);
         Observer.Observe('global', S.TxtRecClear());
-        Observer.Finish();
+        Observer.Expect('local', 'set');
+        Observer.Expect('global', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -258,7 +292,9 @@ codeunit 73471 "SIR Read Same"
         S.WListNew();
         Observer.Observe('seen', Join(SeenListNew));
         Observer.Observe('global', Join(S.GetListNew()));
-        Observer.Finish();
+        Observer.Expect('seen', '2:a,b,');
+        Observer.Expect('global', '1:z,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -272,7 +308,9 @@ codeunit 73471 "SIR Read Same"
         S.WListAdd();
         Observer.Observe('seen', Join(SeenListAdd));
         Observer.Observe('global', Join(S.GetListAdd()));
-        Observer.Finish();
+        Observer.Expect('seen', '3:a,b,c,');
+        Observer.Expect('global', '3:a,b,c,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -286,7 +324,9 @@ codeunit 73471 "SIR Read Same"
         S.WListRemove();
         Observer.Observe('seen', Join(SeenListRemove));
         Observer.Observe('global', Join(S.GetListRemove()));
-        Observer.Finish();
+        Observer.Expect('seen', '0:');
+        Observer.Expect('global', '0:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -300,7 +340,9 @@ codeunit 73471 "SIR Read Same"
         S.WListClear();
         Observer.Observe('seen', Join(SeenListClear));
         Observer.Observe('global', Join(S.GetListClear()));
-        Observer.Finish();
+        Observer.Expect('seen', '2:a,b,');
+        Observer.Expect('global', '0:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -314,7 +356,9 @@ codeunit 73471 "SIR Read Same"
         S.WDictNew();
         Observer.Observe('seen', DictText(SeenDictNew));
         Observer.Observe('global', DictText(S.GetDictNew()));
-        Observer.Finish();
+        Observer.Expect('seen', '1:k=v1,');
+        Observer.Expect('global', '1:k=v2,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -328,7 +372,9 @@ codeunit 73471 "SIR Read Same"
         S.WDictSet();
         Observer.Observe('seen', DictText(SeenDictSet));
         Observer.Observe('global', DictText(S.GetDictSet()));
-        Observer.Finish();
+        Observer.Expect('seen', '2:k=v2,n=x,');
+        Observer.Expect('global', '2:k=v2,n=x,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -342,7 +388,9 @@ codeunit 73471 "SIR Read Same"
         S.WDictRemove();
         Observer.Observe('seen', DictText(SeenDictRemove));
         Observer.Observe('global', DictText(S.GetDictRemove()));
-        Observer.Finish();
+        Observer.Expect('seen', '0:');
+        Observer.Expect('global', '0:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -356,7 +404,9 @@ codeunit 73471 "SIR Read Same"
         S.WDictClear();
         Observer.Observe('seen', DictText(SeenDictClear));
         Observer.Observe('global', DictText(S.GetDictClear()));
-        Observer.Finish();
+        Observer.Expect('seen', '1:k=v1,');
+        Observer.Expect('global', '0:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -370,7 +420,9 @@ codeunit 73471 "SIR Read Same"
         S.WCuPut();
         Observer.Observe('seen', Format(HCuPut.Value()));
         Observer.Observe('global', Format(S.NowCuPut()));
-        Observer.Finish();
+        Observer.Expect('seen', '2');
+        Observer.Expect('global', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -384,7 +436,9 @@ codeunit 73471 "SIR Read Same"
         S.WCuClear();
         Observer.Observe('seen', Format(HCuClear.Value()));
         Observer.Observe('global', Format(S.NowCuClear()));
-        Observer.Finish();
+        Observer.Expect('seen', '1');
+        Observer.Expect('global', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -398,7 +452,9 @@ codeunit 73471 "SIR Read Same"
         S.WIfNew();
         Observer.Observe('seen', HIfNew.Get());
         Observer.Observe('global', S.NowIfNew());
-        Observer.Finish();
+        Observer.Expect('seen', 'set');
+        Observer.Expect('global', 'second');
+        Observer.Verify();
     end;
 
     [Test]
@@ -412,7 +468,9 @@ codeunit 73471 "SIR Read Same"
         S.WIfPut();
         Observer.Observe('seen', HIfPut.Get());
         Observer.Observe('global', S.NowIfPut());
-        Observer.Finish();
+        Observer.Expect('seen', 'second');
+        Observer.Expect('global', 'second');
+        Observer.Verify();
     end;
 
     local procedure Join(Items: List of [Text]) Result: Text

@@ -25,7 +25,10 @@ codeunit 73475 "SIR Across Tests"
         Observer.Observe('kept int', Format(KeptInt));
         Observer.Observe('kept text', KeptText);
         Observer.Observe('kept list', Format(KeptList.Count()));
-        Observer.Finish();
+        Observer.Expect('kept int', '1');
+        Observer.Expect('kept text', 'set');
+        Observer.Expect('kept list', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -36,7 +39,10 @@ codeunit 73475 "SIR Across Tests"
         Observer.Observe('kept int', Format(KeptInt));
         Observer.Observe('kept text', KeptText);
         Observer.Observe('kept list', Format(KeptList.Count()));
-        Observer.Finish();
+        Observer.Expect('kept int', '1');
+        Observer.Expect('kept text', 'set');
+        Observer.Expect('kept list', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -51,7 +57,10 @@ codeunit 73475 "SIR Across Tests"
         Observer.Observe('global int', Format(S.GetInt()));
         Observer.Observe('global text', S.GetTxt());
         Observer.Observe('global list', Format(S.GetListNew().Count()));
-        Observer.Finish();
+        Observer.Expect('global int', '2');
+        Observer.Expect('global text', 'second');
+        Observer.Expect('global list', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -66,6 +75,12 @@ codeunit 73475 "SIR Across Tests"
         Observer.Observe('global int', Format(S.GetInt()));
         Observer.Observe('global text', S.GetTxt());
         Observer.Observe('global list', Format(S.GetListNew().Count()));
-        Observer.Finish();
+        Observer.Expect('kept int', '1');
+        Observer.Expect('kept text', 'set');
+        Observer.Expect('kept list', '2');
+        Observer.Expect('global int', '2');
+        Observer.Expect('global text', 'second');
+        Observer.Expect('global list', '1');
+        Observer.Verify();
     end;
 }

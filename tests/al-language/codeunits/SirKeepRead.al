@@ -20,6 +20,9 @@ codeunit 73477 "SIR Keep Read"
         Observer.Observe('kept int', Format(K.KeptIntNow()));
         Observer.Observe('kept text', K.KeptTextNow());
         Observer.Observe('kept list', Format(K.KeptListCount()));
-        Observer.Finish();
+        Observer.Expect('kept int', '1');
+        Observer.Expect('kept text', 'set');
+        Observer.Expect('kept list', '2');
+        Observer.Verify();
     end;
 }

@@ -15,6 +15,7 @@ codeunit 73474 "SIR Setter C"
     begin
         S.InitAll();
         Observer.Observe('start values set', 'yes');
-        Observer.Finish();
+        Observer.Expect('start values set', 'yes');
+        Observer.Verify();
     end;
 }
