@@ -894,7 +894,7 @@ page 97679 "LT TVS Drop Tree Curr"
 
     trigger OnAfterGetCurrRecord()
     begin
-        Log.Add('P.AGCR(' + Rec.Name + ')');
+        Log.Add('AGCR(' + Rec.Name + ')');
     end;
 
     var
@@ -1007,9 +1007,9 @@ codeunit 97680 "LT TVS Drop Tests"
             Note('error', GetLastErrorCode() + ': ' + GetLastErrorText());
         Note('setname', Log.Take());
         Note('stored', StoredRows());
-        Expect('open', 'A:P.AGCR(A);');
+        Expect('open', 'A:AGCR(A);');
         Expect('error', 'TestValidation: Validation error for Field: ,  Message = ''The view is filtered, and the entry is outside the filter. Some actions may not work.''');
-        Expect('setname', 'P.AGCR(B);');
+        Expect('setname', 'AGCR(B);');
         Expect('stored', 'A2,B,C,');
     end;
 }
