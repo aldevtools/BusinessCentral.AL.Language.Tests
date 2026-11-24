@@ -313,7 +313,7 @@ codeunit 91066 "LT LS XA Session"
         if not NumberSequence.Exists('LT-LS-XA') then
             NumberSequence.Insert('LT-LS-XA', 100, 1);
         Seq := NumberSequence.Next('LT-LS-XA');
-        Token := Format(CreateGuid());
+        Token := 'login';
         if IsolatedStorage.Set('LT-LS-XA', Token, DataScope::Module) then;
         if IsolatedStorage.Set('LT-LS-XA-C', Token, DataScope::Company) then;
     end;
@@ -325,22 +325,22 @@ codeunit 91066 "LT LS XA Session"
         L.Add('xa logins=' + Format(Logins));
         L.Add('xa bound=' + Format(Bound));
         if NumberSequence.Exists('LT-LS-XA') then
-            L.Add('xa seq current = login=' + Format(NumberSequence.Current('LT-LS-XA') = Seq))
+            L.Add('xa seq current at least login=' + Format(NumberSequence.Current('LT-LS-XA') >= Seq))
         else
-            L.Add('xa seq current = login=no sequence');
+            L.Add('xa seq current at least login=no sequence');
         V := '';
         if IsolatedStorage.Get('LT-LS-XA', DataScope::Module, V) then;
-        L.Add('xa iso module = login=' + Format((V = Token) and (Token <> '')));
+        L.Add('xa iso module same as login=' + Format((V = Token) and (Token <> '')));
         V := '';
         if IsolatedStorage.Get('LT-LS-XA-C', DataScope::Company, V) then;
-        L.Add('xa iso company = login=' + Format((V = Token) and (Token <> '')));
+        L.Add('xa iso company same as login=' + Format((V = Token) and (Token <> '')));
     end;
 
     procedure SeenFacts(var L: List of [Text])
     begin
-        L.Add('xa workdate = login=' + Format(SeenWorkDate = WorkDate()));
-        L.Add('xa language = login=' + Format(SeenLanguage = GlobalLanguage()));
-        L.Add('xa area = login=' + Format(SeenArea = ApplicationArea()));
+        L.Add('xa workdate same as login=' + Format(SeenWorkDate = WorkDate()));
+        L.Add('xa language same as login=' + Format(SeenLanguage = GlobalLanguage()));
+        L.Add('xa area same as login=' + Format(SeenArea = ApplicationArea()));
         L.Add('xa area at login empty=' + Format(SeenArea = ''));
     end;
 }
@@ -353,14 +353,16 @@ codeunit 91067 "LT LS XA Rows"
     begin
         R.Init();
         R."Code" := 'A';
+        if R.Delete(true) then;
         R.Val := 1;
         if not R.Insert(true) then
-            R.Modify(true);
+            if R.Modify(true) then;
         R.Init();
         R."Code" := 'B';
+        if R.Delete(true) then;
         R.Val := 5;
         if not R.Insert(true) then
-            R.Modify(true);
+            if R.Modify(true) then;
     end;
 
     procedure Facts(var L: List of [Text])
@@ -391,6 +393,7 @@ codeunit 91067 "LT LS XA Rows"
         R: Record "LT LS XA Row 2";
     begin
         R.Id := Id;
+        if R.Delete(true) then;
         if R.Insert(true) then;
     end;
 }

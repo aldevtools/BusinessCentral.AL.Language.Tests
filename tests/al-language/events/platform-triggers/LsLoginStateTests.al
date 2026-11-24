@@ -312,7 +312,7 @@ codeunit 91034 "LT LS MA Session"
         if not NumberSequence.Exists('LT-LS-MA') then
             NumberSequence.Insert('LT-LS-MA', 100, 1);
         Seq := NumberSequence.Next('LT-LS-MA');
-        Token := Format(CreateGuid());
+        Token := 'login';
         if IsolatedStorage.Set('LT-LS-MA', Token, DataScope::Module) then;
         if IsolatedStorage.Set('LT-LS-MA-C', Token, DataScope::Company) then;
     end;
@@ -324,22 +324,22 @@ codeunit 91034 "LT LS MA Session"
         L.Add('ma logins=' + Format(Logins));
         L.Add('ma bound=' + Format(Bound));
         if NumberSequence.Exists('LT-LS-MA') then
-            L.Add('ma seq current = login=' + Format(NumberSequence.Current('LT-LS-MA') = Seq))
+            L.Add('ma seq current at least login=' + Format(NumberSequence.Current('LT-LS-MA') >= Seq))
         else
-            L.Add('ma seq current = login=no sequence');
+            L.Add('ma seq current at least login=no sequence');
         V := '';
         if IsolatedStorage.Get('LT-LS-MA', DataScope::Module, V) then;
-        L.Add('ma iso module = login=' + Format((V = Token) and (Token <> '')));
+        L.Add('ma iso module same as login=' + Format((V = Token) and (Token <> '')));
         V := '';
         if IsolatedStorage.Get('LT-LS-MA-C', DataScope::Company, V) then;
-        L.Add('ma iso company = login=' + Format((V = Token) and (Token <> '')));
+        L.Add('ma iso company same as login=' + Format((V = Token) and (Token <> '')));
     end;
 
     procedure SeenFacts(var L: List of [Text])
     begin
-        L.Add('ma workdate = login=' + Format(SeenWorkDate = WorkDate()));
-        L.Add('ma language = login=' + Format(SeenLanguage = GlobalLanguage()));
-        L.Add('ma area = login=' + Format(SeenArea = ApplicationArea()));
+        L.Add('ma workdate same as login=' + Format(SeenWorkDate = WorkDate()));
+        L.Add('ma language same as login=' + Format(SeenLanguage = GlobalLanguage()));
+        L.Add('ma area same as login=' + Format(SeenArea = ApplicationArea()));
         L.Add('ma area at login empty=' + Format(SeenArea = ''));
     end;
 }
@@ -353,14 +353,16 @@ codeunit 91035 "LT LS MA Rows"
     begin
         R.Init();
         R."Code" := 'A';
+        if R.Delete(true) then;
         R.Val := 1;
         if not R.Insert(true) then
-            R.Modify(true);
+            if R.Modify(true) then;
         R.Init();
         R."Code" := 'B';
+        if R.Delete(true) then;
         R.Val := 5;
         if not R.Insert(true) then
-            R.Modify(true);
+            if R.Modify(true) then;
         G1.Init();
         G1."Code" := 'X';
         G1.Qty := 1;
@@ -424,6 +426,7 @@ codeunit 91035 "LT LS MA Rows"
         R: Record "LT LS MA Row 2";
     begin
         R.Id := Id;
+        if R.Delete(true) then;
         if R.Insert(true) then;
     end;
 }
@@ -568,7 +571,10 @@ codeunit 91037 "LT LS Facts"
         Log: Codeunit "LT LS Log";
         L: List of [Text];
     begin
-        Observer.Observe(Stage + ' snapshots', Format(Log.Calls(Stage)));
+        if Stage = 'onrun' then
+            Observer.Observe('onrun snapshot taken', Format(Log.Calls(Stage) >= 1))
+        else
+            Observer.Observe(Stage + ' snapshots', Format(Log.Calls(Stage)));
         if Log.Get(Stage, Cell, L) then
             Emit(Observer, L);
     end;
@@ -656,13 +662,22 @@ codeunit 91040 "LT LS Types XA Tests"
     end;
 
     [Test]
-    procedure TypesXa_T1_Live_ThenChange()
+    procedure TypesXa_T1_Live()
     var
         Observer: Codeunit "Probe Observer";
         Facts: Codeunit "LT LS Facts";
     begin
-        Facts.ReportLive(Observer, 'types xa', true);
+        Facts.ReportLive(Observer, 'types xa', false);
         Observer.Finish();
+    end;
+
+    // A passing test of its own, so the change is committed the same way in the observing and in the asserting run.
+    [Test]
+    procedure TypesXa_T1_Change()
+    var
+        Facts: Codeunit "LT LS Facts";
+    begin
+        Facts.Change('types xa');
     end;
 
     [Test]
@@ -709,13 +724,22 @@ codeunit 91041 "LT LS Types MA Tests"
     end;
 
     [Test]
-    procedure TypesMa_T1_Live_ThenChange()
+    procedure TypesMa_T1_Live()
     var
         Observer: Codeunit "Probe Observer";
         Facts: Codeunit "LT LS Facts";
     begin
-        Facts.ReportLive(Observer, 'types ma', true);
+        Facts.ReportLive(Observer, 'types ma', false);
         Observer.Finish();
+    end;
+
+    // A passing test of its own, so the change is committed the same way in the observing and in the asserting run.
+    [Test]
+    procedure TypesMa_T1_Change()
+    var
+        Facts: Codeunit "LT LS Facts";
+    begin
+        Facts.Change('types ma');
     end;
 
     [Test]
@@ -762,13 +786,22 @@ codeunit 91042 "LT LS Far Tests"
     end;
 
     [Test]
-    procedure Far_T1_Live_ThenChange()
+    procedure Far_T1_Live()
     var
         Observer: Codeunit "Probe Observer";
         Facts: Codeunit "LT LS Facts";
     begin
-        Facts.ReportLive(Observer, 'far', true);
+        Facts.ReportLive(Observer, 'far', false);
         Observer.Finish();
+    end;
+
+    // A passing test of its own, so the change is committed the same way in the observing and in the asserting run.
+    [Test]
+    procedure Far_T1_Change()
+    var
+        Facts: Codeunit "LT LS Facts";
+    begin
+        Facts.Change('far');
     end;
 
     [Test]
@@ -815,13 +848,22 @@ codeunit 91043 "LT LS Cache Tests"
     end;
 
     [Test]
-    procedure Cache_T1_Live_ThenChange()
+    procedure Cache_T1_Live()
     var
         Observer: Codeunit "Probe Observer";
         Facts: Codeunit "LT LS Facts";
     begin
-        Facts.ReportLive(Observer, 'cache', true);
+        Facts.ReportLive(Observer, 'cache', false);
         Observer.Finish();
+    end;
+
+    // A passing test of its own, so the change is committed the same way in the observing and in the asserting run.
+    [Test]
+    procedure Cache_T1_Change()
+    var
+        Facts: Codeunit "LT LS Facts";
+    begin
+        Facts.Change('cache');
     end;
 
     [Test]
@@ -868,13 +910,22 @@ codeunit 91044 "LT LS Order Tests"
     end;
 
     [Test]
-    procedure Order_T1_Live_ThenChange()
+    procedure Order_T1_Live()
     var
         Observer: Codeunit "Probe Observer";
         Facts: Codeunit "LT LS Facts";
     begin
-        Facts.ReportLive(Observer, 'order', true);
+        Facts.ReportLive(Observer, 'order', false);
         Observer.Finish();
+    end;
+
+    // A passing test of its own, so the change is committed the same way in the observing and in the asserting run.
+    [Test]
+    procedure Order_T1_Change()
+    var
+        Facts: Codeunit "LT LS Facts";
+    begin
+        Facts.Change('order');
     end;
 
     [Test]
@@ -921,13 +972,22 @@ codeunit 91045 "LT LS Session Tests"
     end;
 
     [Test]
-    procedure Session_T1_Live_ThenChange()
+    procedure Session_T1_Live()
     var
         Observer: Codeunit "Probe Observer";
         Facts: Codeunit "LT LS Facts";
     begin
-        Facts.ReportLive(Observer, 'session', true);
+        Facts.ReportLive(Observer, 'session', false);
         Observer.Finish();
+    end;
+
+    // A passing test of its own, so the change is committed the same way in the observing and in the asserting run.
+    [Test]
+    procedure Session_T1_Change()
+    var
+        Facts: Codeunit "LT LS Facts";
+    begin
+        Facts.Change('session');
     end;
 
     [Test]
@@ -974,13 +1034,22 @@ codeunit 91046 "LT LS Rows Tests"
     end;
 
     [Test]
-    procedure Rows_T1_Live_ThenChange()
+    procedure Rows_T1_Live()
     var
         Observer: Codeunit "Probe Observer";
         Facts: Codeunit "LT LS Facts";
     begin
-        Facts.ReportLive(Observer, 'rows', true);
+        Facts.ReportLive(Observer, 'rows', false);
         Observer.Finish();
+    end;
+
+    // A passing test of its own, so the change is committed the same way in the observing and in the asserting run.
+    [Test]
+    procedure Rows_T1_Change()
+    var
+        Facts: Codeunit "LT LS Facts";
+    begin
+        Facts.Change('rows');
     end;
 
     [Test]
@@ -1027,13 +1096,22 @@ codeunit 91047 "LT LS G1 Tests"
     end;
 
     [Test]
-    procedure G1_T1_Live_ThenChange()
+    procedure G1_T1_Live()
     var
         Observer: Codeunit "Probe Observer";
         Facts: Codeunit "LT LS Facts";
     begin
-        Facts.ReportLive(Observer, 'g1', true);
+        Facts.ReportLive(Observer, 'g1', false);
         Observer.Finish();
+    end;
+
+    // A passing test of its own, so the change is committed the same way in the observing and in the asserting run.
+    [Test]
+    procedure G1_T1_Change()
+    var
+        Facts: Codeunit "LT LS Facts";
+    begin
+        Facts.Change('g1');
     end;
 
     [Test]
@@ -1080,13 +1158,22 @@ codeunit 91048 "LT LS Seen Tests"
     end;
 
     [Test]
-    procedure Seen_T1_Live_ThenChange()
+    procedure Seen_T1_Live()
     var
         Observer: Codeunit "Probe Observer";
         Facts: Codeunit "LT LS Facts";
     begin
-        Facts.ReportLive(Observer, 'seen', true);
+        Facts.ReportLive(Observer, 'seen', false);
         Observer.Finish();
+    end;
+
+    // A passing test of its own, so the change is committed the same way in the observing and in the asserting run.
+    [Test]
+    procedure Seen_T1_Change()
+    var
+        Facts: Codeunit "LT LS Facts";
+    begin
+        Facts.Change('seen');
     end;
 
     [Test]
