@@ -76,12 +76,12 @@ page 75683 "PGC Keyword Member Shown"
     {
         area(Content)
         {
-            field(IfShown; Rec."If" + 1)
+            field(IfShown; Rec."If")
             {
                 ApplicationArea = All;
                 Visible = Rec."Exit" > 0;
             }
-            field(KeyShown; Rec.Key + Rec.Local)
+            field(KeyShown; Rec.Key)
             {
                 ApplicationArea = All;
                 Visible = Rec.Opt = Rec.Opt::"Do";
@@ -208,8 +208,8 @@ codeunit 75682 "PGC Keyword Member Tests"
         Observer.Observe('IfShown visible', Format(Shown.IfShown.Visible()));
         Observer.Observe('KeyShown visible', Format(Shown.KeyShown.Visible()));
         Shown.Close();
-        Observer.Expect('IfShown value', '5');
-        Observer.Expect('KeyShown value', '3');
+        Observer.Expect('IfShown value', '4');
+        Observer.Expect('KeyShown value', '0');
         Observer.Expect('IfShown visible', 'No');
         Observer.Expect('KeyShown visible', 'No');
         Observer.Verify();
