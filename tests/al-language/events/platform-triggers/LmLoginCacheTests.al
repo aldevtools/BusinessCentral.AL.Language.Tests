@@ -2,7 +2,7 @@
 //   and https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-global-triggers
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); XApp A tests/al-language-xapp-a/LmXaLoginCaches.al (L1 setup 98420, L1 sub 98421, L1 memo
-//   98422, login snapshot 98423, OnAfterLogin subscribers 98424, 98425, 98469) and the wrapper 98459 of
+//   98422, login snapshot 98423, OnAfterLogin subscribers 98424, 98425, 98469; G3 codeunits 75889-75897) and the wrapper 98459 of
 //   tests/al-language-xapp-a/LmXaMemoShapes.al; tables 75880-75883 and codeunits 75884-75888 of this app (below). The same reader runs
 //   in the Tests-TestLibraries job: tests/al-language-testlibraries/test-framework/login-caches/LmLoginCacheTlTests.al.
 // Probe (al-runner issue 8945): load-once caches that login subscribers of a dependency app fill, and what a test reads later.
@@ -10,6 +10,10 @@
 //       the first write event sets Loaded, loads the empty setup into a temporary record, Clear()s a second temporary record and filters
 //       it on an empty Company Name, then calls Get(TableId) on the empty setup copy. Read: the Booleans, the temporary records' current
 //       key, filters and row counts; then the test adds a setup row and writes a table it names.
+//   G3. The L1 memo with guards before the latch, in two copies of the same code (see LmXaLoginCaches.al): Memo A loads on the
+//       login's first write event; Memo B first exits through the Handled, Disabled and temporary guards (direct calls of its public
+//       entry by a login subscriber that writes nothing), then loads on a later write event. Read: both end states and whether they are
+//       equal, which event loaded Memo B, the guard steps, and the operands of the ask's company-name and read-permission guards.
 //   E1. Environment Information Impl. filled by two login subscribers of one app (IsSandbox, then IsSaaS): the test's reads against
 //       the values the subscribers got.
 //   M1. Application Area Cache filled at login: the test's read against the login's; then the test adds a user row to Application
@@ -32,6 +36,10 @@
 //       load came from 9008: the failed Get leaves the key at its initial value, not the asked id); the second temporary record holds
 //       0 rows, keeps the filter "Company Name: ''" and an empty key. A setup row the test adds is not seen: the test's write is not
 //       noted (the load ran once). Same in the second codeunit.
+//   G3: Memo A loads on the modify of "User Login" 9008 or on the insert of 98455 (the two kinds of session), Memo B on the insert of
+//       98455 after each guard exit left Loaded false. Both end states are the same: Checked Yes, Activated No, Loaded Yes, Disabled No,
+//       the setup copy empty with no filter and key 0, the second temporary record empty with the filter "Company Name: ''". The ask
+//       never saw an empty company name or a missing read permission (those exits are not taken in a test session).
 //   E1: both subscribers keep a value; the test's IsSandbox() and IsSaaS() equal the values they got.
 //   M1: the test reads the login's areas. After the test adds a user row the read gives the new areas (the insert event clears the
 //       cache). After the rollback the cache still holds the rolled-back areas (a read differs from the login's) until the next
@@ -151,6 +159,31 @@ codeunit 75885 "LT LM API Bound"
 
 codeunit 75886 "LT LM Cache Reader"
 {
+    procedure ObserveG3(var Observer: Codeunit "Probe Observer"; Prefix: Text)
+    var
+        MemoA: Codeunit "LT LM XA G3 Memo A";
+        MemoB: Codeunit "LT LM XA G3 Memo B";
+        Recorder: Codeunit "LT LM XA G3 Recorder";
+    begin
+        Observer.Observe(Prefix + 'G3 A state', MemoA.RawState());
+        Observer.Observe(Prefix + 'G3 B state', MemoB.RawState());
+        Observer.Observe(Prefix + 'G3 B state equals A state', Format(MemoB.RawState() = MemoA.RawState()));
+        Observer.Observe(Prefix + 'G3 B loaded by', CopyStr(Recorder.RawLoadB(), 1, 1));
+        Observer.Observe(Prefix + 'G3 B guard steps', CopyStr(Recorder.RawSteps(), StrPos(Recorder.RawSteps(), 'start B')));
+        // Which table loads Memo A depends on the login's first write ("User Login" 9008 modified, or 98455 inserted): read, not asserted.
+        Observer.Observe(Prefix + 'G3 A loaded by', CopyStr(Recorder.RawLoadA(), 1, 1));
+        Observer.Observe(Prefix + 'G3 A load table', CopyStr(Recorder.RawLoadA(), 2));
+        Observer.Observe(Prefix + 'G3 B load table', CopyStr(Recorder.RawLoadB(), 2));
+        Observer.Observe(Prefix + 'G3 A loaded before the login subscriber', CopyStr(Recorder.RawSteps(), 1, StrPos(Recorder.RawSteps(), ';')));
+        Observer.Ignore(Prefix + 'G3 A loaded by');
+        Observer.Ignore(Prefix + 'G3 A load table');
+        Observer.Ignore(Prefix + 'G3 B load table');
+        Observer.Ignore(Prefix + 'G3 A loaded before the login subscriber');
+        Observer.Observe(Prefix + 'G3 asks seen', Format(Recorder.RawAsks() > 0));
+        Observer.Observe(Prefix + 'G3 ask saw an empty company name', Format(Recorder.RawCompanyEmptySeen()));
+        Observer.Observe(Prefix + 'G3 ask saw no read permission', Format(Recorder.RawNoReadPermissionSeen()));
+    end;
+
     procedure ObserveL1(var Observer: Codeunit "Probe Observer"; Prefix: Text)
     var
         Memo: Codeunit "LT LM XA L1 Memo";
@@ -468,6 +501,24 @@ codeunit 75887 "LT LM Login Cache Tests"
     end;
 
     [Test]
+    procedure G3Memo_AfterLogin()
+    var
+        Observer: Codeunit "Probe Observer";
+        Reader: Codeunit "LT LM Cache Reader";
+    begin
+        Reader.ObserveG3(Observer, '');
+        Observer.Expect('G3 A state', 'checked Yes, activated No, loaded Yes, disabled No; setup rows 0, filters [], key 0, note []; sub rows 0, in view 0, filters [Company Name: ''''], key [|]');
+        Observer.Expect('G3 B state', 'checked Yes, activated No, loaded Yes, disabled No; setup rows 0, filters [], key 0, note []; sub rows 0, in view 0, filters [Company Name: ''''], key [|]');
+        Observer.Expect('G3 B state equals A state', 'Yes');
+        Observer.Expect('G3 B loaded by', 'I');
+        Observer.Expect('G3 B guard steps', 'start B No;handled No;disabled No;temporary No;');
+        Observer.Expect('G3 asks seen', 'Yes');
+        Observer.Expect('G3 ask saw an empty company name', 'No');
+        Observer.Expect('G3 ask saw no read permission', 'No');
+        Observer.Verify();
+    end;
+
+    [Test]
     procedure EnvInfo_AfterLogin()
     var
         Observer: Codeunit "Probe Observer";
@@ -600,6 +651,7 @@ codeunit 75888 "LT LM Login Cache Tests B"
         Reader.ObserveEnv(Observer, 'B: ');
         Reader.ObserveAreas(Observer, 'B: ');
         Reader.ObserveProfile(Observer, 'B: ');
+        Reader.ObserveG3(Observer, 'B: ');
         Observer.Expect('B: L1 checked', 'Yes');
         Observer.Expect('B: L1 activated', 'No');
         Observer.Expect('B: L1 loaded', 'Yes');
@@ -620,6 +672,14 @@ codeunit 75888 "LT LM Login Cache Tests B"
         Observer.Expect('B: M1 areas equal the login value', 'Yes');
         Observer.Expect('B: M2 profile equals the login value', 'Yes');
         Observer.Expect('B: M2 found equals the login value', 'Yes');
+        Observer.Expect('B: G3 A state', 'checked Yes, activated No, loaded Yes, disabled No; setup rows 0, filters [], key 0, note []; sub rows 0, in view 0, filters [Company Name: ''''], key [|]');
+        Observer.Expect('B: G3 B state', 'checked Yes, activated No, loaded Yes, disabled No; setup rows 0, filters [], key 0, note []; sub rows 0, in view 0, filters [Company Name: ''''], key [|]');
+        Observer.Expect('B: G3 B state equals A state', 'Yes');
+        Observer.Expect('B: G3 B loaded by', 'I');
+        Observer.Expect('B: G3 B guard steps', 'start B No;handled No;disabled No;temporary No;');
+        Observer.Expect('B: G3 asks seen', 'Yes');
+        Observer.Expect('B: G3 ask saw an empty company name', 'No');
+        Observer.Expect('B: G3 ask saw no read permission', 'No');
         Observer.Verify();
     end;
 }

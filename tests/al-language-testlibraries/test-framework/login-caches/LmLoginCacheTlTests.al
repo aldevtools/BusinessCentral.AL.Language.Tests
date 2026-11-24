@@ -3,7 +3,7 @@
 // Fixtures used: Probe Observer (69160) and the reader "LT LM Cache Reader" (75886) of the corpus app
 //   (tests/al-language/events/platform-triggers/LmLoginCacheTests.al, which describes the cells); XApp A
 //   tests/al-language-xapp-a/LmXaLoginCaches.al.
-// Probe (al-runner issue 8945): the cells L1, E1, M1-M4 of LmLoginCacheTests.al in the job that installs Tests-TestLibraries. There
+// Probe (al-runner issue 8945): the cells L1, G3, E1, M1-M4 of LmLoginCacheTests.al in the job that installs Tests-TestLibraries. There
 //   codeunit 130011 "Backup Management" sets all four flags of every table's trigger setup, so every write raises the database events:
 //   Change Log Management loads in OnDatabaseInsert (LogInsertion -> IsLogActive) instead of in the setup ask, and the L1 memo loads on
 //   the session's first write event.
@@ -34,6 +34,24 @@ codeunit 81597 "LT LM Login Cache TL Tests"
         Observer.Expect('L1 sub filters', 'Company Name: ''''');
         Observer.Expect('L1 sub key', '|');
         Observer.Expect('L1 written', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure G3Memo_AfterLogin()
+    var
+        Observer: Codeunit "Probe Observer";
+        Reader: Codeunit "LT LM Cache Reader";
+    begin
+        Reader.ObserveG3(Observer, '');
+        Observer.Expect('G3 A state', 'checked Yes, activated No, loaded Yes, disabled No; setup rows 0, filters [], key 0, note []; sub rows 0, in view 0, filters [Company Name: ''''], key [|]');
+        Observer.Expect('G3 B state', 'checked Yes, activated No, loaded Yes, disabled No; setup rows 0, filters [], key 0, note []; sub rows 0, in view 0, filters [Company Name: ''''], key [|]');
+        Observer.Expect('G3 B state equals A state', 'Yes');
+        Observer.Expect('G3 B loaded by', 'I');
+        Observer.Expect('G3 B guard steps', 'start B No;handled No;disabled No;temporary No;');
+        Observer.Expect('G3 asks seen', 'Yes');
+        Observer.Expect('G3 ask saw an empty company name', 'No');
+        Observer.Expect('G3 ask saw no read permission', 'No');
         Observer.Verify();
     end;
 
@@ -168,6 +186,7 @@ codeunit 81598 "LT LM Login Cache TL Tests B"
         Reader.ObserveEnv(Observer, 'B: ');
         Reader.ObserveAreas(Observer, 'B: ');
         Reader.ObserveProfile(Observer, 'B: ');
+        Reader.ObserveG3(Observer, 'B: ');
         Observer.Expect('B: L1 checked', 'Yes');
         Observer.Expect('B: L1 activated', 'No');
         Observer.Expect('B: L1 loaded', 'Yes');
@@ -188,6 +207,14 @@ codeunit 81598 "LT LM Login Cache TL Tests B"
         Observer.Expect('B: M1 areas equal the login value', 'Yes');
         Observer.Expect('B: M2 profile equals the login value', 'Yes');
         Observer.Expect('B: M2 found equals the login value', 'Yes');
+        Observer.Expect('B: G3 A state', 'checked Yes, activated No, loaded Yes, disabled No; setup rows 0, filters [], key 0, note []; sub rows 0, in view 0, filters [Company Name: ''''], key [|]');
+        Observer.Expect('B: G3 B state', 'checked Yes, activated No, loaded Yes, disabled No; setup rows 0, filters [], key 0, note []; sub rows 0, in view 0, filters [Company Name: ''''], key [|]');
+        Observer.Expect('B: G3 B state equals A state', 'Yes');
+        Observer.Expect('B: G3 B loaded by', 'I');
+        Observer.Expect('B: G3 B guard steps', 'start B No;handled No;disabled No;temporary No;');
+        Observer.Expect('B: G3 asks seen', 'Yes');
+        Observer.Expect('B: G3 ask saw an empty company name', 'No');
+        Observer.Expect('B: G3 ask saw no read permission', 'No');
         Observer.Verify();
     end;
 }
