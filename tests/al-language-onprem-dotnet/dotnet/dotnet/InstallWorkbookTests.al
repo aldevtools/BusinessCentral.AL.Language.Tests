@@ -69,4 +69,55 @@ codeunit 99463 "LT Install Workbook Tests"
             Observation.Insert(false);
         until Snapshot.Next() = 0;
     end;
+
+    [Test]
+    procedure Workbook_IdenticalCellsAcrossTime_HaveDifferentPackageBytes()
+    var
+        First: Codeunit "Temp Blob";
+        Second: Codeunit "Temp Blob";
+        Base64: Codeunit "Base64 Convert";
+        Input: InStream;
+        FirstBytes: Text;
+        SecondBytes: Text;
+    begin
+        Initialize();
+        BuildIdenticalWorkbook(First);
+        Sleep(2500);
+        BuildIdenticalWorkbook(Second);
+        AssertRepeatedCell(First);
+        AssertRepeatedCell(Second);
+        First.CreateInStream(Input);
+        FirstBytes := Base64.ToBase64(Input);
+        Second.CreateInStream(Input);
+        SecondBytes := Base64.ToBase64(Input);
+        if (FirstBytes = '') or (SecondBytes = '') then Error('Expected non-empty package bytes.');
+        if FirstBytes = SecondBytes then Error('Expected independently generated packages across time to differ in bytes.');
+    end;
+
+    local procedure BuildIdenticalWorkbook(var Blob: Codeunit "Temp Blob")
+    var
+        Writer: Record "Excel Buffer" temporary;
+        Output: OutStream;
+    begin
+        Writer.NewRow();
+        Writer.AddColumn('REPEATED-CELL-42', false, '', false, false, false, '', Writer."Cell Type"::Text);
+        Writer.CreateNewBook('RepeatProbe');
+        Writer.WriteSheet('', CompanyName(), UserId());
+        Writer.CloseBook();
+        Blob.CreateOutStream(Output);
+        Writer.SaveToStream(Output, true);
+    end;
+
+    local procedure AssertRepeatedCell(var Blob: Codeunit "Temp Blob")
+    var
+        Reader: Record "Excel Buffer" temporary;
+        Input: InStream;
+    begin
+        Blob.CreateInStream(Input);
+        Reader.OpenBookStream(Input, 'RepeatProbe');
+        Reader.ReadSheet();
+        Reader.Get(1, 1);
+        if Reader."Cell Value as Text" <> 'REPEATED-CELL-42' then Error('Expected repeated cell value.');
+        Reader.CloseBook();
+    end;
 }
