@@ -57,17 +57,33 @@ codeunit 99463 "LT Install Workbook Tests"
 
     local procedure Initialize()
     begin
+        Snapshot.Reset();
         Snapshot.DeleteAll();
+        Observation.Reset();
         if Observation.FindSet() then repeat
-            Observation.CalcFields(Workbook);
-            Snapshot := Observation;
-            Snapshot.Insert(false);
+            CopyObservation(Observation, Snapshot);
         until Observation.Next() = 0;
         Observation.DeleteAll();
         if Snapshot.FindSet() then repeat
-            Observation := Snapshot;
-            Observation.Insert(false);
+            CopyObservation(Snapshot, Observation);
         until Snapshot.Next() = 0;
+    end;
+
+    local procedure CopyObservation(var Source: Record "LT Install Workbook Obs"; var Destination: Record "LT Install Workbook Obs")
+    var
+        Input: InStream;
+        Output: OutStream;
+    begin
+        Source.CalcFields(Workbook);
+        Destination.Init();
+        Destination."Code" := Source."Code";
+        Destination."Probe Error" := Source."Probe Error";
+        if Source.Workbook.HasValue() then begin
+            Source.Workbook.CreateInStream(Input);
+            Destination.Workbook.CreateOutStream(Output);
+            CopyStream(Output, Input);
+        end;
+        Destination.Insert(false);
     end;
 
     [Test]
