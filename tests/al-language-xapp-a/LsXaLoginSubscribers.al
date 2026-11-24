@@ -13,6 +13,9 @@
 //     temporary Record cache on its first call and answers OnDatabaseInsert/OnDatabaseModify = true for the tables in the cache)
 //     and to OnDatabaseInsert/OnDatabaseModify (notes the writes to the cached tables). Every login subscriber puts a marker into
 //     the same list before it writes, so the test can tell which asks came before, during and after the partner subscribers.
+//   - "LT LS XA Load Memo" (98538): a load-once cache whose GlobalTriggerManagement.OnAfterGetDatabaseTableTriggerSetup subscriber
+//     does its one-time load on the first ask whatever table is asked (Checked, Activated, six watched tables from a fixed list) and
+//     reads TableId only after that; it notes OnAfterOnDatabaseInsert of the watched tables. No login subscriber calls it.
 //   Subscriber codeunit ids interleave across the apps (A 98530, 98533, 98536, 98537; B 98531, 98534; C 98532, 98535); the names
 //   of A's three plain subscribers are not in id order (Zulu, Alpha, Mike), and 98537 declares three subscriber procedures
 //   in an order that is neither name order nor its reverse (ZuluLogin, AlphaLogin, MikeLogin).
@@ -428,6 +431,111 @@ codeunit 98512 "LT LS XA Trig Memo"
         Hub: Codeunit "LT LS XA Login Hub";
     begin
         exit(Hub.LogRows(TempWritten));
+    end;
+}
+
+// A load-once cache in the shape of a data-log cache: its GlobalTriggerManagement setup subscriber does the one-time load on the
+// first ask, whatever table is asked (Checked, Activated from a database read, the watched tables from a fixed list), and reads
+// TableId only after that. No login subscriber calls it: it is changed only by the setup asks the login subscribers' writes cause
+// (and by the ask Microsoft's own login code causes in some sessions).
+codeunit 98538 "LT LS XA Load Memo"
+{
+    SingleInstance = true;
+
+    var
+        TempWatched: Record "LT LS XA Setup" temporary;
+        Checked: Boolean;
+        Activated: Boolean;
+        WatchedLoaded: Boolean;
+        Loads: Integer;
+        Asks: Integer;
+        Written: Text;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::GlobalTriggerManagement, 'OnAfterGetDatabaseTableTriggerSetup', '', false, false)]
+    local procedure AfterSetup(TableId: Integer; var OnDatabaseInsert: Boolean; var OnDatabaseModify: Boolean; var OnDatabaseDelete: Boolean; var OnDatabaseRename: Boolean)
+    begin
+        Asks += 1;
+        if not Checked then begin
+            Checked := true;
+            Activated := IsActivated();
+        end;
+        if not Activated then
+            exit;
+        if not WatchedLoaded then begin
+            WatchedLoaded := true;
+            Loads += 1;
+            LoadWatched();
+        end;
+        if TempWatched.Get('T' + Format(TableId)) then begin
+            OnDatabaseInsert := true;
+            OnDatabaseModify := true;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::GlobalTriggerManagement, 'OnAfterOnDatabaseInsert', '', false, false)]
+    local procedure AfterInsert(RecRef: RecordRef)
+    begin
+        if TempWatched.Get('T' + Format(RecRef.Number)) then
+            Written += Format(RecRef.Number) + ';';
+    end;
+
+    // A database read that does not depend on the history of the database: the setup table of this app exists.
+    local procedure IsActivated(): Boolean
+    var
+        AllObj: Record AllObj;
+    begin
+        AllObj.SetRange("Object Type", AllObj."Object Type"::Table);
+        AllObj.SetRange("Object ID", Database::"LT LS XA Setup");
+        exit(not AllObj.IsEmpty());
+    end;
+
+    local procedure LoadWatched()
+    begin
+        AddWatched(Database::"LT LS XA Write 1");
+        AddWatched(Database::"LT LS XA Write 2");
+        AddWatched(Database::"LT LS XA Write 3");
+        AddWatched(98515); // "LT LS XB Write" of XApp B (this app does not depend on B)
+        AddWatched(98520); // "LT LS XC Write" of XApp C
+        AddWatched(97878); // "LT LS Watched Write" of the corpus app, written by a test only
+    end;
+
+    local procedure AddWatched(TableId: Integer)
+    begin
+        TempWatched.Init();
+        TempWatched.Code := CopyStr('T' + Format(TableId), 1, MaxStrLen(TempWatched.Code));
+        TempWatched.Insert();
+    end;
+
+    procedure RawChecked(): Text
+    begin
+        exit(Format(Checked));
+    end;
+
+    procedure RawActivated(): Text
+    begin
+        exit(Format(Activated));
+    end;
+
+    procedure RawLoads(): Text
+    begin
+        exit(Format(Loads));
+    end;
+
+    procedure Watched(): Text
+    var
+        Hub: Codeunit "LT LS XA Login Hub";
+    begin
+        exit(Hub.SetupKeys(TempWatched));
+    end;
+
+    procedure RawWritten(): Text
+    begin
+        exit(Written);
+    end;
+
+    procedure AskCount(): Integer
+    begin
+        exit(Asks);
     end;
 }
 
