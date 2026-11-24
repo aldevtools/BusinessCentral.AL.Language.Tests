@@ -32,7 +32,8 @@
 //     when the inner codeunit marked another one and failed.
 //   - A caller write pending when the run starts stops the run before it starts ('An error occurred and the transaction is stopped.',
 //     code DB:Ok), whatever the inner codeunit would do.
-//     This includes a caller that inserts a row and then marks that table (State.Start()), also when it unmarks it again before the run.
+//     Exception: a caller that inserts a row and then marks that table (State.Start()) gets either this or the TableInConsistent error,
+//     varying between CI runs on the same version; those two cells accept either text and the runtime must refuse the shape.
 //   - Consistent(false) on a temporary record marks the database table: a Commit raises the error of that table, and Consistent(true)
 //     on the same temporary variable lifts it.
 //   - A mark the caller sets before the run raises at the end of the run with the record argument forms too (code DB:TableInConsistent).
@@ -302,6 +303,15 @@ codeunit 75788 "GRC Tests"
         ClearLastError();
         State.Reset();
         Mode.Set(Steps);
+    end;
+
+    local procedure KnownText(Text: Text): Text
+    begin
+        if (Text = 'An error occurred and the transaction is stopped. Contact your administrator or partner for further assistance.') or
+           (Text = 'The transaction cannot be completed because it will cause inconsistencies in the GRC Row table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.')
+        then
+            exit('known');
+        exit(Text);
     end;
 
     local procedure Rows(): Text
@@ -961,12 +971,11 @@ codeunit 75788 "GRC Tests"
     begin
         Initialize('ins,err');
         State.Start();
-        // CI (27.5, 28.5, 29.0): the write State.Start() made is pending, so the run stops before it starts.
+        // BC gives either result across runs on the same version (CI runs 45353497570 and 45358869670); the runtime must refuse this shape.
         asserterror Ok := Codeunit.Run(Codeunit::"GRC Inner");
-        Observer.ObserveError('guarded run');
+        Observer.Observe('guarded run|known text', KnownText(GetLastErrorText()));
         Observer.Observe('durable rows', DurableRows());
-        Observer.Expect('guarded run|text', 'An error occurred and the transaction is stopped. Contact your administrator or partner for further assistance.');
-        Observer.Expect('guarded run|code', 'DB:Ok');
+        Observer.Expect('guarded run|known text', 'known');
         Observer.Expect('durable rows', '[] other=0');
         Observer.Verify();
     end;
@@ -981,12 +990,11 @@ codeunit 75788 "GRC Tests"
         Initialize('ins,err');
         State.Start();
         State.Stop();
-        // CI (27.5, 28.5, 29.0): the write State.Start() made is pending, so the run stops before it starts.
+        // BC gives either result across runs on the same version (CI runs 45353497570 and 45358869670); the runtime must refuse this shape.
         asserterror Ok := Codeunit.Run(Codeunit::"GRC Inner");
-        Observer.ObserveError('guarded run');
+        Observer.Observe('guarded run|known text', KnownText(GetLastErrorText()));
         Observer.Observe('durable rows', DurableRows());
-        Observer.Expect('guarded run|text', 'An error occurred and the transaction is stopped. Contact your administrator or partner for further assistance.');
-        Observer.Expect('guarded run|code', 'DB:Ok');
+        Observer.Expect('guarded run|known text', 'known');
         Observer.Expect('durable rows', '[] other=0');
         Observer.Verify();
     end;
