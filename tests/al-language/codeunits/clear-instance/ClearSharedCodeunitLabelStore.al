@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/system/system-clearall-method
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160); "CLB Row" (table 75586), "CLB Store" (codeunit 75587) and
-//   "CLB Holder" (codeunit 75588) of ClearSharedCodeunitTempRef.al; self-contained objects 77155 to 77172
+//   "CLB Holder" (codeunit 75588) of ClearSharedCodeunitTempRef.al; self-contained objects 77155 to 77171
 // Probe: written against BC 29.0 on Linux (al-runner issue 8912), observed first, then asserted.
 // Facts: a store codeunit with the globals of "CLB Store" (a temporary record, a two-dimensional array of RecordRef,
 //   an array of Integer) plus one global Label, the Label first, in the middle or last in the var list
