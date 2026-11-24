@@ -18,6 +18,13 @@ name: AL Language Test Suite
 on:
   push:
     branches: [main, master]
+  # The nightly full run (CONTRIBUTING.md, "Nightly full run"): every leg runs every test, the job manifest writes the
+  # results manifest, and the job "Nightly comparison" compares the results with those of the latest green master run.
+  # It is a trigger of this workflow, not a workflow of its own: al-runtime-rs looks for the nightly among the schedule
+  # runs of the workflow whose run it bumps from (its ADR-077, decisions 5 and 6). 01:30 UTC, before the Windows nightly
+  # (03:00, nightly-windows.yml).
+  schedule:
+    - cron: '30 1 * * *'
   pull_request:
     branches: [main, master]
   workflow_dispatch:
@@ -75,7 +82,8 @@ on:
 #     which the group key above keeps apart from the push runs.
 #   * Pull request runs keep cancel-in-progress: a new push to a PR branch makes its older run
 #     useless. `push` only fires for main and master (see `on:`), so `github.event_name != 'push'`
-#     selects exactly the runs that may be cancelled.
+#     selects exactly the runs that may be cancelled. The nightly (schedule) has a group of its own; the
+#     next night's run would cancel one that still runs.
 #
 # The required checks of the master ruleset are the `BC <version> / test`, `BC OnPrem <version> / test`
 # and `BC OnPrem DotNet <version> / test` legs for 27.5, 28.5 and 29.0, plus the object-id gate. Each
@@ -150,6 +158,10 @@ jobs:
 
       # This tree against master, and against itself.
       - run: python3 .github/scripts/check-object-ids.py .
+
+      # A test must not filter object ids over a range that another file can add to: CI does not run it again
+      # when an object is added there (CONTRIBUTING.md, standing rule 10).
+      - run: python3 .github/scripts/check-id-ranges.py .
 
       # An install/upgrade trigger that raises breaks the publish of the corpus app on every BC version.
       - run: python3 .github/scripts/test-install-triggers.py
@@ -243,8 +255,8 @@ jobs:
       # Test selection (CONTRIBUTING.md, "Test selection in CI"). "Run AL tests" is about 21 of the 26 minutes of a
       # BC leg, so a pull request runs only the test codeunits its change can affect; .github/scripts/select-tests.py
       # decides which, or falls back to a full run, and writes why into this job's summary. Always a full run: a push
-      # (master), a corpus bump pull request (head al-runtime-rs-staging), a pull request with the label full-run, and
-      # a manual dispatch without select_base. A failure of this step also means a full run, never a red check.
+      # (master), the nightly (schedule), a corpus bump pull request (head al-runtime-rs-staging), a pull request with
+      # the label full-run, and a manual dispatch without select_base. A failure of this step also means a full run, never a red check.
       # A dispatch with select_codeunits (the corpus CI batcher: the union of the selections of the branches it merged,
       # because the merged diff has too many files to select from) runs that list as it is; select_base is then ignored.
       - id: select
@@ -284,8 +296,9 @@ jobs:
           fi || { echo "::warning title=Test selection::select-tests.py failed; every test runs"; echo 'subset={}' >> "$GITHUB_OUTPUT"; }
 
       - id: set
+        env:
+          OVERRIDE: ${{ github.event.inputs.bc_version }}
         run: |
-          OVERRIDE='${{ github.event.inputs.bc_version }}'
           if [ -n "$OVERRIDE" ]; then
             MAJOR=$(echo "$OVERRIDE" | cut -d. -f1)
             SYMS=""
@@ -294,12 +307,16 @@ jobs:
               SYMS="${SYMS:+$SYMS,}BC${v}PLUS"
             done
             case "$MAJOR" in 27) RT=16.1;; 28) RT=17.1;; *) RT=18.0;; esac
-            JSON=$(python3 -c "import json; print(json.dumps({'include':[{'bc_version':'$OVERRIDE','runtime':'$RT','preprocessor_symbols':'$SYMS'}]}))")
+            JSON=$(python3 -c 'import json,sys; v,rt,s=sys.argv[1:]; print(json.dumps({"include":[{"bc_version":v,"runtime":rt,"preprocessor_symbols":s}]}))' "$OVERRIDE" "$RT" "$SYMS")
           else
             # The newest minor of each major: al-runtime-rs reads these legs as its oracle.
             # Use the bc_version input to run another minor.
             JSON='{"include":[{"bc_version":"27.5","runtime":"16.1","preprocessor_symbols":"BC27PLUS"},{"bc_version":"28.5","runtime":"17.1","preprocessor_symbols":"BC27PLUS,BC28PLUS"},{"bc_version":"29.0","runtime":"18.0","preprocessor_symbols":"BC27PLUS,BC28PLUS,BC29PLUS"}]}'
           fi
+          # The BC build of each version, resolved once here for every leg and shard of the run, and added to the matrix
+          # as bc_artifact_url and bc_build (CONTRIBUTING.md, "BC build and result provenance"). A version without a build
+          # fails this job, so no leg starts.
+          JSON=$(python3 .github/scripts/provenance.py resolve --versions "$JSON" --github) || exit 1
           echo "matrix=$JSON" >> "$GITHUB_OUTPUT"
 
       # Shards (CONTRIBUTING.md, "Shards in CI"): the al-language legs run their codeunits in three or four containers.
@@ -358,12 +375,8 @@ jobs:
       preprocessor_symbols: ${{ matrix.preprocessor_symbols }}
       al_tool_version:      "30.0.43.45776-beta"
       runtime_version:      ${{ matrix.runtime }}
-      # Pinned to the 29.0 build before 29.0.54011.55892 (published 2026-10-07). That build
-      # reports debugger protocol 9.0, and no published al tool supports it yet: 18.0.37.11445-beta
-      # and 18.0.43.1464 stop at 7.0, 30.0.42.60748-beta at 8.0, so every codeunit ended "al
-      # runtests exited 1 with no results" (corpus #561). Remove this once an al tool lists
-      # debugger 9.0.
-      bc_artifact_url: ${{ startsWith(matrix.bc_version, '29.') && 'https://bcartifacts-exdbf9fwegejdqak.b02.azurefd.net/sandbox/29.0.54011.55816/w1' || '' }}
+      # The build the prepare job resolved for this version, the same for every shard (provenance.py resolve).
+      bc_artifact_url:      ${{ matrix.bc_artifact_url }}
       # Creating a company creates its tables, including Base Application's
       # OptimizeForTextSearch indexes, so a test that inserts a Company needs SQL Server
       # Full-Text Search. No official SQL Server Linux image ships it; this tag adds it
@@ -456,12 +469,8 @@ jobs:
       preprocessor_symbols: ${{ matrix.preprocessor_symbols }}
       al_tool_version:      "30.0.43.45776-beta"
       runtime_version:      ${{ matrix.runtime }}
-      # Pinned to the 29.0 build before 29.0.54011.55892 (published 2026-10-07). That build
-      # reports debugger protocol 9.0, and no published al tool supports it yet: 18.0.37.11445-beta
-      # and 18.0.43.1464 stop at 7.0, 30.0.42.60748-beta at 8.0, so every codeunit ended "al
-      # runtests exited 1 with no results" (corpus #561). Remove this once an al tool lists
-      # debugger 9.0.
-      bc_artifact_url: ${{ startsWith(matrix.bc_version, '29.') && 'https://bcartifacts-exdbf9fwegejdqak.b02.azurefd.net/sandbox/29.0.54011.55816/w1' || '' }}
+      # The build the prepare job resolved for this version, the same for every shard (provenance.py resolve).
+      bc_artifact_url:      ${{ matrix.bc_artifact_url }}
       # Full-text search: a table with OptimizeForTextSearch = true needs it to install (corpus #633).
       sql_image:            "ghcr.io/aldevtools/msdyn365bc.on.linux/mssql:2022-fts"
       # RDLC rendering for the OnPrem SaveAs* file forms: see the test job above.
@@ -509,7 +518,8 @@ jobs:
       preprocessor_symbols: ${{ matrix.preprocessor_symbols }}
       al_tool_version:      "30.0.43.45776-beta"
       runtime_version:      ${{ matrix.runtime }}
-      bc_artifact_url: ${{ startsWith(matrix.bc_version, '29.') && 'https://bcartifacts-exdbf9fwegejdqak.b02.azurefd.net/sandbox/29.0.54011.55816/w1' || '' }}
+      # The build the prepare job resolved for this version, the same for every shard (provenance.py resolve).
+      bc_artifact_url:      ${{ matrix.bc_artifact_url }}
       # Full-text search: a table with OptimizeForTextSearch = true needs it to install (corpus #633).
       sql_image:            "ghcr.io/aldevtools/msdyn365bc.on.linux/mssql:2022-fts"
 
@@ -585,7 +595,8 @@ jobs:
       preprocessor_symbols: ${{ matrix.preprocessor_symbols }}
       al_tool_version:      "30.0.43.45776-beta"
       runtime_version:      ${{ matrix.runtime }}
-      bc_artifact_url: ${{ startsWith(matrix.bc_version, '29.') && 'https://bcartifacts-exdbf9fwegejdqak.b02.azurefd.net/sandbox/29.0.54011.55816/w1' || '' }}
+      # The build the prepare job resolved for this version, the same for every shard (provenance.py resolve).
+      bc_artifact_url:      ${{ matrix.bc_artifact_url }}
       # Full-text search: al-language has tables with OptimizeForTextSearch = true (corpus #633).
       sql_image:            "ghcr.io/aldevtools/msdyn365bc.on.linux/mssql:2022-fts"
       # RDLC rendering: see the test job above (al-language holds RDLC reports).
@@ -635,7 +646,117 @@ jobs:
       preprocessor_symbols: ${{ matrix.preprocessor_symbols }}
       al_tool_version:      "30.0.43.45776-beta"
       runtime_version:      ${{ matrix.runtime }}
-      bc_artifact_url: ${{ startsWith(matrix.bc_version, '29.') && 'https://bcartifacts-exdbf9fwegejdqak.b02.azurefd.net/sandbox/29.0.54011.55816/w1' || '' }}
+      # The build the prepare job resolved for this version, the same for every shard (provenance.py resolve).
+      bc_artifact_url:      ${{ matrix.bc_artifact_url }}
       sql_image:            "ghcr.io/aldevtools/msdyn365bc.on.linux/mssql:2022-fts"
       rdlc_renderer:        true
       rdlc_trust_layouts:   true
+
+  # The results manifest of a green master run (CONTRIBUTING.md, "BC build and result provenance"): one JSON file, the
+  # artifact results-manifest, that names the run, its commit and, per BC version, the build and the codeunits of each
+  # leg. al-runtime-rs reads it when it takes this run's JUnit files as its oracle. It runs only when every leg succeeded,
+  # on push runs and on the nightly (schedule); the nightly's job "Nightly comparison" then adds the comparison to it. A
+  # full run's manifest has base_run null.
+  # A later attempt of the run (a re-run) replaces the legs' files and, when it ends red, skips this job, so the
+  # manifest of the earlier attempt stays: a manifest counts only for the run's latest attempt with conclusion success
+  # (provenance.py check-manifest). Pull request runs and dispatched runs do not write it.
+  manifest:
+    name: Results manifest
+    needs: [prepare, test, test-onprem, test-onprem-dotnet, test-testlibraries, test-trywrite-allowed]
+    if: ${{ (github.event_name == 'push' || github.event_name == 'schedule') && success() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            .github/scripts
+            .github/workflows
+      # One folder per artifact, named <created_at>-<id>, so a later artifact of the same JUnit file name sorts last.
+      - name: Download the legs' JUnit files
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MATRIX: ${{ needs.prepare.outputs.matrix }}
+        run: |
+          set -euo pipefail
+          for v in $(python3 -c 'import json,sys; print(" ".join(e["bc_version"] for e in json.loads(sys.argv[1])["include"]))' "$MATRIX"); do
+            bash .github/scripts/run-artifacts.sh "junit-test-results-$v" "legs/$v" > /dev/null
+          done
+      - name: Write the manifest
+        env:
+          MATRIX: ${{ needs.prepare.outputs.matrix }}
+        run: |
+          python3 .github/scripts/provenance.py manifest --versions "$MATRIX" --ci-yml .github/workflows/ci.yml \
+            --run "$GITHUB_RUN_ID" --attempt "$GITHUB_RUN_ATTEMPT" --commit "$GITHUB_SHA" --event "$GITHUB_EVENT_NAME" \
+            --dir legs --out results-manifest.json
+      - name: Upload the manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-manifest
+          path: results-manifest.json
+          retention-days: 14
+          # a re-run of this job replaces the manifest of the earlier attempt
+          overwrite: true
+
+  # The nightly comparison (CONTRIBUTING.md, "Nightly full run"). For each BC version it compares this run's fresh
+  # results with the results of the latest green master push run at or before this commit (the base run), for the
+  # codeunits a master run at this commit would have taken from the base run, key by key (compare-results.py). It writes
+  # versions.<v>.comparison ("identical", "differs" or "incomplete") into this run's results manifest and uploads it
+  # again under the same name. Unless every version is "identical" this job fails after the upload: it is then the run's
+  # only failed job, and al-runtime-rs still takes this run's results (all fresh) but no other run's until a nightly
+  # says "identical" again (its ADR-077, decisions 5 and 6). The job name is the one al-runtime-rs looks for. When the
+  # comparison cannot run, the job fails and the manifest keeps no comparison. Never use "Re-run failed jobs" for this
+  # job: the run moves to a new attempt while the manifest keeps the attempt of the job "Results manifest", and
+  # al-runtime-rs then refuses it (CONTRIBUTING.md, "Nightly full run").
+  nightly-comparison:
+    name: Nightly comparison
+    needs: [prepare, manifest]
+    if: ${{ github.event_name == 'schedule' && success() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      # The whole history: the base run's commit must be an ancestor of this one, and select-tests.py reads both trees.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Download this run's manifest and JUnit files
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MATRIX: ${{ needs.prepare.outputs.matrix }}
+        run: |
+          set -euo pipefail
+          bash .github/scripts/run-artifacts.sh results-manifest manifest > /dev/null
+          for v in $(python3 -c 'import json,sys; print(" ".join(e["bc_version"] for e in json.loads(sys.argv[1])["include"]))' "$MATRIX"); do
+            bash .github/scripts/run-artifacts.sh "junit-test-results-$v" "legs/$v" > /dev/null
+          done
+      - id: compare
+        name: Compare with the latest green master run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/compare-results.py nightly --repo "$GITHUB_REPOSITORY" --head "$GITHUB_SHA" \
+            --manifest-dir manifest --legs legs --work "$RUNNER_TEMP/compare" \
+            --out results-manifest.json --github
+      - name: Upload the manifest with the comparison
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-manifest
+          path: results-manifest.json
+          retention-days: 14
+          overwrite: true
+      # identical, differs or incomplete (compare-results.py); empty when the step above failed
+      - name: Comparison result
+        env:
+          ANSWER: ${{ steps.compare.outputs.answer }}
+        run: |
+          if [ "$ANSWER" != identical ]; then
+            echo "::error title=Nightly comparison::the comparison says '$ANSWER', not identical; see the job summary"
+            exit 1
+          fi
