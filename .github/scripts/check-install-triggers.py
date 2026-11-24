@@ -14,6 +14,8 @@ import sys
 from pathlib import Path
 
 ALLOWED = {
+    # Neutral installed-task lifecycle: valid target, only not-ready or 2099-dated tasks; guarded observation insert.
+    'tests/al-language-onprem-dotnet codeunit 99468',
     # al-runner issue 8071: filter group 1 across install sessions; each install code logs what it sees and writes only `if Insert() then;` into
     # DataPerCompany = false tables (rows and log), and one DataPerCompany = true table (98485) from OnInstallAppPerCompany, where a company is set;
     # FilterGroup, SetFilter, SetRange and Count do not raise. (G1sXaInstall.al, G1sXbInstall.al,
