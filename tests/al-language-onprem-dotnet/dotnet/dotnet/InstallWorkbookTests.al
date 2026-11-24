@@ -1,0 +1,72 @@
+// BC Documentation: https://learn.microsoft.com/dynamics365/business-central/dev-itpro/developer/devenv-excel-buffer
+// Matrix: SaveToStream delete=true/false x plain/styled cell with a comment.
+// All four workbooks are made during installation and read in the later test session.
+// Existing 69048 pins the within-test stream roundtrip; this measures the installation boundary.
+codeunit 99463 "LT Install Workbook Tests"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+    var
+        Observation: Record "LT Install Workbook Obs";
+        Snapshot: Record "LT Install Workbook Obs" temporary;
+
+    [Test]
+    procedure InstallWorkbook_DeletePlain_PreservesCell()
+    begin
+        Initialize();
+        AssertWorkbook('DELETE-PLAIN');
+    end;
+
+    [Test]
+    procedure InstallWorkbook_KeepPlain_PreservesCellAfterCleanup()
+    begin
+        Initialize();
+        AssertWorkbook('KEEP-PLAIN');
+    end;
+
+    [Test]
+    procedure InstallWorkbook_DeleteStyled_PreservesCell()
+    begin
+        Initialize();
+        AssertWorkbook('DELETE-STYLED');
+    end;
+
+    [Test]
+    procedure InstallWorkbook_KeepStyled_PreservesCellAfterCleanup()
+    begin
+        Initialize();
+        AssertWorkbook('KEEP-STYLED');
+    end;
+
+    local procedure AssertWorkbook(ProbeCode: Code[20])
+    var
+        Reader: Record "Excel Buffer" temporary;
+        Input: InStream;
+    begin
+        Observation.Get(ProbeCode);
+        if Observation."Probe Error" <> '' then Error('Installation capture failed: %1', Observation."Probe Error");
+        Observation.CalcFields(Workbook);
+        if not Observation.Workbook.HasValue() then Error('Expected installed workbook data.');
+        Observation.Workbook.CreateInStream(Input);
+        Reader.OpenBookStream(Input, 'InstallProbe');
+        Reader.ReadSheet();
+        Reader.Get(1, 1);
+        if Reader."Cell Value as Text" <> ProbeCode then Error('Expected %1, got %2.', ProbeCode, Reader."Cell Value as Text");
+        Reader.CloseBook();
+    end;
+
+    local procedure Initialize()
+    begin
+        Snapshot.DeleteAll();
+        if Observation.FindSet() then repeat
+            Observation.CalcFields(Workbook);
+            Snapshot := Observation;
+            Snapshot.Insert(false);
+        until Observation.Next() = 0;
+        Observation.DeleteAll();
+        if Snapshot.FindSet() then repeat
+            Observation := Snapshot;
+            Observation.Insert(false);
+        until Snapshot.Next() = 0;
+    end;
+}
