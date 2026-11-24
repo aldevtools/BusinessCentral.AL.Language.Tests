@@ -1004,7 +1004,12 @@ jobs:
             # The C14 and C2 cells with RecordRef access in the failed test (76239..76269): "LT SQ Ref Reader" (76239).
             @{ runner = '130450'; range = '76239..76269'; out = 'xunit-sequence-recordref-130450.xml' },
             @{ runner = '61301'; range = '76239..76269'; out = 'xunit-sequence-recordref-codeunit.xml' },
-            @{ runner = '61300'; range = '76239..76269'; out = 'xunit-sequence-recordref-function.xml' }
+            @{ runner = '61300'; range = '76239..76269'; out = 'xunit-sequence-recordref-function.xml' },
+            # Failed-test sequence cells with the access shapes of Microsoft's SCM tests (76440..76499, SqFailedSeq.al):
+            # each cell codeunit asserts its own readings in its test c; test b fails on purpose.
+            @{ runner = '130450'; range = '76440..76499'; out = 'xunit-sequence-scm-shapes-130450.xml' },
+            @{ runner = '61301'; range = '76440..76499'; out = 'xunit-sequence-scm-shapes-codeunit.xml' },
+            @{ runner = '61300'; range = '76440..76499'; out = 'xunit-sequence-scm-shapes-function.xml' }
           )
           foreach ($r in $runs) {
             Write-Host "::group::isolation probe under runner $($r.runner), test codeunits $($r.range)"
@@ -1101,6 +1106,21 @@ jobs:
             --run "TestIsolation = Codeunit (runner 61301)=xunit-sequence-recordref-codeunit.xml" \
             --run "TestIsolation = Function (runner 61300)=xunit-sequence-recordref-function.xml" \
             --outdir test-results/sequence-recordref
+
+      # The SCM-shape cells (SqFailedSeq.al): every test of the cell codeunits 76450-76476.
+      - name: Sequence after a failed test with SCM access shapes -- per-test rows
+        if: always()
+        continue-on-error: true
+        shell: bash
+        run: |
+          python .github/scripts/isolation-probe-results.py \
+            --title "NumberSequence after a failed test with the access shapes of Microsoft's SCM tests" \
+            --note "Not part of the headline above. In each cell codeunit (76450-76476) test b fails on purpose (not in S1N and S2N) and test c asserts what the cell left under TestIsolation = Codeunit; a failure message of test c carries what was observed." \
+            --fixture tests/al-language-isolation-probe/src/SqFailedSeq.al \
+            --run "Runner 130450=xunit-sequence-scm-shapes-130450.xml" \
+            --run "TestIsolation = Codeunit (runner 61301)=xunit-sequence-scm-shapes-codeunit.xml" \
+            --run "TestIsolation = Function (runner 61300)=xunit-sequence-scm-shapes-function.xml" \
+            --outdir test-results/sequence-scm-shapes
 
       # Fails the job, loudly, when a test codeunit is silently missing: neither reported nor
       # recorded as a runner stop. It
