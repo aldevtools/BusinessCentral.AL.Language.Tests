@@ -6,7 +6,8 @@
 // Facts:
 //   - A control's Visible and Editable expressions and a control's source expression compile when they name a keyword member
 //     quoted (Rec."If", Rec."Exit", Rec.Opt::"Do") or a member that is no keyword unquoted (Rec.Key, Rec.Local); a TestPage
-//     reads the values the source expressions give and the Visible and Editable states the expressions give.
+//     reads the values the source expressions give and the Visible and Editable states the expressions give. The same page
+//     gives Yes for true keyword-member expressions and No for expressions made false by a second row.
 //   - On BC 27 and 28 a TestPage of a page whose control has `Visible = Rec."Exit" > 0;` raises "The identifier 'Exit'
 //     could not be found." when the test reads that control's Visible state, and when it closes the page; BC 29 gives the
 //     state. The page with the keyword Visible expressions (75683) and its test are BC 29 only.
@@ -149,10 +150,69 @@ codeunit 75682 "PGC Keyword Member Tests"
         Row.Insert();
     end;
 
+    local procedure InsertFalseRow(var Row: Record "PGC Keyword Member Row")
+    begin
+        Row.Id := 2;
+        Row."If" := 4;
+        Row."Exit" := 0;
+        Row.Key := 0;
+        Row.Local := 3;
+        Row.Opt := Row.Opt::Zero;
+        Row.Insert();
+    end;
+
     local procedure Initialize()
     var
         Row: Record "PGC Keyword Member Row";
     begin
         Row.DeleteAll();
     end;
+
+    [Test]
+    procedure KeywordMemberExpressions_TestPage_ReadsFalseEditableState()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Keyword Member Row";
+        Card: TestPage "PGC Keyword Member Card";
+    begin
+        Initialize();
+        InsertRow(Row);
+        InsertFalseRow(Row);
+        Card.OpenEdit();
+        Card.GoToRecord(Row);
+        Observer.Observe('IfShown', Card.IfShown.Value);
+        Observer.Observe('KeyShown', Card.KeyShown.Value);
+        Observer.Observe('LocalShown editable', Format(Card.LocalShown.Editable()));
+        Card.Close();
+        Observer.Expect('IfShown', '5');
+        Observer.Expect('KeyShown', '3');
+        Observer.Expect('LocalShown editable', 'No');
+        Observer.Verify();
+    end;
+
+#if BC29PLUS
+    [Test]
+    procedure KeywordMemberExpressions_TestPage_ReadsFalseVisibleStatesOfQuotedKeywordMembers()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Keyword Member Row";
+        Shown: TestPage "PGC Keyword Member Shown";
+    begin
+        Initialize();
+        InsertRow(Row);
+        InsertFalseRow(Row);
+        Shown.OpenEdit();
+        Shown.GoToRecord(Row);
+        Observer.Observe('IfShown value', Shown.IfShown.Value);
+        Observer.Observe('KeyShown value', Shown.KeyShown.Value);
+        Observer.Observe('IfShown visible', Format(Shown.IfShown.Visible()));
+        Observer.Observe('KeyShown visible', Format(Shown.KeyShown.Visible()));
+        Shown.Close();
+        Observer.Expect('IfShown value', '5');
+        Observer.Expect('KeyShown value', '3');
+        Observer.Expect('IfShown visible', 'No');
+        Observer.Expect('KeyShown visible', 'No');
+        Observer.Verify();
+    end;
+#endif
 }
