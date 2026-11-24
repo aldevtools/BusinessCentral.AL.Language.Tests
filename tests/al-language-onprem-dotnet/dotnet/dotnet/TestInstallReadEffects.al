@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/dynamics365/business-central/dev-itpro/developer/devenv-extension-install-code
 // Scope: install versus test session reads; seven observations, across BC27.5/28.5/29.0.
-// Fixtures: INST Read Observation (99464), INST Read Capture (99465), Library Assert.
+// Fixtures: INST Read Observation (99464), INST Read Capture (99465), Assert (60021).
 // Existing ordinary-session coverage: AeUserAccountHelper.al, TestServerSettingContracts.al,
 // DateFuncs.al, TestDateVirtualTableFlowField.al, BaFeatureKeyTexts.al and PlTTaskScheduler.al.
 // New claim: the recorded values originate in the install context, not the test context.
@@ -11,7 +11,7 @@ codeunit 99466 "INST Read Tests"
     var
         Saved: Record "INST Read Observation" temporary;
         Loaded: Boolean;
-        Assert: Codeunit "Library Assert";
+        Assert: Codeunit Assert;
 
     [Test]
     procedure Install_DelegatedPredicates_AreFalse()
@@ -92,3 +92,4 @@ codeunit 99466 "INST Read Tests"
             until Saved.Next() = 0;
     end;
 }
+
