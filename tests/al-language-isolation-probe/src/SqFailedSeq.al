@@ -21,10 +21,14 @@ namespace ALLanguage.IsolationProbe;
 // 28.5 and the Windows containers are measured by the Windows nightly only.
 //
 // What BC does:
-// - A failed test rolls back to the last Commit() that had a table write in its transaction. A Commit() whose transaction
-//   holds only number-sequence calls does not keep the sequence: S1R and S1S (the C2 cell of SqCommitFail.al, with and
-//   without CompanyWide) and S2F read missing; S1T (the same with a Record write before the Commit) keeps it. S1Z, the C2
-//   shape with the helper's entry insert before the Commit, keeps it.
+// - Whether a sequence inserted before a Commit() survives a later failed test that accesses a table depends on what ran
+//   between the previous commit and that Commit(). Gone when only NumberSequence calls ran there: S1R and S1S (the C2 cell
+//   of SqCommitFail.al, with and without CompanyWide) and S2F. Kept when a table was also accessed there: a Record write
+//   after the insert (S1T) or before it (S1U), a Record read with no lock (S1X) or under UpdLock (S1Y), the helper's
+//   RecordRef reads with no entry insert (S1V), the helper with an entry insert (S1Z and the S1 cells whose earlier test
+//   commits).
+// - A failed test with no table access after its Commit() keeps a sequence it inserted before that Commit() with only
+//   NumberSequence calls (S2G), as C3 of SqCommitFail.al.
 // - An earlier test's sequence stays when the failed test commits after a table write (S1A, S1J) and when the earlier test
 //   committed after a table write (S1A to S1Q). A sequence inserted with no commit is kept by a later commit in a passing
 //   test (S1I) or in the failed test (S1J, S1K).
@@ -38,7 +42,8 @@ namespace ALLanguage.IsolationProbe;
 // - The failed test's own insert through the helper before its last commit stays with both sequences and the entry
 //   (S2A to S2D); one after its last commit is gone with both sequences and the entry (S2E).
 // - Rows and changes after the last commit (B2, the TestPage and RecordRef.Modify change of INIT) are gone; rows before it
-//   stay. The 'Preview' sequence is kept or gone together with the main one.
+//   stay. S1W (S1C with a test b that passes) shows that the TestPage writes the INIT row. The 'Preview' sequence is
+//   kept or gone together with the main one.
 // - Not measured: what a later test codeunit sees, TestIsolation = Function (runner 61300; the nightly records it).
 
 // S1a: earlier test inserts and commits; failed test: Record write, Commit, Record write.
@@ -178,7 +183,7 @@ codeunit 76451 "LT SQF S1N"
     end;
 }
 
-// C2 baseline (pinned by SqCommitFail.al): failed test writes a Record and runs no commit.
+// C2 shape with the helper (entry insert and Record write before the earlier Commit): failed test writes a Record, no commit.
 // S1Za: the helper takes a number and inserts an entry, Record insert A, Commit().
 // S1Zb: Record insert B1, then fails.
 // S1Zc: reads the sequences and the tables and asserts them.
@@ -2113,6 +2118,427 @@ codeunit 76476 "LT SQF S2F"
     local procedure Initialize()
     begin
         Cell := 'S2F';
+        if IsInitialized then
+            exit;
+        Token := CopyStr(DelChr(Format(CreateGuid()), '=', '{}-'), 1, 10);
+        Access.DeleteAllRows();
+        Access.InsertRow('INIT');
+        IsInitialized := true;
+        Commit();
+    end;
+}
+
+// S1R with a Record write before the sequence insert (no write after it) in the earlier test.
+// S1Ua: Record insert A, NumberSequence.Insert(Name, 1, 1) and Next, no table write, Commit().
+// S1Ub: Record insert B1, then fails.
+// S1Uc: reads the sequences and the tables and asserts them.
+codeunit 76477 "LT SQF S1U"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        Seq: Codeunit "LT SQF Seq";
+        Access: Codeunit "LT SQF Access";
+        IsInitialized: Boolean;
+        Token: Text;
+        Cell: Code[10];
+
+    [Test]
+    procedure S1Ua_EarlierWriteFirst()
+    begin
+        Initialize();
+        Access.InsertRow('A');
+        NumberSequence.Insert(Name(), 1, 1);
+        if NumberSequence.Next(Name()) = 0 then;
+        Commit();
+    end;
+
+    [Test]
+    procedure S1Ub_FailsOnPurpose()
+    begin
+        Initialize();
+        Access.InsertRow('B1');
+        Error('S1Ub fails on purpose');
+    end;
+
+    [Test]
+    procedure S1Uc_ReadsAndAsserts()
+    var
+        Actual: Text;
+    begin
+        Actual := 'initialized=' + Format(IsInitialized);
+        Initialize();
+        Actual += ' | name=' + Seq.State(Name()) + ' | preview=' + Seq.State(Seq.PreviewName(Name()));
+        Actual += ' | rows=' + Access.Rows() + ' | init desc=' + Access.InitDescription() + ' | entries=' + Seq.Entries();
+        Actual += ' | next=' + Format(Seq.GetNextSeqNo(Name())) + ' | name after=' + Seq.State(Name());
+        if Actual <> 'initialized=Yes | name=cur=1 | preview=missing | rows=A,INIT | init desc='''' | entries=none | next=2 | name after=cur=2' then
+            Error('OBSERVE %1: %2', Cell, Actual);
+    end;
+
+    local procedure Name(): Text
+    begin
+        exit('LTSQF' + Cell + Token);
+    end;
+
+    // The first call deletes the rows of earlier cells, writes the INIT row and commits; later calls do nothing.
+    // Token: a number sequence outlives the app and the run, so the name carries a token made once per codeunit run.
+    local procedure Initialize()
+    begin
+        Cell := 'S1U';
+        if IsInitialized then
+            exit;
+        Token := CopyStr(DelChr(Format(CreateGuid()), '=', '{}-'), 1, 10);
+        Access.DeleteAllRows();
+        Access.InsertRow('INIT');
+        IsInitialized := true;
+        Commit();
+    end;
+}
+
+// earlier test: the helper hands out a number with no entry insert, Commit; failed test writes a Record, no commit.
+// S1Va: the helper hands out a number (its RecordRef reads), no entry insert, Commit().
+// S1Vb: Record insert B1, then fails.
+// S1Vc: reads the sequences and the tables and asserts them.
+codeunit 76478 "LT SQF S1V"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        Seq: Codeunit "LT SQF Seq";
+        Access: Codeunit "LT SQF Access";
+        IsInitialized: Boolean;
+        Token: Text;
+        Cell: Code[10];
+
+    [Test]
+    procedure S1Va_EarlierHelperNoEntry()
+    begin
+        Initialize();
+        if Seq.GetNextSeqNo(Name()) = 0 then;
+        Commit();
+    end;
+
+    [Test]
+    procedure S1Vb_FailsOnPurpose()
+    begin
+        Initialize();
+        Access.InsertRow('B1');
+        Error('S1Vb fails on purpose');
+    end;
+
+    [Test]
+    procedure S1Vc_ReadsAndAsserts()
+    var
+        Actual: Text;
+    begin
+        Actual := 'initialized=' + Format(IsInitialized);
+        Initialize();
+        Actual += ' | name=' + Seq.State(Name()) + ' | preview=' + Seq.State(Seq.PreviewName(Name()));
+        Actual += ' | rows=' + Access.Rows() + ' | init desc=' + Access.InitDescription() + ' | entries=' + Seq.Entries();
+        Actual += ' | next=' + Format(Seq.GetNextSeqNo(Name())) + ' | name after=' + Seq.State(Name());
+        if Actual <> 'initialized=Yes | name=cur=1 | preview=cur=-2000000001 | rows=INIT | init desc='''' | entries=none | next=2 | name after=cur=2' then
+            Error('OBSERVE %1: %2', Cell, Actual);
+    end;
+
+    local procedure Name(): Text
+    begin
+        exit('LTSQF' + Cell + Token);
+    end;
+
+    // The first call deletes the rows of earlier cells, writes the INIT row and commits; later calls do nothing.
+    // Token: a number sequence outlives the app and the run, so the name carries a token made once per codeunit run.
+    local procedure Initialize()
+    begin
+        Cell := 'S1V';
+        if IsInitialized then
+            exit;
+        Token := CopyStr(DelChr(Format(CreateGuid()), '=', '{}-'), 1, 10);
+        Access.DeleteAllRows();
+        Access.InsertRow('INIT');
+        IsInitialized := true;
+        Commit();
+    end;
+}
+
+// S1c control: the same test B does not fail.
+// S1Wa: the helper takes a number and inserts an entry, Record insert A, Commit().
+// S1Wb: Record insert B1, Commit(), a TestPage (OpenEdit, GoToRecord, SetValue, AssertEquals, Close, OpenView, Close), Record insert B2.
+// S1Wc: reads the sequences and the tables and asserts them.
+codeunit 76479 "LT SQF S1W"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        Seq: Codeunit "LT SQF Seq";
+        Access: Codeunit "LT SQF Access";
+        IsInitialized: Boolean;
+        Token: Text;
+        Cell: Code[10];
+
+    [Test]
+    procedure S1Wa_Earlier()
+    begin
+        Initialize();
+        Seq.InsertEntry(Name(), Cell);
+        Access.InsertRow('A');
+        Commit();
+    end;
+
+    [Test]
+    procedure S1Wb_Passes()
+    begin
+        Initialize();
+        Access.InsertRow('B1');
+        Commit();
+        TestPageCalls();
+        Access.InsertRow('B2');
+    end;
+
+    [Test]
+    procedure S1Wc_ReadsAndAsserts()
+    var
+        Actual: Text;
+    begin
+        Actual := 'initialized=' + Format(IsInitialized);
+        Initialize();
+        Actual += ' | name=' + Seq.State(Name()) + ' | preview=' + Seq.State(Seq.PreviewName(Name()));
+        Actual += ' | rows=' + Access.Rows() + ' | init desc=' + Access.InitDescription() + ' | entries=' + Seq.Entries();
+        Actual += ' | next=' + Format(Seq.GetNextSeqNo(Name())) + ' | name after=' + Seq.State(Name());
+        if Actual <> 'initialized=Yes | name=cur=1 | preview=cur=-2000000001 | rows=A,B1,B2,INIT | init desc=''PAGE'' | entries=1 | next=2 | name after=cur=2' then
+            Error('OBSERVE %1: %2', Cell, Actual);
+    end;
+
+    local procedure Name(): Text
+    begin
+        exit('LTSQF' + Cell + Token);
+    end;
+
+    local procedure TestPageCalls()
+    var
+        Row: Record "LT SQF Row";
+        RowCard: TestPage "LT SQF Row Card";
+    begin
+        Row.Get('INIT');
+        RowCard.OpenEdit();
+        RowCard.GoToRecord(Row);
+        RowCard.Description.SetValue('PAGE');
+        RowCard."Key".AssertEquals('INIT');
+        RowCard.Close();
+        RowCard.OpenView();
+        RowCard.GoToRecord(Row);
+        RowCard.Close();
+    end;
+
+    // The first call deletes the rows of earlier cells, writes the INIT row and commits; later calls do nothing.
+    // Token: a number sequence outlives the app and the run, so the name carries a token made once per codeunit run.
+    local procedure Initialize()
+    begin
+        Cell := 'S1W';
+        if IsInitialized then
+            exit;
+        Token := CopyStr(DelChr(Format(CreateGuid()), '=', '{}-'), 1, 10);
+        Access.DeleteAllRows();
+        Access.InsertRow('INIT');
+        IsInitialized := true;
+        Commit();
+    end;
+}
+
+// failed test: NumberSequence.Insert and Next with no table write, Commit, no table access after it.
+// S2Ga: Initialize only.
+// S2Gb: NumberSequence.Insert(Name, 1, 1) and Next, no table write, Commit(), then fails.
+// S2Gc: reads the sequences and the tables and asserts them.
+codeunit 76480 "LT SQF S2G"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        Seq: Codeunit "LT SQF Seq";
+        Access: Codeunit "LT SQF Access";
+        IsInitialized: Boolean;
+        Token: Text;
+        Cell: Code[10];
+
+    [Test]
+    procedure S2Ga_InitializeCommits()
+    begin
+        Initialize();
+    end;
+
+    [Test]
+    procedure S2Gb_FailsOnPurpose()
+    begin
+        Initialize();
+        NumberSequence.Insert(Name(), 1, 1);
+        if NumberSequence.Next(Name()) = 0 then;
+        Commit();
+        Error('S2Gb fails on purpose');
+    end;
+
+    [Test]
+    procedure S2Gc_ReadsAndAsserts()
+    var
+        Actual: Text;
+    begin
+        Actual := 'initialized=' + Format(IsInitialized);
+        Initialize();
+        Actual += ' | name=' + Seq.State(Name()) + ' | preview=' + Seq.State(Seq.PreviewName(Name()));
+        Actual += ' | rows=' + Access.Rows() + ' | init desc=' + Access.InitDescription() + ' | entries=' + Seq.Entries();
+        Actual += ' | next=' + Format(Seq.GetNextSeqNo(Name())) + ' | name after=' + Seq.State(Name());
+        if Actual <> 'initialized=Yes | name=cur=1 | preview=missing | rows=INIT | init desc='''' | entries=none | next=2 | name after=cur=2' then
+            Error('OBSERVE %1: %2', Cell, Actual);
+    end;
+
+    local procedure Name(): Text
+    begin
+        exit('LTSQF' + Cell + Token);
+    end;
+
+    // The first call deletes the rows of earlier cells, writes the INIT row and commits; later calls do nothing.
+    // Token: a number sequence outlives the app and the run, so the name carries a token made once per codeunit run.
+    local procedure Initialize()
+    begin
+        Cell := 'S2G';
+        if IsInitialized then
+            exit;
+        Token := CopyStr(DelChr(Format(CreateGuid()), '=', '{}-'), 1, 10);
+        Access.DeleteAllRows();
+        Access.InsertRow('INIT');
+        IsInitialized := true;
+        Commit();
+    end;
+}
+
+// S1R with a Record read (no lock) before the Commit of the earlier test.
+// S1Xa: NumberSequence.Insert(Name, 1, 1) and Next, no table write, a Record FindFirst (no lock), Commit().
+// S1Xb: Record insert B1, then fails.
+// S1Xc: reads the sequences and the tables and asserts them.
+codeunit 76481 "LT SQF S1X"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        Seq: Codeunit "LT SQF Seq";
+        Access: Codeunit "LT SQF Access";
+        IsInitialized: Boolean;
+        Token: Text;
+        Cell: Code[10];
+
+    [Test]
+    procedure S1Xa_EarlierPlainRead()
+    begin
+        Initialize();
+        NumberSequence.Insert(Name(), 1, 1);
+        if NumberSequence.Next(Name()) = 0 then;
+        Access.PlainRead();
+        Commit();
+    end;
+
+    [Test]
+    procedure S1Xb_FailsOnPurpose()
+    begin
+        Initialize();
+        Access.InsertRow('B1');
+        Error('S1Xb fails on purpose');
+    end;
+
+    [Test]
+    procedure S1Xc_ReadsAndAsserts()
+    var
+        Actual: Text;
+    begin
+        Actual := 'initialized=' + Format(IsInitialized);
+        Initialize();
+        Actual += ' | name=' + Seq.State(Name()) + ' | preview=' + Seq.State(Seq.PreviewName(Name()));
+        Actual += ' | rows=' + Access.Rows() + ' | init desc=' + Access.InitDescription() + ' | entries=' + Seq.Entries();
+        Actual += ' | next=' + Format(Seq.GetNextSeqNo(Name())) + ' | name after=' + Seq.State(Name());
+        if Actual <> 'initialized=Yes | name=cur=1 | preview=missing | rows=INIT | init desc='''' | entries=none | next=2 | name after=cur=2' then
+            Error('OBSERVE %1: %2', Cell, Actual);
+    end;
+
+    local procedure Name(): Text
+    begin
+        exit('LTSQF' + Cell + Token);
+    end;
+
+    // The first call deletes the rows of earlier cells, writes the INIT row and commits; later calls do nothing.
+    // Token: a number sequence outlives the app and the run, so the name carries a token made once per codeunit run.
+    local procedure Initialize()
+    begin
+        Cell := 'S1X';
+        if IsInitialized then
+            exit;
+        Token := CopyStr(DelChr(Format(CreateGuid()), '=', '{}-'), 1, 10);
+        Access.DeleteAllRows();
+        Access.InsertRow('INIT');
+        IsInitialized := true;
+        Commit();
+    end;
+}
+
+// S1R with a Record read under ReadIsolation UpdLock before the Commit of the earlier test.
+// S1Ya: NumberSequence.Insert(Name, 1, 1) and Next, no table write, a Record FindFirst with ReadIsolation UpdLock, Commit().
+// S1Yb: Record insert B1, then fails.
+// S1Yc: reads the sequences and the tables and asserts them.
+codeunit 76482 "LT SQF S1Y"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        Seq: Codeunit "LT SQF Seq";
+        Access: Codeunit "LT SQF Access";
+        IsInitialized: Boolean;
+        Token: Text;
+        Cell: Code[10];
+
+    [Test]
+    procedure S1Ya_EarlierLockRead()
+    begin
+        Initialize();
+        NumberSequence.Insert(Name(), 1, 1);
+        if NumberSequence.Next(Name()) = 0 then;
+        Access.UpdLockRead();
+        Commit();
+    end;
+
+    [Test]
+    procedure S1Yb_FailsOnPurpose()
+    begin
+        Initialize();
+        Access.InsertRow('B1');
+        Error('S1Yb fails on purpose');
+    end;
+
+    [Test]
+    procedure S1Yc_ReadsAndAsserts()
+    var
+        Actual: Text;
+    begin
+        Actual := 'initialized=' + Format(IsInitialized);
+        Initialize();
+        Actual += ' | name=' + Seq.State(Name()) + ' | preview=' + Seq.State(Seq.PreviewName(Name()));
+        Actual += ' | rows=' + Access.Rows() + ' | init desc=' + Access.InitDescription() + ' | entries=' + Seq.Entries();
+        Actual += ' | next=' + Format(Seq.GetNextSeqNo(Name())) + ' | name after=' + Seq.State(Name());
+        if Actual <> 'initialized=Yes | name=cur=1 | preview=missing | rows=INIT | init desc='''' | entries=none | next=2 | name after=cur=2' then
+            Error('OBSERVE %1: %2', Cell, Actual);
+    end;
+
+    local procedure Name(): Text
+    begin
+        exit('LTSQF' + Cell + Token);
+    end;
+
+    // The first call deletes the rows of earlier cells, writes the INIT row and commits; later calls do nothing.
+    // Token: a number sequence outlives the app and the run, so the name carries a token made once per codeunit run.
+    local procedure Initialize()
+    begin
+        Cell := 'S1Y';
         if IsInitialized then
             exit;
         Token := CopyStr(DelChr(Format(CreateGuid()), '=', '{}-'), 1, 10);

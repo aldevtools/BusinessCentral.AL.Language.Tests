@@ -289,6 +289,7 @@ codeunit 76445 "LT SQF Access"
         RecRef.ReadIsolation(IsolationLevel::ReadCommitted);
         KeyRef := RecRef.KeyIndex(1);
         FldRef := KeyRef.FieldIndex(1);
+        FldRef := RecRef.FieldIndex(1);
         RecRef.SetLoadFields(1);
         RecRef.AddLoadFields(2);
         Discard := Format(RecRef.FieldCount()) + Format(RecRef.FieldExist(2)) + Format(RecRef.SecurityFiltering());
@@ -309,6 +310,21 @@ codeunit 76445 "LT SQF Access"
             RecRef.Modify();
         end;
         if Discard = '' then;
+    end;
+
+    procedure PlainRead()
+    var
+        Row: Record "LT SQF Row";
+    begin
+        if Row.FindFirst() then;
+    end;
+
+    procedure UpdLockRead()
+    var
+        Row: Record "LT SQF Row";
+    begin
+        Row.ReadIsolation(IsolationLevel::UpdLock);
+        if Row.FindFirst() then;
     end;
 
     procedure InsertTriggerRow(RowKey: Code[30])
