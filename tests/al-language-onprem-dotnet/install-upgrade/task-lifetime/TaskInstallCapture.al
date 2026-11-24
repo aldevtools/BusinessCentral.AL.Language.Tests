@@ -31,6 +31,7 @@ codeunit 99468 "INST Task Capture"
     local procedure Capture(ScopeName: Text[30]; ScenarioName: Code[20]; TargetCompany: Text[30])
     var
         Observation: Record "INST Task Observation";
+        Task: Record "Scheduled Task";
         TaskId: Guid;
     begin
         case ScenarioName of
@@ -46,6 +47,7 @@ codeunit 99468 "INST Task Capture"
             if ScopeName = '<database>' then
                 Observation.TargetCompany := '';
         Observation.Existed := TaskScheduler.TaskExists(TaskId);
+        Observation.RowExisted := Task.Get(TaskId);
         if ScenarioName = 'CANCEL-INSTALL' then
             Observation.Cancelled := TaskScheduler.CancelTask(TaskId);
         Observation.ExistsAtEnd := TaskScheduler.TaskExists(TaskId);

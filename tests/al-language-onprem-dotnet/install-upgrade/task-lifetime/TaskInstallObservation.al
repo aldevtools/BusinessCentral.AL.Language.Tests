@@ -12,6 +12,7 @@ table 99467 "INST Task Observation"
         field(5; Existed; Boolean) { }
         field(6; Cancelled; Boolean) { }
         field(7; ExistsAtEnd; Boolean) { }
+        field(8; RowExisted; Boolean) { }
     }
     keys { key(PK; Scope, Scenario) { Clustered = true; } }
 }

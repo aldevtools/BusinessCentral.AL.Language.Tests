@@ -113,10 +113,15 @@ codeunit 99469 "INST Task Lifetime Tests"
     end;
 
     local procedure Installed(ScopeName: Text[30]; ScenarioName: Code[20]; var Observation: Record "INST Task Observation")
+    var
+        Task: Record "Scheduled Task";
     begin
         Assert.IsTrue(Observation.Get(ScopeName, ScenarioName), 'The install observation must exist');
         Assert.IsFalse(IsNullGuid(Observation.TaskId), 'CreateTask must return a nonempty ID');
-        Assert.IsTrue(Observation.Existed, 'The creator session must see its task');
+        Assert.IsTrue(Observation.Existed,
+            StrSubstNo('Creator TaskExists=%1; creator row=%2; cancelled=%3; creator end=%4; new-session row=%5; new-session TaskExists=%6',
+                Observation.Existed, Observation.RowExisted, Observation.Cancelled, Observation.ExistsAtEnd,
+                Task.Get(Observation.TaskId), TaskScheduler.TaskExists(Observation.TaskId)));
     end;
 
     local procedure CheckRetained(ScopeName: Text[30]; ScenarioName: Code[20])
