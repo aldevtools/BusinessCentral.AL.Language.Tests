@@ -14,14 +14,24 @@
 //     marks two tables (which one the error names), marks a table with a caption, marks a temporary record;
 //   - the caller marks before the run, with the record argument forms and the error code;
 //   - Commit after Consistent(true) on another variable, and Consistent on a temporary record;
-//   - the preview flow: an outer guarded run whose CommitBehavior::Error procedure runs the inner codeunit, then Error('').
+//   - the preview flow: an outer guarded run whose CommitBehavior::Error procedure runs the inner codeunit, then Error('');
+//   - the FinishPosting shape: a codeunit global assigned from a temporary buffer and inserted through between Consistent(false) and
+//     Consistent(true) (one line, two lines, false twice then true once), the run succeeding and failing;
+//   - a caller write pending when the run starts; a caller mark with a failed Get inside; caller and inner marking different tables;
+//     an inner Commit() under its own mark.
 // Measured on BC 29.0 (local container, both test runners); 27.5 and 28.5 by the corpus CI:
 //   - When the inner codeunit fails, the guarded run returns false with the inner error (text and code), whatever it marked: the
 //     mark ends with the run's rolled back transaction. A Commit after it succeeds and a second guarded run returns Yes.
 //   - When the inner codeunit succeeds with a mark still set, the guarded run raises DB:TableInConsistent (not trapped). The error
 //     names the table that was marked first, and a table's caption, not its name.
-//   - Consistent(true) lifts a mark only on the variable that set it. Consistent(true) on another variable of the table, also when
-//     the marking variable is gone, leaves the mark: the next Commit or guarded run raises.
+//   - Consistent(true) on the variable that set the mark lifts it, also after several Consistent(false) calls and inserts through that
+//     variable. Consistent(true) on another variable of the table leaves the mark in the measured shapes (both variables alive, or the
+//     marking variable gone): the next Commit or guarded run raises.
+//   - A Commit() inside the inner codeunit under its own mark fails: the guarded run returns false with DB:TableInConsistent.
+//   - A caller mark raises at the end of the run also when the inner codeunit fails with a failed Get, and names the caller's table
+//     when the inner codeunit marked another one and failed.
+//   - A caller write pending when the run starts stops the run before it starts ('An error occurred and the transaction is stopped.',
+//     code DB:Ok), whatever the inner codeunit would do.
 //   - Consistent(false) on a temporary record marks the database table: a Commit raises the error of that table, and Consistent(true)
 //     on the same temporary variable lifts it.
 //   - A mark the caller sets before the run raises at the end of the run with the record argument forms too (code DB:TableInConsistent).
@@ -185,6 +195,20 @@ codeunit 75784 "GRC Inner"
                         Other.Init();
                         Other.Consistent(false);
                     end;
+                'insg':
+                    begin
+                        // The FinishPosting shape: the global is assigned from a temporary buffer and inserted through.
+                        TempRow.Init();
+                        TempRow.Id := 0;
+                        TempRow.Name := 'global';
+                        TempRow.Insert();
+                        Marker := TempRow;
+                        Marker.Id := 0;
+                        Marker.Insert();
+                        TempRow.DeleteAll();
+                    end;
+                'commit':
+                    Commit();
                 'markcap':
                     Captioned.Consistent(false);
                 'marktemp':
@@ -1193,4 +1217,325 @@ codeunit 75788 "GRC Tests"
         Observer.Expect('rows after run', '[] other=0');
         Observer.Verify();
     end;
+
+    // ---- the caller has a write pending when the run starts ----
+
+    [Test]
+    procedure GuardedRunId_CallerWritePending_InnerStartsStateAndFails()
+    var
+        Observer: Codeunit "Probe Observer";
+        Other: Record "GRC Other";
+        Ok: Boolean;
+    begin
+        Initialize('start,ins,err');
+        Other.Init();
+        Other.Id := 7;
+        Other.Insert();
+        // The caller's pending write stops the guarded run before it starts.
+        asserterror Ok := Codeunit.Run(Codeunit::"GRC Inner");
+        Observer.ObserveError('guarded run');
+        Observer.Observe('durable rows', DurableRows());
+        Observer.Expect('guarded run|text', 'An error occurred and the transaction is stopped. Contact your administrator or partner for further assistance.');
+        Observer.Expect('guarded run|code', 'DB:Ok');
+        Observer.Expect('durable rows', '[] other=0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure GuardedRunInstanceRec_CallerWritePending_InnerStartsStateAndFails()
+    var
+        Observer: Codeunit "Probe Observer";
+        InnerRec: Codeunit "GRC Inner Rec";
+        Other: Record "GRC Other";
+        Ok: Boolean;
+    begin
+        Initialize('start,ins,err');
+        Other.Init();
+        Other.Id := 7;
+        Other.Insert();
+        // The caller's pending write stops the guarded run before it starts.
+        asserterror Ok := InnerRec.Run(Other);
+        Observer.ObserveError('guarded run');
+        Observer.Observe('durable rows', DurableRows());
+        Observer.Expect('guarded run|text', 'An error occurred and the transaction is stopped. Contact your administrator or partner for further assistance.');
+        Observer.Expect('guarded run|code', 'DB:Ok');
+        Observer.Expect('durable rows', '[] other=0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure GuardedRunId_CallerWritePending_InnerMarksGlobalAndSucceeds()
+    var
+        Observer: Codeunit "Probe Observer";
+        Other: Record "GRC Other";
+        Ok: Boolean;
+    begin
+        Initialize('markg,insg');
+        Other.Init();
+        Other.Id := 7;
+        Other.Insert();
+        asserterror Ok := Codeunit.Run(Codeunit::"GRC Inner");
+        Observer.ObserveError('guarded run');
+        Observer.Observe('durable rows', DurableRows());
+        Observer.Expect('guarded run|text', 'An error occurred and the transaction is stopped. Contact your administrator or partner for further assistance.');
+        Observer.Expect('guarded run|code', 'DB:Ok');
+        Observer.Expect('durable rows', '[] other=0');
+        Observer.Verify();
+    end;
+
+    // ---- the FinishPosting shape: the marking global is assigned from a temporary buffer and inserted through ----
+
+    [Test]
+    procedure GuardedRunId_InnerGlobalFalseInsertTrue_Succeeds()
+    var
+        Observer: Codeunit "Probe Observer";
+        Ok: Boolean;
+    begin
+        Initialize('markg,insg,unmarkg');
+        Ok := Codeunit.Run(Codeunit::"GRC Inner");
+        Observer.Observe('run', Format(Ok));
+        Observer.ObserveError('last error');
+        Observer.Observe('durable rows', DurableRows());
+        Observer.Expect('run', 'Yes');
+        Observer.Expect('last error|text', '');
+        Observer.Expect('last error|code', '');
+        Observer.Expect('durable rows', '[global;] other=0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure GuardedRunId_InnerGlobalFalseInsertTrue_Fails()
+    var
+        Observer: Codeunit "Probe Observer";
+        Ok: Boolean;
+    begin
+        Initialize('markg,insg,unmarkg,err');
+        Ok := Codeunit.Run(Codeunit::"GRC Inner");
+        Observer.Observe('run', Format(Ok));
+        Observer.ObserveError('last error');
+        Commit();
+        Observer.Observe('durable rows', DurableRows());
+        Observer.Expect('run', 'No');
+        Observer.Expect('last error|text', 'inner failed');
+        Observer.Expect('last error|code', 'Dialog');
+        Observer.Expect('durable rows', '[] other=0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure GuardedRunId_InnerGlobalFalseFalseInsertTrue_Succeeds()
+    var
+        Observer: Codeunit "Probe Observer";
+        Ok: Boolean;
+    begin
+        Initialize('markg,markg,insg,unmarkg');
+        Ok := Codeunit.Run(Codeunit::"GRC Inner");
+        Observer.Observe('run', Format(Ok));
+        Observer.ObserveError('last error');
+        Observer.Observe('durable rows', DurableRows());
+        Observer.Expect('run', 'Yes');
+        Observer.Expect('last error|text', '');
+        Observer.Expect('last error|code', '');
+        Observer.Expect('durable rows', '[global;] other=0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure GuardedRunId_InnerGlobalFalseFalseInsertTrue_Fails()
+    var
+        Observer: Codeunit "Probe Observer";
+        Ok: Boolean;
+    begin
+        Initialize('markg,markg,insg,unmarkg,err');
+        Ok := Codeunit.Run(Codeunit::"GRC Inner");
+        Observer.Observe('run', Format(Ok));
+        Observer.ObserveError('last error');
+        Commit();
+        Observer.Observe('durable rows', DurableRows());
+        Observer.Expect('run', 'No');
+        Observer.Expect('last error|text', 'inner failed');
+        Observer.Expect('last error|code', 'Dialog');
+        Observer.Expect('durable rows', '[] other=0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure GuardedRunId_InnerGlobalTwoLinesFalseFalseTrueTrue_Succeeds()
+    var
+        Observer: Codeunit "Probe Observer";
+        Ok: Boolean;
+    begin
+        Initialize('markg,insg,markg,insg,unmarkg,unmarkg');
+        Ok := Codeunit.Run(Codeunit::"GRC Inner");
+        Observer.Observe('run', Format(Ok));
+        Observer.ObserveError('last error');
+        Observer.Observe('durable rows', DurableRows());
+        Observer.Expect('run', 'Yes');
+        Observer.Expect('last error|text', '');
+        Observer.Expect('last error|code', '');
+        Observer.Expect('durable rows', '[global;global;] other=0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure GuardedRunId_InnerGlobalTwoLinesFalseFalseTrueTrue_Fails()
+    var
+        Observer: Codeunit "Probe Observer";
+        Ok: Boolean;
+    begin
+        Initialize('markg,insg,markg,insg,unmarkg,unmarkg,err');
+        Ok := Codeunit.Run(Codeunit::"GRC Inner");
+        Observer.Observe('run', Format(Ok));
+        Observer.ObserveError('last error');
+        Commit();
+        Observer.Observe('durable rows', DurableRows());
+        Observer.Expect('run', 'No');
+        Observer.Expect('last error|text', 'inner failed');
+        Observer.Expect('last error|code', 'Dialog');
+        Observer.Expect('durable rows', '[] other=0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure GuardedRunId_InnerGlobalFalseInsertTrueFalseInsertTrue_Succeeds()
+    var
+        Observer: Codeunit "Probe Observer";
+        Ok: Boolean;
+    begin
+        Initialize('markg,insg,unmarkg,markg,insg,unmarkg');
+        Ok := Codeunit.Run(Codeunit::"GRC Inner");
+        Observer.Observe('run', Format(Ok));
+        Observer.ObserveError('last error');
+        Observer.Observe('durable rows', DurableRows());
+        Observer.Expect('run', 'Yes');
+        Observer.Expect('last error|text', '');
+        Observer.Expect('last error|code', '');
+        Observer.Expect('durable rows', '[global;global;] other=0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure GuardedRunId_InnerGlobalFalseInsertTrueFalseInsertTrue_Fails()
+    var
+        Observer: Codeunit "Probe Observer";
+        Ok: Boolean;
+    begin
+        Initialize('markg,insg,unmarkg,markg,insg,unmarkg,err');
+        Ok := Codeunit.Run(Codeunit::"GRC Inner");
+        Observer.Observe('run', Format(Ok));
+        Observer.ObserveError('last error');
+        Commit();
+        Observer.Observe('durable rows', DurableRows());
+        Observer.Expect('run', 'No');
+        Observer.Expect('last error|text', 'inner failed');
+        Observer.Expect('last error|code', 'Dialog');
+        Observer.Expect('durable rows', '[] other=0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure GuardedRunId_InnerGlobalFalseInsert_Succeeds()
+    var
+        Observer: Codeunit "Probe Observer";
+        Ok: Boolean;
+    begin
+        Initialize('markg,insg');
+        asserterror Ok := Codeunit.Run(Codeunit::"GRC Inner");
+        Observer.ObserveError('guarded run');
+        Observer.Observe('durable rows', DurableRows());
+        Observer.Expect('guarded run|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRC Row table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('guarded run|code', 'DB:TableInConsistent');
+        Observer.Expect('durable rows', '[] other=0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure GuardedRunId_InnerGlobalFalseInsert_Fails()
+    var
+        Observer: Codeunit "Probe Observer";
+        Ok: Boolean;
+    begin
+        Initialize('markg,insg,err');
+        Ok := Codeunit.Run(Codeunit::"GRC Inner");
+        Observer.Observe('run', Format(Ok));
+        Observer.ObserveError('last error');
+        Commit();
+        Observer.Observe('durable rows', DurableRows());
+        Observer.Expect('run', 'No');
+        Observer.Expect('last error|text', 'inner failed');
+        Observer.Expect('last error|code', 'Dialog');
+        Observer.Expect('durable rows', '[] other=0');
+        Observer.Verify();
+    end;
+
+    // ---- more crossings: a caller mark with a non-Dialog inner error, caller and inner both marking, an inner Commit ----
+
+    [Test]
+    procedure GuardedRunId_CallerMarks_InnerGetFails()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "GRC Row";
+        Ok: Boolean;
+    begin
+        Initialize('get');
+        Row.Consistent(false);
+        asserterror Ok := Codeunit.Run(Codeunit::"GRC Inner");
+        Observer.ObserveError('guarded run');
+        Observer.Expect('guarded run|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRC Row table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('guarded run|code', 'DB:TableInConsistent');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure GuardedRunId_CallerMarksOther_InnerStartsStateAndFails()
+    var
+        Observer: Codeunit "Probe Observer";
+        Other: Record "GRC Other";
+        Ok: Boolean;
+    begin
+        Initialize('start,ins,err');
+        Other.Consistent(false);
+        asserterror Ok := Codeunit.Run(Codeunit::"GRC Inner");
+        Observer.ObserveError('guarded run');
+        Observer.Expect('guarded run|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRC Other table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('guarded run|code', 'DB:TableInConsistent');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure GuardedRunId_InnerMarksThenCommits()
+    var
+        Observer: Codeunit "Probe Observer";
+        Ok: Boolean;
+    begin
+        Initialize('markl,ins,commit');
+        Ok := Codeunit.Run(Codeunit::"GRC Inner");
+        Observer.Observe('run', Format(Ok));
+        Observer.ObserveError('last error');
+        Observer.Observe('durable rows', DurableRows());
+        Observer.Expect('run', 'No');
+        Observer.Expect('last error|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRC Row table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('last error|code', 'DB:TableInConsistent');
+        Observer.Expect('durable rows', '[] other=0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure GuardedRunId_InnerStartsStateThenCommits()
+    var
+        Observer: Codeunit "Probe Observer";
+        Ok: Boolean;
+    begin
+        Initialize('start,commit');
+        Ok := Codeunit.Run(Codeunit::"GRC Inner");
+        Observer.Observe('run', Format(Ok));
+        Observer.ObserveError('last error');
+        Observer.Observe('durable rows', DurableRows());
+        Observer.Expect('run', 'No');
+        Observer.Expect('last error|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRC Row table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('last error|code', 'DB:TableInConsistent');
+        Observer.Expect('durable rows', '[] other=0');
+        Observer.Verify();
+    end;
+
 }
