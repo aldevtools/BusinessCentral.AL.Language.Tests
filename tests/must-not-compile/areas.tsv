@@ -1447,3 +1447,4 @@ stem	area
 3830-assign-to-global-label	localization
 3831-clear-of-global-label	language
 3832-global-label-as-var-text-argument	language
+3833-codeunit-to-var-interface-parameter	language
