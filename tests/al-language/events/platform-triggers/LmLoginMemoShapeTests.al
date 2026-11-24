@@ -18,7 +18,7 @@
 //   F5. login subscribers change the rows the load reads: the first partner write of the login adds a row (R1, table 98456), a later
 //       subscriber adds another (R2, table 97783), the last one deletes both again.
 //   Each memo is read after the login and after a test's first writes to a watched table (97782) and an unwatched one (97783).
-// Measured on a local BC 29.0.54011.55816 in 12 sessions: 4 of the kind that asks 9008 first, 8 of the other; with the hub runner
+// Measured on a local BC 29.0.54011.55816 in 20 sessions: 8 of the kind that asks 9008 first, 12 of the other; with the hub runner
 //   (altool) and the websocket runner (run-tests.sh); with the setup rows present and with them deleted before the session (so the
 //   load wrote the default rows). Only the "User Login" modify was seen (the user had logged in before); a session on a fresh database
 //   inserts 9008. BC 27 and 28 by the CI matrix.
@@ -28,10 +28,12 @@
 //      same as with a direct subscriber. The load reads whatever rows the database holds: rows left by an earlier session are read as
 //      they are (seen locally with rows of an older fixture version), so the values hold only while nothing else writes these rows.
 //   F3: differs between the kinds: the first table is 9008 in a session that asks 9008 first and 98455 (the F5 rows table, written by
-//      the first partner login subscriber) in the other. Only that relation is asserted.
+//      the first partner login subscriber) in the other. Asserted only as relations that hold whatever else Microsoft's login writes
+//      first: the kept table is the first table asked in the session, and it is 98455 exactly when nothing was asked before the
+//      partner login subscribers.
 //   F4: the inserts of 98456 and the test's tables are the same in both kinds; a 9008 write is noted exactly in the sessions that ask
-//      9008 first (BC raises OnAfterOnDatabaseModify for it, because the memo loaded inside that ask and its list has 9008). Only that
-//      relation is asserted.
+//      9008 first (BC raises OnAfterOnDatabaseModify for it, because the memo loaded inside that ask and its list has 9008). Asserted
+//      as: a 9008 write is noted by the end of the login exactly when 9008 was asked during it.
 //   F5: R1 and R2 are never in the loaded list, in both kinds. In a session that asks 9008 first the load runs before every partner
 //      login subscriber; in the other it runs inside the ask of R1's own insert, before that row is written (the markers present at the
 //      load are L1 only). A login subscriber's change of the rows therefore never reaches a load that its own write triggers: a change
@@ -110,8 +112,8 @@ codeunit 97781 "LT LM Memo Reader"
         Observer.Observe(Prefix + 'F3 checked', Memo.RawChecked());
         Observer.Observe(Prefix + 'F3 loads', Memo.RawLoads());
         Observer.Observe(Prefix + 'F3 same table as at the login', Format(Memo.FirstTable() = AskLog.RawSnapFirstTable()));
-        Observer.Observe(Prefix + 'F3 first table is 9008 or the first login write', Format(Memo.FirstTable() in [9008, 98455]));
-        Observer.Observe(Prefix + 'F3 first table is 9008 exactly when a table was asked before the login subscribers', Format((Memo.FirstTable() = 9008) = AskLog.RawSnapKind()));
+        Observer.Observe(Prefix + 'F3 first table is the first table asked in the session', Format(Memo.FirstTable() = AskLog.RawSnapFirstAsk()));
+        Observer.Observe(Prefix + 'F3 first table is the first login write exactly when nothing was asked before the login subscribers', Format((Memo.FirstTable() = 98455) = (not AskLog.RawSnapKind())));
     end;
 
     procedure ObserveLoginMemo(var Observer: Codeunit "Probe Observer"; Prefix: Text)
@@ -123,7 +125,7 @@ codeunit 97781 "LT LM Memo Reader"
         Observer.Observe(Prefix + 'F4 loads', Memo.RawLoads());
         Observer.Observe(Prefix + 'F4 watched', Memo.RawWatched());
         Observer.Observe(Prefix + 'F4 written without 9008', Memo.WrittenWithout9008());
-        Observer.Observe(Prefix + 'F4 9008 noted at the login exactly when a table was asked before the login subscribers', Format((StrPos(AskLog.RawSnapLoginWritten(), '9008') > 0) = AskLog.RawSnapKind()));
+        Observer.Observe(Prefix + 'F4 9008 noted at the login exactly when 9008 was asked at the login', Format((StrPos(AskLog.RawSnapLoginWritten(), '9008') > 0) = AskLog.RawSnapNineAsked()));
     end;
 
     procedure ObserveChanged(var Observer: Codeunit "Probe Observer"; Prefix: Text)
@@ -208,8 +210,8 @@ codeunit 97780 "LT LM Memo Shape Tests"
         Observer.Expect('F3 checked', 'Yes');
         Observer.Expect('F3 loads', '1');
         Observer.Expect('F3 same table as at the login', 'Yes');
-        Observer.Expect('F3 first table is 9008 or the first login write', 'Yes');
-        Observer.Expect('F3 first table is 9008 exactly when a table was asked before the login subscribers', 'Yes');
+        Observer.Expect('F3 first table is the first table asked in the session', 'Yes');
+        Observer.Expect('F3 first table is the first login write exactly when nothing was asked before the login subscribers', 'Yes');
         Observer.Verify();
     end;
 
@@ -224,7 +226,7 @@ codeunit 97780 "LT LM Memo Shape Tests"
         Observer.Expect('F4 loads', '1');
         Observer.Expect('F4 watched', '3:9008;98456;97782;');
         Observer.Expect('F4 written without 9008', 'I98456;');
-        Observer.Expect('F4 9008 noted at the login exactly when a table was asked before the login subscribers', 'Yes');
+        Observer.Expect('F4 9008 noted at the login exactly when 9008 was asked at the login', 'Yes');
         Observer.Verify();
     end;
 
@@ -302,13 +304,13 @@ codeunit 97780 "LT LM Memo Shape Tests"
         Observer.Expect('after: F3 checked', 'Yes');
         Observer.Expect('after: F3 loads', '1');
         Observer.Expect('after: F3 same table as at the login', 'Yes');
-        Observer.Expect('after: F3 first table is 9008 or the first login write', 'Yes');
-        Observer.Expect('after: F3 first table is 9008 exactly when a table was asked before the login subscribers', 'Yes');
+        Observer.Expect('after: F3 first table is the first table asked in the session', 'Yes');
+        Observer.Expect('after: F3 first table is the first login write exactly when nothing was asked before the login subscribers', 'Yes');
         Observer.Expect('after: F4 checked', 'Yes');
         Observer.Expect('after: F4 loads', '1');
         Observer.Expect('after: F4 watched', '3:9008;98456;97782;');
         Observer.Expect('after: F4 written without 9008', 'I98456;I97782;I97782;');
-        Observer.Expect('after: F4 9008 noted at the login exactly when a table was asked before the login subscribers', 'Yes');
+        Observer.Expect('after: F4 9008 noted at the login exactly when 9008 was asked at the login', 'Yes');
         Observer.Expect('after: F5 checked', 'Yes');
         Observer.Expect('after: F5 activated', 'Yes');
         Observer.Expect('after: F5 loads', '1');

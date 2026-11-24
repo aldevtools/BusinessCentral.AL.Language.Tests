@@ -74,6 +74,8 @@ codeunit 98457 "LT LM XA Ask Log"
         Snapped: Boolean;
         SnapKind: Boolean;
         SnapFirstTable: Integer;
+        SnapFirstAsk: Integer;
+        SnapNineAsked: Boolean;
         SnapLoginWritten: Text;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::GlobalTriggerManagement, 'OnAfterGetDatabaseTableTriggerSetup', '', false, false)]
@@ -145,7 +147,23 @@ codeunit 98457 "LT LM XA Ask Log"
         Snapped := true;
         SnapKind := AskedBeforeFirstMark();
         SnapFirstTable := First.FirstTable();
+        SnapFirstAsk := FirstAsk();
+        SnapNineAsked := Entries.Contains('T9008');
         SnapLoginWritten := LoginMemo.RawWritten();
+    end;
+
+    // The table of the first ask in the log; 0 when there is none.
+    local procedure FirstAsk(): Integer
+    var
+        Entry: Text;
+        TableId: Integer;
+    begin
+        foreach Entry in Entries do
+            if Entry.StartsWith('T') then begin
+                Evaluate(TableId, Entry.Substring(2));
+                exit(TableId);
+            end;
+        exit(0);
     end;
 
     procedure RawSnapped(): Boolean
@@ -161,6 +179,16 @@ codeunit 98457 "LT LM XA Ask Log"
     procedure RawSnapFirstTable(): Integer
     begin
         exit(SnapFirstTable);
+    end;
+
+    procedure RawSnapFirstAsk(): Integer
+    begin
+        exit(SnapFirstAsk);
+    end;
+
+    procedure RawSnapNineAsked(): Boolean
+    begin
+        exit(SnapNineAsked);
     end;
 
     procedure RawSnapLoginWritten(): Text
