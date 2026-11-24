@@ -19,13 +19,16 @@
 //      first test codeunit and again in the second one.
 //   Each cell is read in the first tests of codeunit A, again in its last test (after the test changed State One) and in the
 //   first tests of codeunit B.
-// Measured on a local BC 29.0.54011.55816 with the hybrid test runner (hub transport); BC 27 and 28 by the CI matrix.
+// Measured on a local BC 29.0.54011.55816 with the hybrid test runner (hub transport), cell D also with the websocket runner;
+//   BC 27 and 28 by the CI matrix.
 // BC result:
 //   A. The login raises the subscribers once per test session, before the first test, in this order: the subscriber codeunits of
 //      XApp A in ascending codeunit id (98530 Zulu, 98533 Alpha, 98536 Mike, 98537), the three procedures of 98537 in procedure
 //      name order (AlphaLogin, MikeLogin, ZuluLogin; declared Zulu, Alpha, Mike), then XApp B (98531, 98534), XApp C (98532,
 //      98535) and last this app (97870), although 97870 is the lowest id: apps in dependency order, ascending codeunit id inside
 //      an app. Codeunit B sees the same list (11 entries, A1 once): the login does not run again for the second codeunit.
+//      Not told apart by this setup: dependency order vs publish order (CI publishes A, B, C in dependency order), and XApps A, B,
+//      C ordered by their lowest subscriber id (98530 < 98531 < 98532); this app's 97870 rules out lowest id for the app under test.
 //   B. State One (A1, A2, A3) and State Many (A1, B1, C1) each end with Loaded and Activated true, loaded by the first subscriber
 //      (A1), the setup cache holding both seeded rows, three touches, the Boolean true, the Text of the last subscriber (A3, C1),
 //      Num 123 and the temporary log rows in subscriber order. A change made by a test (Txt T, Num 1239, a fourth log row) is
@@ -33,13 +36,14 @@
 //   C. Each login subscriber's first write to its table asks GetDatabaseTableTriggerSetup for that table and then raises
 //      OnDatabaseInsert, inside that subscriber (before the next one starts); none of these tables is asked before the first
 //      subscriber. The trigger cache is loaded once (Checked true, five tables) and is still the same in codeunit B. Not asserted
-//      (it depends on the history of the database): in the first session after the apps were published, one Microsoft table
-//      (9008) was asked before the first partner subscriber, so the cache was loaded by Microsoft's login code; in the sessions
-//      after it no table was asked before the first subscriber, and the cache was loaded by the first subscriber's write. The
-//      setup table 98505 is asked only in the session that seeds its rows.
-//   D. Neither 130450 "Test Method Line" nor 130451 "AL Test Suite" is asked in the test session, before or after the login, in
-//      codeunit A or in codeunit B: the runner does not write those rows in the test session (hub runner; the websocket runner of
-//      BC 27 is measured by CI).
+//      (it differs between sessions): in one session one Microsoft table (9008) was asked before the first partner subscriber, so
+//      Microsoft's login code loaded the cache; in the later sessions no table was asked before the first subscriber, and the
+//      first subscriber's write loaded it. What makes BC write that table in some sessions was not measured. The setup table
+//      98505 is asked only in the session that seeds its rows.
+//   D. Neither 130450 "Test Method Line" nor 130451 "AL Test Suite" is asked before the login. After the login it depends on the
+//      test runner: with the hub runner (altool) neither is asked in the test session; with the websocket runner (run-tests.sh)
+//      130450 is asked once in codeunit A, before its fifth test, and not again in codeunit B, and 130451 is not asked. Only that bound (at most once, never before the login) is asserted, so the test
+//      holds on both runners.
 // BC versions: 27 - 29
 
 // singleinstance-shared-on-purpose: both test codeunits read the XApp A memos; what the second one sees of the first one's change is the probe.
@@ -137,7 +141,8 @@ codeunit 97873 "LT LS Login Reader"
                     if I > Last then
                         After += 1;
         Observer.Observe(Prefix + Format(TableId) + ' asked before login', Format(Before));
-        Observer.Observe(Prefix + Format(TableId) + ' asked after login', Format(After));
+        // How often depends on the test runner (0 with the hub runner, 1 for 130450 with the websocket runner): only the bound is asserted.
+        Observer.Observe(Prefix + Format(TableId) + ' asked after login at most once', Format(After <= 1));
     end;
 
 
@@ -305,9 +310,9 @@ codeunit 97871 "LT LS Login Subs A"
     begin
         Reader.ObserveRunnerTables(Observer, '');
         Observer.Expect('130450 asked before login', '0');
-        Observer.Expect('130450 asked after login', '0');
+        Observer.Expect('130450 asked after login at most once', 'Yes');
         Observer.Expect('130451 asked before login', '0');
-        Observer.Expect('130451 asked after login', '0');
+        Observer.Expect('130451 asked after login at most once', 'Yes');
         Observer.Verify();
     end;
 
@@ -396,9 +401,9 @@ codeunit 97872 "LT LS Login Subs B"
         Observer.Expect('written', '1=I98506;2=I98507;3=I98508;4=I98515;5=I98520;');
         Observer.Expect('cache', '5:T98506;T98507;T98508;T98515;T98520;');
         Observer.Expect('B 130450 asked before login', '0');
-        Observer.Expect('B 130450 asked after login', '0');
+        Observer.Expect('B 130450 asked after login at most once', 'Yes');
         Observer.Expect('B 130451 asked before login', '0');
-        Observer.Expect('B 130451 asked after login', '0');
+        Observer.Expect('B 130451 asked after login at most once', 'Yes');
         Observer.Verify();
     end;
 }
