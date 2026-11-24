@@ -13,6 +13,8 @@
 // local object: the host pages are the fixtures under test (their Provider and Visible settings), the log records the part triggers.
 // BC versions: 27, 28, 29
 
+// singleinstance-shared-on-purpose: "LT PV Log" is read by the host pages of this file; ProviderBlankLinkRow.al (65415) runs the same hosts with a row
+// that holds the blank link value. Every test of both codeunits sets the mode with Reset first, so no test depends on what another left.
 codeunit 65401 "LT PV Log"
 {
     SingleInstance = true;
