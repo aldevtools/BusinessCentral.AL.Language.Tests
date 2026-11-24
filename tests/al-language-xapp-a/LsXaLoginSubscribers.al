@@ -14,8 +14,8 @@
 //     and to OnDatabaseInsert/OnDatabaseModify (notes the writes to the cached tables). Every login subscriber puts a marker into
 //     the same list before it writes, so the test can tell which asks came before, during and after the partner subscribers.
 //   Subscriber codeunit ids interleave across the apps (A 98530, 98533, 98536, 98537; B 98531, 98534; C 98532, 98535); the names
-//   of A's three plain subscribers are not in id order (Zulu, Alpha, Mike), and 98537 declares two subscriber procedures
-//   (ZuluLogin before AlphaLogin).
+//   of A's three plain subscribers are not in id order (Zulu, Alpha, Mike), and 98537 declares three subscriber procedures
+//   in an order that is neither name order nor its reverse (ZuluLogin, AlphaLogin, MikeLogin).
 //   The login runs in every session of the corpus run: the subscribers never fail. Rows are written only when GuiAllowed() is
 //   true (not in background sessions), the write tables have an AutoIncrement key, the setup rows are inserted with
 //   `if Insert() then;`.
@@ -597,5 +597,13 @@ codeunit 98537 "LT LS XA Two Procs"
         Hub: Codeunit "LT LS XA Login Hub";
     begin
         Hub.Enter('A4a');
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Initialization", 'OnAfterLogin', '', false, false)]
+    local procedure MikeLogin()
+    var
+        Hub: Codeunit "LT LS XA Login Hub";
+    begin
+        Hub.Enter('A4m');
     end;
 }
