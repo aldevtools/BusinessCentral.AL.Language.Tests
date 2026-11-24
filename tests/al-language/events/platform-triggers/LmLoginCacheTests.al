@@ -3,7 +3,7 @@
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); XApp A tests/al-language-xapp-a/LmXaLoginCaches.al (L1 setup 98420, L1 sub 98421, L1 memo
 //   98422, login snapshot 98423, OnAfterLogin subscribers 98424, 98425, 98469) and the wrapper 98459 of
-//   tests/al-language-xapp-a/LmXaMemoShapes.al; tables 97700-97703 and codeunits 97704-97708 of this app (below). The same reader runs
+//   tests/al-language-xapp-a/LmXaMemoShapes.al; tables 75880-75883 and codeunits 75884-75888 of this app (below). The same reader runs
 //   in the Tests-TestLibraries job: tests/al-language-testlibraries/test-framework/login-caches/LmLoginCacheTlTests.al.
 // Probe (al-runner issue 8945): load-once caches that login subscribers of a dependency app fill, and what a test reads later.
 //   L1. A partner memo reached through a wrapper's integration events, setup table empty: the ask sets Checked and Activated (false);
@@ -45,7 +45,7 @@
 //       subscriber and with a counting one; after Reset() the next insert asks once and the one after does not.
 // BC versions: 27 - 29
 
-table 97700 "LT LM L1 Watched"
+table 75880 "LT LM L1 Watched"
 {
     DataClassification = SystemMetadata;
 
@@ -58,7 +58,7 @@ table 97700 "LT LM L1 Watched"
     keys { key(PK; "Entry No.") { Clustered = true; } }
 }
 
-table 97701 "LT LM CL Probe"
+table 75881 "LT LM CL Probe"
 {
     DataClassification = SystemMetadata;
 
@@ -71,7 +71,7 @@ table 97701 "LT LM CL Probe"
     keys { key(PK; "Entry No.") { Clustered = true; } }
 }
 
-table 97702 "LT LM CL Control"
+table 75882 "LT LM CL Control"
 {
     DataClassification = SystemMetadata;
 
@@ -84,7 +84,7 @@ table 97702 "LT LM CL Control"
     keys { key(PK; "Entry No.") { Clustered = true; } }
 }
 
-table 97703 "LT LM API Probe"
+table 75883 "LT LM API Probe"
 {
     DataClassification = SystemMetadata;
 
@@ -98,7 +98,7 @@ table 97703 "LT LM API Probe"
 }
 
 // Turns on the insert event of "LT LM API Probe" only, so its inserts reach API Webhook Notification Mgt. in every job.
-codeunit 97704 "LT LM API Setup Sub"
+codeunit 75884 "LT LM API Setup Sub"
 {
     [EventSubscriber(ObjectType::Codeunit, Codeunit::GlobalTriggerManagement, 'OnAfterGetDatabaseTableTriggerSetup', '', false, false)]
     local procedure AfterSetup(TableId: Integer; var OnDatabaseInsert: Boolean; var OnDatabaseModify: Boolean; var OnDatabaseDelete: Boolean; var OnDatabaseRename: Boolean)
@@ -109,7 +109,7 @@ codeunit 97704 "LT LM API Setup Sub"
 }
 
 // Bound by the M4 tests: answers IsApiEnabled (so the subscription setting is asked) and counts the asks for the subscription setting.
-codeunit 97705 "LT LM API Bound"
+codeunit 75885 "LT LM API Bound"
 {
     EventSubscriberInstance = Manual;
 
@@ -149,7 +149,7 @@ codeunit 97705 "LT LM API Bound"
     end;
 }
 
-codeunit 97706 "LT LM Cache Reader"
+codeunit 75886 "LT LM Cache Reader"
 {
     procedure ObserveL1(var Observer: Codeunit "Probe Observer"; Prefix: Text)
     var
@@ -439,7 +439,7 @@ codeunit 97706 "LT LM Cache Reader"
     end;
 }
 
-codeunit 97707 "LT LM Login Cache Tests"
+codeunit 75887 "LT LM Login Cache Tests"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -585,7 +585,7 @@ codeunit 97707 "LT LM Login Cache Tests"
 }
 
 // The first test of a second codeunit in the same session.
-codeunit 97708 "LT LM Login Cache Tests B"
+codeunit 75888 "LT LM Login Cache Tests B"
 {
     Subtype = Test;
     TestPermissions = Disabled;

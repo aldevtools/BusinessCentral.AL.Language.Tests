@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-global-triggers
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160) and the reader "LT LM Cache Reader" (97706) of the corpus app
+// Fixtures used: Probe Observer (69160) and the reader "LT LM Cache Reader" (75886) of the corpus app
 //   (tests/al-language/events/platform-triggers/LmLoginCacheTests.al, which describes the cells); XApp A
 //   tests/al-language-xapp-a/LmXaLoginCaches.al.
 // Probe (al-runner issue 8945): the cells L1, E1, M1-M4 of LmLoginCacheTests.al in the job that installs Tests-TestLibraries. There
