@@ -434,7 +434,7 @@ codeunit 98512 "LT LS XA Trig Memo"
     end;
 }
 
-// A load-once cache in the shape of a data-log cache: its GlobalTriggerManagement setup subscriber does the one-time load on the
+// A load-once cache: its GlobalTriggerManagement setup subscriber does the one-time load on the
 // first ask, whatever table is asked (Checked, Activated from a database read, the watched tables from a fixed list), and reads
 // TableId only after that. No login subscriber calls it: it is changed only by the setup asks the login subscribers' writes cause
 // (and by the ask Microsoft's own login code causes in some sessions).
