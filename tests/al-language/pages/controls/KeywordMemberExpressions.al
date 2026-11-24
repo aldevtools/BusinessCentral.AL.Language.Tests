@@ -69,22 +69,25 @@ page 75681 "PGC Keyword Member Card"
 // BC 29 only: on BC 27 and 28 a TestPage of this page raises "The identifier 'Exit' could not be found." (see Facts).
 page 75683 "PGC Keyword Member Shown"
 {
-    PageType = Card;
+    PageType = CardPart;
     SourceTable = "PGC Keyword Member Row";
 
     layout
     {
         area(Content)
         {
-            field(IfShown; Rec."If")
+            cuegroup(KeywordMembers)
             {
-                ApplicationArea = All;
-                Visible = Rec."Exit" > 0;
-            }
-            field(KeyShown; Rec.Key)
-            {
-                ApplicationArea = All;
-                Visible = Rec.Opt = Rec.Opt::"Do";
+                field(IfShown; Rec."If")
+                {
+                    ApplicationArea = All;
+                    Visible = Rec."Exit" > 0;
+                }
+                field(KeyShown; Rec.Key)
+                {
+                    ApplicationArea = All;
+                    Visible = Rec.Opt = Rec.Opt::"Do";
+                }
             }
         }
     }
