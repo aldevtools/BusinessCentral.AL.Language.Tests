@@ -9,10 +9,18 @@ codeunit 99465 "INST Read Capture"
         Kind: Integer;
     begin
         for Kind := 1 to 7 do
-            Capture(Kind);
+            Capture(Kind, CopyStr(CompanyName(), 1, 30));
     end;
 
-    local procedure Capture(Kind: Integer)
+    trigger OnInstallAppPerDatabase()
+    var
+        Kind: Integer;
+    begin
+        for Kind := 1 to 7 do
+            Capture(Kind, '<database>');
+    end;
+
+    local procedure Capture(Kind: Integer; ScopeCompany: Text[30])
     var
         Observation: Record "INST Read Observation";
         Value: Text;
@@ -22,7 +30,7 @@ codeunit 99465 "INST Read Capture"
         if not TryRead(Kind, Value) then
             Failure := GetLastErrorText();
         ClearLastError();
-        Observation.Company := CopyStr(CompanyName(), 1, 30);
+        Observation.Company := ScopeCompany;
         Observation.Probe := Format(Kind);
         Observation.Result := CopyStr(Value, 1, 250);
         Observation.Failure := CopyStr(Failure, 1, 250);
@@ -59,7 +67,7 @@ codeunit 99465 "INST Read Capture"
             7: begin
                 SavedDate := WorkDate();
                 WorkDate(20240228D);
-                Value := Format(DMY2Date(29), 0, 9) + '|' + Format(DMY2Date(29, 2), 0, 9);
+                Value := Format(DMY2Date(15) = DMY2Date(15, Date2DMY(Today(), 2), Date2DMY(Today(), 3)), 0, 9) + '|' + Format(DMY2Date(15, 3) = DMY2Date(15, 3, Date2DMY(Today(), 3)), 0, 9);
                 WorkDate(SavedDate);
             end;
         end;
