@@ -2,7 +2,7 @@
 //   and https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-global-triggers
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); XApp A tests/al-language-xapp-a/LmXaLoginCaches.al (L1 setup 98420, L1 sub 98421, L1 memo
-//   98422, login snapshot 98423, OnAfterLogin subscribers 98424, 98425, 98469, 98478, 98479) and the wrapper 98459 of
+//   98422, login snapshot 98423, OnAfterLogin subscribers 98424, 98425, 98469) and the wrapper 98459 of
 //   tests/al-language-xapp-a/LmXaMemoShapes.al; tables 97700-97703 and codeunits 97704-97708 of this app (below). The same reader runs
 //   in the Tests-TestLibraries job: tests/al-language-testlibraries/test-framework/login-caches/LmLoginCacheTlTests.al.
 // Probe (al-runner issue 8945): load-once caches that login subscribers of a dependency app fill, and what a test reads later.
@@ -16,9 +16,11 @@
 //       Area Setup (rolled back) and reads again.
 //   M2. Conf./Personalization Mgt. filled at login: the test's read against the login's; then the test changes the user's User
 //       Personalization row (rolled back) and reads again.
-//   M3. Change Log Management loaded inactive by the login's first writes; a later login subscriber activates the change log with
-//       triggers and the last one puts it back. The test activates the setup without InitChangeLog, adds a Change Log Setup (Table) row
-//       for a table and inserts into it; then calls InitChangeLog and does the same for a second table (all rolled back).
+//   M3. Change Log Management loaded inactive by the login's first writes. No login subscriber writes the change log setup (a
+//       Microsoft table; its writes leave Change Log Entry rows, writer rule 12). The test first activates the setup with triggers
+//       (Insert(true)/Modify(true), the way a partner app's enabler does), adds a Change Log Setup (Table) row for a table and inserts
+//       into it; then, without triggers and without InitChangeLog, the same; then calls InitChangeLog and does the same for a second
+//       table. Each block is rolled back; the setup row is compared before and after.
 //   M4. API Webhook Notification Mgt.: whether a test's database insert asks Graph Mgt - General Tools for the API subscription
 //       setting again (counted by a bound subscriber of OnGetAPISubscriptionsEnabled), with a bound subscriber that answers the value
 //       and one that does not; Reset() as the control.
@@ -36,8 +38,9 @@
 //       Application Area Setup event clears it.
 //   M2: the test reads the login's profile; after the test changes its User Personalization row the read still gives the login's
 //       profile (the fetched profile is kept for the session).
-//   M3: activating the setup without InitChangeLog logs nothing for a table set up for insertion (0 entries); after InitChangeLog
-//       the insert into a second table set up the same way writes 2 entries.
+//   M3: activating the setup with triggers logs nothing for a table set up for insertion (0 entries), and so does activating it
+//       without triggers (0 entries): the inactive setup loaded at login is kept. After InitChangeLog the insert into a second table
+//       set up the same way writes 2 entries. The setup row after the rollbacks equals the one before.
 //   M4: the test's inserts do not ask for the subscription setting (the login's database events loaded the cache), with an answering
 //       subscriber and with a counting one; after Reset() the next insert asks once and the one after does not.
 // BC versions: 27 - 29
@@ -310,14 +313,24 @@ codeunit 97706 "LT LM Cache Reader"
     procedure ObserveChangeLog(var Observer: Codeunit "Probe Observer")
     var
         ChangeLogMgt: Codeunit "Change Log Management";
-        Snap: Codeunit "LT LM XA Cache Snap";
+        Before: Text;
+        WithTriggers: Text;
         Stale: Text;
         Control: Text;
     begin
-        Observer.Observe('M3 login put the setup back', Format(Snap.RawChangeLogRestored() <> ''));
+        Before := SetupState();
+        // First on the cache the login loaded: activate with triggers (Insert(true)/Modify(true)), like a partner app's enabler.
+        // No InitChangeLog in between: a reset here would make the next block read the setup again.
         asserterror begin
-            ActivateFor(Database::"LT LM CL Probe");
-            ActivateFor(Database::"LT LM CL Control");
+            ActivateFor(Database::"LT LM CL Probe", true);
+            InsertProbe(Database::"LT LM CL Probe");
+            WithTriggers := Format(EntryCount(Database::"LT LM CL Probe"));
+            Error('LT LM rollback');
+        end;
+        Observer.Observe('M3 change with triggers rolled back', GetLastErrorText());
+        asserterror begin
+            ActivateFor(Database::"LT LM CL Probe", false);
+            ActivateFor(Database::"LT LM CL Control", false);
             InsertProbe(Database::"LT LM CL Probe");
             Stale := Format(EntryCount(Database::"LT LM CL Probe"));
             ChangeLogMgt.InitChangeLog();
@@ -328,27 +341,38 @@ codeunit 97706 "LT LM Cache Reader"
         Observer.Observe('M3 change rolled back', GetLastErrorText());
         // Read the rolled-back (inactive) setup again, so later tests of the session log nothing.
         ChangeLogMgt.InitChangeLog();
+        Observer.Observe('M3 setup after the rollbacks equals the setup before', Format(SetupState() = Before));
+        Observer.Observe('M3 entries with triggers without InitChangeLog', WithTriggers);
         Observer.Observe('M3 entries without InitChangeLog', Stale);
         Observer.Observe('M3 entries after InitChangeLog', Control);
     end;
 
-    local procedure ActivateFor(TableId: Integer)
+    local procedure SetupState(): Text
+    var
+        ChangeLogSetup: Record "Change Log Setup";
+    begin
+        if not ChangeLogSetup.Get() then
+            exit('none');
+        exit(Format(ChangeLogSetup."Change Log Activated"));
+    end;
+
+    local procedure ActivateFor(TableId: Integer; RunTriggers: Boolean)
     var
         ChangeLogSetup: Record "Change Log Setup";
         ChangeLogSetupTable: Record "Change Log Setup (Table)";
     begin
         if not ChangeLogSetup.Get() then begin
             ChangeLogSetup.Init();
-            ChangeLogSetup.Insert();
+            ChangeLogSetup.Insert(RunTriggers);
         end;
         ChangeLogSetup."Change Log Activated" := true;
-        ChangeLogSetup.Modify();
+        ChangeLogSetup.Modify(RunTriggers);
         if ChangeLogSetupTable.Get(TableId) then
-            ChangeLogSetupTable.Delete();
+            ChangeLogSetupTable.Delete(RunTriggers);
         ChangeLogSetupTable.Init();
         ChangeLogSetupTable."Table No." := TableId;
         ChangeLogSetupTable."Log Insertion" := ChangeLogSetupTable."Log Insertion"::"All Fields";
-        ChangeLogSetupTable.Insert();
+        ChangeLogSetupTable.Insert(RunTriggers);
     end;
 
     local procedure InsertProbe(TableId: Integer)
@@ -498,8 +522,10 @@ codeunit 97707 "LT LM Login Cache Tests"
         Reader: Codeunit "LT LM Cache Reader";
     begin
         Reader.ObserveChangeLog(Observer);
-        Observer.Expect('M3 login put the setup back', 'Yes');
+        Observer.Expect('M3 change with triggers rolled back', 'LT LM rollback');
         Observer.Expect('M3 change rolled back', 'LT LM rollback');
+        Observer.Expect('M3 setup after the rollbacks equals the setup before', 'Yes');
+        Observer.Expect('M3 entries with triggers without InitChangeLog', '0');
         Observer.Expect('M3 entries without InitChangeLog', '0');
         Observer.Expect('M3 entries after InitChangeLog', '2');
         Observer.Verify();

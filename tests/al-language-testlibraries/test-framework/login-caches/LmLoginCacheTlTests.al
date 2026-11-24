@@ -92,8 +92,10 @@ codeunit 81597 "LT LM Login Cache TL Tests"
         Reader: Codeunit "LT LM Cache Reader";
     begin
         Reader.ObserveChangeLog(Observer);
-        Observer.Expect('M3 login put the setup back', 'Yes');
+        Observer.Expect('M3 change with triggers rolled back', 'LT LM rollback');
         Observer.Expect('M3 change rolled back', 'LT LM rollback');
+        Observer.Expect('M3 setup after the rollbacks equals the setup before', 'Yes');
+        Observer.Expect('M3 entries with triggers without InitChangeLog', '0');
         Observer.Expect('M3 entries without InitChangeLog', '0');
         Observer.Expect('M3 entries after InitChangeLog', '2');
         Observer.Verify();

@@ -12,10 +12,10 @@
 //     IsSaaS(). Each keeps the value it got.
 //   - M1 and M2: one login subscriber reads the application areas (Application Area Mgmt. Facade, which fills Application Area Cache)
 //     and the current profile (Conf./Personalization Mgt. GetCurrentProfileNoError, which fills its fetched profile), and keeps both.
-//   - M3: the login's first writes load Change Log Management (inactive setup). A later login subscriber activates the change log
-//     with triggers and the last one puts the setup back the way it was, so every session starts with the same setup.
-//   The login subscribers write only when GuiAllowed() is true, like those of LmXaMemoShapes.al. Object ids of the writing login
-//   subscribers (98478, 98479) lie above 98465-98467 so 98465 stays the first partner write of the login.
+//   - M3: the login's first writes load Change Log Management with the setup inactive. No login subscriber of this app writes the
+//     change log setup: it is a Microsoft table, and its writes add Change Log Entry rows that stay (writer rule 12). The test
+//     activates the setup itself, inside a rolled-back block.
+//   The login subscribers write only when GuiAllowed() is true, like those of LmXaMemoShapes.al.
 // Install code is not used here (check-install-triggers.py).
 // BC versions: 27 - 29
 
@@ -196,10 +196,6 @@ codeunit 98423 "LT LM XA Cache Snap"
         AreasAtLogin: Text;
         ProfileAtLogin: Text;
         ProfileFoundAtLogin: Text;
-        ChangeLogInserted: Boolean;
-        ChangeLogWasActive: Boolean;
-        ChangeLogTouched: Boolean;
-        ChangeLogRestored: Text;
 
     procedure SetSandbox(Value: Boolean)
     begin
@@ -220,25 +216,6 @@ codeunit 98423 "LT LM XA Cache Snap"
     begin
         ProfileAtLogin := Value;
         ProfileFoundAtLogin := Format(Found);
-    end;
-
-    procedure SetChangeLogTouched(Inserted: Boolean; WasActive: Boolean)
-    begin
-        ChangeLogTouched := true;
-        ChangeLogInserted := Inserted;
-        ChangeLogWasActive := WasActive;
-    end;
-
-    procedure ChangeLogWasTouched(var Inserted: Boolean; var WasActive: Boolean): Boolean
-    begin
-        Inserted := ChangeLogInserted;
-        WasActive := ChangeLogWasActive;
-        exit(ChangeLogTouched);
-    end;
-
-    procedure SetChangeLogRestored(Value: Text)
-    begin
-        ChangeLogRestored := Value;
     end;
 
     procedure RawSandbox(): Text
@@ -264,11 +241,6 @@ codeunit 98423 "LT LM XA Cache Snap"
     procedure RawProfileFound(): Text
     begin
         exit(ProfileFoundAtLogin);
-    end;
-
-    procedure RawChangeLogRestored(): Text
-    begin
-        exit(ChangeLogRestored);
     end;
 }
 
@@ -313,57 +285,5 @@ codeunit 98469 "LT LM XA Login Caches"
         Snap.SetAreas(ApplicationAreaMgmtFacade.GetApplicationAreaSetup());
         Found := ConfPersonalizationMgt.GetCurrentProfileNoError(AllProfile);
         Snap.SetProfile(AllProfile."Profile ID", Found);
-    end;
-}
-
-// M3: activates the change log with triggers, after the login's first writes loaded Change Log Management.
-codeunit 98478 "LT LM XA Login ChangeLog On"
-{
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Initialization", 'OnAfterLogin', '', false, false)]
-    local procedure OnAfterLogin()
-    var
-        ChangeLogSetup: Record "Change Log Setup";
-        Snap: Codeunit "LT LM XA Cache Snap";
-    begin
-        if not GuiAllowed() then
-            exit;
-        if CompanyName() = '' then
-            exit;
-        if not ChangeLogSetup.Get() then begin
-            Snap.SetChangeLogTouched(true, false);
-            ChangeLogSetup.Init();
-            ChangeLogSetup."Change Log Activated" := true;
-            ChangeLogSetup.Insert(true);
-            exit;
-        end;
-        Snap.SetChangeLogTouched(false, ChangeLogSetup."Change Log Activated");
-        ChangeLogSetup."Change Log Activated" := true;
-        ChangeLogSetup.Modify(true);
-    end;
-}
-
-// M3: puts the change log setup back the way 98478 found it.
-codeunit 98479 "LT LM XA Login ChangeLog Off"
-{
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Initialization", 'OnAfterLogin', '', false, false)]
-    local procedure OnAfterLogin()
-    var
-        ChangeLogSetup: Record "Change Log Setup";
-        Snap: Codeunit "LT LM XA Cache Snap";
-        Inserted: Boolean;
-        WasActive: Boolean;
-    begin
-        if not Snap.ChangeLogWasTouched(Inserted, WasActive) then
-            exit;
-        if not ChangeLogSetup.Get() then
-            exit;
-        if Inserted then begin
-            ChangeLogSetup.Delete(true);
-            Snap.SetChangeLogRestored('deleted');
-            exit;
-        end;
-        ChangeLogSetup."Change Log Activated" := WasActive;
-        ChangeLogSetup.Modify(true);
-        Snap.SetChangeLogRestored('modified');
     end;
 }
