@@ -9,6 +9,11 @@
 //   session is the control. Also TaskScheduler.CanCreateTask() inside the install code (al-runner issue 9082). Sessions are numbered S1, S2, ... and companies C1, C2, ... in the order their first log row was written (no ids or
 //   names: the company order differs between hosts). "User Login" is recorded only as created-or-changed, so a fresh database and
 //   a reused one give the same text.
+// Measured on BC 27.5 (Windows sandbox, local observe), 2026-11-25: the install session is one session. Per company it raises
+//   OnAfterInitialization, OnCompanyOpen, OnAfterLogin, OnCompanyOpenCompleted in that order before the install code; the
+//   per-database install code runs last, with a blank company, and no event before it. A subscriber of XApp A (installed
+//   earlier) runs there too. The "User Login" row is not created or changed in the install session (it is in the test session);
+//   with a blank company the table cannot be read. TaskScheduler.CanCreateTask() is true in install code, false in the test.
 // BC versions: 27 - 29
 codeunit 75433 "LT IS9 Install Session Tests"
 {
@@ -57,7 +62,10 @@ codeunit 75433 "LT IS9 Install Session Tests"
         Observer.Observe('sequence', Sequence);
         Observer.Observe('sessions', Format(Sessions.Count()));
         Observer.Observe('test session among them', Format(Sessions.Contains(SessionId())));
-        Observer.Finish();
+        Observer.Expect('sequence', 'OnAfterInitialization|C1|Install|S1;OnCompanyOpen|C1|Install|S1;OnAfterLogin|C1|Install|S1;OnCompanyOpenCompleted|C1|Install|S1;install per company|C1|Install|S1;OnAfterInitialization|C2|Install|S1;OnCompanyOpen|C2|Install|S1;OnAfterLogin|C2|Install|S1;OnCompanyOpenCompleted|C2|Install|S1;install per company|C2|Install|S1;install per database|blank|Install|S1;');
+        Observer.Expect('sessions', '1');
+        Observer.Expect('test session among them', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -73,7 +81,18 @@ codeunit 75433 "LT IS9 Install Session Tests"
         ObserveCompanyRows(Observer, Log);
         Log.SetFilter(Company, '<>%1', CompanyName());
         ObserveCompanyRows(Observer, Log);
-        Observer.Finish();
+        Observer.Expect('rows', '2');
+        Observer.Expect('session company: context', 'Install');
+        Observer.Expect('session company: facts', 'gui=No|client=SOAP|mode=Standard|company blank=No|can create task=Yes');
+        Observer.Expect('session company: calls noted before', 'OnAfterInitialization;OnCompanyOpen;OnAfterLogin;OnCompanyOpenCompleted;');
+        Observer.Expect('session company: user login', 'created or changed since company open=No');
+        Observer.Expect('session company: xapp a subscriber', 'OnAfterLogin|Install;OnCompanyOpenCompleted|Install;');
+        Observer.Expect('other company: context', 'Install');
+        Observer.Expect('other company: facts', 'gui=No|client=SOAP|mode=Standard|company blank=No|can create task=Yes');
+        Observer.Expect('other company: calls noted before', 'OnAfterInitialization;OnCompanyOpen;OnAfterLogin;OnCompanyOpenCompleted;');
+        Observer.Expect('other company: user login', 'created or changed since company open=No');
+        Observer.Expect('other company: xapp a subscriber', 'OnAfterLogin|Install;OnCompanyOpenCompleted|Install;');
+        Observer.Verify();
     end;
 
     local procedure ObserveCompanyRows(var Observer: Codeunit "Probe Observer"; var Log: Record "LT IS9 Log")
@@ -110,7 +129,16 @@ codeunit 75433 "LT IS9 Install Session Tests"
                 Observer.Observe('after per company', Format(FirstCompanyRow.Id < Log.Id));
             end;
         end;
-        Observer.Finish();
+        Observer.Expect('rows', '1');
+        Observer.Expect('company', 'blank');
+        Observer.Expect('context', 'Install');
+        Observer.Expect('facts', 'gui=No|client=SOAP|mode=Standard|company blank=Yes|can create task=Yes');
+        Observer.Expect('calls noted before', '');
+        Observer.Expect('user login', 'at company open: no snapshot|at install start: error: You must choose a company before you can access the "User Login" table.');
+        Observer.Expect('xapp a subscriber', '');
+        Observer.Expect('same session as per company', 'Yes');
+        Observer.Expect('after per company', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -133,6 +161,12 @@ codeunit 75433 "LT IS9 Install Session Tests"
         Observer.Observe('context', Format(Session.GetExecutionContext()));
         Observer.Observe('mode', Format(Session.CurrentExecutionMode()));
         Observer.Observe('can create task', Format(TaskScheduler.CanCreateTask()));
-        Observer.Finish();
+        Observer.Expect('calls noted in the test session', 'OnAfterInitialization;OnCompanyOpen;OnAfterLogin;OnCompanyOpenCompleted;');
+        Observer.Expect('user login created or changed since company open', 'Yes');
+        Observer.Expect('xapp a subscriber', 'OnAfterLogin|Normal;OnCompanyOpenCompleted|Normal;');
+        Observer.Expect('context', 'Normal');
+        Observer.Expect('mode', 'Standard');
+        Observer.Expect('can create task', 'No');
+        Observer.Verify();
     end;
 }
