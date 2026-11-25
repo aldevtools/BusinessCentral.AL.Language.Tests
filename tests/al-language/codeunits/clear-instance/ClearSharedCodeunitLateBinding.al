@@ -2,7 +2,9 @@
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160); "CKK Row", "CKK Color" of ClearSharedCodeunitGlobalKinds.al, "CKW UOM" of ClearSharedCodeunitWhseRegister.al; self-contained objects 86288 to 86292
 // Probe: written against BC 27.5, 28.5 and 29.0 (al-runner issue 8964), observed first, then asserted.
-// Facts: OBSERVING
+// Facts: ClearAll in the Reservation Management shape resets the shared Late Binding store and its nested store
+// (Text, RecordRef, array, Option, Decimal, Integer); temporary records keep their rows. Caller and owner keep using
+// one instance after the clear.
 // BC versions: 27, 28, 29
 
 // "Reservation Management" shape as a nested store: records, a temporary record, a RecordRef, an Enum, an Option,
@@ -210,7 +212,14 @@ codeunit 86292 "CKL Late Binding Test"
         Observer: Codeunit "Probe Observer";
     begin
         Caller.Run(1, Observer);
-        Observer.Finish();
+        Observer.Expect('caller.lb', 'rows=1/1/2/1/1/1/1 surplusf= last=0');
+        Observer.Expect('caller.reserv', 'calc= item=0 temp=1 src=0 ref=0 hdl=0 inv=|0 arr=0 qty=0 pos=false uom=0|');
+        Observer.Expect('owner.lb', 'rows=1/1/2/1/1/1/1 surplusf= last=0');
+        Observer.Expect('owner.reserv', 'calc= item=0 temp=1 src=0 ref=0 hdl=0 inv=|0 arr=0 qty=0 pos=false uom=0|');
+        Observer.Expect('owner.own', 'src=86270 inv= arr=0');
+        Observer.Expect('wcaller', 'rows=1/1/2/1/1/1/2 surplusf= last=21');
+        Observer.Expect('wowner', 'rows=1/1/2/1/1/1/3 surplusf= last=22');
+        Observer.Verify();
     end;
 
     [Test]
@@ -220,7 +229,14 @@ codeunit 86292 "CKL Late Binding Test"
         Observer: Codeunit "Probe Observer";
     begin
         Caller.Run(2, Observer);
-        Observer.Finish();
+        Observer.Expect('caller.lb', 'rows=1/1/2/1/1/1/1 surplusf= last=0');
+        Observer.Expect('caller.reserv', 'calc= item=0 temp=1 src=0 ref=0 hdl=0 inv=|0 arr=0 qty=0 pos=false uom=0|');
+        Observer.Expect('owner.lb', 'rows=1/1/2/1/1/1/1 surplusf= last=0');
+        Observer.Expect('owner.reserv', 'calc= item=0 temp=1 src=0 ref=0 hdl=0 inv=|0 arr=0 qty=0 pos=false uom=0|');
+        Observer.Expect('owner.own', 'src=86270 inv= arr=0');
+        Observer.Expect('wcaller', 'rows=1/1/2/1/1/1/2 surplusf= last=21');
+        Observer.Expect('wowner', 'rows=1/1/2/1/1/1/3 surplusf= last=22');
+        Observer.Verify();
     end;
 
     [Test]
@@ -230,6 +246,14 @@ codeunit 86292 "CKL Late Binding Test"
         Observer: Codeunit "Probe Observer";
     begin
         Caller.Run(3, Observer);
-        Observer.Finish();
+        Observer.Expect('caller.lb', 'rows=1/1/2/1/1/1/1 surplusf= last=0');
+        Observer.Expect('caller.reserv', 'calc= item=0 temp=1 src=0 ref=0 hdl=0 inv=|0 arr=0 qty=0 pos=false uom=0|');
+        Observer.Expect('handle.reserv', 'calc= item=0 temp=1 src=0 ref=0 hdl=0 inv=|0 arr=0 qty=0 pos=false uom=0|');
+        Observer.Expect('owner.lb', 'rows=1/1/2/1/1/1/1 surplusf= last=0');
+        Observer.Expect('owner.reserv', 'calc= item=0 temp=1 src=0 ref=0 hdl=0 inv=|0 arr=0 qty=0 pos=false uom=0|');
+        Observer.Expect('owner.own', 'src=86270 inv= arr=0');
+        Observer.Expect('wcaller', 'rows=1/1/2/1/1/1/2 surplusf= last=21');
+        Observer.Expect('wowner', 'rows=1/1/2/1/1/1/3 surplusf= last=22');
+        Observer.Verify();
     end;
 }

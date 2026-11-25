@@ -2,7 +2,11 @@
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160); self-contained objects 86270 to 86278
 // Probe: written against BC 27.5, 28.5 and 29.0 (al-runner issue 8964), observed first, then asserted.
-// Facts: OBSERVING
+// Facts: ClearAll in the owner resets every global of the store codeunit it shares with the caller, and the caller
+// sees the reset values; all five ways of sharing the store give the same result. A temporary record keeps its rows
+// and loses its filter. A cleared RecordRef reads as not open; a cleared FieldRef or KeyRef reads as not initialized.
+// Handles the test took before the clear (a Variant, a list and a dictionary Interface value) keep their values.
+// When the nested codeunits were never written, reading the cleared Interface raises "Interface not initialized".
 // BC versions: 27, 28, 29
 
 table 86270 "CKK Row"
@@ -707,7 +711,28 @@ codeunit 86278 "CKK Kinds Test"
     begin
         Probe.Run(1);
         Probe.ObserveGroup(1, Observer);
-        Observer.Finish();
+        Observer.Expect('i', '0');
+        Observer.Expect('d', '0');
+        Observer.Expect('b', 'false');
+        Observer.Expect('t', '');
+        Observer.Expect('t1', '');
+        Observer.Expect('t30', '');
+        Observer.Expect('c', '');
+        Observer.Expect('dt', '');
+        Observer.Expect('tm', '');
+        Observer.Expect('dtmzero', 'true');
+        Observer.Expect('g', '{00000000-0000-0000-0000-000000000000}');
+        Observer.Expect('opt', '0');
+        Observer.Expect('en', '0');
+        Observer.Expect('bi', '0');
+        Observer.Expect('dur', '0');
+        Observer.Expect('ch', '0');
+        Observer.Expect('ownersame', 'true');
+        Observer.Expect('cnt', '0');
+        Observer.Expect('wcaller', '11');
+        Observer.Expect('own', '0');
+        Observer.Expect('wowner', '12');
+        Observer.Verify();
     end;
 
     [Test]
@@ -718,7 +743,19 @@ codeunit 86278 "CKK Kinds Test"
     begin
         Probe.Run(1);
         Probe.ObserveGroup(2, Observer);
-        Observer.Finish();
+        Observer.Expect('recf', '');
+        Observer.Expect('recno', '0');
+        Observer.Expect('rectxt', '');
+        Observer.Expect('tmpf', '');
+        Observer.Expect('tmpcount', '2');
+        Observer.Expect('tmpcur', '0');
+        Observer.Expect('tmptotal', '2');
+        Observer.Expect('ownersame', 'true');
+        Observer.Expect('cnt', '0');
+        Observer.Expect('wcaller', '11');
+        Observer.Expect('own', '0');
+        Observer.Expect('wowner', '12');
+        Observer.Verify();
     end;
 
     [Test]
@@ -729,7 +766,22 @@ codeunit 86278 "CKK Kinds Test"
     begin
         Probe.Run(1);
         Probe.ObserveGroup(3, Observer);
-        Observer.Finish();
+        Observer.Expect('rr', '0');
+        Observer.Expect('rrf', 'ERR: The record is not open.');
+        Observer.Expect('rrt', '0');
+        Observer.Expect('rrtc', 'ERR: The record is not open.');
+        Observer.Expect('rrtt', 'ERR: The record is not open.');
+        Observer.Expect('rrc', '0');
+        Observer.Expect('fr', 'ERR: Microsoft.Dynamics.Nav.Runtime.NavFieldRef variable not initialized.');
+        Observer.Expect('frn', 'ERR: Microsoft.Dynamics.Nav.Runtime.NavFieldRef variable not initialized.');
+        Observer.Expect('kr', 'ERR: Microsoft.Dynamics.Nav.Runtime.NavKeyRef variable not initialized.');
+        Observer.Expect('ownersame', 'true');
+        Observer.Expect('hrrx', '86270/2');
+        Observer.Expect('cnt', '0');
+        Observer.Expect('wcaller', '11');
+        Observer.Expect('own', '0');
+        Observer.Expect('wowner', '12');
+        Observer.Verify();
     end;
 
     [Test]
@@ -740,7 +792,33 @@ codeunit 86278 "CKK Kinds Test"
     begin
         Probe.Run(1);
         Probe.ObserveGroup(4, Observer);
-        Observer.Finish();
+        Observer.Expect('mid', '0');
+        Observer.Expect('midleaf', '0');
+        Observer.Expect('midrows', '1');
+        Observer.Expect('leaf', '0');
+        Observer.Expect('face', '0');
+        Observer.Expect('varcu', 'false');
+        Observer.Expect('arr1', '0');
+        Observer.Expect('arr2', '0');
+        Observer.Expect('lface', '0');
+        Observer.Expect('dface', '0');
+        Observer.Expect('ownersame', 'true');
+        Observer.Expect('hm', '0');
+        Observer.Expect('hl3', '0');
+        Observer.Expect('hmrows', '1');
+        Observer.Expect('ha', '0');
+        Observer.Expect('hf', '0');
+        Observer.Expect('hv', '8');
+        Observer.Expect('hlf', '12');
+        Observer.Expect('hdf', '13');
+        Observer.Expect('wmid', '21');
+        Observer.Expect('wleaf3', '22');
+        Observer.Expect('warr1', '23');
+        Observer.Expect('cnt', '0');
+        Observer.Expect('wcaller', '11');
+        Observer.Expect('own', '0');
+        Observer.Expect('wowner', '12');
+        Observer.Verify();
     end;
 
     [Test]
@@ -751,7 +829,20 @@ codeunit 86278 "CKK Kinds Test"
     begin
         Probe.Run(1);
         Probe.ObserveGroup(5, Observer);
-        Observer.Finish();
+        Observer.Expect('li', '0');
+        Observer.Expect('lt', '0');
+        Observer.Expect('di', '0');
+        Observer.Expect('jo', '{}');
+        Observer.Expect('ja', '[]');
+        Observer.Expect('arri', '0');
+        Observer.Expect('arrt1', '');
+        Observer.Expect('tb', '');
+        Observer.Expect('ownersame', 'true');
+        Observer.Expect('cnt', '0');
+        Observer.Expect('wcaller', '11');
+        Observer.Expect('own', '0');
+        Observer.Expect('wowner', '12');
+        Observer.Verify();
     end;
 
     [Test]
@@ -762,7 +853,28 @@ codeunit 86278 "CKK Kinds Test"
     begin
         Probe.Run(2);
         Probe.ObserveGroup(1, Observer);
-        Observer.Finish();
+        Observer.Expect('i', '0');
+        Observer.Expect('d', '0');
+        Observer.Expect('b', 'false');
+        Observer.Expect('t', '');
+        Observer.Expect('t1', '');
+        Observer.Expect('t30', '');
+        Observer.Expect('c', '');
+        Observer.Expect('dt', '');
+        Observer.Expect('tm', '');
+        Observer.Expect('dtmzero', 'true');
+        Observer.Expect('g', '{00000000-0000-0000-0000-000000000000}');
+        Observer.Expect('opt', '0');
+        Observer.Expect('en', '0');
+        Observer.Expect('bi', '0');
+        Observer.Expect('dur', '0');
+        Observer.Expect('ch', '0');
+        Observer.Expect('ownersame', 'true');
+        Observer.Expect('cnt', '0');
+        Observer.Expect('wcaller', '11');
+        Observer.Expect('own', '0');
+        Observer.Expect('wowner', '12');
+        Observer.Verify();
     end;
 
     [Test]
@@ -773,7 +885,19 @@ codeunit 86278 "CKK Kinds Test"
     begin
         Probe.Run(2);
         Probe.ObserveGroup(2, Observer);
-        Observer.Finish();
+        Observer.Expect('recf', '');
+        Observer.Expect('recno', '0');
+        Observer.Expect('rectxt', '');
+        Observer.Expect('tmpf', '');
+        Observer.Expect('tmpcount', '2');
+        Observer.Expect('tmpcur', '0');
+        Observer.Expect('tmptotal', '2');
+        Observer.Expect('ownersame', 'true');
+        Observer.Expect('cnt', '0');
+        Observer.Expect('wcaller', '11');
+        Observer.Expect('own', '0');
+        Observer.Expect('wowner', '12');
+        Observer.Verify();
     end;
 
     [Test]
@@ -784,7 +908,22 @@ codeunit 86278 "CKK Kinds Test"
     begin
         Probe.Run(2);
         Probe.ObserveGroup(3, Observer);
-        Observer.Finish();
+        Observer.Expect('rr', '0');
+        Observer.Expect('rrf', 'ERR: The record is not open.');
+        Observer.Expect('rrt', '0');
+        Observer.Expect('rrtc', 'ERR: The record is not open.');
+        Observer.Expect('rrtt', 'ERR: The record is not open.');
+        Observer.Expect('rrc', '0');
+        Observer.Expect('fr', 'ERR: Microsoft.Dynamics.Nav.Runtime.NavFieldRef variable not initialized.');
+        Observer.Expect('frn', 'ERR: Microsoft.Dynamics.Nav.Runtime.NavFieldRef variable not initialized.');
+        Observer.Expect('kr', 'ERR: Microsoft.Dynamics.Nav.Runtime.NavKeyRef variable not initialized.');
+        Observer.Expect('ownersame', 'true');
+        Observer.Expect('hrrx', '86270/2');
+        Observer.Expect('cnt', '0');
+        Observer.Expect('wcaller', '11');
+        Observer.Expect('own', '0');
+        Observer.Expect('wowner', '12');
+        Observer.Verify();
     end;
 
     [Test]
@@ -795,7 +934,33 @@ codeunit 86278 "CKK Kinds Test"
     begin
         Probe.Run(2);
         Probe.ObserveGroup(4, Observer);
-        Observer.Finish();
+        Observer.Expect('mid', '0');
+        Observer.Expect('midleaf', '0');
+        Observer.Expect('midrows', '1');
+        Observer.Expect('leaf', '0');
+        Observer.Expect('face', '0');
+        Observer.Expect('varcu', 'false');
+        Observer.Expect('arr1', '0');
+        Observer.Expect('arr2', '0');
+        Observer.Expect('lface', '0');
+        Observer.Expect('dface', '0');
+        Observer.Expect('ownersame', 'true');
+        Observer.Expect('hm', '0');
+        Observer.Expect('hl3', '0');
+        Observer.Expect('hmrows', '1');
+        Observer.Expect('ha', '0');
+        Observer.Expect('hf', '0');
+        Observer.Expect('hv', '8');
+        Observer.Expect('hlf', '12');
+        Observer.Expect('hdf', '13');
+        Observer.Expect('wmid', '21');
+        Observer.Expect('wleaf3', '22');
+        Observer.Expect('warr1', '23');
+        Observer.Expect('cnt', '0');
+        Observer.Expect('wcaller', '11');
+        Observer.Expect('own', '0');
+        Observer.Expect('wowner', '12');
+        Observer.Verify();
     end;
 
     [Test]
@@ -806,7 +971,20 @@ codeunit 86278 "CKK Kinds Test"
     begin
         Probe.Run(2);
         Probe.ObserveGroup(5, Observer);
-        Observer.Finish();
+        Observer.Expect('li', '0');
+        Observer.Expect('lt', '0');
+        Observer.Expect('di', '0');
+        Observer.Expect('jo', '{}');
+        Observer.Expect('ja', '[]');
+        Observer.Expect('arri', '0');
+        Observer.Expect('arrt1', '');
+        Observer.Expect('tb', '');
+        Observer.Expect('ownersame', 'true');
+        Observer.Expect('cnt', '0');
+        Observer.Expect('wcaller', '11');
+        Observer.Expect('own', '0');
+        Observer.Expect('wowner', '12');
+        Observer.Verify();
     end;
 
     [Test]
@@ -817,7 +995,28 @@ codeunit 86278 "CKK Kinds Test"
     begin
         Probe.Run(3);
         Probe.ObserveGroup(1, Observer);
-        Observer.Finish();
+        Observer.Expect('i', '0');
+        Observer.Expect('d', '0');
+        Observer.Expect('b', 'false');
+        Observer.Expect('t', '');
+        Observer.Expect('t1', '');
+        Observer.Expect('t30', '');
+        Observer.Expect('c', '');
+        Observer.Expect('dt', '');
+        Observer.Expect('tm', '');
+        Observer.Expect('dtmzero', 'true');
+        Observer.Expect('g', '{00000000-0000-0000-0000-000000000000}');
+        Observer.Expect('opt', '0');
+        Observer.Expect('en', '0');
+        Observer.Expect('bi', '0');
+        Observer.Expect('dur', '0');
+        Observer.Expect('ch', '0');
+        Observer.Expect('ownersame', 'true');
+        Observer.Expect('cnt', '0');
+        Observer.Expect('wcaller', '11');
+        Observer.Expect('own', '0');
+        Observer.Expect('wowner', '12');
+        Observer.Verify();
     end;
 
     [Test]
@@ -828,7 +1027,19 @@ codeunit 86278 "CKK Kinds Test"
     begin
         Probe.Run(3);
         Probe.ObserveGroup(2, Observer);
-        Observer.Finish();
+        Observer.Expect('recf', '');
+        Observer.Expect('recno', '0');
+        Observer.Expect('rectxt', '');
+        Observer.Expect('tmpf', '');
+        Observer.Expect('tmpcount', '2');
+        Observer.Expect('tmpcur', '0');
+        Observer.Expect('tmptotal', '2');
+        Observer.Expect('ownersame', 'true');
+        Observer.Expect('cnt', '0');
+        Observer.Expect('wcaller', '11');
+        Observer.Expect('own', '0');
+        Observer.Expect('wowner', '12');
+        Observer.Verify();
     end;
 
     [Test]
@@ -839,7 +1050,22 @@ codeunit 86278 "CKK Kinds Test"
     begin
         Probe.Run(3);
         Probe.ObserveGroup(3, Observer);
-        Observer.Finish();
+        Observer.Expect('rr', '0');
+        Observer.Expect('rrf', 'ERR: The record is not open.');
+        Observer.Expect('rrt', '0');
+        Observer.Expect('rrtc', 'ERR: The record is not open.');
+        Observer.Expect('rrtt', 'ERR: The record is not open.');
+        Observer.Expect('rrc', '0');
+        Observer.Expect('fr', 'ERR: Microsoft.Dynamics.Nav.Runtime.NavFieldRef variable not initialized.');
+        Observer.Expect('frn', 'ERR: Microsoft.Dynamics.Nav.Runtime.NavFieldRef variable not initialized.');
+        Observer.Expect('kr', 'ERR: Microsoft.Dynamics.Nav.Runtime.NavKeyRef variable not initialized.');
+        Observer.Expect('ownersame', 'true');
+        Observer.Expect('hrrx', '86270/2');
+        Observer.Expect('cnt', '0');
+        Observer.Expect('wcaller', '11');
+        Observer.Expect('own', '0');
+        Observer.Expect('wowner', '12');
+        Observer.Verify();
     end;
 
     [Test]
@@ -850,7 +1076,33 @@ codeunit 86278 "CKK Kinds Test"
     begin
         Probe.Run(3);
         Probe.ObserveGroup(4, Observer);
-        Observer.Finish();
+        Observer.Expect('mid', '0');
+        Observer.Expect('midleaf', '0');
+        Observer.Expect('midrows', '1');
+        Observer.Expect('leaf', '0');
+        Observer.Expect('face', '0');
+        Observer.Expect('varcu', 'false');
+        Observer.Expect('arr1', '0');
+        Observer.Expect('arr2', '0');
+        Observer.Expect('lface', '0');
+        Observer.Expect('dface', '0');
+        Observer.Expect('ownersame', 'true');
+        Observer.Expect('hm', '0');
+        Observer.Expect('hl3', '0');
+        Observer.Expect('hmrows', '1');
+        Observer.Expect('ha', '0');
+        Observer.Expect('hf', '0');
+        Observer.Expect('hv', '8');
+        Observer.Expect('hlf', '12');
+        Observer.Expect('hdf', '13');
+        Observer.Expect('wmid', '21');
+        Observer.Expect('wleaf3', '22');
+        Observer.Expect('warr1', '23');
+        Observer.Expect('cnt', '0');
+        Observer.Expect('wcaller', '11');
+        Observer.Expect('own', '0');
+        Observer.Expect('wowner', '12');
+        Observer.Verify();
     end;
 
     [Test]
@@ -861,7 +1113,20 @@ codeunit 86278 "CKK Kinds Test"
     begin
         Probe.Run(3);
         Probe.ObserveGroup(5, Observer);
-        Observer.Finish();
+        Observer.Expect('li', '0');
+        Observer.Expect('lt', '0');
+        Observer.Expect('di', '0');
+        Observer.Expect('jo', '{}');
+        Observer.Expect('ja', '[]');
+        Observer.Expect('arri', '0');
+        Observer.Expect('arrt1', '');
+        Observer.Expect('tb', '');
+        Observer.Expect('ownersame', 'true');
+        Observer.Expect('cnt', '0');
+        Observer.Expect('wcaller', '11');
+        Observer.Expect('own', '0');
+        Observer.Expect('wowner', '12');
+        Observer.Verify();
     end;
 
     [Test]
@@ -872,7 +1137,28 @@ codeunit 86278 "CKK Kinds Test"
     begin
         Probe.Run(4);
         Probe.ObserveGroup(1, Observer);
-        Observer.Finish();
+        Observer.Expect('i', '0');
+        Observer.Expect('d', '0');
+        Observer.Expect('b', 'false');
+        Observer.Expect('t', '');
+        Observer.Expect('t1', '');
+        Observer.Expect('t30', '');
+        Observer.Expect('c', '');
+        Observer.Expect('dt', '');
+        Observer.Expect('tm', '');
+        Observer.Expect('dtmzero', 'true');
+        Observer.Expect('g', '{00000000-0000-0000-0000-000000000000}');
+        Observer.Expect('opt', '0');
+        Observer.Expect('en', '0');
+        Observer.Expect('bi', '0');
+        Observer.Expect('dur', '0');
+        Observer.Expect('ch', '0');
+        Observer.Expect('ownersame', 'true');
+        Observer.Expect('cnt', '0');
+        Observer.Expect('wcaller', '11');
+        Observer.Expect('own', '0');
+        Observer.Expect('wowner', '12');
+        Observer.Verify();
     end;
 
     [Test]
@@ -883,7 +1169,19 @@ codeunit 86278 "CKK Kinds Test"
     begin
         Probe.Run(4);
         Probe.ObserveGroup(2, Observer);
-        Observer.Finish();
+        Observer.Expect('recf', '');
+        Observer.Expect('recno', '0');
+        Observer.Expect('rectxt', '');
+        Observer.Expect('tmpf', '');
+        Observer.Expect('tmpcount', '2');
+        Observer.Expect('tmpcur', '0');
+        Observer.Expect('tmptotal', '2');
+        Observer.Expect('ownersame', 'true');
+        Observer.Expect('cnt', '0');
+        Observer.Expect('wcaller', '11');
+        Observer.Expect('own', '0');
+        Observer.Expect('wowner', '12');
+        Observer.Verify();
     end;
 
     [Test]
@@ -894,7 +1192,22 @@ codeunit 86278 "CKK Kinds Test"
     begin
         Probe.Run(4);
         Probe.ObserveGroup(3, Observer);
-        Observer.Finish();
+        Observer.Expect('rr', '0');
+        Observer.Expect('rrf', 'ERR: The record is not open.');
+        Observer.Expect('rrt', '0');
+        Observer.Expect('rrtc', 'ERR: The record is not open.');
+        Observer.Expect('rrtt', 'ERR: The record is not open.');
+        Observer.Expect('rrc', '0');
+        Observer.Expect('fr', 'ERR: Microsoft.Dynamics.Nav.Runtime.NavFieldRef variable not initialized.');
+        Observer.Expect('frn', 'ERR: Microsoft.Dynamics.Nav.Runtime.NavFieldRef variable not initialized.');
+        Observer.Expect('kr', 'ERR: Microsoft.Dynamics.Nav.Runtime.NavKeyRef variable not initialized.');
+        Observer.Expect('ownersame', 'true');
+        Observer.Expect('hrrx', '86270/2');
+        Observer.Expect('cnt', '0');
+        Observer.Expect('wcaller', '11');
+        Observer.Expect('own', '0');
+        Observer.Expect('wowner', '12');
+        Observer.Verify();
     end;
 
     [Test]
@@ -905,7 +1218,33 @@ codeunit 86278 "CKK Kinds Test"
     begin
         Probe.Run(4);
         Probe.ObserveGroup(4, Observer);
-        Observer.Finish();
+        Observer.Expect('mid', '0');
+        Observer.Expect('midleaf', '0');
+        Observer.Expect('midrows', '1');
+        Observer.Expect('leaf', '0');
+        Observer.Expect('face', '0');
+        Observer.Expect('varcu', 'false');
+        Observer.Expect('arr1', '0');
+        Observer.Expect('arr2', '0');
+        Observer.Expect('lface', '0');
+        Observer.Expect('dface', '0');
+        Observer.Expect('ownersame', 'true');
+        Observer.Expect('hm', '0');
+        Observer.Expect('hl3', '0');
+        Observer.Expect('hmrows', '1');
+        Observer.Expect('ha', '0');
+        Observer.Expect('hf', '0');
+        Observer.Expect('hv', '8');
+        Observer.Expect('hlf', '12');
+        Observer.Expect('hdf', '13');
+        Observer.Expect('wmid', '21');
+        Observer.Expect('wleaf3', '22');
+        Observer.Expect('warr1', '23');
+        Observer.Expect('cnt', '0');
+        Observer.Expect('wcaller', '11');
+        Observer.Expect('own', '0');
+        Observer.Expect('wowner', '12');
+        Observer.Verify();
     end;
 
     [Test]
@@ -916,7 +1255,20 @@ codeunit 86278 "CKK Kinds Test"
     begin
         Probe.Run(4);
         Probe.ObserveGroup(5, Observer);
-        Observer.Finish();
+        Observer.Expect('li', '0');
+        Observer.Expect('lt', '0');
+        Observer.Expect('di', '0');
+        Observer.Expect('jo', '{}');
+        Observer.Expect('ja', '[]');
+        Observer.Expect('arri', '0');
+        Observer.Expect('arrt1', '');
+        Observer.Expect('tb', '');
+        Observer.Expect('ownersame', 'true');
+        Observer.Expect('cnt', '0');
+        Observer.Expect('wcaller', '11');
+        Observer.Expect('own', '0');
+        Observer.Expect('wowner', '12');
+        Observer.Verify();
     end;
 
     [Test]
@@ -927,7 +1279,28 @@ codeunit 86278 "CKK Kinds Test"
     begin
         Probe.Run(5);
         Probe.ObserveGroup(1, Observer);
-        Observer.Finish();
+        Observer.Expect('i', '0');
+        Observer.Expect('d', '0');
+        Observer.Expect('b', 'false');
+        Observer.Expect('t', '');
+        Observer.Expect('t1', '');
+        Observer.Expect('t30', '');
+        Observer.Expect('c', '');
+        Observer.Expect('dt', '');
+        Observer.Expect('tm', '');
+        Observer.Expect('dtmzero', 'true');
+        Observer.Expect('g', '{00000000-0000-0000-0000-000000000000}');
+        Observer.Expect('opt', '0');
+        Observer.Expect('en', '0');
+        Observer.Expect('bi', '0');
+        Observer.Expect('dur', '0');
+        Observer.Expect('ch', '0');
+        Observer.Expect('ownersame', 'true');
+        Observer.Expect('cnt', '0');
+        Observer.Expect('wcaller', '11');
+        Observer.Expect('own', '0');
+        Observer.Expect('wowner', '12');
+        Observer.Verify();
     end;
 
     [Test]
@@ -938,7 +1311,19 @@ codeunit 86278 "CKK Kinds Test"
     begin
         Probe.Run(5);
         Probe.ObserveGroup(2, Observer);
-        Observer.Finish();
+        Observer.Expect('recf', '');
+        Observer.Expect('recno', '0');
+        Observer.Expect('rectxt', '');
+        Observer.Expect('tmpf', '');
+        Observer.Expect('tmpcount', '2');
+        Observer.Expect('tmpcur', '0');
+        Observer.Expect('tmptotal', '2');
+        Observer.Expect('ownersame', 'true');
+        Observer.Expect('cnt', '0');
+        Observer.Expect('wcaller', '11');
+        Observer.Expect('own', '0');
+        Observer.Expect('wowner', '12');
+        Observer.Verify();
     end;
 
     [Test]
@@ -949,7 +1334,22 @@ codeunit 86278 "CKK Kinds Test"
     begin
         Probe.Run(5);
         Probe.ObserveGroup(3, Observer);
-        Observer.Finish();
+        Observer.Expect('rr', '0');
+        Observer.Expect('rrf', 'ERR: The record is not open.');
+        Observer.Expect('rrt', '0');
+        Observer.Expect('rrtc', 'ERR: The record is not open.');
+        Observer.Expect('rrtt', 'ERR: The record is not open.');
+        Observer.Expect('rrc', '0');
+        Observer.Expect('fr', 'ERR: Microsoft.Dynamics.Nav.Runtime.NavFieldRef variable not initialized.');
+        Observer.Expect('frn', 'ERR: Microsoft.Dynamics.Nav.Runtime.NavFieldRef variable not initialized.');
+        Observer.Expect('kr', 'ERR: Microsoft.Dynamics.Nav.Runtime.NavKeyRef variable not initialized.');
+        Observer.Expect('ownersame', 'true');
+        Observer.Expect('hrrx', '86270/2');
+        Observer.Expect('cnt', '0');
+        Observer.Expect('wcaller', '11');
+        Observer.Expect('own', '0');
+        Observer.Expect('wowner', '12');
+        Observer.Verify();
     end;
 
     [Test]
@@ -960,7 +1360,33 @@ codeunit 86278 "CKK Kinds Test"
     begin
         Probe.Run(5);
         Probe.ObserveGroup(4, Observer);
-        Observer.Finish();
+        Observer.Expect('mid', '0');
+        Observer.Expect('midleaf', '0');
+        Observer.Expect('midrows', '1');
+        Observer.Expect('leaf', '0');
+        Observer.Expect('face', '0');
+        Observer.Expect('varcu', 'false');
+        Observer.Expect('arr1', '0');
+        Observer.Expect('arr2', '0');
+        Observer.Expect('lface', '0');
+        Observer.Expect('dface', '0');
+        Observer.Expect('ownersame', 'true');
+        Observer.Expect('hm', '0');
+        Observer.Expect('hl3', '0');
+        Observer.Expect('hmrows', '1');
+        Observer.Expect('ha', '0');
+        Observer.Expect('hf', '0');
+        Observer.Expect('hv', '8');
+        Observer.Expect('hlf', '12');
+        Observer.Expect('hdf', '13');
+        Observer.Expect('wmid', '21');
+        Observer.Expect('wleaf3', '22');
+        Observer.Expect('warr1', '23');
+        Observer.Expect('cnt', '0');
+        Observer.Expect('wcaller', '11');
+        Observer.Expect('own', '0');
+        Observer.Expect('wowner', '12');
+        Observer.Verify();
     end;
 
     [Test]
@@ -971,7 +1397,20 @@ codeunit 86278 "CKK Kinds Test"
     begin
         Probe.Run(5);
         Probe.ObserveGroup(5, Observer);
-        Observer.Finish();
+        Observer.Expect('li', '0');
+        Observer.Expect('lt', '0');
+        Observer.Expect('di', '0');
+        Observer.Expect('jo', '{}');
+        Observer.Expect('ja', '[]');
+        Observer.Expect('arri', '0');
+        Observer.Expect('arrt1', '');
+        Observer.Expect('tb', '');
+        Observer.Expect('ownersame', 'true');
+        Observer.Expect('cnt', '0');
+        Observer.Expect('wcaller', '11');
+        Observer.Expect('own', '0');
+        Observer.Expect('wowner', '12');
+        Observer.Verify();
     end;
 
     [Test]
@@ -982,7 +1421,29 @@ codeunit 86278 "CKK Kinds Test"
     begin
         Probe.Run(6);
         Probe.ObserveGroup(4, Observer);
-        Observer.Finish();
+        Observer.Expect('mid', '0');
+        Observer.Expect('midleaf', '0');
+        Observer.Expect('midrows', '0');
+        Observer.Expect('leaf', '0');
+        Observer.Expect('face', 'ERR: Interface not initialized');
+        Observer.Expect('varcu', 'false');
+        Observer.Expect('arr1', '0');
+        Observer.Expect('arr2', '0');
+        Observer.Expect('lface', '0');
+        Observer.Expect('dface', '0');
+        Observer.Expect('ownersame', 'true');
+        Observer.Expect('hm', '0');
+        Observer.Expect('hl3', '0');
+        Observer.Expect('hmrows', '0');
+        Observer.Expect('ha', '0');
+        Observer.Expect('wmid', '21');
+        Observer.Expect('wleaf3', '22');
+        Observer.Expect('warr1', '23');
+        Observer.Expect('cnt', '0');
+        Observer.Expect('wcaller', '11');
+        Observer.Expect('own', '0');
+        Observer.Expect('wowner', '12');
+        Observer.Verify();
     end;
 
     [Test]
@@ -993,6 +1454,32 @@ codeunit 86278 "CKK Kinds Test"
     begin
         Probe.Run(7);
         Probe.ObserveGroup(4, Observer);
-        Observer.Finish();
+        Observer.Expect('mid', '0');
+        Observer.Expect('midleaf', '0');
+        Observer.Expect('midrows', '1');
+        Observer.Expect('leaf', '0');
+        Observer.Expect('face', '0');
+        Observer.Expect('varcu', 'false');
+        Observer.Expect('arr1', '0');
+        Observer.Expect('arr2', '0');
+        Observer.Expect('lface', '0');
+        Observer.Expect('dface', '0');
+        Observer.Expect('ownersame', 'true');
+        Observer.Expect('hm', '0');
+        Observer.Expect('hl3', '0');
+        Observer.Expect('hmrows', '1');
+        Observer.Expect('ha', '0');
+        Observer.Expect('hf', '0');
+        Observer.Expect('hv', '8');
+        Observer.Expect('hlf', '12');
+        Observer.Expect('hdf', '13');
+        Observer.Expect('wmid', '21');
+        Observer.Expect('wleaf3', '22');
+        Observer.Expect('warr1', '23');
+        Observer.Expect('cnt', '0');
+        Observer.Expect('wcaller', '11');
+        Observer.Expect('own', '0');
+        Observer.Expect('wowner', '12');
+        Observer.Verify();
     end;
 }

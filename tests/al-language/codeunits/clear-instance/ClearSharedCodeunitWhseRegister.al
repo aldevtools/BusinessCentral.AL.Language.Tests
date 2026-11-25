@@ -2,7 +2,9 @@
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160); "CKK Row" (table 86270) of ClearSharedCodeunitGlobalKinds.al; self-contained objects 86279 to 86287
 // Probe: written against BC 27.5, 28.5 and 29.0 (al-runner issue 8964), observed first, then asserted.
-// Facts: OBSERVING
+// Facts: ClearAll in the Sales-Post shape resets the register codeunit the caller shares with it (entry counter,
+// records, flag), but the register's nested tracking codeunit keeps its temporary rows. When the register had already
+// registered entry 101 before the post, the post registers 101 again and fails with the duplicate-key error.
 // BC versions: 27, 28, 29
 
 codeunit 86279 "CKW UOM"
@@ -330,7 +332,18 @@ codeunit 86287 "CKW Whse Shape Test"
         Observer: Codeunit "Probe Observer";
     begin
         Caller.PostSourceDocument(1, 1, false, Observer);
-        Observer.Finish();
+        Observer.Expect('post.reg', 'loc=|0 jnl= bin=0 reg=0 entry=0 mov=false lbl=44');
+        Observer.Expect('post.trk', 'rows=2/1/1 item=0 code= uom=0| prod=0 due= flags=falsefalsefalsefalse confirm=1');
+        Observer.Expect('post.wms', 'recs=0||0||0 next=0 uom=0| [rows=2/1/1 item=0 code= uom=0| prod=0 due= flags=falsefalsefalsefalse confirm=1] whse=1');
+        Observer.Expect('post.entry', '101');
+        Observer.Expect('post.suppress', 'true');
+        Observer.Expect('post.saleslines', '0');
+        Observer.Expect('caller.entry', '101');
+        Observer.Expect('caller.reg', 'loc=|0 jnl= bin=0 reg=0 entry=102 mov=false lbl=44');
+        Observer.Expect('caller.trk', 'rows=2/1/3 item=0 code= uom=0| prod=0 due= flags=falsefalsefalsefalse confirm=1');
+        Observer.Expect('caller.wms', 'recs=0||0||0 next=0 uom=0| [rows=2/1/1 item=0 code= uom=0| prod=0 due= flags=falsefalsefalsefalse confirm=1] whse=1');
+        Observer.Expect('dbrows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -342,7 +355,8 @@ codeunit 86287 "CKW Whse Shape Test"
         // The post stops with an error here; the observations made before it and the error text are kept.
         asserterror Caller.PostSourceDocument(2, 1, false, Observer);
         Observer.Observe('error', GetLastErrorText());
-        Observer.Finish();
+        Observer.Expect('error', 'The record in table CKK Row already exists. Identification fields and values: No.=''101''');
+        Observer.Verify();
     end;
 
     [Test]
@@ -352,7 +366,18 @@ codeunit 86287 "CKW Whse Shape Test"
         Observer: Codeunit "Probe Observer";
     begin
         Caller.PostSourceDocument(3, 1, false, Observer);
-        Observer.Finish();
+        Observer.Expect('post.reg', 'loc=|0 jnl= bin=0 reg=0 entry=0 mov=false lbl=44');
+        Observer.Expect('post.trk', 'rows=0/0/0 item=0 code= uom=0| prod=0 due= flags=falsefalsefalsefalse confirm=1');
+        Observer.Expect('post.wms', 'recs=0||0||0 next=0 uom=0| [rows=0/0/0 item=0 code= uom=0| prod=0 due= flags=falsefalsefalsefalse confirm=1] whse=1');
+        Observer.Expect('post.entry', '101');
+        Observer.Expect('post.suppress', 'true');
+        Observer.Expect('post.saleslines', '0');
+        Observer.Expect('caller.entry', '101');
+        Observer.Expect('caller.reg', 'loc=|0 jnl= bin=0 reg=0 entry=102 mov=false lbl=44');
+        Observer.Expect('caller.trk', 'rows=0/0/2 item=0 code= uom=0| prod=0 due= flags=falsefalsefalsefalse confirm=1');
+        Observer.Expect('caller.wms', 'recs=0||0||0 next=0 uom=0| [rows=0/0/0 item=0 code= uom=0| prod=0 due= flags=falsefalsefalsefalse confirm=1] whse=1');
+        Observer.Expect('dbrows', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -362,7 +387,18 @@ codeunit 86287 "CKW Whse Shape Test"
         Observer: Codeunit "Probe Observer";
     begin
         Caller.PostSourceDocument(1, 2, false, Observer);
-        Observer.Finish();
+        Observer.Expect('post.reg', 'loc=|0 jnl= bin=0 reg=0 entry=0 mov=false lbl=44');
+        Observer.Expect('post.trk', 'rows=2/1/1 item=0 code= uom=0| prod=0 due= flags=falsefalsefalsefalse confirm=1');
+        Observer.Expect('post.wms', 'recs=0||0||0 next=0 uom=0| [rows=2/1/1 item=0 code= uom=0| prod=0 due= flags=falsefalsefalsefalse confirm=1] whse=1');
+        Observer.Expect('post.entry', '101');
+        Observer.Expect('post.suppress', 'true');
+        Observer.Expect('post.saleslines', '0');
+        Observer.Expect('caller.entry', '101');
+        Observer.Expect('caller.reg', 'loc=|0 jnl= bin=0 reg=0 entry=102 mov=false lbl=44');
+        Observer.Expect('caller.trk', 'rows=2/1/3 item=0 code= uom=0| prod=0 due= flags=falsefalsefalsefalse confirm=1');
+        Observer.Expect('caller.wms', 'recs=0||0||0 next=0 uom=0| [rows=2/1/1 item=0 code= uom=0| prod=0 due= flags=falsefalsefalsefalse confirm=1] whse=1');
+        Observer.Expect('dbrows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -372,6 +408,19 @@ codeunit 86287 "CKW Whse Shape Test"
         Observer: Codeunit "Probe Observer";
     begin
         Caller.PostSourceDocument(1, 1, true, Observer);
-        Observer.Finish();
+        Observer.Expect('post.reg', 'loc=|0 jnl= bin=0 reg=0 entry=0 mov=false lbl=44');
+        Observer.Expect('post.trk', 'rows=2/1/1 item=0 code= uom=0| prod=0 due= flags=falsefalsefalsefalse confirm=1');
+        Observer.Expect('post.wms', 'recs=0||0||0 next=0 uom=0| [rows=2/1/1 item=0 code= uom=0| prod=0 due= flags=falsefalsefalsefalse confirm=1] whse=1');
+        Observer.Expect('post.entry', '101');
+        Observer.Expect('post.suppress', 'true');
+        Observer.Expect('post.saleslines', '0');
+        Observer.Expect('caller.entry', '101');
+        Observer.Expect('handle.trk', 'rows=2/1/2 item=0 code= uom=0| prod=0 due= flags=falsefalsefalsefalse confirm=1');
+        Observer.Expect('caller.reg', 'loc=|0 jnl= bin=0 reg=0 entry=102 mov=false lbl=44');
+        Observer.Expect('caller.trk', 'rows=2/1/3 item=0 code= uom=0| prod=0 due= flags=falsefalsefalsefalse confirm=1');
+        Observer.Expect('caller.wms', 'recs=0||0||0 next=0 uom=0| [rows=2/1/1 item=0 code= uom=0| prod=0 due= flags=falsefalsefalsefalse confirm=1] whse=1');
+        Observer.Expect('handle.after', 'rows=2/1/3 item=0 code= uom=0| prod=0 due= flags=falsefalsefalsefalse confirm=1');
+        Observer.Expect('dbrows', '1');
+        Observer.Verify();
     end;
 }
