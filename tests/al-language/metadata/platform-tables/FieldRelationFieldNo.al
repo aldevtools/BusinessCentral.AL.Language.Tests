@@ -1,7 +1,8 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-system-tables
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160); self-contained tables 75920, 75921, 75922, 75924, enum 75923, table extension 75925,
-//                codeunit 75931; Base Application table Item (field "Item Category Code") and the platform table User
+//                codeunit 75931, tables 75926..75929 (issue 8592 cells); Base Application table Item (field "Item Category Code")
+//                and the platform table User
 // Probe: written against local BC 27.5, 28.5 and 29.0 service tiers (Windows); every literal asserted below is what those tiers produced.
 //        Other builds are checked by the corpus CI matrix. Asked by al-runner issue 8249.
 // Facts:
@@ -444,6 +445,18 @@ codeunit 75930 "RFN Relation Field No Tests"
         Observer.Verify();
     end;
 
+    // Control for the mixed-type keys: a relation that names the key's second field gives that field's number.
+    [Test]
+    procedure FieldTable_NamedField_CodeToIntegerCodeKeySecondField()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        Observer.Observe('code to (integer, code).K2', KeyedRow(16));
+        Observer.Expect('code to (integer, code).K2', '75927/2');
+        Observer.Verify();
+    end;
+
     local procedure KeyedRow(FieldNo: Integer): Text
     begin
         exit(FieldRow(Database::"RFN Source Keyed", FieldNo));
@@ -569,6 +582,7 @@ table 75929 "RFN Source Keyed"
         field(13; CodeToIntCode; Code[20]) { TableRelation = "RFN Target Int Code"; }
         field(14; CodeToCodeInt; Code[20]) { TableRelation = "RFN Target Code Int"; }
         field(15; IntToCodeInt; Integer) { TableRelation = "RFN Target Code Int"; }
+        field(16; CodeToIntCodeK2; Code[20]) { TableRelation = "RFN Target Int Code".K2; }
     }
 
     keys
