@@ -56,7 +56,7 @@ codeunit 78766 "BVE Log"
         exit(Value);
     end;
 
-    procedure Clear()
+    procedure Reset()
     begin
         Clear(Entries);
     end;
@@ -269,7 +269,7 @@ codeunit 78772 "BVE Event View Tests"
         AddRow(2, 'B-NAME', Row.Status::Posted, 20);
         AddRow(3, 'A-NAME', Row.Status::Open, 10);
         AddRow(4, 'D-NAME', Row.Status::Posted, 40);
-        Log.Clear();
+        Log.Reset();
     end;
 
     local procedure AddRow(Id: Integer; Name: Text[20]; Status: Option; Amount: Decimal)
