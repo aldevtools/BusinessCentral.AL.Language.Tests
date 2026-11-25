@@ -234,14 +234,16 @@ codeunit 86274 "CKK Store"
         L := ArrCU[1];
     end;
 
+    // List.Get(Index, var Value) into an Interface var parameter fails the server-side C# compile on BC 27.5
+    // (CS1503, NavInterfaceHandle to ByRef), so the value form of Get is used.
     procedure ShareListFace(var F: Interface "CKK Face")
     begin
-        LFace.Get(1, F);
+        F := LFace.Get(1);
     end;
 
     procedure ShareDictFace(var F: Interface "CKK Face")
     begin
-        DFace.Get(1, F);
+        F := DFace.Get(1);
     end;
 
     procedure ShareRRTmp(var R: RecordRef)

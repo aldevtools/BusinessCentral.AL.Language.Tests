@@ -339,7 +339,9 @@ codeunit 86287 "CKW Whse Shape Test"
         Caller: Codeunit "CKW Activity Post";
         Observer: Codeunit "Probe Observer";
     begin
-        Caller.PostSourceDocument(2, 1, false, Observer);
+        // The post stops with an error here; the observations made before it and the error text are kept.
+        asserterror Caller.PostSourceDocument(2, 1, false, Observer);
+        Observer.Observe('error', GetLastErrorText());
         Observer.Finish();
     end;
 
