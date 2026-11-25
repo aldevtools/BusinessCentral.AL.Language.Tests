@@ -8,7 +8,7 @@
 //   stores (Guided Experience GetExtensionLogo + Icon.ImportStream, read here through a RecordRef: the table is Internal).
 // OBSERVE FORM: values not yet measured.
 // BC versions: 27, 28, 29
-codeunit 98075 "LT US App Logo Jpeg Sizes"
+codeunit 98084 "LT US App Logo Jpeg Sizes"
 {
     Subtype = Test;
     TestPermissions = Disabled;
