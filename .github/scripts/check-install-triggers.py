@@ -16,6 +16,10 @@ from pathlib import Path
 ALLOWED = {
     # Issue 8954: local DotNet builders only in a write-free TryFunction; observation uses Get/Insert/Modify(false).
     'tests/al-language-onprem-dotnet codeunit 99452',
+    # Workbook pipeline in a TryFunction: temporary Excel rows only, no persistent writes inside it;
+    # both source-file paths are cleaned by SaveToStream(true); errors become observation rows.
+    # First empty-database publish is the disposable native BC CI batch, not a customer environment.
+    'tests/al-language-onprem-dotnet codeunit 99462',
     # al-runner issue 8071: filter group 1 across install sessions; each install code logs what it sees and writes only `if Insert() then;` into
     # DataPerCompany = false tables (rows and log), and one DataPerCompany = true table (98485) from OnInstallAppPerCompany, where a company is set;
     # FilterGroup, SetFilter, SetRange and Count do not raise. (G1sXaInstall.al, G1sXbInstall.al,
