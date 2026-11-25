@@ -557,4 +557,141 @@ codeunit 94170 "LT Y79 Install Unrelated"
         Verdicts(Observer, 61370, 1, '16', Stage);
         Observer.Verify();
     end;
+
+    // AllObj during another app's install (al-runner issues 8954 and 6924): the notes of fixture A's hub 94693 (tests/al-language-xapp-a/AllObjInstallXa.al).
+    // A package id is shown as the app it belongs to now (pkg A, pkg B, pkg D), 'pkg other' for any other package.
+    local procedure AoPkgName(Value: Text): Text
+    var
+        Info: ModuleInfo;
+    begin
+        NavApp.GetModuleInfo('cd6a4292-f27b-4af9-89bc-15a5956f5c71', Info);
+        if Value = Format(Info.PackageId) then
+            exit('pkg A');
+        NavApp.GetModuleInfo('c87ced6d-11a6-4ad2-87c7-ac10083d0a2f', Info);
+        if Value = Format(Info.PackageId) then
+            exit('pkg B');
+        NavApp.GetModuleInfo('e92be076-de11-44ed-895e-17031341df29', Info);
+        if Value = Format(Info.PackageId) then
+            exit('pkg D');
+        exit('pkg other');
+    end;
+
+    local procedure AoShow(Value: Text): Text
+    begin
+        if Value.StartsWith('Yes|') then
+            exit('Yes ' + AoPkgName(CopyStr(Value, 5)));
+        exit(Value);
+    end;
+
+    local procedure AoDump(App: Text; Phase: Text): Text
+    var
+        Row: Record "INS AllObj Inst Log";
+        Seen: Dictionary of [Text, Text];
+        Prefix: Text;
+        Tag: Text;
+        Value: Text;
+        Result: Text;
+        Differs: Text;
+    begin
+        Prefix := App + '|' + Phase + '|';
+        if Row.FindSet() then
+            repeat
+                if Row.Tag.StartsWith(Prefix) then begin
+                    Tag := CopyStr(Row.Tag, StrLen(Prefix) + 1);
+                    Value := Row.Value;
+                    if Tag.StartsWith('pkg|') then begin
+                        Tag := 'count ' + AoPkgName(CopyStr(Tag, 5));
+                    end else
+                        Value := AoShow(Value);
+                    if Seen.ContainsKey(Tag) then begin
+                        if Seen.Get(Tag) <> Value then
+                            Differs += Tag + ';';
+                    end else begin
+                        Seen.Add(Tag, Value);
+                        Result += Tag + '=' + Value + '; ';
+                    end;
+                end;
+            until Row.Next() = 0;
+        exit(Result + ' DIFFERS:' + Differs);
+    end;
+
+    local procedure AoOrder(): Text
+    var
+        Row: Record "INS AllObj Inst Log";
+        Result: Text;
+    begin
+        if Row.FindSet() then
+            repeat
+                if Row.Tag.EndsWith('|start') then
+                    Result += CopyStr(Row.Tag, 1, StrLen(Row.Tag) - 6) + ',';
+            until Row.Next() = 0;
+        exit(Result);
+    end;
+
+    [Test]
+    procedure AllObjInstall_Observe_Order()
+    begin
+        Error('OBS order=%1', AoOrder());
+    end;
+
+    [Test]
+    procedure AllObjInstall_Observe_A_db()
+    begin
+        Error('OBS %1', AoDump('A', 'db'));
+    end;
+
+    [Test]
+    procedure AllObjInstall_Observe_A_co()
+    begin
+        Error('OBS %1', AoDump('A', 'co'));
+    end;
+
+    [Test]
+    procedure AllObjInstall_Observe_B_db()
+    begin
+        Error('OBS %1', AoDump('B', 'db'));
+    end;
+
+    [Test]
+    procedure AllObjInstall_Observe_B_co()
+    begin
+        Error('OBS %1', AoDump('B', 'co'));
+    end;
+
+    [Test]
+    procedure AllObjInstall_Observe_D_db()
+    begin
+        Error('OBS %1', AoDump('D', 'db'));
+    end;
+
+    [Test]
+    procedure AllObjInstall_Observe_D_co()
+    begin
+        Error('OBS %1', AoDump('D', 'co'));
+    end;
+
+    [Test]
+    procedure AllObjInstall_Observe_TestSession()
+    var
+        Obj: Record AllObj;
+        Cap: Record AllObjWithCaption;
+        Info: ModuleInfo;
+        Result: Text;
+    begin
+        Result := 'A table=' + Format(Obj.Get(Obj."Object Type"::Table, 94697)) + ' B table=' + Format(Obj.Get(Obj."Object Type"::Table, 61386)) + ' D table=' + Format(Obj.Get(Obj."Object Type"::Table, 61396));
+        Result += ' capD=' + Format(Cap.Get(Cap."Object Type"::Table, 61396));
+        NavApp.GetModuleInfo('e92be076-de11-44ed-895e-17031341df29', Info);
+        Obj.SetRange("App Package ID", Info.PackageId);
+        Cap.SetRange("App Package ID", Info.PackageId);
+        Result += ' countD allobj=' + Format(Obj.Count()) + ';caption=' + Format(Cap.Count());
+        NavApp.GetModuleInfo('c87ced6d-11a6-4ad2-87c7-ac10083d0a2f', Info);
+        Obj.SetRange("App Package ID", Info.PackageId);
+        Cap.SetRange("App Package ID", Info.PackageId);
+        Result += ' countB allobj=' + Format(Obj.Count()) + ';caption=' + Format(Cap.Count());
+        NavApp.GetModuleInfo('cd6a4292-f27b-4af9-89bc-15a5956f5c71', Info);
+        Obj.SetRange("App Package ID", Info.PackageId);
+        Cap.SetRange("App Package ID", Info.PackageId);
+        Result += ' countA allobj=' + Format(Obj.Count()) + ';caption=' + Format(Cap.Count());
+        Error('OBS %1', Result);
+    end;
 }

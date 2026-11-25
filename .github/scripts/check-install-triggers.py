@@ -57,6 +57,11 @@ ALLOWED = {
     'tests/al-language-xapp-b codeunit 61186',  # "LT Y8 XB Install"
     'tests/al-language-xapp-b codeunit 61356',  # "LT Y64 XB Install"
     'tests/al-language-xapp-b codeunit 61384',  # "LT Y79 XB Install"
+    # al-runner issues 8954 and 6924: what AllObj shows during another app's install; reads run in TryFunctions, the only write is
+    # `if Insert() then;` into a DataPerCompany = false log. (AllObjInstallXa.al, AllObjInstallXb.al, AllObjInstallXd.al)
+    'tests/al-language-xapp-a codeunit 94694',  # "INS AllObj Inst XA Install"
+    'tests/al-language-xapp-b codeunit 61385',  # "INS AllObj Inst XB Install"
+    'tests/al-language-xapp-d codeunit 61395',  # "INS AllObj Inst XD Install"
     # (ALTInstallProbe.al)
     'tests/al-language codeunit 60838',  # "ALT Install Probe"
     'tests/al-language codeunit 50302',  # "LT UR Install Low"
