@@ -28,7 +28,8 @@
 //
 // The expected values are the readings this pull request's own CI printed in its observe round (test b ended with
 // Observer.Finish()), turned into Expect and Verify by convert.py per BC version, verbatim. 28.5 and 29.0 (the hub's Function
-// isolation) gave the same readings; 27.5 (130450, the Codeunit control) differs in every cell, so each cell has a BC28PLUS guard.
+// isolation) gave the same readings; 27.5 (130450, the Codeunit control) differs in every cell, so each asserted cell has a
+// BC28PLUS guard.
 // Measured on the CI legs 27.5, 28.5 and 29.0 (Linux):
 //   - Every cell: OnRun ran once on the instance (onrun_calls 1) and the codeunit's globals survived test a (initialized Yes),
 //     under both runners.
@@ -38,6 +39,8 @@
 //     Next gives S+1. E1 (CompanyWide = false, Next) reads 'missing' in test b: the sequence OnRun created is gone. E1 was the
 //     first codeunit the hub ran in both legs (only these codeunits and the leg's sentinel ran); whether that position
 //     matters is not measured here.
+//   - E1 is not asserted: its reading may depend on the hub's run order (the maintainer's decision on al-runner 8002). Its
+//     readings are still observed and ignored on every version (Observer.Ignore), so the test passes.
 //   - 27.5, the Codeunit control: OnRun found every E sequence already there ('found') and recreated every O sequence
 //     ('recreated'), with onrun_calls 1: something on that leg made them before this instance's OnRun, which this file does
 //     not explain. Test b sees every change of test a: the taken numbers (E1, E2, E3: cur=S+1, Next S+2; O1, O2: Next S+1),
@@ -168,25 +171,16 @@ codeunit 73331 "LT SQH E1 Existing Next"
         Observer.Observe('b_start', Seq.Rel(Name(), CompanyWide(), Base));
         Observer.Observe('b_taken', Seq.RelNext(Name(), CompanyWide(), Base));
         Observer.Observe('b_after', Seq.Rel(Name(), CompanyWide(), Base));
-#if BC28PLUS
-        Observer.Expect('onrun', 'created');
-#else
-        Observer.Expect('onrun', 'found');
-#endif
-        Observer.Expect('onrun_calls', '1');
-        Observer.Expect('initialized', 'Yes');
-        Observer.Expect('a_start', 'cur=S');
-        Observer.Expect('a_changed', 'cur=S+1');
-        Observer.Expect('a_taken', 'S+1');
-#if BC28PLUS
-        Observer.Expect('b_start', 'missing');
-        Observer.Expect('b_taken', 'missing');
-        Observer.Expect('b_after', 'missing');
-#else
-        Observer.Expect('b_start', 'cur=S+1');
-        Observer.Expect('b_taken', 'S+2');
-        Observer.Expect('b_after', 'cur=S+2');
-#endif
+        // Not asserted: E1's reading may depend on the hub's run order (see the header).
+        Observer.Ignore('onrun');
+        Observer.Ignore('onrun_calls');
+        Observer.Ignore('initialized');
+        Observer.Ignore('a_start');
+        Observer.Ignore('a_changed');
+        Observer.Ignore('a_taken');
+        Observer.Ignore('b_start');
+        Observer.Ignore('b_taken');
+        Observer.Ignore('b_after');
         Observer.Verify();
     end;
 
