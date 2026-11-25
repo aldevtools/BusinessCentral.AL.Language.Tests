@@ -38,14 +38,18 @@
 // RDLC rendering: the corpus CI legs run the RDLC renderer (the rdlc runner image, see AMRdlcOutput.al). In the RDLC control
 //   and OnPostReport tests, the Word calls (both forms) are asserted on BC 27, 28 and 29, and the Pdf calls (both forms) on BC 27
 //   and 28 only (#if not BC29PLUS): the BC 29 Linux container turns the renderer off at boot and answers Pdf with a stub text,
-//   which is not Business Central behavior, so Pdf on BC 29 is ignored. Every other RDLC cell errors, or writes Xml, before any
-//   rendering, and is asserted.
+//   which is not Business Central behavior, so Pdf on BC 29 is ignored (BC 29 gave the same observation texts, but a non-empty
+//   stub cannot be told from a rendered file). Every other RDLC cell errors, or writes Xml, before any rendering, and is asserted.
+//   Measured in this pull request's CI on 27.5, 28.5 and 29.0: the control saves a non-empty file as Pdf (27, 28) and Word
+//   (every version), the Boolean form answers true; OnPostReport raises E3 as Pdf (27, 28) and Word (every version), or answers
+//   false with it. So OnPostReport's error still comes through when RDLC rendering runs.
 // Report extension that only adds a column (al-runner issue 8486 item 3: the report has its own layout and a report extension
 //   that adds one dataset column, add(Int) { column(...) }): "SAE Rdlc Col Rpt" (RDLC) and "SAE Word Col Rpt" (Word), each
-//   extended by such an extension, with the same five error sites and the same six calls ("SAE Ext Column Tests").
-// Measuring round: the expectations 'PLACEHOLDER' and the tests that end in Observer.Finish() record BC's values in the CI
-//   failure messages; the next commit asserts them. Observer.Verify stops at the first difference, so the tests
-//   SaveAs_Rdlc_Control_Measure and SaveAs_Rdlc_OnPostReport_Measure observe the RDLC rendering cells in full for this round.
+//   extended by such an extension, with the same five error sites and the same six calls ("SAE Ext Column Tests"). Measured in
+//   this pull request's CI on 27.5, 28.5 and 29.0: the extension changes nothing. Every cell gives the same text as the cell of
+//   the report without an extension and the same layout (Word: "SAE Word Rpt"; RDLC: "SAE Rdlc Rpt", including the rendering
+//   cells), on every version. The RDLC rendering rule above applies to "SAE Rdlc Col Rpt" too: its control and OnPostReport Pdf
+//   calls are asserted on 27 and 28 and ignored on 29.
 // BC versions: 27.5, 28.5, 29.0
 
 
@@ -514,14 +518,14 @@ codeunit 77388 "SAE SaveAs Trigger Error Tests"
     begin
         Cells.Cell(Observer, Report::"SAE Rdlc Rpt", 0);
 #if not BC29PLUS
-        Observer.Expect('Pdf stmt', 'PLACEHOLDER');
-        Observer.Expect('Pdf bool', 'PLACEHOLDER');
+        Observer.Expect('Pdf stmt', 'returned, nonempty=Yes');
+        Observer.Expect('Pdf bool', 'true, nonempty=Yes, last=');
 #else
         Observer.Ignore('Pdf stmt');
         Observer.Ignore('Pdf bool');
 #endif
-        Observer.Expect('Word stmt', 'PLACEHOLDER');
-        Observer.Expect('Word bool', 'PLACEHOLDER');
+        Observer.Expect('Word stmt', 'returned, nonempty=Yes');
+        Observer.Expect('Word bool', 'true, nonempty=Yes, last=');
         Observer.Expect('Xml stmt', 'returned, nonempty=Yes');
         Observer.Expect('Xml bool', 'true, nonempty=Yes, last=');
         Observer.Verify();
@@ -583,14 +587,14 @@ codeunit 77388 "SAE SaveAs Trigger Error Tests"
     begin
         Cells.Cell(Observer, Report::"SAE Rdlc Rpt", 4);
 #if not BC29PLUS
-        Observer.Expect('Pdf stmt', 'PLACEHOLDER');
-        Observer.Expect('Pdf bool', 'PLACEHOLDER');
+        Observer.Expect('Pdf stmt', 'raised Dialog/E3');
+        Observer.Expect('Pdf bool', 'false, last=Dialog/E3');
 #else
         Observer.Ignore('Pdf stmt');
         Observer.Ignore('Pdf bool');
 #endif
-        Observer.Expect('Word stmt', 'PLACEHOLDER');
-        Observer.Expect('Word bool', 'PLACEHOLDER');
+        Observer.Expect('Word stmt', 'raised Dialog/E3');
+        Observer.Expect('Word bool', 'false, last=Dialog/E3');
         Observer.Expect('Xml stmt', 'raised Dialog/E3');
         Observer.Expect('Xml bool', 'false, last=Dialog/E3');
         Observer.Verify();
@@ -973,8 +977,8 @@ codeunit 77395 "SAE Ext Column Tests"
 {
     Subtype = Test;
 
-    // Cells.Cell(Observer, report, site), as in "SAE SaveAs Trigger Error Tests". Measuring round: each test ends in
-    // Observer.Finish(), so its CI failure message holds the six observations BC produced.
+    // Cells.Cell(Observer, report, site), as in "SAE SaveAs Trigger Error Tests". Site: 0 control, 1 OnPreReport,
+    // 2 OnAfterGetRecord, 3 OnPreDataItem TestField, 4 OnPostReport.
 
     [Test]
     procedure SaveAs_RdlcExtColumn_Control_SixCallForms()
@@ -983,7 +987,18 @@ codeunit 77395 "SAE Ext Column Tests"
         Cells: Codeunit "SAE Cells";
     begin
         Cells.Cell(Observer, Report::"SAE Rdlc Col Rpt", 0);
-        Observer.Finish();
+#if not BC29PLUS
+        Observer.Expect('Pdf stmt', 'returned, nonempty=Yes');
+        Observer.Expect('Pdf bool', 'true, nonempty=Yes, last=');
+#else
+        Observer.Ignore('Pdf stmt');
+        Observer.Ignore('Pdf bool');
+#endif
+        Observer.Expect('Word stmt', 'returned, nonempty=Yes');
+        Observer.Expect('Word bool', 'true, nonempty=Yes, last=');
+        Observer.Expect('Xml stmt', 'returned, nonempty=Yes');
+        Observer.Expect('Xml bool', 'true, nonempty=Yes, last=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -993,7 +1008,13 @@ codeunit 77395 "SAE Ext Column Tests"
         Cells: Codeunit "SAE Cells";
     begin
         Cells.Cell(Observer, Report::"SAE Rdlc Col Rpt", 1);
-        Observer.Finish();
+        Observer.Expect('Pdf stmt', 'raised Dialog/E1');
+        Observer.Expect('Pdf bool', 'false, last=Dialog/E1');
+        Observer.Expect('Word stmt', 'raised Dialog/E1');
+        Observer.Expect('Word bool', 'false, last=Dialog/E1');
+        Observer.Expect('Xml stmt', 'raised Dialog/E1');
+        Observer.Expect('Xml bool', 'false, last=Dialog/E1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1003,7 +1024,13 @@ codeunit 77395 "SAE Ext Column Tests"
         Cells: Codeunit "SAE Cells";
     begin
         Cells.Cell(Observer, Report::"SAE Rdlc Col Rpt", 2);
-        Observer.Finish();
+        Observer.Expect('Pdf stmt', 'raised Dialog/E2');
+        Observer.Expect('Pdf bool', 'false, last=Dialog/E2');
+        Observer.Expect('Word stmt', 'raised Dialog/E2');
+        Observer.Expect('Word bool', 'false, last=Dialog/E2');
+        Observer.Expect('Xml stmt', 'raised Dialog/E2');
+        Observer.Expect('Xml bool', 'false, last=Dialog/E2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1013,7 +1040,13 @@ codeunit 77395 "SAE Ext Column Tests"
         Cells: Codeunit "SAE Cells";
     begin
         Cells.Cell(Observer, Report::"SAE Rdlc Col Rpt", 3);
-        Observer.Finish();
+        Observer.Expect('Pdf stmt', StrSubstNo('raised TestField/Tag must have a value in %1: Code=. It cannot be zero or empty.', BlobCaption()));
+        Observer.Expect('Pdf bool', StrSubstNo('false, last=TestField/Tag must have a value in %1: Code=. It cannot be zero or empty.', BlobCaption()));
+        Observer.Expect('Word stmt', StrSubstNo('raised TestField/Tag must have a value in %1: Code=. It cannot be zero or empty.', BlobCaption()));
+        Observer.Expect('Word bool', StrSubstNo('false, last=TestField/Tag must have a value in %1: Code=. It cannot be zero or empty.', BlobCaption()));
+        Observer.Expect('Xml stmt', StrSubstNo('raised TestField/Tag must have a value in %1: Code=. It cannot be zero or empty.', BlobCaption()));
+        Observer.Expect('Xml bool', StrSubstNo('false, last=TestField/Tag must have a value in %1: Code=. It cannot be zero or empty.', BlobCaption()));
+        Observer.Verify();
     end;
 
     [Test]
@@ -1023,7 +1056,18 @@ codeunit 77395 "SAE Ext Column Tests"
         Cells: Codeunit "SAE Cells";
     begin
         Cells.Cell(Observer, Report::"SAE Rdlc Col Rpt", 4);
-        Observer.Finish();
+#if not BC29PLUS
+        Observer.Expect('Pdf stmt', 'raised Dialog/E3');
+        Observer.Expect('Pdf bool', 'false, last=Dialog/E3');
+#else
+        Observer.Ignore('Pdf stmt');
+        Observer.Ignore('Pdf bool');
+#endif
+        Observer.Expect('Word stmt', 'raised Dialog/E3');
+        Observer.Expect('Word bool', 'false, last=Dialog/E3');
+        Observer.Expect('Xml stmt', 'raised Dialog/E3');
+        Observer.Expect('Xml bool', 'false, last=Dialog/E3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1033,7 +1077,13 @@ codeunit 77395 "SAE Ext Column Tests"
         Cells: Codeunit "SAE Cells";
     begin
         Cells.Cell(Observer, Report::"SAE Word Col Rpt", 0);
-        Observer.Finish();
+        Observer.Expect('Pdf stmt', 'returned, nonempty=Yes');
+        Observer.Expect('Pdf bool', 'true, nonempty=Yes, last=');
+        Observer.Expect('Word stmt', 'returned, nonempty=Yes');
+        Observer.Expect('Word bool', 'true, nonempty=Yes, last=');
+        Observer.Expect('Xml stmt', 'returned, nonempty=Yes');
+        Observer.Expect('Xml bool', 'true, nonempty=Yes, last=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1043,7 +1093,13 @@ codeunit 77395 "SAE Ext Column Tests"
         Cells: Codeunit "SAE Cells";
     begin
         Cells.Cell(Observer, Report::"SAE Word Col Rpt", 1);
-        Observer.Finish();
+        Observer.Expect('Pdf stmt', 'raised Dialog/E1');
+        Observer.Expect('Pdf bool', 'false, last=Dialog/E1');
+        Observer.Expect('Word stmt', 'raised Dialog/E1');
+        Observer.Expect('Word bool', 'false, last=Dialog/E1');
+        Observer.Expect('Xml stmt', 'raised Dialog/E1');
+        Observer.Expect('Xml bool', 'false, last=Dialog/E1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1053,7 +1109,13 @@ codeunit 77395 "SAE Ext Column Tests"
         Cells: Codeunit "SAE Cells";
     begin
         Cells.Cell(Observer, Report::"SAE Word Col Rpt", 2);
-        Observer.Finish();
+        Observer.Expect('Pdf stmt', 'raised Dialog/E2');
+        Observer.Expect('Pdf bool', 'false, last=Dialog/E2');
+        Observer.Expect('Word stmt', 'raised Dialog/E2');
+        Observer.Expect('Word bool', 'false, last=Dialog/E2');
+        Observer.Expect('Xml stmt', 'raised Dialog/E2');
+        Observer.Expect('Xml bool', 'false, last=Dialog/E2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1063,7 +1125,13 @@ codeunit 77395 "SAE Ext Column Tests"
         Cells: Codeunit "SAE Cells";
     begin
         Cells.Cell(Observer, Report::"SAE Word Col Rpt", 3);
-        Observer.Finish();
+        Observer.Expect('Pdf stmt', StrSubstNo('raised TestField/Tag must have a value in %1: Code=. It cannot be zero or empty.', BlobCaption()));
+        Observer.Expect('Pdf bool', StrSubstNo('false, last=TestField/Tag must have a value in %1: Code=. It cannot be zero or empty.', BlobCaption()));
+        Observer.Expect('Word stmt', StrSubstNo('raised TestField/Tag must have a value in %1: Code=. It cannot be zero or empty.', BlobCaption()));
+        Observer.Expect('Word bool', StrSubstNo('false, last=TestField/Tag must have a value in %1: Code=. It cannot be zero or empty.', BlobCaption()));
+        Observer.Expect('Xml stmt', StrSubstNo('raised TestField/Tag must have a value in %1: Code=. It cannot be zero or empty.', BlobCaption()));
+        Observer.Expect('Xml bool', StrSubstNo('false, last=TestField/Tag must have a value in %1: Code=. It cannot be zero or empty.', BlobCaption()));
+        Observer.Verify();
     end;
 
     [Test]
@@ -1073,34 +1141,13 @@ codeunit 77395 "SAE Ext Column Tests"
         Cells: Codeunit "SAE Cells";
     begin
         Cells.Cell(Observer, Report::"SAE Word Col Rpt", 4);
-        Observer.Finish();
-    end;
-
-    // Measuring round only: the RDLC rendering cells of SaveAs_Rdlc_Control_SixCallForms in full. Removed by the next commit.
-    [Test]
-    procedure SaveAs_Rdlc_Control_Measure()
-    var
-        Observer: Codeunit "Probe Observer";
-        Cells: Codeunit "SAE Cells";
-    begin
-        Cells.Cell(Observer, Report::"SAE Rdlc Rpt", 0);
-        Observer.Finish();
-    end;
-
-    // Measuring round only: the RDLC rendering cells of SaveAs_Rdlc_OnPostReport_SixCallForms in full. Removed by the next commit.
-    [Test]
-    procedure SaveAs_Rdlc_OnPostReport_Measure()
-    var
-        Observer: Codeunit "Probe Observer";
-        Cells: Codeunit "SAE Cells";
-    begin
-        Cells.Cell(Observer, Report::"SAE Rdlc Rpt", 4);
-        Observer.Finish();
-    end;
-
-    local procedure ReportNo(ReportId: Integer): Text
-    begin
-        exit(Format(ReportId, 0, 9));
+        Observer.Expect('Pdf stmt', 'raised Dialog/E3');
+        Observer.Expect('Pdf bool', 'false, last=Dialog/E3');
+        Observer.Expect('Word stmt', 'raised Dialog/E3');
+        Observer.Expect('Word bool', 'false, last=Dialog/E3');
+        Observer.Expect('Xml stmt', 'raised Dialog/E3');
+        Observer.Expect('Xml bool', 'false, last=Dialog/E3');
+        Observer.Verify();
     end;
 
     local procedure BlobCaption(): Text
