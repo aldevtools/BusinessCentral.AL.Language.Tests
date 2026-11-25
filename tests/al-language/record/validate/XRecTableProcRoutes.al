@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/record/record-validate-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own objects 97164..97170 (XRR Line, XRR Line Ext, XRR Cfg, XRR Subscriber,
-//   XRR Helper, XRR Tests, XRR Report)
+// Fixtures used: Probe Observer (codeunit 69160); own objects 97164..97171 (XRR Line, XRR Line Ext, XRR Cfg, XRR Subscriber,
+//   XRR Helper, XRR Tests, XRR Report, XRR Other Subscriber)
 // local object: the table and table extension procedures, the field triggers, the event subscribers and the callers of the
 //   Validate are what is under test.
 // Probe (al-runner issue 8974, follow-up to XRecTableProcThroughSubscriber.al and XRecTableProcCallers.al): what xRec a
@@ -12,7 +12,11 @@
 //   the subscriber's codeunit; 'HR' through one that takes only the record; 'PS' after the subscriber assigned Rec; 'X' and
 //   'P' from the subscriber of an integration event the trigger raises; 'C' through a codeunit the trigger calls; 'CV' and
 //   'CO' after that codeunit validated another field, 'CO' through a table procedure that reads xRec in a local procedure
-//   it calls). A record is logged as Mode ordinal/Series/"Item No."/Note. Before the Validate the stored row holds
+//   it calls; 'J' for "Planned No.", whose trigger runs Init, assigns Series and nests Validate(Mode) through two table
+//   procedures; 'X2' and 'P2' from the subscriber of an event with a second var record parameter that a second subscriber,
+//   declaring only the record, also subscribes to; 'H' for Heavy, whose trigger runs Init, nests Validate(Note) and calls a
+//   table procedure itself ('HP'); 'CH' and 'CH2' through a table procedure that reads xRec in a local procedure, after the
+//   codeunit validated Heavy and called a table procedure that assigns, and after it assigned a field). A record is logged as Mode ordinal/Series/"Item No."/Note. Before the Validate the stored row holds
 //   0/OLD/I1/ and the record variable 0/NEW/I1/, so a read of the stored row and a copy of Rec show apart from the
 //   record's before-image.
 // Cells:
@@ -26,6 +30,13 @@
 //   - a codeunit the trigger hands Rec to after the same assignment, also assigning a field of Rec itself before the call;
 //     that codeunit validating another field of the record
 //     before it calls the table procedure, also through a table procedure that reads xRec in a local procedure;
+//   - (Base Application's planning: Requisition Line "Replenishment System" raising OnValidateReplenishmentSystemCaseElse
+//     to the Mfg. and Asm. subscribers) the trigger assigns, then raises an event with two subscribers; the same Validate
+//     nested by "Planned No." after Init, validated by the test, by a codeunit procedure and by a report's OnAfterGetRecord;
+//   - (Base Application's Purchase Line "Item Reference No." and Item Reference Management.ValidatePurchaseReferenceNo)
+//     the trigger assigns, then hands Rec to a codeunit that validates a field whose trigger runs Init, nests a Validate
+//     and calls a table procedure, calls a table procedure that assigns, reads through a table procedure, assigns, reads
+//     again; validated by the test and by a codeunit procedure;
 //   - callers of the Validate: a test procedure that also carries [Scope('OnPrem')], with and without a handler; a report run
 //     from test code (UseRequestPage(false), Run) whose OnAfterGetRecord calls a report procedure that validates; the
 //     subscriber of an integration event a codeunit raises, validating the record it is handed.
@@ -48,6 +59,7 @@ table 97164 "XRR Line"
             var
                 Cfg: Codeunit "XRR Cfg";
                 Helper: Codeunit "XRR Helper";
+                Number: Record Integer;
             begin
                 if Cfg.Get() = '' then
                     exit;
@@ -71,6 +83,13 @@ table 97164 "XRR Line"
                         Helper.ValidateNoteThenTableProc(Rec);
                     'cu-validate-own':
                         Helper.ValidateNoteThenOwnChain(Rec, true, Rec.FieldNo(Mode));
+                    'event2':
+                        begin
+                            Number.Number := 1;
+                            OnModeElse2(Rec, Number);
+                        end;
+                    'cu-heavy':
+                        Helper.ValidateHeavyThenOwnChain(Rec);
                 end;
             end;
         }
@@ -96,6 +115,37 @@ table 97164 "XRR Line"
             begin
                 if Cfg.Get() <> '' then
                     Cfg.Add('N x=' + Cfg.Fmt(xRec));
+            end;
+        }
+        field(6; "Planned No."; Code[20])
+        {
+            trigger OnValidate()
+            var
+                Cfg: Codeunit "XRR Cfg";
+            begin
+                if Cfg.Get() = '' then
+                    exit;
+                Cfg.Add('J x=' + Cfg.Fmt(xRec));
+                Init();
+                Series := 'MID';
+                CopyFromItem();
+            end;
+        }
+        field(7; Heavy; Code[20])
+        {
+            trigger OnValidate()
+            var
+                Cfg: Codeunit "XRR Cfg";
+                TempLine: Record "XRR Line" temporary;
+            begin
+                if Cfg.Get() = '' then
+                    exit;
+                Cfg.Add('H x=' + Cfg.Fmt(xRec));
+                TempLine := Rec;
+                Init();
+                Series := TempLine.Series;
+                Validate(Note, 'HV');
+                TableProcRead('HP');
             end;
         }
     }
@@ -139,8 +189,18 @@ table 97164 "XRR Line"
         Cfg.Add(Tag + ' x=' + Cfg.Fmt(xRec));
     end;
 
+    procedure SetNoteFromProc()
+    begin
+        Note := 'SP';
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnModeElse(var Line: Record "XRR Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnModeElse2(var Line: Record "XRR Line"; var Number: Record Integer)
     begin
     end;
 }
@@ -173,8 +233,13 @@ report 97170 "XRR Report"
     }
 
     local procedure InsertLine(var Line: Record "XRR Line")
+    var
+        Cfg: Codeunit "XRR Cfg";
     begin
-        Line.Validate("Item No.", 'I2');
+        if Cfg.Get() = 'event2' then
+            Line.Validate("Planned No.", 'P1')
+        else
+            Line.Validate("Item No.", 'I2');
     end;
 }
 
@@ -283,10 +348,27 @@ codeunit 97167 "XRR Subscriber"
         Line.TableProcRead('P');
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"XRR Line", 'OnModeElse2', '', false, false)]
+    local procedure OnModeElse2(var Line: Record "XRR Line"; var Number: Record Integer)
+    begin
+        Line.ExtProcRead('X2');
+        Line.TableProcRead('P2');
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"XRR Helper", 'OnLineRequested', '', false, false)]
     local procedure OnLineRequested(var Line: Record "XRR Line")
     begin
         Line.Validate("Item No.", 'I2');
+    end;
+}
+
+codeunit 97171 "XRR Other Subscriber"
+{
+    [EventSubscriber(ObjectType::Table, Database::"XRR Line", 'OnModeElse2', '', false, false)]
+    local procedure OnModeElse2(var Line: Record "XRR Line")
+    begin
+        if Line.Note = 'ASM' then
+            Line.TableProcRead('Z');
     end;
 }
 
@@ -313,6 +395,25 @@ codeunit 97168 "XRR Helper"
     begin
         Line.Validate(Note, 'V');
         Line.TableProcThroughOwn('CO');
+    end;
+
+    procedure ValidateHeavyThenOwnChain(var Line: Record "XRR Line")
+    begin
+        Line.Validate(Heavy, 'H');
+        Line.SetNoteFromProc();
+        Line.TableProcThroughOwn('CH');
+        Line.Note := 'CU';
+        Line.TableProcThroughOwn('CH2');
+    end;
+
+    procedure ValidateMode(var Line: Record "XRR Line")
+    begin
+        Line.Validate(Mode, Line.Mode::Production);
+    end;
+
+    procedure ValidatePlanned(var Line: Record "XRR Line")
+    begin
+        Line.Validate("Planned No.", 'P1');
     end;
 
     procedure AssignSeries(var Line: Record "XRR Line")
@@ -655,6 +756,117 @@ codeunit 97169 "XRR Tests"
         Observe(Observer, Line);
         Observer.Expect('log', 'I x=0/NEW/I1/;T x=0/NEW/I1/;X x=0/NEW/I1/;P x=0/NEW/I1/;');
         Observer.Expect('record', '1/MID/I2/');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure IntegrationEvent_TriggerAssigns_TwoSubscribers()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XRR Line";
+        Helper: Codeunit "XRR Helper";
+        GetLines: Report "XRR Report";
+    begin
+        Initialize();
+        AfterInsert(Line);
+        ValidateModeAndObserve(Observer, Line, 'event2', 'direct');
+        Observer.Expect('log', 'T x=0/NEW/I1/;X2 x=0/NEW/I1/;P2 x=0/NEW/I1/;');
+        Observer.Expect('record', '1/TRG/I1/');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Nested_InitThenTriggerAssigns_TwoSubscribers()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XRR Line";
+        Helper: Codeunit "XRR Helper";
+        GetLines: Report "XRR Report";
+    begin
+        Initialize();
+        AfterInsert(Line);
+        Cfg.Set('event2');
+        Cfg.SetAssign('direct');
+        Line.Validate("Planned No.", 'P1');
+        Observe(Observer, Line);
+        Observer.Expect('log', 'J x=0/NEW/I1/;T x=0/NEW/I1/;X2 x=0/NEW/I1/;P2 x=0/NEW/I1/;');
+        Observer.Expect('record', '1/TRG//');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Nested_InitThenTriggerAssigns_TwoSubscribers_FromCodeunit()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XRR Line";
+        Helper: Codeunit "XRR Helper";
+        GetLines: Report "XRR Report";
+    begin
+        Initialize();
+        AfterInsert(Line);
+        Cfg.Set('event2');
+        Cfg.SetAssign('direct');
+        Helper.ValidatePlanned(Line);
+        Observe(Observer, Line);
+        Observer.Expect('log', 'J x=0/NEW/I1/;T x=0/NEW/I1/;X2 x=0/NEW/I1/;P2 x=0/NEW/I1/;');
+        Observer.Expect('record', '1/TRG//');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Nested_InitThenTriggerAssigns_TwoSubscribers_FromReport()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XRR Line";
+        Helper: Codeunit "XRR Helper";
+        GetLines: Report "XRR Report";
+    begin
+        Initialize();
+        AfterInsert(Line);
+        Cfg.Set('event2');
+        Cfg.SetAssign('direct');
+        Line.SetRange("Line No.", 1);
+        GetLines.SetTableView(Line);
+        GetLines.UseRequestPage(false);
+        GetLines.Run();
+        Observe(Observer, Line);
+        Observer.Expect('log', 'J x=0/NEW/I1/;T x=0/NEW/I1/;X2 x=0/NEW/I1/;P2 x=0/NEW/I1/;');
+        Observer.Expect('record', '0/NEW/I1/');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Codeunit_TriggerAssigns_ValidatesHeavyField_ThroughOwnProc()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XRR Line";
+        Helper: Codeunit "XRR Helper";
+        GetLines: Report "XRR Report";
+    begin
+        Initialize();
+        AfterInsert(Line);
+        ValidateModeAndObserve(Observer, Line, 'cu-heavy', 'direct');
+        Observer.Expect('log', 'T x=0/NEW/I1/;H x=1/TRG/I1/;N x=1/TRG/I1/;HP x=1/TRG/I1/;CH x=0/NEW/I1/;CH2 x=0/NEW/I1/;');
+        Observer.Expect('record', '0/TRG//CU');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Codeunit_TriggerAssigns_ValidatesHeavyField_FromCodeunit()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XRR Line";
+        Helper: Codeunit "XRR Helper";
+        GetLines: Report "XRR Report";
+    begin
+        Initialize();
+        AfterInsert(Line);
+        Cfg.Set('cu-heavy');
+        Cfg.SetAssign('direct');
+        Helper.ValidateMode(Line);
+        Observe(Observer, Line);
+        Observer.Expect('log', 'T x=0/NEW/I1/;H x=1/TRG/I1/;N x=1/TRG/I1/;HP x=1/TRG/I1/;CH x=0/NEW/I1/;CH2 x=0/NEW/I1/;');
+        Observer.Expect('record', '0/TRG//CU');
         Observer.Verify();
     end;
 
