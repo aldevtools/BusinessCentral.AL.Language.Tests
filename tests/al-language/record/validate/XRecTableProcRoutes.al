@@ -29,7 +29,8 @@
 //   - callers of the Validate: a test procedure that also carries [Scope('OnPrem')], with and without a handler; a report run
 //     from test code (UseRequestPage(false), Run) whose OnAfterGetRecord calls a report procedure that validates; the
 //     subscriber of an integration event a codeunit raises, validating the record it is handed.
-// Facts: OBSERVE
+// Facts: what each table procedure (and the field trigger) reads of xRec, and the record after the Validate, per cell (the
+//   Expect lines of each test).
 // BC versions: 27.5, 28.5, 29.0
 
 table 97164 "XRR Line"
@@ -385,7 +386,9 @@ codeunit 97169 "XRR Tests"
         Initialize();
         AfterInsert(Line);
         ValidateModeAndObserve(Observer, Line, 'after-table', 'direct');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=0/NEW/I1/;A x=0/NEW/I1/;PA x=0/NEW/I1/;');
+        Observer.Expect('record', '1/TRG/I1/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -397,7 +400,9 @@ codeunit 97169 "XRR Tests"
         Initialize();
         AfterInsert(Line);
         ValidateModeAndObserve(Observer, Line, 'after-ext', 'direct');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=0/NEW/I1/;A x=0/NEW/I1/;XA x=0/NEW/I1/;');
+        Observer.Expect('record', '1/TRG/I1/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -409,7 +414,9 @@ codeunit 97169 "XRR Tests"
         Initialize();
         AfterInsert(Line);
         ValidateModeAndObserve(Observer, Line, 'after-helper-table', 'direct');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=0/NEW/I1/;HP x=0/NEW/I1/;');
+        Observer.Expect('record', '1/TRG/I1/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -421,7 +428,9 @@ codeunit 97169 "XRR Tests"
         Initialize();
         AfterInsert(Line);
         ValidateModeAndObserve(Observer, Line, 'after-helper-ext', 'direct');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=0/NEW/I1/;HX x=0/NEW/I1/;');
+        Observer.Expect('record', '1/TRG/I1/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -433,7 +442,9 @@ codeunit 97169 "XRR Tests"
         Initialize();
         AfterInsert(Line);
         ValidateModeAndObserve(Observer, Line, 'after-helper-table', '');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=0/NEW/I1/;HP x=0/NEW/I1/;');
+        Observer.Expect('record', '1/NEW/I1/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -445,7 +456,9 @@ codeunit 97169 "XRR Tests"
         Initialize();
         AfterInsert(Line);
         ValidateModeAndObserve(Observer, Line, 'after-helper-reconly', 'direct');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=0/NEW/I1/;HR x=0/NEW/I1/;');
+        Observer.Expect('record', '1/TRG/I1/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -457,7 +470,9 @@ codeunit 97169 "XRR Tests"
         Initialize();
         AfterInsert(Line);
         ValidateModeAndObserve(Observer, Line, 'after-table', 'proc');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=0/NEW/I1/;A x=0/NEW/I1/;PA x=0/NEW/I1/;');
+        Observer.Expect('record', '1/TRG/I1/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -469,7 +484,9 @@ codeunit 97169 "XRR Tests"
         Initialize();
         AfterInsert(Line);
         ValidateModeAndObserve(Observer, Line, 'after-table', 'codeunit');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=0/NEW/I1/;A x=0/NEW/I1/;PA x=0/NEW/I1/;');
+        Observer.Expect('record', '1/TRG/I1/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -481,7 +498,9 @@ codeunit 97169 "XRR Tests"
         Initialize();
         AfterInsert(Line);
         ValidateModeAndObserve(Observer, Line, 'after-subassign', 'direct');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=0/NEW/I1/;PS x=0/NEW/I1/;');
+        Observer.Expect('record', '1/TRG/I1/SUB');
+        Observer.Verify();
     end;
 
     [Test]
@@ -493,7 +512,9 @@ codeunit 97169 "XRR Tests"
         Initialize();
         AfterInsert(Line);
         ValidateModeAndObserve(Observer, Line, 'event', 'direct');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=0/NEW/I1/;X x=0/NEW/I1/;P x=0/NEW/I1/;');
+        Observer.Expect('record', '1/TRG/I1/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -505,7 +526,9 @@ codeunit 97169 "XRR Tests"
         Initialize();
         AfterInsert(Line);
         ValidateModeAndObserve(Observer, Line, 'codeunit', 'direct');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=0/NEW/I1/;C x=0/NEW/I1/;');
+        Observer.Expect('record', '1/TRG/I1/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -517,7 +540,9 @@ codeunit 97169 "XRR Tests"
         Initialize();
         AfterInsert(Line);
         ValidateModeAndObserve(Observer, Line, 'event-assign', 'direct');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=0/NEW/I1/;X x=0/NEW/I1/;P x=0/NEW/I1/;');
+        Observer.Expect('record', '1/TRG/I1/SUB');
+        Observer.Verify();
     end;
 
     [Test]
@@ -529,7 +554,9 @@ codeunit 97169 "XRR Tests"
         Initialize();
         AfterInsert(Line);
         ValidateModeAndObserve(Observer, Line, 'codeunit-assign', 'direct');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=0/NEW/I1/;CA x=0/NEW/I1/;');
+        Observer.Expect('record', '1/TRG/I1/CU');
+        Observer.Verify();
     end;
 
     [Test]
@@ -541,7 +568,9 @@ codeunit 97169 "XRR Tests"
         Initialize();
         AfterInsert(Line);
         ValidateModeAndObserve(Observer, Line, 'cu-validate', '');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=0/NEW/I1/;N x=1/NEW/I1/;CV x=0/NEW/I1/;');
+        Observer.Expect('record', '1/NEW/I1/V');
+        Observer.Verify();
     end;
 
     [Test]
@@ -553,7 +582,9 @@ codeunit 97169 "XRR Tests"
         Initialize();
         AfterInsert(Line);
         ValidateModeAndObserve(Observer, Line, 'cu-validate-own', 'direct');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=0/NEW/I1/;N x=1/TRG/I1/;CO x=0/NEW/I1/;');
+        Observer.Expect('record', '1/TRG/I1/V');
+        Observer.Verify();
     end;
 
     [Test]
@@ -566,7 +597,9 @@ codeunit 97169 "XRR Tests"
         Initialize();
         AfterInsert(Line);
         ValidateModeAndObserve(Observer, Line, 'event', '');
-        Observer.Finish();
+        Observer.Expect('log', 'T x=0/NEW/I1/;X x=0/NEW/I1/;P x=0/NEW/I1/;');
+        Observer.Expect('record', '1/NEW/I1/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -583,7 +616,9 @@ codeunit 97169 "XRR Tests"
         Line.Validate("Item No.", 'I2');
         Message('done');
         Observe(Observer, Line);
-        Observer.Finish();
+        Observer.Expect('log', 'I x=0/NEW/I1/;T x=0/NEW/I1/;X x=0/NEW/I1/;P x=0/NEW/I1/;');
+        Observer.Expect('record', '1/MID/I2/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -601,7 +636,9 @@ codeunit 97169 "XRR Tests"
         GetLines.UseRequestPage(false);
         GetLines.Run();
         Observe(Observer, Line);
-        Observer.Finish();
+        Observer.Expect('log', 'I x=0/NEW/I1/;T x=0/NEW/I1/;X x=0/NEW/I1/;P x=0/NEW/I1/;');
+        Observer.Expect('record', '0/NEW/I1/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -616,7 +653,9 @@ codeunit 97169 "XRR Tests"
         Cfg.Set('event');
         Helper.RequestLine(Line);
         Observe(Observer, Line);
-        Observer.Finish();
+        Observer.Expect('log', 'I x=0/NEW/I1/;T x=0/NEW/I1/;X x=0/NEW/I1/;P x=0/NEW/I1/;');
+        Observer.Expect('record', '1/MID/I2/');
+        Observer.Verify();
     end;
 
     [MessageHandler]
