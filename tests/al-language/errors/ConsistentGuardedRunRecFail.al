@@ -1,4 +1,38 @@
-// HEADER
+// BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/record/record-consistent-method
+//   https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/codeunit/codeunit-run-method
+// Scope: in-scope
+// Fixtures used: Probe Observer (codeunit 69160); own objects 88975-88979, 88981-88983 (GRR X, GRR Y, GRR Z, GRR Mode, GRR Steps,
+//   GRR Inner Z, GRR Inner X, GRR Tests)
+// Probe: from al-runner issue 8970, record argument. Same cells as ConsistentGuardedRunFail.al (inner codeunit marks tables with
+//   Consistent(false), then ends or fails), but the guarded run passes a record: Ok := Codeunit.Run(Id, Rec).
+// Area: Codeunit.Run(Id, Rec) with a record argument, while the inner codeunit marks a table with Consistent(false).
+//   - RecZ_*: the argument is a committed row of GRR Z (a table the marks do not name); the inner codeunit has TableNo GRR Z.
+//   - RecX_*: the argument is a committed row of GRR X (the table the inner codeunit marks); the inner codeunit has TableNo GRR X.
+//   - RecTemp_*: the argument is a temporary GRR X record.
+//   - Plain_*: the same run as a plain statement, without the guard.
+//   - Cells: the 13 mark/ends/fails sequences and the 6 Commit cells (plain Commit, CommitBehavior::Error, ::Ignore) of
+//     ConsistentGuardedRunFail.al; the inner codeunit marking or modifying its own argument (MarkRec, ModifyRec, TrueRec).
+//   Each cell reads the run's error, the log (return value, last error text and code, the argument's Name after the run), whether
+//   a Commit in the caller raises, and the rows that are durable. Every cell starts with one committed row in GRR X and GRR Z.
+//   RecCell runs the guarded run and ends with Error('END') under asserterror, so a run that raises and one that returns are both read.
+// The values are what BC produced. What BC did, in short:
+//   - The record argument changes nothing. Every cell gives the same result as the same cell without an argument in
+//     ConsistentGuardedRunFail.al, for a committed row of another table, a committed row of the marked table, and a temporary record.
+//   - A mark still held when the inner codeunit ends normally makes the guarded Codeunit.Run raise the Consistent error
+//     (DB:TableInConsistent) naming the marked table; the run does not return.
+//   - When the inner codeunit fails with Error after marks, the marks are dropped: the run returns No, the last error is the
+//     inner error (code Dialog), the argument's Name is unchanged, the inner writes are rolled back, and a later Commit in the
+//     caller does not raise. A plain statement gives the same.
+//   - Marking or modifying the argument itself in the inner codeunit follows the same rules: a mark held at the end raises, a
+//     mark cleared with Consistent(true) on the same variable lets the run return Yes, a failure drops it.
+//   - A plain Commit in the inner codeunit while it holds a mark: the run returns No with the Consistent error text and code
+//     DB:TableInConsistent. Under CommitBehavior::Error the run returns No with the commit-prohibited error. Under
+//     CommitBehavior::Ignore the commit is skipped and the end of the run decides.
+// Not measured (a runtime must refuse these): marks set by the caller before the run; FieldError and TestField after a mark; a
+//   record argument of a table the caller marked; a record argument with filters, or read after the run beyond its Name; nested
+//   (not top-level) runs; a write in the caller after its Commit and before the run.
+// local object: the tests must commit (a guarded Codeunit.Run commits), and the inner codeunit is the code under test.
+// BC versions: 27.5, 28.5, 29.0
 
 table 88975 "GRR X"
 {
@@ -378,7 +412,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'startx,fya,fyc,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=inner failed;code=Dialog;arg=caller;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -387,7 +427,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'startx,insy,fya,fyc,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=inner failed;code=Dialog;arg=caller;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -396,7 +442,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'startx,fyp,fyp,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=inner failed;code=Dialog;arg=caller;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -405,7 +457,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'startx,fya,fyc');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRR X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -414,7 +472,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'startx,txb,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=inner failed;code=Dialog;arg=caller;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -423,7 +487,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'startx,txb,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRR X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -432,7 +502,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'startx,txb');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRR X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -441,7 +517,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'fxa,txb,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=inner failed;code=Dialog;arg=caller;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -450,7 +532,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'fxa,txb,fxc,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=inner failed;code=Dialog;arg=caller;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -459,7 +547,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'fxa,txb,fxc,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRR X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -468,7 +562,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'fxa,txb,fxc,fya,txa,tya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRR X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -477,7 +577,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'fxa,txb,fxc,fya,txc,tya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRR X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -486,7 +592,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'fya,fxa');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRR Y table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -495,7 +607,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'fxa,fyb,cbcommit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=Commit is prohibited in the current scope. The operation cannot continue. Contact your system administrator.;code=DB:Ok;arg=caller;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -504,7 +622,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'insx,cbcommit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=Commit is prohibited in the current scope. The operation cannot continue. Contact your system administrator.;code=DB:Ok;arg=caller;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -513,7 +637,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'fxa,fyb,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRR X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -522,7 +652,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'fxa,insx,cbignore');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRR X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -531,7 +667,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'fxa,insx,cbignore,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=inner failed;code=Dialog;arg=caller;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -540,7 +682,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'fxa,txa,insx,cbignore');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=Yes;text=;code=;arg=caller;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;inner;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     // ---- the section (2) and (3) cells of ConsistentGuardedRunFail.al, record argument: RecX ----
@@ -551,7 +699,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'startx,fya,fyc,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=inner failed;code=Dialog;arg=caller;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -560,7 +714,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'startx,insy,fya,fyc,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=inner failed;code=Dialog;arg=caller;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -569,7 +729,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'startx,fyp,fyp,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=inner failed;code=Dialog;arg=caller;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -578,7 +744,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'startx,fya,fyc');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRR X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -587,7 +759,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'startx,txb,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=inner failed;code=Dialog;arg=caller;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -596,7 +774,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'startx,txb,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRR X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -605,7 +789,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'startx,txb');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRR X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -614,7 +804,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'fxa,txb,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=inner failed;code=Dialog;arg=caller;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -623,7 +819,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'fxa,txb,fxc,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=inner failed;code=Dialog;arg=caller;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -632,7 +834,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'fxa,txb,fxc,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRR X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -641,7 +849,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'fxa,txb,fxc,fya,txa,tya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRR X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -650,7 +864,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'fxa,txb,fxc,fya,txc,tya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRR X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -659,7 +879,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'fya,fxa');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRR Y table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -668,7 +894,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'fxa,fyb,cbcommit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=Commit is prohibited in the current scope. The operation cannot continue. Contact your system administrator.;code=DB:Ok;arg=caller;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -677,7 +909,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'insx,cbcommit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=Commit is prohibited in the current scope. The operation cannot continue. Contact your system administrator.;code=DB:Ok;arg=caller;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -686,7 +924,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'fxa,fyb,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRR X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -695,7 +939,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'fxa,insx,cbignore');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRR X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -704,7 +954,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'fxa,insx,cbignore,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=inner failed;code=Dialog;arg=caller;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -713,7 +969,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'fxa,txa,insx,cbignore');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=Yes;text=;code=;arg=caller;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;inner;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     // ---- the inner codeunit marks or modifies the record argument itself: RecZ ----
@@ -724,7 +986,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'frec,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=inner failed;code=Dialog;arg=caller;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -733,7 +1001,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'frec');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRR Z table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -742,7 +1016,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'modrec,startx,fya,fyc,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=inner failed;code=Dialog;arg=caller;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -751,7 +1031,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'modrec,frec,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=inner failed;code=Dialog;arg=caller;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -760,7 +1046,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'frec,trec');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=Yes;text=;code=;arg=caller;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -769,7 +1061,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'frec,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRR Z table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     // ---- the inner codeunit marks or modifies the record argument itself: RecX ----
@@ -780,7 +1078,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'frec,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=inner failed;code=Dialog;arg=caller;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -789,7 +1093,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'frec');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRR X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -798,7 +1108,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'modrec,startx,fya,fyc,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=inner failed;code=Dialog;arg=caller;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -807,7 +1123,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'modrec,frec,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=inner failed;code=Dialog;arg=caller;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -816,7 +1138,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'frec,trec');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=Yes;text=;code=;arg=caller;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -825,7 +1153,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'frec,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRR X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     // ---- a temporary record of GRR X as the argument ----
@@ -836,7 +1170,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'tmp', 'startx,fya,fyc,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=inner failed;code=Dialog;arg=temp;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -845,7 +1185,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'tmp', 'startx,fya,fyc');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRR X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -854,7 +1200,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'tmp', 'fxa,fyb,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRR X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=temp;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -863,7 +1215,13 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'tmp', 'frec,modrec,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=inner failed;code=Dialog;arg=temp;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -872,7 +1230,15 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         PlainCell(Observer, 'z', 'startx,insy,fya,fyc,err');
-        Observer.Finish();
+        Observer.Expect('run', 'No');
+        Observer.Expect('last error|text', 'inner failed');
+        Observer.Expect('last error|code', 'Dialog');
+        Observer.Expect('arg', 'caller');
+        Observer.Expect('rows after run', '[caller;] y=0 z=caller');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 
     [Test]
@@ -881,6 +1247,14 @@ codeunit 88983 "GRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         PlainCell(Observer, 'x', 'startx,insy,fya,fyc,err');
-        Observer.Finish();
+        Observer.Expect('run', 'No');
+        Observer.Expect('last error|text', 'inner failed');
+        Observer.Expect('last error|code', 'Dialog');
+        Observer.Expect('arg', 'caller');
+        Observer.Expect('rows after run', '[caller;] y=0 z=caller');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[caller;] y=0 z=caller');
+        Observer.Verify();
     end;
 }
