@@ -41,11 +41,19 @@
 //     matters is not measured here.
 //   - E1 is not asserted: its reading may depend on the hub's run order (the maintainer's decision on al-runner 8002). Its
 //     readings are still observed and ignored on every version (Observer.Ignore), so the test passes.
+//   - E1C (73338, observe round, not yet measured): a copy of E1 with its own sequence ('LTSQHE1C'), the last codeunit of
+//     this file, so it runs after 73331. If the copy reads like E2 (test a's Next stays taken: cur=S+1, Next S+2), E1's
+//     'missing' came from running first; if it reads 'missing' too, it comes from the shape.
 //   - 27.5, the Codeunit control: OnRun found every E sequence already there ('found') and recreated every O sequence
-//     ('recreated'), with onrun_calls 1: something on that leg made them before this instance's OnRun, which this file does
-//     not explain. Test b sees every change of test a: the taken numbers (E1, E2, E3: cur=S+1, Next S+2; O1, O2: Next S+1),
+//     ('recreated'), with onrun_calls 1: something on that leg made them before this instance's OnRun (see the next
+//     point). Test b sees every change of test a: the taken numbers (E1, E2, E3: cur=S+1, Next S+2; O1, O2: Next S+1),
 //     the restart (E4: cur=S+1000, Next S+1000) and the delete (E5: missing).
-// Object ids 73330-73337.
+//   - Why 27.5 finds them (source of Microsoft's Test Runner 27.5): that leg fills its suite through the Linux harness's
+//     Test Runner Extension, which runs codeunit 130452 "Test Runner - Get Methods" on each test codeunit; its OnRun calls
+//     CODEUNIT.Run on the test codeunit and its OnBeforeTestRun returns true for 'OnRun' (TestRunnerGetMethods.Codeunit.al,
+//     lines 28 and 38-39), and 130452 sets no TestIsolation, so the test codeunit's OnRun makes the sequences outside any
+//     isolation before the run.
+// Object ids 73330-73338.
 // BC versions: 27.5, 28.5, 29.0
 
 // The sequence calls of the cells. The name is fixed per cell, so a sequence made by an earlier run is found again ('found').
@@ -721,6 +729,80 @@ codeunit 73337 "LT SQH O2 OnRun CompanyWide"
     local procedure CompanyWide(): Boolean
     begin
         exit(true);
+    end;
+
+    // The first call notes Base, the Current value test a found; later calls do nothing.
+    local procedure Initialize()
+    begin
+        if IsInitialized then
+            exit;
+        Base := Seq.CurrentOrZero(Name(), CompanyWide());
+        IsInitialized := true;
+    end;
+}
+
+// E1C: a copy of E1 (the shape of al-runner issue 8002) with its own sequence, the last codeunit of this file, so the hub runs
+// it after E1 to O2 (observe round: test b ends with Observer.Finish()).
+// OnRun makes the sequence when it is missing (Insert(Name, 1, 1), Next twice), so it exists before test a begins.
+// E1Ca: NumberSequence.Next; the test passes.
+// E1Cb: reads the sequence, takes Next and observes every reading.
+codeunit 73338 "LT SQH E1C Existing Next Late"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+    RequiredTestIsolation = Function;
+
+    trigger OnRun()
+    begin
+        OnRunCalls += 1;
+        OnRunState := Seq.Prepare(Name(), CompanyWide());
+    end;
+
+    var
+        Seq: Codeunit "LT SQH Seq";
+        IsInitialized: Boolean;
+        Base: BigInteger;
+        OnRunCalls: Integer;
+        OnRunState: Text;
+        StartA: Text;
+        ChangedA: Text;
+        TakenA: Text;
+
+    [Test]
+    procedure E1Ca_ChangesAndPasses()
+    begin
+        Initialize();
+        StartA := Seq.Rel(Name(), CompanyWide(), Base);
+        TakenA := Seq.RelNext(Name(), CompanyWide(), Base);
+        ChangedA := Seq.Rel(Name(), CompanyWide(), Base);
+    end;
+
+    [Test]
+    procedure E1Cb_TakesNextAndObserves()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('onrun', OnRunState);
+        Observer.Observe('onrun_calls', Format(OnRunCalls));
+        Observer.Observe('initialized', Format(IsInitialized));
+        Initialize();
+        Observer.Observe('a_start', StartA);
+        Observer.Observe('a_changed', ChangedA);
+        Observer.Observe('a_taken', TakenA);
+        Observer.Observe('b_start', Seq.Rel(Name(), CompanyWide(), Base));
+        Observer.Observe('b_taken', Seq.RelNext(Name(), CompanyWide(), Base));
+        Observer.Observe('b_after', Seq.Rel(Name(), CompanyWide(), Base));
+        Observer.Finish();
+    end;
+
+    local procedure Name(): Text
+    begin
+        exit('LTSQHE1C');
+    end;
+
+    local procedure CompanyWide(): Boolean
+    begin
+        exit(false);
     end;
 
     // The first call notes Base, the Current value test a found; later calls do nothing.
