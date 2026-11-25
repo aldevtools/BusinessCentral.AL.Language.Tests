@@ -37,14 +37,16 @@
 //     next test: E2 (CompanyWide = true) and E3 (Next, then Commit) read cur=S+1 and Next gives S+2; O1 and O2 (created in
 //     OnRun) give S+1 in test b, after test a took S. Test a's Restart (E4) and Delete (E5) are undone: test b reads cur=S and
 //     Next gives S+1. E1 (CompanyWide = false, Next) reads 'missing' in test b: the sequence OnRun created is gone. E1 was the
-//     first codeunit the hub ran in both legs (only these codeunits and the leg's sentinel ran); whether that position
-//     matters is not measured here.
+//     first codeunit the hub ran in both legs (only these codeunits and the leg's sentinel ran); E1C below measures that
+//     position.
 //   - E1 is not asserted: its reading may depend on the hub's run order (the maintainer's decision on al-runner 8002). Its
 //     readings are still observed and ignored on every version (Observer.Ignore), so the test passes.
 //   - E1C (73338): a copy of E1 with its own sequence ('LTSQHE1C'), the last codeunit of this file, so it runs after 73331.
 //     It reads like E2 on every leg: test a takes S+1, test b reads cur=S+1 and Next gives S+2 (OnRun 'created' on 28.5 and
 //     29.0, 'found' on 27.5, the only guarded reading). So E1's 'missing' on 28.5 and 29.0 is not a property of the shape of
-//     al-runner issue 8002: it came with E1's position as the first codeunit the hub ran.
+//     al-runner issue 8002: it goes with E1's position as the first codeunit the hub ran. E1C passes only while it is not
+//     the first codeunit the hub runs: today 73331 is always selected with it, and the shard boundaries keep 73331-73338
+//     together, so whoever re-plans the shards or runs 73338 alone should know.
 //   - 27.5, the Codeunit control: OnRun found every E sequence already there ('found') and recreated every O sequence
 //     ('recreated'), with onrun_calls 1: something on that leg made them before this instance's OnRun (see the next
 //     point). Test b sees every change of test a: the taken numbers (E1, E2, E3: cur=S+1, Next S+2; O1, O2: Next S+1),
