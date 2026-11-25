@@ -6,7 +6,9 @@
 // Probe: al-runner issue 9046 step 2. What runs inside the install session of this app: the company-open and login events, their order
 //   against the install code, the "User Login" side effect of the System Application's login subscriber, the session facts the
 //   install code sees, and whether a login subscriber of XApp A (installed earlier) runs in this app's install session. The test
-//   session is the control. Also TaskScheduler.CanCreateTask() inside the install code (al-runner issue 9082). Sessions are numbered S1, S2, ... in the order their first log row was written (no session ids).
+//   session is the control. Also TaskScheduler.CanCreateTask() inside the install code (al-runner issue 9082). Sessions are numbered S1, S2, ... and companies C1, C2, ... in the order their first log row was written (no ids or
+//   names: the company order differs between hosts). "User Login" is recorded only as created-or-changed, so a fresh database and
+//   a reused one give the same text.
 // BC versions: 27 - 29
 codeunit 75433 "LT IS9 Install Session Tests"
 {
@@ -29,18 +31,28 @@ codeunit 75433 "LT IS9 Install Session Tests"
         exit('S' + Format(Sessions.IndexOf(Id)));
     end;
 
+    local procedure CompanyNo(var Companies: List of [Text]; Company: Text): Text
+    begin
+        if Company = '' then
+            exit('blank');
+        if not Companies.Contains(Company) then
+            Companies.Add(Company);
+        exit('C' + Format(Companies.IndexOf(Company)));
+    end;
+
     [Test]
     procedure InstallSession_LogSequence_EventsAndInstallCode()
     var
         Observer: Codeunit "Probe Observer";
         Log: Record "LT IS9 Log";
         Sessions: List of [Integer];
+        Companies: List of [Text];
         Sequence: Text;
     begin
         Log.SetCurrentKey(Id);
         if Log.FindSet() then
             repeat
-                Sequence += Log.Kind + '|' + Tag(Log.Company) + '|' + Log.Context + '|' + SessionNo(Sessions, Log."Session Id") + ';';
+                Sequence += Log.Kind + '|' + CompanyNo(Companies, Log.Company) + '|' + Log.Context + '|' + SessionNo(Sessions, Log."Session Id") + ';';
             until Log.Next() = 0;
         Observer.Observe('sequence', Sequence);
         Observer.Observe('sessions', Format(Sessions.Count()));
@@ -57,6 +69,15 @@ codeunit 75433 "LT IS9 Install Session Tests"
         Log.SetCurrentKey(Id);
         Log.SetRange(Kind, 'install per company');
         Observer.Observe('rows', Format(Log.Count()));
+        Log.SetRange(Company, CompanyName());
+        ObserveCompanyRows(Observer, Log);
+        Log.SetFilter(Company, '<>%1', CompanyName());
+        ObserveCompanyRows(Observer, Log);
+        Observer.Finish();
+    end;
+
+    local procedure ObserveCompanyRows(var Observer: Codeunit "Probe Observer"; var Log: Record "LT IS9 Log")
+    begin
         if Log.FindSet() then
             repeat
                 Observer.Observe(Tag(Log.Company) + ': context', Log.Context);
@@ -65,7 +86,6 @@ codeunit 75433 "LT IS9 Install Session Tests"
                 Observer.Observe(Tag(Log.Company) + ': user login', Log."Login Facts");
                 Observer.Observe(Tag(Log.Company) + ': xapp a subscriber', Log."XA Seen");
             until Log.Next() = 0;
-        Observer.Finish();
     end;
 
     [Test]
@@ -108,9 +128,7 @@ codeunit 75433 "LT IS9 Install Session Tests"
         Snap := State.Snapshot(SnapLast);
         NowFound := Subs.ReadUserLogin(NowLast);
         Observer.Observe('calls noted in the test session', State.AsText());
-        Observer.Observe('user login at company open', Snap);
-        Observer.Observe('user login in the test', NowFound);
-        Observer.Observe('last login changed since company open', Format(NowLast <> SnapLast));
+        Observer.Observe('user login created or changed since company open', Format((Snap <> NowFound) or (NowLast <> SnapLast)));
         Observer.Observe('xapp a subscriber', XaSeen.AsText());
         Observer.Observe('context', Format(Session.GetExecutionContext()));
         Observer.Observe('mode', Format(Session.CurrentExecutionMode()));

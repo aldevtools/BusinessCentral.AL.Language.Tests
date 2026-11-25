@@ -127,6 +127,7 @@ codeunit 75432 "LT IS9 Subs"
     var
         XaSeen: Codeunit "LT IS9 XA Login Seen";
         SnapLast: DateTime;
+        SnapFound: Text;
         NowFound: Text;
         NowLast: DateTime;
         LoginFacts: Text;
@@ -135,11 +136,12 @@ codeunit 75432 "LT IS9 Subs"
         Facts := 'gui=' + Format(GuiAllowed()) + '|client=' + Format(CurrentClientType()) +
             '|mode=' + Format(Session.CurrentExecutionMode()) + '|company blank=' + Format(CompanyName() = '') +
             '|can create task=' + Format(TaskScheduler.CanCreateTask());
-        LoginFacts := 'at company open: ' + State.Snapshot(SnapLast);
+        SnapFound := State.Snapshot(SnapLast);
         NowFound := ReadUserLogin(NowLast);
-        LoginFacts += '|at install start: ' + NowFound;
-        if (NowLast <> 0DT) or (SnapLast <> 0DT) then
-            LoginFacts += '|last login changed=' + Format(NowLast <> SnapLast);
+        if NowFound.StartsWith('error') then
+            LoginFacts := 'at company open: ' + SnapFound + '|at install start: ' + NowFound
+        else
+            LoginFacts := 'created or changed since company open=' + Format((SnapFound <> NowFound) or (SnapLast <> NowLast));
         Write(Kind, Facts, State.AsText(), LoginFacts, XaSeen.AsText());
     end;
 
