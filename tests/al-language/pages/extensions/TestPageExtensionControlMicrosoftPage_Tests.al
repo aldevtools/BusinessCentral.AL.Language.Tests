@@ -93,7 +93,11 @@ codeunit 67482 "PXSC Tests"
         Observer.Observe('copy visible', Format(Sheet.PXSCCopy.Visible()));
         Observer.Observe('unset value', Sheet.PXSCHiddenUnset.Value());
         Sheet.Close();
-        Observer.Finish();
+        Observer.Expect('unset visible', 'No');
+        Observer.Expect('set on open visible', 'Yes');
+        Observer.Expect('copy visible', 'Yes');
+        Observer.Expect('unset value', 'Allocation comment');
+        Observer.Verify();
     end;
 
     [Test]
@@ -109,7 +113,9 @@ codeunit 67482 "PXSC Tests"
         Observer.Observe('unset visible', Format(Sheet.PXSCHiddenUnset.Visible()));
         Observer.Observe('set on open visible', Format(Sheet.PXSCShownOnOpen.Visible()));
         Sheet.Close();
-        Observer.Finish();
+        Observer.Expect('unset visible', 'No');
+        Observer.Expect('set on open visible', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -130,7 +136,9 @@ codeunit 67482 "PXSC Tests"
         Observer.Observe('unset visible', Format(Sheet.PXSCHiddenUnset.Visible()));
         Observer.Observe('set on open visible', Format(Sheet.PXSCShownOnOpen.Visible()));
         Sheet.Close();
-        Observer.Finish();
+        Observer.Expect('unset visible', 'No');
+        Observer.Expect('set on open visible', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -151,7 +159,12 @@ codeunit 67482 "PXSC Tests"
         Sheet.Close();
         Stored(Comment);
         Observer.Observe('stored comment', Comment.Comment);
-        Observer.Finish();
+        Observer.Expect('base control before', 'Allocation comment');
+        Observer.Expect('ext copy before', 'Allocation comment');
+        Observer.Expect('ext copy after set', 'Changed through extension');
+        Observer.Expect('base control after set', 'Changed through extension');
+        Observer.Expect('stored comment', 'Changed through extension');
+        Observer.Verify();
     end;
 
     [Test]
@@ -171,7 +184,11 @@ codeunit 67482 "PXSC Tests"
         Sheet.Close();
         Stored(Comment);
         Observer.Observe('stored flag', Format(Comment."PXSC Flag"));
-        Observer.Finish();
+        Observer.Expect('flag before', 'No');
+        Observer.Expect('flag after set', 'Yes');
+        Observer.Expect('flag value text', 'Yes');
+        Observer.Expect('stored flag', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -195,7 +212,10 @@ codeunit 67482 "PXSC Tests"
         Sheet.Close();
         Stored(Comment);
         Observer.Observe('stored comment', Comment.Comment);
-        Observer.Finish();
+        Observer.Expect('base control after set', 'Changed through trap');
+        Observer.Expect('ext copy after set', 'Changed through trap');
+        Observer.Expect('stored comment', 'Changed through trap');
+        Observer.Verify();
     end;
 
     [Test]
@@ -218,7 +238,9 @@ codeunit 67482 "PXSC Tests"
         Sheet.Close();
         Stored(Comment);
         Observer.Observe('stored flag', Format(Comment."PXSC Flag"));
-        Observer.Finish();
+        Observer.Expect('flag after set', 'Yes');
+        Observer.Expect('stored flag', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -240,6 +262,8 @@ codeunit 67482 "PXSC Tests"
         asserterror Value := Sheet.GetField(12345).Value();
         Observer.ObserveError('get field 12345');
         Sheet.Close();
-        Observer.Finish();
+        Observer.Expect('get field 12345|text', 'The field with ID = n is not found on the page.');
+        Observer.Expect('get field 12345|code', 'TestFieldNotFound');
+        Observer.Verify();
     end;
 }
