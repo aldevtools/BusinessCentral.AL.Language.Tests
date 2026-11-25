@@ -6,7 +6,7 @@
 // Probe: al-runner issue 9046 step 2. What runs inside the install session of this app: the company-open and login events, their order
 //   against the install code, the "User Login" side effect of the System Application's login subscriber, the session facts the
 //   install code sees, and whether a login subscriber of XApp A (installed earlier) runs in this app's install session. The test
-//   session is the control. Sessions are numbered S1, S2, ... in the order their first log row was written (no session ids).
+//   session is the control. Also TaskScheduler.CanCreateTask() inside the install code (al-runner issue 9082). Sessions are numbered S1, S2, ... in the order their first log row was written (no session ids).
 // BC versions: 27 - 29
 codeunit 75433 "LT IS9 Install Session Tests"
 {
@@ -114,6 +114,7 @@ codeunit 75433 "LT IS9 Install Session Tests"
         Observer.Observe('xapp a subscriber', XaSeen.AsText());
         Observer.Observe('context', Format(Session.GetExecutionContext()));
         Observer.Observe('mode', Format(Session.CurrentExecutionMode()));
+        Observer.Observe('can create task', Format(TaskScheduler.CanCreateTask()));
         Observer.Finish();
     end;
 }

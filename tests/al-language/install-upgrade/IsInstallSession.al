@@ -6,7 +6,7 @@
 // Login and company-open subscribers ("Company Triggers" OnCompanyOpen / OnCompanyOpenCompleted, "System Initialization"
 //   OnAfterInitialization / OnAfterLogin) note every call in the SingleInstance "LT IS9 State" (every session, no write) and write a
 //   log row only when the execution context is Install or Upgrade. The install subscribers write one row at their start with what
-//   they see: the calls noted so far in this session, the session facts, the "User Login" row of the current user (read through a
+//   they see (TaskScheduler.CanCreateTask() among them, al-runner issue 9082): the calls noted so far in this session, the session facts, the "User Login" row of the current user (read through a
 //   RecordRef, the table is Access = Internal) and the calls a login subscriber of XApp A noted (IsXaLoginSeen.al).
 // Every write is `if Insert() then;` into a DataPerCompany = false table; reads that can fail run in TryFunctions.
 // BC versions: 27 - 29
@@ -133,7 +133,8 @@ codeunit 75432 "LT IS9 Subs"
         Facts: Text;
     begin
         Facts := 'gui=' + Format(GuiAllowed()) + '|client=' + Format(CurrentClientType()) +
-            '|mode=' + Format(Session.CurrentExecutionMode()) + '|company blank=' + Format(CompanyName() = '');
+            '|mode=' + Format(Session.CurrentExecutionMode()) + '|company blank=' + Format(CompanyName() = '') +
+            '|can create task=' + Format(TaskScheduler.CanCreateTask());
         LoginFacts := 'at company open: ' + State.Snapshot(SnapLast);
         NowFound := ReadUserLogin(NowLast);
         LoginFacts += '|at install start: ' + NowFound;
