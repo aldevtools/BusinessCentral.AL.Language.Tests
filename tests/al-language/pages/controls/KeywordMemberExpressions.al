@@ -1,16 +1,19 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-visible-property
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own table 75680, pages 75681 and 75683, test codeunit 75682
+// Fixtures used: Probe Observer (codeunit 69160); own table 75680, pages 75681 and 75683 to 75685, test codeunit 75682
 // Probe (al-runner issue 8650): property and source expressions of page controls that name members which are words of the
 //   AL language.
 // Facts:
-//   - A control's Visible and Editable expressions and a control's source expression compile when they name a keyword member
-//     quoted (Rec."If", Rec."Exit", Rec.Opt::"Do") or a member that is no keyword unquoted (Rec.Key, Rec.Local); a TestPage
-//     reads the values the source expressions give and the Visible and Editable states the expressions give. The same page
-//     gives Yes for true keyword-member expressions and No for expressions made false by a second row.
-//   - On BC 27 and 28 a TestPage of a page whose control has `Visible = Rec."Exit" > 0;` raises "The identifier 'Exit'
-//     could not be found." when the test reads that control's Visible state, and when it closes the page; BC 29 gives the
-//     state. The page with the keyword Visible expressions (75683) and its test are BC 29 only.
+//   - A control's Editable expression and a control's source expression compile when they name a keyword member quoted
+//     (Rec."If", Rec.Opt::"Do") or a member that is no keyword unquoted (Rec.Key, Rec.Local); page 75681's TestPage reads
+//     the source values and both branches of the Editable expression.
+//   - On BC 29, page 75683's CardPart cuegroup gives the true row Visible Yes and the false row Visible No for its direct
+//     field controls with `Visible = Rec."Exit" > 0;` and `Visible = Rec.Opt = Rec.Opt::"Do";`.
+//   - On BC 29, page 75684's expression-bound Card controls (`Rec."If" + 1` and `Rec.Key + Rec.Local`) give the false row
+//     Visible Yes for both; page 75685's direct-field-bound Card controls give the true row Visible No for both.
+//   - On BC 27 and 28, the Card shape used before page 75683 became a CardPart raised "The identifier 'Exit' could not be
+//     found." when its TestPage read that control's Visible state or closed the page. That error is measured only on that
+//     Card shape, not on every page or shape.
 //   - Not compiling (must-not-compile 3500 to 3556): one of 32 words unquoted after `.` or `::` in a page control's Visible,
 //     Editable, Enabled, CaptionClass, HideValue, ShowMandatory or QuickEntry, a page action's Visible or Enabled, a group's
 //     or part's Visible, a page's DataCaptionExpression, a control's or report column's source expression, and the same in
@@ -218,4 +221,93 @@ codeunit 75682 "PGC Keyword Member Tests"
         Observer.Verify();
     end;
 #endif
+
+#if BC29PLUS // The 27/28 Card-shape probe raised the measured Exit identifier error, so these Card facts are BC 29 only.
+    [Test]
+    procedure KeywordMemberExpressions_TestPage_CardExpressionBoundFalseVisibleStatesAreYes()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Keyword Member Row";
+        Card: TestPage "PGC Keyword Member Expr Card";
+    begin
+        Initialize();
+        InsertRow(Row);
+        InsertFalseRow(Row);
+        Card.OpenEdit();
+        Card.GoToRecord(Row);
+        Observer.Observe('IfShown visible', Format(Card.IfShown.Visible()));
+        Observer.Observe('KeyShown visible', Format(Card.KeyShown.Visible()));
+        Card.Close();
+        Observer.Expect('IfShown visible', 'Yes');
+        Observer.Expect('KeyShown visible', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure KeywordMemberExpressions_TestPage_CardDirectFieldTrueVisibleStatesAreNo()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Keyword Member Row";
+        Card: TestPage "PGC Keyword Member Field Card";
+    begin
+        Initialize();
+        InsertRow(Row);
+        Card.OpenEdit();
+        Card.GoToRecord(Row);
+        Observer.Observe('IfShown visible', Format(Card.IfShown.Visible()));
+        Observer.Observe('KeyShown visible', Format(Card.KeyShown.Visible()));
+        Card.Close();
+        Observer.Expect('IfShown visible', 'No');
+        Observer.Expect('KeyShown visible', 'No');
+        Observer.Verify();
+    end;
+#endif
 }
+
+#if BC29PLUS // The 27/28 Exit identifier error is measured only on the earlier Card shape.
+page 75684 "PGC Keyword Member Expr Card"
+{
+    PageType = Card;
+    SourceTable = "PGC Keyword Member Row";
+
+    layout
+    {
+        area(Content)
+        {
+            field(IfShown; Rec."If" + 1)
+            {
+                ApplicationArea = All;
+                Visible = Rec."Exit" > 0;
+            }
+            field(KeyShown; Rec.Key + Rec.Local)
+            {
+                ApplicationArea = All;
+                Visible = Rec.Opt = Rec.Opt::"Do";
+            }
+        }
+    }
+}
+
+page 75685 "PGC Keyword Member Field Card"
+{
+    PageType = Card;
+    SourceTable = "PGC Keyword Member Row";
+
+    layout
+    {
+        area(Content)
+        {
+            field(IfShown; Rec."If")
+            {
+                ApplicationArea = All;
+                Visible = Rec."Exit" > 0;
+            }
+            field(KeyShown; Rec.Key)
+            {
+                ApplicationArea = All;
+                Visible = Rec.Opt = Rec.Opt::"Do";
+            }
+        }
+    }
+}
+#endif
