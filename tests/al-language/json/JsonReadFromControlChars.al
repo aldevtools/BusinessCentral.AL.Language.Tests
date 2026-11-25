@@ -8,7 +8,9 @@
 //   - ReadFrom(Text) with the raw code in a double-quoted key (JsonObject, JsonToken),
 //   - ReadFrom(Text) with the raw code in a single-quoted value (JsonObject, JsonToken, JsonArray ['x?y'], JsonValue 'x?y'),
 //   - ReadFrom(InStream) with the raw byte in a double-quoted value (the document written byte by byte into a Temp Blob),
-//   - what C[1] := 0 leaves in a Text (so whether a Text can carry code 0 at all).
+//   - what C[1] := 0 leaves in a Text (so whether a Text can carry code 0 at all),
+//   - ReadFrom(Text) of a JsonObject with the raw code 1..31 in a nested member value and in an element of a nested array
+//     (asserted from the pattern of the root-level cells; the corpus CI run of this commit is their observation).
 // Each observation is ret=<ReadFrom result> len=<length> codes=<character codes of the value or key read> out=<WriteTo text>, or
 // error:<last error text>|<last error code>.
 // Measured by the corpus CI matrix (BC 27.5, 28.5, 29.0, the same on all three):
@@ -264,6 +266,34 @@ codeunit 86412 "LT JsT ReadFrom CtlChars"
                 'val':
                     Obs.Observe(Kind + '_stream_' + Format(CharCode), RunStream(Kind, '"x', CharCode, 'y"'));
             end;
+    end;
+
+    // A raw code in a string deeper than the root's own members and elements (al-runner issue 7812: a JSONL line of a Microsoft
+    // test dataset, read through an InStream without an encoding, holds code 21 in an element of an array of an object in an
+    // array of a member object). Shape 'member': {"e":{"s":"x?y"}}; shape 'element': {"e":{"s":[{"f":["x?y"]}]}}.
+    local procedure RunNested(Shape: Text; CharCode: Integer): Text
+    var
+        O: JsonObject;
+        T: JsonToken;
+        Src: Text;
+        Path: Text;
+        Out: Text;
+        R: Text;
+    begin
+        ClearLastError();
+        if Shape = 'member' then begin
+            Src := '{"e":{"s":"x' + Ch(CharCode) + 'y"}}';
+            Path := '$.e.s';
+        end else begin
+            Src := '{"e":{"s":[{"f":["x' + Ch(CharCode) + 'y"]}]}}';
+            Path := '$.e.s[0].f[0]';
+        end;
+        R := 'ret=' + Format(O.ReadFrom(Src));
+        if O.SelectToken(Path, T) then
+            if T.IsValue() then
+                R += ' ' + Codes(T.AsValue().AsText());
+        O.WriteTo(Out);
+        exit(R + ' out=' + Out);
     end;
 
     [Test]
@@ -991,6 +1021,90 @@ codeunit 86412 "LT JsT ReadFrom CtlChars"
         Obs.Expect('obj_dq_abc_s2_0', 'ret=Yes len=1 codes=97 out={"a":"a"}');
         Obs.Expect('concat_x_ch0_y', 'len=2 codes=120,121');
         Obs.Expect('obj_dq_ch0', 'ret=Yes len=2 codes=120,121 out={"a":"xy"}');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure Object_ReadFromText_NestedMemberValue_Codes1To31()
+    var
+        Obs: Codeunit "Probe Observer";
+        CharCode: Integer;
+    begin
+        for CharCode := 1 to 31 do
+            Obs.Observe('member_' + Format(CharCode), RunNested('member', CharCode));
+        Obs.Expect('member_1', 'ret=Yes len=3 codes=120,1,121 out={"e":{"s":"x\u0001y"}}');
+        Obs.Expect('member_2', 'ret=Yes len=3 codes=120,2,121 out={"e":{"s":"x\u0002y"}}');
+        Obs.Expect('member_3', 'ret=Yes len=3 codes=120,3,121 out={"e":{"s":"x\u0003y"}}');
+        Obs.Expect('member_4', 'ret=Yes len=3 codes=120,4,121 out={"e":{"s":"x\u0004y"}}');
+        Obs.Expect('member_5', 'ret=Yes len=3 codes=120,5,121 out={"e":{"s":"x\u0005y"}}');
+        Obs.Expect('member_6', 'ret=Yes len=3 codes=120,6,121 out={"e":{"s":"x\u0006y"}}');
+        Obs.Expect('member_7', 'ret=Yes len=3 codes=120,7,121 out={"e":{"s":"x\u0007y"}}');
+        Obs.Expect('member_8', 'ret=Yes len=3 codes=120,8,121 out={"e":{"s":"x\by"}}');
+        Obs.Expect('member_9', 'ret=Yes len=3 codes=120,9,121 out={"e":{"s":"x\ty"}}');
+        Obs.Expect('member_10', 'ret=Yes len=3 codes=120,10,121 out={"e":{"s":"x\ny"}}');
+        Obs.Expect('member_11', 'ret=Yes len=3 codes=120,11,121 out={"e":{"s":"x\u000by"}}');
+        Obs.Expect('member_12', 'ret=Yes len=3 codes=120,12,121 out={"e":{"s":"x\fy"}}');
+        Obs.Expect('member_13', 'ret=Yes len=3 codes=120,13,121 out={"e":{"s":"x\ry"}}');
+        Obs.Expect('member_14', 'ret=Yes len=3 codes=120,14,121 out={"e":{"s":"x\u000ey"}}');
+        Obs.Expect('member_15', 'ret=Yes len=3 codes=120,15,121 out={"e":{"s":"x\u000fy"}}');
+        Obs.Expect('member_16', 'ret=Yes len=3 codes=120,16,121 out={"e":{"s":"x\u0010y"}}');
+        Obs.Expect('member_17', 'ret=Yes len=3 codes=120,17,121 out={"e":{"s":"x\u0011y"}}');
+        Obs.Expect('member_18', 'ret=Yes len=3 codes=120,18,121 out={"e":{"s":"x\u0012y"}}');
+        Obs.Expect('member_19', 'ret=Yes len=3 codes=120,19,121 out={"e":{"s":"x\u0013y"}}');
+        Obs.Expect('member_20', 'ret=Yes len=3 codes=120,20,121 out={"e":{"s":"x\u0014y"}}');
+        Obs.Expect('member_21', 'ret=Yes len=3 codes=120,21,121 out={"e":{"s":"x\u0015y"}}');
+        Obs.Expect('member_22', 'ret=Yes len=3 codes=120,22,121 out={"e":{"s":"x\u0016y"}}');
+        Obs.Expect('member_23', 'ret=Yes len=3 codes=120,23,121 out={"e":{"s":"x\u0017y"}}');
+        Obs.Expect('member_24', 'ret=Yes len=3 codes=120,24,121 out={"e":{"s":"x\u0018y"}}');
+        Obs.Expect('member_25', 'ret=Yes len=3 codes=120,25,121 out={"e":{"s":"x\u0019y"}}');
+        Obs.Expect('member_26', 'ret=Yes len=3 codes=120,26,121 out={"e":{"s":"x\u001ay"}}');
+        Obs.Expect('member_27', 'ret=Yes len=3 codes=120,27,121 out={"e":{"s":"x\u001by"}}');
+        Obs.Expect('member_28', 'ret=Yes len=3 codes=120,28,121 out={"e":{"s":"x\u001cy"}}');
+        Obs.Expect('member_29', 'ret=Yes len=3 codes=120,29,121 out={"e":{"s":"x\u001dy"}}');
+        Obs.Expect('member_30', 'ret=Yes len=3 codes=120,30,121 out={"e":{"s":"x\u001ey"}}');
+        Obs.Expect('member_31', 'ret=Yes len=3 codes=120,31,121 out={"e":{"s":"x\u001fy"}}');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure Object_ReadFromText_NestedArrayElement_Codes1To31()
+    var
+        Obs: Codeunit "Probe Observer";
+        CharCode: Integer;
+    begin
+        for CharCode := 1 to 31 do
+            Obs.Observe('element_' + Format(CharCode), RunNested('element', CharCode));
+        Obs.Expect('element_1', 'ret=Yes len=3 codes=120,1,121 out={"e":{"s":[{"f":["x\u0001y"]}]}}');
+        Obs.Expect('element_2', 'ret=Yes len=3 codes=120,2,121 out={"e":{"s":[{"f":["x\u0002y"]}]}}');
+        Obs.Expect('element_3', 'ret=Yes len=3 codes=120,3,121 out={"e":{"s":[{"f":["x\u0003y"]}]}}');
+        Obs.Expect('element_4', 'ret=Yes len=3 codes=120,4,121 out={"e":{"s":[{"f":["x\u0004y"]}]}}');
+        Obs.Expect('element_5', 'ret=Yes len=3 codes=120,5,121 out={"e":{"s":[{"f":["x\u0005y"]}]}}');
+        Obs.Expect('element_6', 'ret=Yes len=3 codes=120,6,121 out={"e":{"s":[{"f":["x\u0006y"]}]}}');
+        Obs.Expect('element_7', 'ret=Yes len=3 codes=120,7,121 out={"e":{"s":[{"f":["x\u0007y"]}]}}');
+        Obs.Expect('element_8', 'ret=Yes len=3 codes=120,8,121 out={"e":{"s":[{"f":["x\by"]}]}}');
+        Obs.Expect('element_9', 'ret=Yes len=3 codes=120,9,121 out={"e":{"s":[{"f":["x\ty"]}]}}');
+        Obs.Expect('element_10', 'ret=Yes len=3 codes=120,10,121 out={"e":{"s":[{"f":["x\ny"]}]}}');
+        Obs.Expect('element_11', 'ret=Yes len=3 codes=120,11,121 out={"e":{"s":[{"f":["x\u000by"]}]}}');
+        Obs.Expect('element_12', 'ret=Yes len=3 codes=120,12,121 out={"e":{"s":[{"f":["x\fy"]}]}}');
+        Obs.Expect('element_13', 'ret=Yes len=3 codes=120,13,121 out={"e":{"s":[{"f":["x\ry"]}]}}');
+        Obs.Expect('element_14', 'ret=Yes len=3 codes=120,14,121 out={"e":{"s":[{"f":["x\u000ey"]}]}}');
+        Obs.Expect('element_15', 'ret=Yes len=3 codes=120,15,121 out={"e":{"s":[{"f":["x\u000fy"]}]}}');
+        Obs.Expect('element_16', 'ret=Yes len=3 codes=120,16,121 out={"e":{"s":[{"f":["x\u0010y"]}]}}');
+        Obs.Expect('element_17', 'ret=Yes len=3 codes=120,17,121 out={"e":{"s":[{"f":["x\u0011y"]}]}}');
+        Obs.Expect('element_18', 'ret=Yes len=3 codes=120,18,121 out={"e":{"s":[{"f":["x\u0012y"]}]}}');
+        Obs.Expect('element_19', 'ret=Yes len=3 codes=120,19,121 out={"e":{"s":[{"f":["x\u0013y"]}]}}');
+        Obs.Expect('element_20', 'ret=Yes len=3 codes=120,20,121 out={"e":{"s":[{"f":["x\u0014y"]}]}}');
+        Obs.Expect('element_21', 'ret=Yes len=3 codes=120,21,121 out={"e":{"s":[{"f":["x\u0015y"]}]}}');
+        Obs.Expect('element_22', 'ret=Yes len=3 codes=120,22,121 out={"e":{"s":[{"f":["x\u0016y"]}]}}');
+        Obs.Expect('element_23', 'ret=Yes len=3 codes=120,23,121 out={"e":{"s":[{"f":["x\u0017y"]}]}}');
+        Obs.Expect('element_24', 'ret=Yes len=3 codes=120,24,121 out={"e":{"s":[{"f":["x\u0018y"]}]}}');
+        Obs.Expect('element_25', 'ret=Yes len=3 codes=120,25,121 out={"e":{"s":[{"f":["x\u0019y"]}]}}');
+        Obs.Expect('element_26', 'ret=Yes len=3 codes=120,26,121 out={"e":{"s":[{"f":["x\u001ay"]}]}}');
+        Obs.Expect('element_27', 'ret=Yes len=3 codes=120,27,121 out={"e":{"s":[{"f":["x\u001by"]}]}}');
+        Obs.Expect('element_28', 'ret=Yes len=3 codes=120,28,121 out={"e":{"s":[{"f":["x\u001cy"]}]}}');
+        Obs.Expect('element_29', 'ret=Yes len=3 codes=120,29,121 out={"e":{"s":[{"f":["x\u001dy"]}]}}');
+        Obs.Expect('element_30', 'ret=Yes len=3 codes=120,30,121 out={"e":{"s":[{"f":["x\u001ey"]}]}}');
+        Obs.Expect('element_31', 'ret=Yes len=3 codes=120,31,121 out={"e":{"s":[{"f":["x\u001fy"]}]}}');
         Obs.Verify();
     end;
 }
