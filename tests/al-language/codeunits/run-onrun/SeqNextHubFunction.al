@@ -3,7 +3,7 @@
 //   https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-testisolation-property
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160)
-// Probe (AL Runner issue 8002), observe round: what a later test of the same test codeunit sees of a number sequence after an
+// Probe (AL Runner issue 8002): what a later test of the same test codeunit sees of a number sequence after an
 // earlier, passing test took Next from it (or restarted or deleted it), under the TestRunnerHub's Function isolation
 // (RequiredTestIsolation = Function). A neighbour of the isolation probe app's SqNextFunction.al, which asks the same seven cells
 // under the test runner codeunit with TestIsolation = Function (61300); this file asks them where the PR legs can run them.
@@ -17,7 +17,7 @@
 // the 28.5 and 29.0 legs run it under Function isolation. BC 27.5 has no TestRunnerHub: its legs run these codeunits under
 // "Test Runner - Isol. Codeunit" (130450, TestIsolation = Codeunit), which takes no account of RequiredTestIsolation, so the
 // 27.5 readings are those of Codeunit isolation (the control of SqNextFunction.al). A difference between 27.5 and 28.5+ is a
-// difference of the test harness, not of the platform; the asserting commit guards it with BC28PLUS.
+// difference of the test harness, not of the platform; the BC28PLUS guards below mark it.
 //
 // Each cell is one test codeunit with two tests. Test a changes the sequence and passes; test b reads the state, takes Next and
 // observes. Observations of test b: onrun = what OnRun found or did ('found', 'created', 'recreated'); onrun_calls = how often
@@ -26,9 +26,22 @@
 // the number Next hands out in test b; b_after = the state after that. Every number is relative to S, the Current value test a
 // found ('cur=S', 'S+1', 'missing'), because the numbers Next hands out need not start at the seed.
 //
-// Observe round: test b ends with Observer.Finish(), so it fails with 'OBSERVE:' and the readings, on every leg. Nothing is
-// asserted yet. A later commit turns each Finish() into Expect and Verify with the values this pull request's own CI printed
-// (convert.py), per BC version. Nothing here is a guess of BC's answer.
+// The expected values are the readings this pull request's own CI printed in its observe round (test b ended with
+// Observer.Finish()), turned into Expect and Verify by convert.py per BC version, verbatim. 28.5 and 29.0 (the hub's Function
+// isolation) gave the same readings; 27.5 (130450, the Codeunit control) differs in every cell, so each cell has a BC28PLUS guard.
+// Measured on the CI legs 27.5, 28.5 and 29.0 (Linux):
+//   - Every cell: OnRun ran once on the instance (onrun_calls 1) and the codeunit's globals survived test a (initialized Yes),
+//     under both runners.
+//   - 28.5 and 29.0, the hub's Function isolation: OnRun created every sequence ('created'). Test a's Next stays taken in the
+//     next test: E2 (CompanyWide = true) and E3 (Next, then Commit) read cur=S+1 and Next gives S+2; O1 and O2 (created in
+//     OnRun) give S+1 in test b, after test a took S. Test a's Restart (E4) and Delete (E5) are undone: test b reads cur=S and
+//     Next gives S+1. E1 (CompanyWide = false, Next) reads 'missing' in test b: the sequence OnRun created is gone. E1 was the
+//     first codeunit the hub ran in both legs (only these codeunits and the leg's sentinel ran); whether that position
+//     matters is not measured here.
+//   - 27.5, the Codeunit control: OnRun found every E sequence already there ('found') and recreated every O sequence
+//     ('recreated'), with onrun_calls 1: something on that leg made them before this instance's OnRun, which this file does
+//     not explain. Test b sees every change of test a: the taken numbers (E1, E2, E3: cur=S+1, Next S+2; O1, O2: Next S+1),
+//     the restart (E4: cur=S+1000, Next S+1000) and the delete (E5: missing).
 // Object ids 73330-73337.
 // BC versions: 27.5, 28.5, 29.0
 
@@ -155,7 +168,26 @@ codeunit 73331 "LT SQH E1 Existing Next"
         Observer.Observe('b_start', Seq.Rel(Name(), CompanyWide(), Base));
         Observer.Observe('b_taken', Seq.RelNext(Name(), CompanyWide(), Base));
         Observer.Observe('b_after', Seq.Rel(Name(), CompanyWide(), Base));
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('onrun', 'created');
+#else
+        Observer.Expect('onrun', 'found');
+#endif
+        Observer.Expect('onrun_calls', '1');
+        Observer.Expect('initialized', 'Yes');
+        Observer.Expect('a_start', 'cur=S');
+        Observer.Expect('a_changed', 'cur=S+1');
+        Observer.Expect('a_taken', 'S+1');
+#if BC28PLUS
+        Observer.Expect('b_start', 'missing');
+        Observer.Expect('b_taken', 'missing');
+        Observer.Expect('b_after', 'missing');
+#else
+        Observer.Expect('b_start', 'cur=S+1');
+        Observer.Expect('b_taken', 'S+2');
+        Observer.Expect('b_after', 'cur=S+2');
+#endif
+        Observer.Verify();
     end;
 
     local procedure Name(): Text
@@ -228,7 +260,20 @@ codeunit 73332 "LT SQH E2 Existing CompanyWide"
         Observer.Observe('b_start', Seq.Rel(Name(), CompanyWide(), Base));
         Observer.Observe('b_taken', Seq.RelNext(Name(), CompanyWide(), Base));
         Observer.Observe('b_after', Seq.Rel(Name(), CompanyWide(), Base));
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('onrun', 'created');
+#else
+        Observer.Expect('onrun', 'found');
+#endif
+        Observer.Expect('onrun_calls', '1');
+        Observer.Expect('initialized', 'Yes');
+        Observer.Expect('a_start', 'cur=S');
+        Observer.Expect('a_changed', 'cur=S+1');
+        Observer.Expect('a_taken', 'S+1');
+        Observer.Expect('b_start', 'cur=S+1');
+        Observer.Expect('b_taken', 'S+2');
+        Observer.Expect('b_after', 'cur=S+2');
+        Observer.Verify();
     end;
 
     local procedure Name(): Text
@@ -302,7 +347,20 @@ codeunit 73333 "LT SQH E3 Existing Next Commit"
         Observer.Observe('b_start', Seq.Rel(Name(), CompanyWide(), Base));
         Observer.Observe('b_taken', Seq.RelNext(Name(), CompanyWide(), Base));
         Observer.Observe('b_after', Seq.Rel(Name(), CompanyWide(), Base));
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('onrun', 'created');
+#else
+        Observer.Expect('onrun', 'found');
+#endif
+        Observer.Expect('onrun_calls', '1');
+        Observer.Expect('initialized', 'Yes');
+        Observer.Expect('a_start', 'cur=S');
+        Observer.Expect('a_changed', 'cur=S+1');
+        Observer.Expect('a_taken', 'S+1');
+        Observer.Expect('b_start', 'cur=S+1');
+        Observer.Expect('b_taken', 'S+2');
+        Observer.Expect('b_after', 'cur=S+2');
+        Observer.Verify();
     end;
 
     local procedure Name(): Text
@@ -375,7 +433,26 @@ codeunit 73334 "LT SQH E4 Existing Restart"
         Observer.Observe('b_start', Seq.Rel(Name(), CompanyWide(), Base));
         Observer.Observe('b_taken', Seq.RelNext(Name(), CompanyWide(), Base));
         Observer.Observe('b_after', Seq.Rel(Name(), CompanyWide(), Base));
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('onrun', 'created');
+#else
+        Observer.Expect('onrun', 'found');
+#endif
+        Observer.Expect('onrun_calls', '1');
+        Observer.Expect('initialized', 'Yes');
+        Observer.Expect('a_start', 'cur=S');
+        Observer.Expect('a_changed', 'cur=S+1000');
+        Observer.Expect('a_taken', '');
+#if BC28PLUS
+        Observer.Expect('b_start', 'cur=S');
+        Observer.Expect('b_taken', 'S+1');
+        Observer.Expect('b_after', 'cur=S+1');
+#else
+        Observer.Expect('b_start', 'cur=S+1000');
+        Observer.Expect('b_taken', 'S+1000');
+        Observer.Expect('b_after', 'cur=S+1000');
+#endif
+        Observer.Verify();
     end;
 
     local procedure Name(): Text
@@ -448,7 +525,26 @@ codeunit 73335 "LT SQH E5 Existing Delete"
         Observer.Observe('b_start', Seq.Rel(Name(), CompanyWide(), Base));
         Observer.Observe('b_taken', Seq.RelNext(Name(), CompanyWide(), Base));
         Observer.Observe('b_after', Seq.Rel(Name(), CompanyWide(), Base));
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('onrun', 'created');
+#else
+        Observer.Expect('onrun', 'found');
+#endif
+        Observer.Expect('onrun_calls', '1');
+        Observer.Expect('initialized', 'Yes');
+        Observer.Expect('a_start', 'cur=S');
+        Observer.Expect('a_changed', 'missing');
+        Observer.Expect('a_taken', '');
+#if BC28PLUS
+        Observer.Expect('b_start', 'cur=S');
+        Observer.Expect('b_taken', 'S+1');
+        Observer.Expect('b_after', 'cur=S+1');
+#else
+        Observer.Expect('b_start', 'missing');
+        Observer.Expect('b_taken', 'missing');
+        Observer.Expect('b_after', 'missing');
+#endif
+        Observer.Verify();
     end;
 
     local procedure Name(): Text
@@ -521,7 +617,20 @@ codeunit 73336 "LT SQH O1 OnRun Next"
         Observer.Observe('b_start', Seq.Rel(Name(), CompanyWide(), Base));
         Observer.Observe('b_taken', Seq.RelNext(Name(), CompanyWide(), Base));
         Observer.Observe('b_after', Seq.Rel(Name(), CompanyWide(), Base));
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('onrun', 'created');
+#else
+        Observer.Expect('onrun', 'recreated');
+#endif
+        Observer.Expect('onrun_calls', '1');
+        Observer.Expect('initialized', 'Yes');
+        Observer.Expect('a_start', 'cur=S');
+        Observer.Expect('a_changed', 'cur=S');
+        Observer.Expect('a_taken', 'S');
+        Observer.Expect('b_start', 'cur=S');
+        Observer.Expect('b_taken', 'S+1');
+        Observer.Expect('b_after', 'cur=S+1');
+        Observer.Verify();
     end;
 
     local procedure Name(): Text
@@ -594,7 +703,20 @@ codeunit 73337 "LT SQH O2 OnRun CompanyWide"
         Observer.Observe('b_start', Seq.Rel(Name(), CompanyWide(), Base));
         Observer.Observe('b_taken', Seq.RelNext(Name(), CompanyWide(), Base));
         Observer.Observe('b_after', Seq.Rel(Name(), CompanyWide(), Base));
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('onrun', 'created');
+#else
+        Observer.Expect('onrun', 'recreated');
+#endif
+        Observer.Expect('onrun_calls', '1');
+        Observer.Expect('initialized', 'Yes');
+        Observer.Expect('a_start', 'cur=S');
+        Observer.Expect('a_changed', 'cur=S');
+        Observer.Expect('a_taken', 'S');
+        Observer.Expect('b_start', 'cur=S');
+        Observer.Expect('b_taken', 'S+1');
+        Observer.Expect('b_after', 'cur=S+1');
+        Observer.Verify();
     end;
 
     local procedure Name(): Text
