@@ -18,7 +18,20 @@
 //   and ends with Error('END'); the test calls it under asserterror, so a run that raises and a run that returns are both read.
 //   CommitThenEnd does the same for Commit(). The rows the run committed stay; asserterror rolls back only what came after.
 //   Some cells repeat a shape as a plain statement (no asserterror around the run) to show the wrapper does not change the result.
-// The values are what BC produced.
+// The values are what BC produced. What BC did, in short:
+//   - A mark the caller sets before the run (on the table the inner codeunit writes, on another table, or on a temporary record,
+//     which names the database table) makes the guarded Codeunit.Run itself raise the Consistent error, however the inner
+//     codeunit ends: the run does not return a value. After that error (caught by asserterror), a Commit in the caller does not
+//     raise, although the caller's variable never called Consistent(true).
+//   - A mark the inner codeunit still holds when it ends normally makes the run raise the Consistent error. A mark is held per
+//     record variable: Consistent(true) on another variable of the same table does not clear it, only the same variable does
+//     (fxa,txa clears; fxa,txb does not). A mark set by a procedure's local variable stays after the procedure returns. When two
+//     tables are held, the error names the table marked first (in the cells measured here).
+//   - When the inner codeunit fails, its marks are dropped: the run returns No with the inner error (text and code), and a later
+//     Commit in the caller does not raise. This holds for a FieldError, a TestField and an Error after the marks.
+//   - A plain Commit inside the inner codeunit while it holds a mark ends the run with No and DB:TableInConsistent; under
+//     CommitBehavior::Error the run returns No with the commit-prohibited error (code DB:Ok); under CommitBehavior::Ignore the
+//     commit is skipped and the end of the run decides.
 // local object: the tests must commit (a guarded Codeunit.Run commits), and the inner codeunit is the code under test.
 // BC versions: 27.5, 28.5, 29.0
 
