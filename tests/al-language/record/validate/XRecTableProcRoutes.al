@@ -19,9 +19,12 @@
 //   - an OnAfterValidateEvent subscriber calls a table procedure and a table extension procedure on Rec after the field
 //     trigger assigned another field (Series := 'TRG'), directly or through a procedure of its own codeunit that takes Rec and
 //     xRec by var; through a procedure that takes only Rec; without the trigger's assignment; with the assignment made in a
-//     table procedure the trigger calls; with the subscriber assigning a field of Rec before the call;
-//   - the subscriber of an integration event the trigger raises after the same assignment;
-//   - a codeunit the trigger hands Rec to after the same assignment; that codeunit validating another field of the record
+//     table procedure the trigger calls, or in a codeunit the trigger calls; with the subscriber assigning a field of Rec
+//     before the call;
+//   - the subscriber of an integration event the trigger raises after the same assignment, also assigning a field of Rec
+//     itself before the calls;
+//   - a codeunit the trigger hands Rec to after the same assignment, also assigning a field of Rec itself before the call;
+//     that codeunit validating another field of the record
 //     before it calls the table procedure, also through a table procedure that reads xRec in a local procedure;
 //   - callers of the Validate: a test procedure that also carries [Scope('OnPrem')], with and without a handler; a report run
 //     from test code (UseRequestPage(false), Run) whose OnAfterGetRecord calls a report procedure that validates; the
@@ -53,12 +56,16 @@ table 97164 "XRR Line"
                         Series := 'TRG';
                     'proc':
                         AssignSeries();
+                    'codeunit':
+                        Helper.AssignSeries(Rec);
                 end;
                 case Cfg.Get() of
-                    'event':
+                    'event', 'event-assign':
                         OnModeElse(Rec);
                     'codeunit':
                         Helper.CallTableProc(Rec);
+                    'codeunit-assign':
+                        Helper.AssignThenTableProc(Rec);
                     'cu-validate':
                         Helper.ValidateNoteThenTableProc(Rec);
                     'cu-validate-own':
@@ -266,7 +273,11 @@ codeunit 97167 "XRR Subscriber"
 
     [EventSubscriber(ObjectType::Table, Database::"XRR Line", 'OnModeElse', '', false, false)]
     local procedure OnModeElse(var Line: Record "XRR Line")
+    var
+        Cfg: Codeunit "XRR Cfg";
     begin
+        if Cfg.Get() = 'event-assign' then
+            Line.Note := 'SUB';
         Line.ExtProcRead('X');
         Line.TableProcRead('P');
     end;
@@ -285,6 +296,12 @@ codeunit 97168 "XRR Helper"
         Line.TableProcRead('C');
     end;
 
+    procedure AssignThenTableProc(var Line: Record "XRR Line")
+    begin
+        Line.Note := 'CU';
+        Line.TableProcRead('CA');
+    end;
+
     procedure ValidateNoteThenTableProc(var Line: Record "XRR Line")
     begin
         Line.Validate(Note, 'V');
@@ -295,6 +312,11 @@ codeunit 97168 "XRR Helper"
     begin
         Line.Validate(Note, 'V');
         Line.TableProcThroughOwn('CO');
+    end;
+
+    procedure AssignSeries(var Line: Record "XRR Line")
+    begin
+        Line.Series := 'TRG';
     end;
 
     procedure RequestLine(var Line: Record "XRR Line")
@@ -439,6 +461,18 @@ codeunit 97169 "XRR Tests"
     end;
 
     [Test]
+    procedure AfterEvent_TriggerAssignsThroughCodeunit_TableProc()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XRR Line";
+    begin
+        Initialize();
+        AfterInsert(Line);
+        ValidateModeAndObserve(Observer, Line, 'after-table', 'codeunit');
+        Observer.Finish();
+    end;
+
+    [Test]
     procedure AfterEvent_SubscriberAssignsRec_TableProc()
     var
         Observer: Codeunit "Probe Observer";
@@ -471,6 +505,30 @@ codeunit 97169 "XRR Tests"
         Initialize();
         AfterInsert(Line);
         ValidateModeAndObserve(Observer, Line, 'codeunit', 'direct');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure IntegrationEvent_TriggerAndSubscriberAssign()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XRR Line";
+    begin
+        Initialize();
+        AfterInsert(Line);
+        ValidateModeAndObserve(Observer, Line, 'event-assign', 'direct');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Codeunit_TriggerAssigns_CodeunitAssignsThenTableProc()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XRR Line";
+    begin
+        Initialize();
+        AfterInsert(Line);
+        ValidateModeAndObserve(Observer, Line, 'codeunit-assign', 'direct');
         Observer.Finish();
     end;
 
