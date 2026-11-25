@@ -1,0 +1,352 @@
+// BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-visible-property
+// Scope: in-scope
+// Fixtures used: Probe Observer (codeunit 69160); own table 75680, pages 75681 and 75683 to 75685, test codeunit 75682
+// Probe (al-runner issue 8650): property and source expressions of page controls that name members which are words of the
+//   AL language.
+// Facts:
+//   - A control's Editable expression and a control's source expression compile when they name a keyword member quoted
+//     (Rec."If", Rec.Opt::"Do") or a member that is no keyword unquoted (Rec.Key, Rec.Local); page 75681's TestPage reads
+//     the source values and both branches of the Editable expression.
+//   - On BC 29, page 75683's CardPart cuegroup gives the true row Visible Yes and the false row Visible No for its direct
+//     field controls with `Visible = Rec."Exit" > 0;` and `Visible = Rec.Opt = Rec.Opt::"Do";`.
+//   - On BC 29, page 75684's expression-bound Card controls (`Rec."If" + 1` and `Rec.Key + Rec.Local`) give both the true
+//     and false rows Visible Yes; page 75685's direct-field-bound Card controls give both the true and false rows Visible No.
+//   - On BC 27 and 28, the earlier Card shape represented by page 75684 raised "The identifier 'Exit' could not be found."
+//     when its TestPage read that control's Visible state or closed the page. That error is measured only on that Card shape,
+//     not on page 75683's CardPart shape or on every page or shape.
+//   - Not compiling (must-not-compile 3500 to 3556): one of 32 words unquoted after `.` or `::` in a page control's Visible,
+//     Editable, Enabled, CaptionClass, HideValue, ShowMandatory or QuickEntry, a page action's Visible or Enabled, a group's
+//     or part's Visible, a page's DataCaptionExpression, a control's or report column's source expression, and the same in
+//     page and report extensions, an action-area group's Visible, and the Visible of a page extension's `modify` of any target
+//     (a field, an action, a group, a part and eight others), with AL0107 at the name first.
+// local object: the member names in the expressions are under test.
+// BC versions: 27, 28, 29 (by the corpus CI matrix)
+
+table 75680 "PGC Keyword Member Row"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; "If"; Integer) { }
+        field(3; "Exit"; Integer) { }
+        field(4; "Key"; Integer) { }
+        field(5; Local; Integer) { }
+        field(6; Opt; Option) { OptionMembers = Zero,"Do"; }
+    }
+
+    keys
+    {
+        key(PK; Id) { Clustered = true; }
+    }
+}
+
+page 75681 "PGC Keyword Member Card"
+{
+    PageType = Card;
+    SourceTable = "PGC Keyword Member Row";
+
+    layout
+    {
+        area(Content)
+        {
+            field(IfShown; Rec."If" + 1)
+            {
+                ApplicationArea = All;
+            }
+            field(KeyShown; Rec.Key + Rec.Local)
+            {
+                ApplicationArea = All;
+            }
+            field(LocalShown; Rec.Local)
+            {
+                ApplicationArea = All;
+                Editable = Rec.Key > 0;
+            }
+        }
+    }
+}
+
+#if BC29PLUS
+// BC 29 only: the BC 27 and 28 Exit identifier error was measured on the earlier Card shape, not on this CardPart page.
+page 75683 "PGC Keyword Member Shown"
+{
+    PageType = CardPart;
+    SourceTable = "PGC Keyword Member Row";
+
+    layout
+    {
+        area(Content)
+        {
+            cuegroup(KeywordMembers)
+            {
+                field(IfShown; Rec."If")
+                {
+                    ApplicationArea = All;
+                    Visible = Rec."Exit" > 0;
+                }
+                field(KeyShown; Rec.Key)
+                {
+                    ApplicationArea = All;
+                    Visible = Rec.Opt = Rec.Opt::"Do";
+                }
+            }
+        }
+    }
+}
+#endif
+
+codeunit 75682 "PGC Keyword Member Tests"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    [Test]
+    procedure KeywordMemberExpressions_TestPage_ReadsSourceValues()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Keyword Member Row";
+        Card: TestPage "PGC Keyword Member Card";
+    begin
+        Initialize();
+        InsertRow(Row);
+        Card.OpenEdit();
+        Card.GoToRecord(Row);
+        Observer.Observe('IfShown', Card.IfShown.Value);
+        Observer.Observe('KeyShown', Card.KeyShown.Value);
+        Observer.Observe('LocalShown editable', Format(Card.LocalShown.Editable()));
+        Card.Close();
+        Observer.Expect('IfShown', '5');
+        Observer.Expect('KeyShown', '5');
+        Observer.Expect('LocalShown editable', 'Yes');
+        Observer.Verify();
+    end;
+
+#if BC29PLUS
+    // BC 29 only: the BC 27 and 28 Exit identifier error was measured on the earlier Card shape, not on this CardPart page.
+    [Test]
+    procedure KeywordMemberExpressions_TestPage_ReadsVisibleStatesOfQuotedKeywordMembers()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Keyword Member Row";
+        Shown: TestPage "PGC Keyword Member Shown";
+    begin
+        Initialize();
+        InsertRow(Row);
+        Shown.OpenEdit();
+        Shown.GoToRecord(Row);
+        Observer.Observe('IfShown visible', Format(Shown.IfShown.Visible()));
+        Observer.Observe('KeyShown visible', Format(Shown.KeyShown.Visible()));
+        Shown.Close();
+        Observer.Expect('IfShown visible', 'Yes');
+        Observer.Expect('KeyShown visible', 'Yes');
+        Observer.Verify();
+    end;
+#endif
+
+    local procedure InsertRow(var Row: Record "PGC Keyword Member Row")
+    begin
+        Row.Id := 1;
+        Row."If" := 4;
+        Row."Exit" := 1;
+        Row.Key := 2;
+        Row.Local := 3;
+        Row.Opt := Row.Opt::"Do";
+        Row.Insert();
+    end;
+
+    local procedure InsertFalseRow(var Row: Record "PGC Keyword Member Row")
+    begin
+        Row.Id := 2;
+        Row."If" := 4;
+        Row."Exit" := 0;
+        Row.Key := 0;
+        Row.Local := 3;
+        Row.Opt := Row.Opt::Zero;
+        Row.Insert();
+    end;
+
+    local procedure Initialize()
+    var
+        Row: Record "PGC Keyword Member Row";
+    begin
+        Row.DeleteAll();
+    end;
+
+    [Test]
+    procedure KeywordMemberExpressions_TestPage_ReadsFalseEditableState()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Keyword Member Row";
+        Card: TestPage "PGC Keyword Member Card";
+    begin
+        Initialize();
+        InsertRow(Row);
+        InsertFalseRow(Row);
+        Card.OpenEdit();
+        Card.GoToRecord(Row);
+        Observer.Observe('IfShown', Card.IfShown.Value);
+        Observer.Observe('KeyShown', Card.KeyShown.Value);
+        Observer.Observe('LocalShown editable', Format(Card.LocalShown.Editable()));
+        Card.Close();
+        Observer.Expect('IfShown', '5');
+        Observer.Expect('KeyShown', '3');
+        Observer.Expect('LocalShown editable', 'No');
+        Observer.Verify();
+    end;
+
+#if BC29PLUS
+    [Test]
+    procedure KeywordMemberExpressions_TestPage_ReadsFalseVisibleStatesOfQuotedKeywordMembers()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Keyword Member Row";
+        Shown: TestPage "PGC Keyword Member Shown";
+    begin
+        Initialize();
+        InsertRow(Row);
+        InsertFalseRow(Row);
+        Shown.OpenEdit();
+        Shown.GoToRecord(Row);
+        Observer.Observe('IfShown value', Shown.IfShown.Value);
+        Observer.Observe('KeyShown value', Shown.KeyShown.Value);
+        Observer.Observe('IfShown visible', Format(Shown.IfShown.Visible()));
+        Observer.Observe('KeyShown visible', Format(Shown.KeyShown.Visible()));
+        Shown.Close();
+        Observer.Expect('IfShown value', '4');
+        Observer.Expect('KeyShown value', '0');
+        Observer.Expect('IfShown visible', 'No');
+        Observer.Expect('KeyShown visible', 'No');
+        Observer.Verify();
+    end;
+#endif
+
+#if BC29PLUS // The 27/28 Card-shape probe raised the measured Exit identifier error, so these Card facts are BC 29 only.
+    [Test]
+    procedure KeywordMemberExpressions_TestPage_CardExpressionBoundFalseVisibleStatesAreYes()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Keyword Member Row";
+        Card: TestPage "PGC Keyword Member Expr Card";
+    begin
+        Initialize();
+        InsertRow(Row);
+        InsertFalseRow(Row);
+        Card.OpenEdit();
+        Card.GoToRecord(Row);
+        Observer.Observe('IfShown visible', Format(Card.IfShown.Visible()));
+        Observer.Observe('KeyShown visible', Format(Card.KeyShown.Visible()));
+        Card.Close();
+        Observer.Expect('IfShown visible', 'Yes');
+        Observer.Expect('KeyShown visible', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure KeywordMemberExpressions_TestPage_CardDirectFieldTrueVisibleStatesAreNo()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Keyword Member Row";
+        Card: TestPage "PGC Keyword Member Field Card";
+    begin
+        Initialize();
+        InsertRow(Row);
+        Card.OpenEdit();
+        Card.GoToRecord(Row);
+        Observer.Observe('IfShown visible', Format(Card.IfShown.Visible()));
+        Observer.Observe('KeyShown visible', Format(Card.KeyShown.Visible()));
+        Card.Close();
+        Observer.Expect('IfShown visible', 'No');
+        Observer.Expect('KeyShown visible', 'No');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure KeywordMemberExpressions_TestPage_CardExpressionBoundTrueVisibleStatesAreYes()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Keyword Member Row";
+        Card: TestPage "PGC Keyword Member Expr Card";
+    begin
+        Initialize();
+        InsertRow(Row);
+        Card.OpenEdit();
+        Card.GoToRecord(Row);
+        Observer.Observe('IfShown visible', Format(Card.IfShown.Visible()));
+        Observer.Observe('KeyShown visible', Format(Card.KeyShown.Visible()));
+        Card.Close();
+        Observer.Expect('IfShown visible', 'Yes');
+        Observer.Expect('KeyShown visible', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure KeywordMemberExpressions_TestPage_CardDirectFieldFalseVisibleStatesAreNo()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Keyword Member Row";
+        Card: TestPage "PGC Keyword Member Field Card";
+    begin
+        Initialize();
+        InsertRow(Row);
+        InsertFalseRow(Row);
+        Card.OpenEdit();
+        Card.GoToRecord(Row);
+        Observer.Observe('IfShown visible', Format(Card.IfShown.Visible()));
+        Observer.Observe('KeyShown visible', Format(Card.KeyShown.Visible()));
+        Card.Close();
+        Observer.Expect('IfShown visible', 'No');
+        Observer.Expect('KeyShown visible', 'No');
+        Observer.Verify();
+    end;
+#endif
+}
+
+#if BC29PLUS // The 27/28 Exit identifier error is measured only on the earlier Card shape.
+page 75684 "PGC Keyword Member Expr Card"
+{
+    PageType = Card;
+    SourceTable = "PGC Keyword Member Row";
+
+    layout
+    {
+        area(Content)
+        {
+            field(IfShown; Rec."If" + 1)
+            {
+                ApplicationArea = All;
+                Visible = Rec."Exit" > 0;
+            }
+            field(KeyShown; Rec.Key + Rec.Local)
+            {
+                ApplicationArea = All;
+                Visible = Rec.Opt = Rec.Opt::"Do";
+            }
+        }
+    }
+}
+
+page 75685 "PGC Keyword Member Field Card"
+{
+    PageType = Card;
+    SourceTable = "PGC Keyword Member Row";
+
+    layout
+    {
+        area(Content)
+        {
+            field(IfShown; Rec."If")
+            {
+                ApplicationArea = All;
+                Visible = Rec."Exit" > 0;
+            }
+            field(KeyShown; Rec.Key)
+            {
+                ApplicationArea = All;
+                Visible = Rec.Opt = Rec.Opt::"Do";
+            }
+        }
+    }
+}
+#endif
