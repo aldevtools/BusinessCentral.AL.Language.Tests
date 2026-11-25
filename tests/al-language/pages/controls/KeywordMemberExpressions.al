@@ -9,11 +9,11 @@
 //     the source values and both branches of the Editable expression.
 //   - On BC 29, page 75683's CardPart cuegroup gives the true row Visible Yes and the false row Visible No for its direct
 //     field controls with `Visible = Rec."Exit" > 0;` and `Visible = Rec.Opt = Rec.Opt::"Do";`.
-//   - On BC 29, page 75684's expression-bound Card controls (`Rec."If" + 1` and `Rec.Key + Rec.Local`) give the false row
-//     Visible Yes for both; page 75685's direct-field-bound Card controls give the true row Visible No for both.
-//   - On BC 27 and 28, the Card shape used before page 75683 became a CardPart raised "The identifier 'Exit' could not be
-//     found." when its TestPage read that control's Visible state or closed the page. That error is measured only on that
-//     Card shape, not on every page or shape.
+//   - On BC 29, page 75684's expression-bound Card controls (`Rec."If" + 1` and `Rec.Key + Rec.Local`) give both the true
+//     and false rows Visible Yes; page 75685's direct-field-bound Card controls give both the true and false rows Visible No.
+//   - On BC 27 and 28, the earlier Card shape represented by page 75684 raised "The identifier 'Exit' could not be found."
+//     when its TestPage read that control's Visible state or closed the page. That error is measured only on that Card shape,
+//     not on page 75683's CardPart shape or on every page or shape.
 //   - Not compiling (must-not-compile 3500 to 3556): one of 32 words unquoted after `.` or `::` in a page control's Visible,
 //     Editable, Enabled, CaptionClass, HideValue, ShowMandatory or QuickEntry, a page action's Visible or Enabled, a group's
 //     or part's Visible, a page's DataCaptionExpression, a control's or report column's source expression, and the same in
@@ -69,7 +69,7 @@ page 75681 "PGC Keyword Member Card"
 }
 
 #if BC29PLUS
-// BC 29 only: on BC 27 and 28 a TestPage of this page raises "The identifier 'Exit' could not be found." (see Facts).
+// BC 29 only: the BC 27 and 28 Exit identifier error was measured on the earlier Card shape, not on this CardPart page.
 page 75683 "PGC Keyword Member Shown"
 {
     PageType = CardPart;
@@ -124,7 +124,7 @@ codeunit 75682 "PGC Keyword Member Tests"
     end;
 
 #if BC29PLUS
-    // BC 29 only: on BC 27 and 28 this page raises "The identifier 'Exit' could not be found." (see Facts).
+    // BC 29 only: the BC 27 and 28 Exit identifier error was measured on the earlier Card shape, not on this CardPart page.
     [Test]
     procedure KeywordMemberExpressions_TestPage_ReadsVisibleStatesOfQuotedKeywordMembers()
     var
@@ -252,6 +252,45 @@ codeunit 75682 "PGC Keyword Member Tests"
     begin
         Initialize();
         InsertRow(Row);
+        Card.OpenEdit();
+        Card.GoToRecord(Row);
+        Observer.Observe('IfShown visible', Format(Card.IfShown.Visible()));
+        Observer.Observe('KeyShown visible', Format(Card.KeyShown.Visible()));
+        Card.Close();
+        Observer.Expect('IfShown visible', 'No');
+        Observer.Expect('KeyShown visible', 'No');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure KeywordMemberExpressions_TestPage_CardExpressionBoundTrueVisibleStatesAreYes()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Keyword Member Row";
+        Card: TestPage "PGC Keyword Member Expr Card";
+    begin
+        Initialize();
+        InsertRow(Row);
+        Card.OpenEdit();
+        Card.GoToRecord(Row);
+        Observer.Observe('IfShown visible', Format(Card.IfShown.Visible()));
+        Observer.Observe('KeyShown visible', Format(Card.KeyShown.Visible()));
+        Card.Close();
+        Observer.Expect('IfShown visible', 'Yes');
+        Observer.Expect('KeyShown visible', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure KeywordMemberExpressions_TestPage_CardDirectFieldFalseVisibleStatesAreNo()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "PGC Keyword Member Row";
+        Card: TestPage "PGC Keyword Member Field Card";
+    begin
+        Initialize();
+        InsertRow(Row);
+        InsertFalseRow(Row);
         Card.OpenEdit();
         Card.GoToRecord(Row);
         Observer.Observe('IfShown visible', Format(Card.IfShown.Visible()));
