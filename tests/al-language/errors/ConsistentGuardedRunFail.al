@@ -291,9 +291,8 @@ codeunit 88974 "GRF Tests"
 
     // ---- (1) the caller marks before the run; the inner codeunit ends in four ways ----
 
-    local procedure CallerCell(Mark: Text; Steps: Text)
+    local procedure CallerCell(var Observer: Codeunit "Probe Observer"; Mark: Text; Steps: Text)
     var
-        Observer: Codeunit "Probe Observer";
         MarkX: Record "GRF X";
         MarkY: Record "GRF Y";
         TempX: Record "GRF X" temporary;
@@ -323,116 +322,300 @@ codeunit 88974 "GRF Tests"
         asserterror CommitThenEnd();
         Observer.ObserveError('commit after true');
         Observer.Observe('durable rows', DurableRows());
-        Observer.Finish();
     end;
 
     [Test]
     procedure CallerMarksX_InnerInsertsXAndFails()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        CallerCell('x', 'insx,err');
+        CallerCell(Observer, 'x', 'insx,err');
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRF X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('commit after true|text', 'END');
+        Observer.Expect('commit after true|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure CallerMarksX_InnerFailsNoWrite()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        CallerCell('x', 'err');
+        CallerCell(Observer, 'x', 'err');
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRF X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('commit after true|text', 'END');
+        Observer.Expect('commit after true|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure CallerMarksX_InnerInsertsXAndEnds()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        CallerCell('x', 'insx');
+        CallerCell(Observer, 'x', 'insx');
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRF X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('commit after true|text', 'END');
+        Observer.Expect('commit after true|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure CallerMarksX_InnerInsertsXCommitsAndFails()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        CallerCell('x', 'insx,commit,err');
+        CallerCell(Observer, 'x', 'insx,commit,err');
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRF X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('commit after true|text', 'END');
+        Observer.Expect('commit after true|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure CallerMarksY_InnerInsertsXAndFails()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        CallerCell('y', 'insx,err');
+        CallerCell(Observer, 'y', 'insx,err');
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRF Y table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('commit after true|text', 'END');
+        Observer.Expect('commit after true|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure CallerMarksY_InnerFailsNoWrite()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        CallerCell('y', 'err');
+        CallerCell(Observer, 'y', 'err');
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRF Y table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('commit after true|text', 'END');
+        Observer.Expect('commit after true|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure CallerMarksY_InnerInsertsXAndEnds()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        CallerCell('y', 'insx');
+        CallerCell(Observer, 'y', 'insx');
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRF Y table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('commit after true|text', 'END');
+        Observer.Expect('commit after true|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure CallerMarksY_InnerInsertsXCommitsAndFails()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        CallerCell('y', 'insx,commit,err');
+        CallerCell(Observer, 'y', 'insx,commit,err');
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRF Y table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('commit after true|text', 'END');
+        Observer.Expect('commit after true|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure CallerMarksTemp_InnerInsertsXAndFails()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        CallerCell('tmp', 'insx,err');
+        CallerCell(Observer, 'tmp', 'insx,err');
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRF X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('commit after true|text', 'END');
+        Observer.Expect('commit after true|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure CallerMarksTemp_InnerFailsNoWrite()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        CallerCell('tmp', 'err');
+        CallerCell(Observer, 'tmp', 'err');
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRF X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('commit after true|text', 'END');
+        Observer.Expect('commit after true|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure CallerMarksTemp_InnerInsertsXAndEnds()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        CallerCell('tmp', 'insx');
+        CallerCell(Observer, 'tmp', 'insx');
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRF X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('commit after true|text', 'END');
+        Observer.Expect('commit after true|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure CallerMarksTemp_InnerInsertsXCommitsAndFails()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        CallerCell('tmp', 'insx,commit,err');
+        CallerCell(Observer, 'tmp', 'insx,commit,err');
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRF X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('commit after true|text', 'END');
+        Observer.Expect('commit after true|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure CallerNoMark_InnerMarksXInsertsAndFails()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        CallerCell('x-none', 'fxa,insx,err');
+        CallerCell(Observer, 'x-none', 'fxa,insx,err');
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=inner failed;code=Dialog;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('commit after true|text', 'END');
+        Observer.Expect('commit after true|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure CallerNoMark_InnerMarksXFailsNoWrite()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        CallerCell('x-none', 'fxa,err');
+        CallerCell(Observer, 'x-none', 'fxa,err');
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=inner failed;code=Dialog;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('commit after true|text', 'END');
+        Observer.Expect('commit after true|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure CallerNoMark_InnerMarksXInsertsAndEnds()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        CallerCell('x-none', 'fxa,insx');
+        CallerCell(Observer, 'x-none', 'fxa,insx');
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRF X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('commit after true|text', 'END');
+        Observer.Expect('commit after true|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure CallerNoMark_InnerInsertsXCommitsMarksAndFails()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        CallerCell('x-none', 'insx,commit,fxa,err');
+        CallerCell(Observer, 'x-none', 'insx,commit,fxa,err');
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=inner failed;code=Dialog;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('commit after true|text', 'END');
+        Observer.Expect('commit after true|code', 'Dialog');
+        Observer.Expect('durable rows', '[inner;] y=0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure CallerNoMark_InnerMarksXInsertsCommitsAndFails()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        CallerCell('x-none', 'fxa,insx,commit,err');
+        CallerCell(Observer, 'x-none', 'fxa,insx,commit,err');
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRF X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('commit after true|text', 'END');
+        Observer.Expect('commit after true|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     // ---- (2) the inner codeunit marks through several variables (the preview groups of issue 8970) ----
 
-    local procedure InnerCell(Steps: Text)
-    var
-        Observer: Codeunit "Probe Observer";
+    local procedure InnerCell(var Observer: Codeunit "Probe Observer"; Steps: Text)
     begin
         Initialize(Steps);
         asserterror RunThenEnd();
@@ -441,155 +624,370 @@ codeunit 88974 "GRF Tests"
         asserterror CommitThenEnd();
         Observer.ObserveError('commit');
         Observer.Observe('durable rows', DurableRows());
-        Observer.Finish();
     end;
 
     [Test]
     procedure Inner_StartX_MarkYByA_MarkYByC_Fails()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        InnerCell('startx,fya,fyc,err');
+        InnerCell(Observer, 'startx,fya,fyc,err');
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=inner failed;code=Dialog;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Inner_StartX_InsertY_MarkYByA_MarkYByC_Fails()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        InnerCell('startx,insy,fya,fyc,err');
+        InnerCell(Observer, 'startx,insy,fya,fyc,err');
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=inner failed;code=Dialog;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Inner_StartX_MarkYInProcTwice_Fails()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        InnerCell('startx,fyp,fyp,err');
+        InnerCell(Observer, 'startx,fyp,fyp,err');
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=inner failed;code=Dialog;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Inner_StartX_MarkYByA_MarkYByC_Ends()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        InnerCell('startx,fya,fyc');
+        InnerCell(Observer, 'startx,fya,fyc');
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRF X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Inner_StartX_TrueXByB_MarkYByA_Fails()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        InnerCell('startx,txb,fya,err');
+        InnerCell(Observer, 'startx,txb,fya,err');
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=inner failed;code=Dialog;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Inner_StartX_TrueXByB_MarkYByA_Ends()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        InnerCell('startx,txb,fya');
+        InnerCell(Observer, 'startx,txb,fya');
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRF X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Inner_StartX_TrueXByB_Ends()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        InnerCell('startx,txb');
+        InnerCell(Observer, 'startx,txb');
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRF X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Inner_MarkXByA_TrueXByB_MarkYByA_Fails()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        InnerCell('fxa,txb,fya,err');
+        InnerCell(Observer, 'fxa,txb,fya,err');
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=inner failed;code=Dialog;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Inner_MarkXByA_TrueXByB_MarkXByC_MarkYByA_Fails()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        InnerCell('fxa,txb,fxc,fya,err');
+        InnerCell(Observer, 'fxa,txb,fxc,fya,err');
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=inner failed;code=Dialog;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Inner_MarkXByA_TrueXByB_MarkXByC_MarkYByA_Ends()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        InnerCell('fxa,txb,fxc,fya');
+        InnerCell(Observer, 'fxa,txb,fxc,fya');
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRF X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Inner_MarkXByA_TrueXByB_MarkXByC_TrueXByA_TrueYByA_Ends()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        InnerCell('fxa,txb,fxc,fya,txa,tya');
+        InnerCell(Observer, 'fxa,txb,fxc,fya,txa,tya');
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRF X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Inner_MarkXByA_TrueXByB_MarkXByC_TrueXByC_TrueYByA_Ends()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        InnerCell('fxa,txb,fxc,fya,txc,tya');
+        InnerCell(Observer, 'fxa,txb,fxc,fya,txc,tya');
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRF X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Inner_MarkYByA_MarkXByA_Ends()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        InnerCell('fya,fxa');
+        InnerCell(Observer, 'fya,fxa');
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRF Y table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     // ---- (3) a Commit inside the inner codeunit while marks are held ----
 
     [Test]
     procedure Inner_MarkXMarkY_CommitUnderCommitBehaviorError()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        InnerCell('fxa,fyb,cbcommit');
+        InnerCell(Observer, 'fxa,fyb,cbcommit');
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=Commit is prohibited in the current scope. The operation cannot continue. Contact your system administrator.;code=DB:Ok;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Inner_InsertX_CommitUnderCommitBehaviorError()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        InnerCell('insx,cbcommit');
+        InnerCell(Observer, 'insx,cbcommit');
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=Commit is prohibited in the current scope. The operation cannot continue. Contact your system administrator.;code=DB:Ok;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Inner_MarkXMarkY_PlainCommit()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        InnerCell('fxa,fyb,commit');
+        InnerCell(Observer, 'fxa,fyb,commit');
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRF X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Inner_MarkXInsertX_CommitUnderCommitBehaviorIgnore_Ends()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        InnerCell('fxa,insx,cbignore');
+        InnerCell(Observer, 'fxa,insx,cbignore');
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRF X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', '');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Inner_MarkXInsertX_CommitUnderCommitBehaviorIgnore_Fails()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        InnerCell('fxa,insx,cbignore,err');
+        InnerCell(Observer, 'fxa,insx,cbignore,err');
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=inner failed;code=Dialog;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Inner_MarkXTrueX_InsertX_CommitUnderCommitBehaviorIgnore_Ends()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        InnerCell('fxa,txa,insx,cbignore');
+        InnerCell(Observer, 'fxa,txa,insx,cbignore');
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=Yes;text=;code=;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[inner;] y=0');
+        Observer.Verify();
     end;
 
     // ---- (4) FieldError and TestField after a mark on a codeunit global ----
 
     [Test]
     procedure Inner_MarkGlobal_FieldError()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        InnerCell('fxg,fielderr');
+        InnerCell(Observer, 'fxg,fielderr');
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=Code must be set in GRF Y Id=''0''.;code=NCLCSRTS:TableErrorStr;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Inner_MarkGlobal_InsertX_FieldError()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        InnerCell('fxg,insx,fielderr');
+        InnerCell(Observer, 'fxg,insx,fielderr');
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=Code must be set in GRF Y Id=''0''.;code=NCLCSRTS:TableErrorStr;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Inner_FieldErrorNoMark()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        InnerCell('insx,fielderr');
+        InnerCell(Observer, 'insx,fielderr');
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=Code must be set in GRF Y Id=''0''.;code=NCLCSRTS:TableErrorStr;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Inner_MarkGlobal_InsertY_TestField()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        InnerCell('fxg,insy,testfield');
+        InnerCell(Observer, 'fxg,insy,testfield');
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=Code must have a value in GRF Y: Id=0. It cannot be zero or empty.;code=TestField;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Inner_MarkTemp_InsertX_Fails()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        InnerCell('fxtmp,insx,err');
+        InnerCell(Observer, 'fxtmp,insx,err');
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'run=No;text=inner failed;code=Dialog;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     // ---- (5) the same shapes as plain statements: no asserterror around the run ----
@@ -608,7 +1006,14 @@ codeunit 88974 "GRF Tests"
         asserterror CommitThenEnd();
         Observer.ObserveError('commit');
         Observer.Observe('durable rows', DurableRows());
-        Observer.Finish();
+        Observer.Expect('run', 'No');
+        Observer.Expect('last error|text', 'inner failed');
+        Observer.Expect('last error|code', 'Dialog');
+        Observer.Expect('rows after run', '[] y=0');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -624,7 +1029,13 @@ codeunit 88974 "GRF Tests"
         asserterror CommitThenEnd();
         Observer.ObserveError('commit');
         Observer.Observe('durable rows', DurableRows());
-        Observer.Finish();
+        Observer.Expect('run', 'No');
+        Observer.Expect('last error|text', 'Code must be set in GRF Y Id=''0''.');
+        Observer.Expect('last error|code', 'NCLCSRTS:TableErrorStr');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -640,6 +1051,12 @@ codeunit 88974 "GRF Tests"
         asserterror CommitThenEnd();
         Observer.ObserveError('commit');
         Observer.Observe('durable rows', DurableRows());
-        Observer.Finish();
+        Observer.Expect('run', 'No');
+        Observer.Expect('last error|text', 'inner failed');
+        Observer.Expect('last error|code', 'Dialog');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', '[] y=0');
+        Observer.Verify();
     end;
 }
