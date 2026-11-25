@@ -1,8 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-system-tables
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); self-contained tables 75920, 75921, 75922, 75924, enum 75923, table extension 75925,
-//                codeunit 75931, tables 75926..75929 (issue 8592 cells); Base Application table Item (field "Item Category Code")
-//                and the platform table User
+// Fixtures used: Probe Observer (codeunit 69160); self-contained tables 75920-75922, 75924, 75926-75929, enum 75923, table extension
+//                75925, codeunit 75931; Base Application table Item (field "Item Category Code") and the platform table User
 // Probe: written against local BC 27.5, 28.5 and 29.0 service tiers (Windows); every literal asserted below is what those tiers produced.
 //        Other builds are checked by the corpus CI matrix. Asked by al-runner issue 8249.
 // Facts:
