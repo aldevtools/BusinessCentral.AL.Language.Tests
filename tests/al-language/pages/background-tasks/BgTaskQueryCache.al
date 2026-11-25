@@ -5,7 +5,7 @@
 // local object: the reads of a page background task's worker and of the test session, and what the test writes, commits and
 //   rolls back between them, are what is under test
 // Fixtures used: Assert (60021); tables 97500, 97501, 97514, 97546, 97593, 97594, 97597, 97598; mode codeunit 97502; codeunits 97503,
-//   97504, 97509, 97517, 97590, 97591, 97595, 97597; pages 97505, 97518, 97519; test codeunits 97506-97508, 97544, 97545, 97592, 97596, 97598
+//   97504, 97509, 97517, 97590, 97591, 97595, 97597; pages 97505, 97518, 97519; test codeunits 97506-97508, 97544, 97545, 97588, 97592, 97596, 97598
 // Probe (al-runner issue 8467): a read the worker of a page background task repeats gets the answer of the first read, also after
 //   the test session changed the rows without committing. The tests read lines of table 97500 (key Group, Line No.) in the worker,
 //   either from the page's OnAfterGetCurrRecord (CurrPage.EnqueueBackgroundTask, the page shows the answer) or with
@@ -29,7 +29,7 @@
 //     the test session's own Get answers like a worker read then, until it writes the table (:983);
 //   - another test codeunit: its read sees its own row (:1044, :1067).
 // A commit of a ModifyAll or DeleteAll of another row of the table (BQ Tests 12), SelectLatestVersion and a table with a Blob
-//   field (BQ Tests 11): the end of the file. GroupCount and PartialGet of BQ Tests 3 are in BQ Tests 3b.
+//   field (BQ Tests 11): the end of the file. @ alone is cached only by BQ AtSign Tests' matching empty row, not BQ Tests 6's "a"; GroupCount/PartialGet are in BQ Tests 3b.
 // BC versions: 29.1 (local W1 container).
 
 table 97500 "BQ Row"
@@ -2708,7 +2708,7 @@ codeunit 97592 "BQ Tests 6"
         Assert.AreEqual('-|-|0|Yes', InsertAfterFirstRead('nested', 'a'), '>0&<z|zz, after the insert');
     end;
 
-    // @ alone, an empty FILTER() of a view, and a pattern not matched with @.
+    // @ alone with a nonmatching row (the discriminating empty-row cell is at the end), an empty FILTER() and a @-pattern.
     [Test]
     procedure BgQueryCache_Run_AllForms_OtherFilterKinds_FirstAnswer()
     begin
@@ -7318,5 +7318,126 @@ codeunit 97587 "BQ Tests 13"
         MediaSetRow.Modify();
         Assert.AreEqual('first', Run(Rows, 'mediasetdesc', K, 0), 'Get again');
         Rows.Close();
+    end;
+}
+
+// BQ AtSign Tests (review of corpus PR 1495): append-only control for BQ Tests 6's @-alone cache key. The worker first
+// reads an empty group, the test inserts an empty Description that @ keeps, and the test observes the worker's cached
+// answer beside a direct read of the table's answer. It also pins the test session's own answer, which was missing from
+// the helper-only TestReadsFirst checks.
+codeunit 97588 "BQ AtSign Tests"
+{
+    Subtype = Test;
+
+    var
+        Assert: Codeunit Assert;
+
+    local procedure NewGroup(): Code[20]
+    begin
+        exit(CopyStr(DelChr(Format(CreateGuid()), '=', '{}-'), 1, 18));
+    end;
+
+    local procedure AddRow(Group: Code[20]; LineNo: Integer; Description: Text[50])
+    var
+        Row: Record "BQ Row";
+    begin
+        Row."Group" := Group;
+        Row."Line No." := LineNo;
+        Row.Description := Description;
+        Row.Insert();
+        Row.SetRange("Group", Group);
+        if Row.FindFirst() then;
+    end;
+
+    // Inserts a row of table 97593, then reads it (as AddWide of BQ Tests 7).
+    local procedure AddWide(No: Code[20]; Description: Text[50])
+    var
+        Wide: Record "BQ Wide";
+    begin
+        Wide."No." := No;
+        Wide.Description := Description;
+        Wide.Insert();
+        Wide.SetRange("No.", No);
+        if Wide.FindFirst() then;
+    end;
+
+    local procedure Run(var Rows: TestPage "BQ Plain Rows"; Group: Code[20]): Text
+    var
+        Parameters: Dictionary of [Text, Text];
+        Results: Dictionary of [Text, Text];
+        Seen: Text;
+    begin
+        Parameters.Add('Group', Group);
+        Parameters.Add('Mode', 'atsign');
+        Results := Rows.RunPageBackgroundTask(Codeunit::"BQ Reader 6", Parameters, false);
+        Results.Get('Seen', Seen);
+        exit(Seen);
+    end;
+
+    [Test]
+    procedure BgQueryCache_Run_AtSignWithEmptyRow_CachesEmptyAnswer()
+    var
+        Rows: TestPage "BQ Plain Rows";
+        Row: Record "BQ Row";
+        Reader: Codeunit "BQ Reader 6";
+        G: Code[20];
+        First: Text;
+        Cached: Text;
+        TableAnswer: Text;
+    begin
+        G := NewGroup();
+        Rows.OpenView();
+        First := Run(Rows, G);
+        AddRow(G, 1, '');
+        Cached := Run(Rows, G);
+        Reader.SetShape(Row, 'atsign', G);
+        TableAnswer := Reader.Forms(Row, 'atsign');
+        Rows.Close();
+        Assert.AreEqual('-|-|0|Yes', First, 'the first four reads');
+        Assert.AreEqual('-|-|0|Yes', Cached, 'the worker''s cached-empty answer');
+        Assert.AreEqual('||1|No', TableAnswer, 'the test session''s table answer');
+    end;
+
+    [Test]
+    procedure BgQueryCache_TestReadsFirst_AtSignOwnAnswer_IsExact()
+    var
+        Row: Record "BQ Row";
+        Reader: Codeunit "BQ Reader 6";
+        G: Code[20];
+    begin
+        G := NewGroup();
+        AddRow(G, 1, 'a');
+        Commit();
+        Reader.SetShape(Row, 'atsign', G);
+        Assert.AreEqual('-|-|0|Yes', Reader.Forms(Row, 'atsign'), 'the test session''s @-alone answer');
+    end;
+
+    [Test]
+    procedure BgQueryCache_TestReadsFirst_NotAtOwnAnswer_IsExact()
+    var
+        Row: Record "BQ Row";
+        Reader: Codeunit "BQ Reader 7";
+        G: Code[20];
+    begin
+        G := NewGroup();
+        AddRow(G, 1, 'a');
+        Commit();
+        Reader.SetShape(Row, 'notat', G);
+        Assert.AreEqual('a|a|1|No', Reader.Forms(Row), 'the test session''s <>@-alone answer');
+    end;
+
+    [Test]
+    procedure BgQueryCache_TestReadsFirst_WideOwnAnswer_IsExact()
+    var
+        WideRef: RecordRef;
+        Reader: Codeunit "BQ Reader 7";
+        G: Code[20];
+    begin
+        G := NewGroup();
+        AddWide(G, 'a');
+        Commit();
+        WideRef.Open(Database::"BQ Wide");
+        Reader.SetWide(WideRef, 9, G);
+        Assert.AreEqual('a|a|1|No', Reader.WideForms(WideRef), 'the test session''s nine-filter answer');
     end;
 }
