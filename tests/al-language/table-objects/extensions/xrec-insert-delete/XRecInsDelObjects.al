@@ -93,15 +93,15 @@ tableextension 76381 "LT XRE Row Ext" extends "LT XRE Row"
         exit(Log.Fmt(xRec."Entry No.", xRec.Serial, xRec.Name));
     end;
 
-    local procedure LogTrigger(Trigger: Text)
+    local procedure LogTrigger(TriggerName: Text)
     var
         Log: Codeunit "LT XRE Log";
         Line: Text;
         Found: Boolean;
     begin
-        Line := Trigger + ' r=' + Log.Fmt("Entry No.", Serial, Name) + ' x=' + Log.Fmt(xRec."Entry No.", xRec.Serial, xRec.Name) +
+        Line := TriggerName + ' r=' + Log.Fmt("Entry No.", Serial, Name) + ' x=' + Log.Fmt(xRec."Entry No.", xRec.Serial, xRec.Name) +
             ' eq=' + Format(Format(Rec) = Format(xRec)) + ' lp=' + LocalXRec() + ' rp=' + ReadXRec();
-        if Trigger.Contains('Insert') then
+        if TriggerName.Contains('Insert') then
             case Log.GetMode() of
                 'sid':
                     Line += ' xsidnull=' + Format(IsNullGuid(xRec.SystemId)) + ' rsidnull=' + Format(IsNullGuid(SystemId)) + ' sideq=' + Format(xRec.SystemId = SystemId);
@@ -210,11 +210,11 @@ tableextension 76384 "LT XRE Base Line Ext" extends "XA XRE Base Line"
         exit(xRec."Serial No.");
     end;
 
-    local procedure LogTrigger(Trigger: Text)
+    local procedure LogTrigger(TriggerName: Text)
     var
         Log: Codeunit "LT XRE Log";
     begin
-        Log.Add(Trigger + ' r=' + Log.Fmt("Entry No.", "Serial No.", '') + ' x=' + Log.Fmt(xRec."Entry No.", xRec."Serial No.", '') +
+        Log.Add(TriggerName + ' r=' + Log.Fmt("Entry No.", "Serial No.", '') + ' x=' + Log.Fmt(xRec."Entry No.", xRec."Serial No.", '') +
             ' lp=' + Format(LocalXSerial()));
     end;
 }
