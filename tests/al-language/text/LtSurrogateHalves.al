@@ -1,9 +1,11 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/text/text-data-type
 // Scope: in-scope
 // Fixtures used: codeunit 69160 "Probe Observer"
-// Probe: written against BC corpus CI; every literal asserted below is what the CI legs produced. Runner issue 9153.
-// Facts: Text and Code hold one half of a UTF-16 surrogate pair (CopyStr of a pair, or a Char assigned 55357 / 56832) and are read by
-// TextBuilder, comparisons, text functions, JSON, Base64 and field assignments. Values are shown as lists of UTF-16 codes.
+// Facts: Text and Code hold one half of a UTF-16 surrogate pair (CopyStr of a pair, or a Char assigned 55357 / 56832). Values are shown as
+// lists of UTF-16 codes. In memory the lone half stays as it is through text functions, TextBuilder (except Insert at 0 of a low half, which
+// raises), comparisons (ordinal, no pairing), Error and Message text, and Text variables. A write to a stream with an encoding, a Base64
+// round trip, and a read back from a table field turn the lone half into 65533. Stream writes without an encoding turn it into 63.
+// The three BC versions agree on every observed value.
 // BC versions: 27, 28, 29
 
 table 75790 "LT SH Rec"
@@ -360,7 +362,15 @@ codeunit 75791 "LT SH Ops"
         Run(Observer, 'tb_appendline_hi', 6);
         Run(Observer, 'tb_appendline_lo', 7);
         Run(Observer, 'tb_append_pair', 8);
-        Observer.Finish();
+        Observer.Expect('tb_append_hi', '1:55357|1');
+        Observer.Expect('tb_append_lo', '1:56832|1');
+        Observer.Expect('tb_append_hi_lo', '2:55357,56832|2');
+        Observer.Expect('tb_append_lo_hi', '2:56832,55357|2');
+        Observer.Expect('tb_append_a_hi_b', '3:97,55357,98|3');
+        Observer.Expect('tb_appendline_hi', '3:55357,13,10|3');
+        Observer.Expect('tb_appendline_lo', '3:56832,13,10|3');
+        Observer.Expect('tb_append_pair', '2:55357,56832|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -376,7 +386,15 @@ codeunit 75791 "LT SH Ops"
         Run(Observer, 'tb_replace_lo_in_pair', 14);
         Run(Observer, 'tb_replace_hi_in_pair', 15);
         Run(Observer, 'tb_replace_hi_with_lo', 16);
-        Observer.Finish();
+        Observer.Expect('tb_insert_hi_in_ab', '3:55357,97,98|3');
+        Observer.Expect('tb_insert_lo_at0', 'ERR:An invalid argument was passed to a ''TextBuilder'' data type method.');
+        Observer.Expect('tb_insert_lo_after_hi', '2:56832,55357|2');
+        Observer.Expect('tb_replace_b_with_hi', '3:97,55357,99|3');
+        Observer.Expect('tb_replace_hi_with_x', '3:97,120,98|3');
+        Observer.Expect('tb_replace_lo_in_pair', '2:55357,120|2');
+        Observer.Expect('tb_replace_hi_in_pair', '2:120,56832|2');
+        Observer.Expect('tb_replace_hi_with_lo', '1:56832|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -387,7 +405,10 @@ codeunit 75791 "LT SH Ops"
         Run(Observer, 'tb_replace_a_in_hi', 17);
         Run(Observer, 'tb_totext_range', 18);
         Run(Observer, 'tb_totext_range2', 19);
-        Observer.Finish();
+        Observer.Expect('tb_replace_a_in_hi', '1:55357|1');
+        Observer.Expect('tb_totext_range', '1:55357');
+        Observer.Expect('tb_totext_range2', '2:55357,98');
+        Observer.Verify();
     end;
 
     [Test]
@@ -403,7 +424,15 @@ codeunit 75791 "LT SH Ops"
         Run(Observer, 'cmp_a_ne_Hi', 25);
         Run(Observer, 'cmp_a_lt_Hi', 26);
         Run(Observer, 'cmp_a_gt_Hi', 27);
-        Observer.Finish();
+        Observer.Expect('cmp_Hi_eq_a', 'No');
+        Observer.Expect('cmp_Hi_ne_a', 'Yes');
+        Observer.Expect('cmp_Hi_lt_a', 'No');
+        Observer.Expect('cmp_Hi_gt_a', 'Yes');
+        Observer.Expect('cmp_a_eq_Hi', 'No');
+        Observer.Expect('cmp_a_ne_Hi', 'Yes');
+        Observer.Expect('cmp_a_lt_Hi', 'Yes');
+        Observer.Expect('cmp_a_gt_Hi', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -419,7 +448,15 @@ codeunit 75791 "LT SH Ops"
         Run(Observer, 'cmp_Hi_ne_empty', 33);
         Run(Observer, 'cmp_Hi_lt_empty', 34);
         Run(Observer, 'cmp_Hi_gt_empty', 35);
-        Observer.Finish();
+        Observer.Expect('cmp_Hi_eq_z', 'No');
+        Observer.Expect('cmp_Hi_ne_z', 'Yes');
+        Observer.Expect('cmp_Hi_lt_z', 'No');
+        Observer.Expect('cmp_Hi_gt_z', 'Yes');
+        Observer.Expect('cmp_Hi_eq_empty', 'No');
+        Observer.Expect('cmp_Hi_ne_empty', 'Yes');
+        Observer.Expect('cmp_Hi_lt_empty', 'No');
+        Observer.Expect('cmp_Hi_gt_empty', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -435,7 +472,15 @@ codeunit 75791 "LT SH Ops"
         Run(Observer, 'cmp_Hi_ne_Lo', 41);
         Run(Observer, 'cmp_Hi_lt_Lo', 42);
         Run(Observer, 'cmp_Hi_gt_Lo', 43);
-        Observer.Finish();
+        Observer.Expect('cmp_Hi_eq_Hi', 'Yes');
+        Observer.Expect('cmp_Hi_ne_Hi', 'No');
+        Observer.Expect('cmp_Hi_lt_Hi', 'No');
+        Observer.Expect('cmp_Hi_gt_Hi', 'No');
+        Observer.Expect('cmp_Hi_eq_Lo', 'No');
+        Observer.Expect('cmp_Hi_ne_Lo', 'Yes');
+        Observer.Expect('cmp_Hi_lt_Lo', 'Yes');
+        Observer.Expect('cmp_Hi_gt_Lo', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -451,7 +496,15 @@ codeunit 75791 "LT SH Ops"
         Run(Observer, 'cmp_Hi_ne_Pair', 49);
         Run(Observer, 'cmp_Hi_lt_Pair', 50);
         Run(Observer, 'cmp_Hi_gt_Pair', 51);
-        Observer.Finish();
+        Observer.Expect('cmp_Lo_eq_Hi', 'No');
+        Observer.Expect('cmp_Lo_ne_Hi', 'Yes');
+        Observer.Expect('cmp_Lo_lt_Hi', 'No');
+        Observer.Expect('cmp_Lo_gt_Hi', 'Yes');
+        Observer.Expect('cmp_Hi_eq_Pair', 'No');
+        Observer.Expect('cmp_Hi_ne_Pair', 'Yes');
+        Observer.Expect('cmp_Hi_lt_Pair', 'No');
+        Observer.Expect('cmp_Hi_gt_Pair', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -467,7 +520,15 @@ codeunit 75791 "LT SH Ops"
         Run(Observer, 'cmp_Lo_ne_Pair', 57);
         Run(Observer, 'cmp_Lo_lt_Pair', 58);
         Run(Observer, 'cmp_Lo_gt_Pair', 59);
-        Observer.Finish();
+        Observer.Expect('cmp_Pair_eq_Hi', 'No');
+        Observer.Expect('cmp_Pair_ne_Hi', 'Yes');
+        Observer.Expect('cmp_Pair_lt_Hi', 'Yes');
+        Observer.Expect('cmp_Pair_gt_Hi', 'No');
+        Observer.Expect('cmp_Lo_eq_Pair', 'No');
+        Observer.Expect('cmp_Lo_ne_Pair', 'Yes');
+        Observer.Expect('cmp_Lo_lt_Pair', 'No');
+        Observer.Expect('cmp_Lo_gt_Pair', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -483,7 +544,15 @@ codeunit 75791 "LT SH Ops"
         Run(Observer, 'cmp_Hi_ne_Rep', 65);
         Run(Observer, 'cmp_Hi_lt_Rep', 66);
         Run(Observer, 'cmp_Hi_gt_Rep', 67);
-        Observer.Finish();
+        Observer.Expect('cmp_Pair_eq_Lo', 'No');
+        Observer.Expect('cmp_Pair_ne_Lo', 'Yes');
+        Observer.Expect('cmp_Pair_lt_Lo', 'Yes');
+        Observer.Expect('cmp_Pair_gt_Lo', 'No');
+        Observer.Expect('cmp_Hi_eq_Rep', 'No');
+        Observer.Expect('cmp_Hi_ne_Rep', 'Yes');
+        Observer.Expect('cmp_Hi_lt_Rep', 'Yes');
+        Observer.Expect('cmp_Hi_gt_Rep', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -499,7 +568,15 @@ codeunit 75791 "LT SH Ops"
         Run(Observer, 'cmp_Lo_ne_a', 73);
         Run(Observer, 'cmp_Lo_lt_a', 74);
         Run(Observer, 'cmp_Lo_gt_a', 75);
-        Observer.Finish();
+        Observer.Expect('cmp_Rep_eq_Hi', 'No');
+        Observer.Expect('cmp_Rep_ne_Hi', 'Yes');
+        Observer.Expect('cmp_Rep_lt_Hi', 'No');
+        Observer.Expect('cmp_Rep_gt_Hi', 'Yes');
+        Observer.Expect('cmp_Lo_eq_a', 'No');
+        Observer.Expect('cmp_Lo_ne_a', 'Yes');
+        Observer.Expect('cmp_Lo_lt_a', 'No');
+        Observer.Expect('cmp_Lo_gt_a', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -515,7 +592,15 @@ codeunit 75791 "LT SH Ops"
         Run(Observer, 'cmp_Hi_ne_abc', 81);
         Run(Observer, 'cmp_Hi_lt_abc', 82);
         Run(Observer, 'cmp_Hi_gt_abc', 83);
-        Observer.Finish();
+        Observer.Expect('cmp_Lo_eq_Rep', 'No');
+        Observer.Expect('cmp_Lo_ne_Rep', 'Yes');
+        Observer.Expect('cmp_Lo_lt_Rep', 'Yes');
+        Observer.Expect('cmp_Lo_gt_Rep', 'No');
+        Observer.Expect('cmp_Hi_eq_abc', 'No');
+        Observer.Expect('cmp_Hi_ne_abc', 'Yes');
+        Observer.Expect('cmp_Hi_lt_abc', 'No');
+        Observer.Expect('cmp_Hi_gt_abc', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -531,7 +616,15 @@ codeunit 75791 "LT SH Ops"
         Run(Observer, 'cmp_Hi_ne_Copy', 89);
         Run(Observer, 'cmp_Hi_lt_Copy', 90);
         Run(Observer, 'cmp_Hi_gt_Copy', 91);
-        Observer.Finish();
+        Observer.Expect('cmp_Lo_eq_abc', 'No');
+        Observer.Expect('cmp_Lo_ne_abc', 'Yes');
+        Observer.Expect('cmp_Lo_lt_abc', 'No');
+        Observer.Expect('cmp_Lo_gt_abc', 'Yes');
+        Observer.Expect('cmp_Hi_eq_Copy', 'Yes');
+        Observer.Expect('cmp_Hi_ne_Copy', 'No');
+        Observer.Expect('cmp_Hi_lt_Copy', 'No');
+        Observer.Expect('cmp_Hi_gt_Copy', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -547,7 +640,15 @@ codeunit 75791 "LT SH Ops"
         Run(Observer, 'cmp_Hi_ne_aHi', 97);
         Run(Observer, 'cmp_Hi_lt_aHi', 98);
         Run(Observer, 'cmp_Hi_gt_aHi', 99);
-        Observer.Finish();
+        Observer.Expect('cmp_Lo_eq_~', 'No');
+        Observer.Expect('cmp_Lo_ne_~', 'Yes');
+        Observer.Expect('cmp_Lo_lt_~', 'No');
+        Observer.Expect('cmp_Lo_gt_~', 'Yes');
+        Observer.Expect('cmp_Hi_eq_aHi', 'No');
+        Observer.Expect('cmp_Hi_ne_aHi', 'Yes');
+        Observer.Expect('cmp_Hi_lt_aHi', 'No');
+        Observer.Expect('cmp_Hi_gt_aHi', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -563,7 +664,15 @@ codeunit 75791 "LT SH Ops"
         Run(Observer, 'strpos_ahib_hi', 105);
         Run(Observer, 'strpos_hi_a', 106);
         Run(Observer, 'strpos_hi_hi', 107);
-        Observer.Finish();
+        Observer.Expect('strlen', '1');
+        Observer.Expect('copystr_hi', '1:55357');
+        Observer.Expect('copystr_a_hi_b', '1:55357');
+        Observer.Expect('strpos_pair_hi', '1');
+        Observer.Expect('strpos_pair_lo', '2');
+        Observer.Expect('strpos_ahib_hi', '2');
+        Observer.Expect('strpos_hi_a', '0');
+        Observer.Expect('strpos_hi_hi', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -579,7 +688,15 @@ codeunit 75791 "LT SH Ops"
         Run(Observer, 'indexof_pair_lo_start2', 113);
         Run(Observer, 'contains_pair_hi', 114);
         Run(Observer, 'contains_pair_lo', 115);
-        Observer.Finish();
+        Observer.Expect('strpos_hi_lo', '0');
+        Observer.Expect('indexof_pair_hi', '1');
+        Observer.Expect('indexof_pair_lo', '2');
+        Observer.Expect('indexof_ahi_hi', '2');
+        Observer.Expect('indexof_hi_a', '0');
+        Observer.Expect('indexof_pair_lo_start2', '2');
+        Observer.Expect('contains_pair_hi', 'Yes');
+        Observer.Expect('contains_pair_lo', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -595,7 +712,15 @@ codeunit 75791 "LT SH Ops"
         Run(Observer, 'startswith_hi_hi', 121);
         Run(Observer, 'startswith_hia_hi', 122);
         Run(Observer, 'endswith_pair_lo', 123);
-        Observer.Finish();
+        Observer.Expect('contains_hi_hi', 'Yes');
+        Observer.Expect('contains_hi_lo', 'No');
+        Observer.Expect('contains_ahi_a', 'Yes');
+        Observer.Expect('startswith_pair_hi', 'Yes');
+        Observer.Expect('startswith_pair_lo', 'No');
+        Observer.Expect('startswith_hi_hi', 'Yes');
+        Observer.Expect('startswith_hia_hi', 'Yes');
+        Observer.Expect('endswith_pair_lo', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -611,7 +736,15 @@ codeunit 75791 "LT SH Ops"
         Run(Observer, 'toupper_hi', 129);
         Run(Observer, 'tolower_lo', 130);
         Run(Observer, 'uppercase_alob', 131);
-        Observer.Finish();
+        Observer.Expect('endswith_pair_hi', 'No');
+        Observer.Expect('endswith_ahi_hi', 'Yes');
+        Observer.Expect('endswith_hi_a', 'No');
+        Observer.Expect('uppercase_hi', '1:55357');
+        Observer.Expect('lowercase_hi', '1:55357');
+        Observer.Expect('toupper_hi', '1:55357');
+        Observer.Expect('tolower_lo', '1:56832');
+        Observer.Expect('uppercase_alob', '3:65,56832,66');
+        Observer.Verify();
     end;
 
     [Test]
@@ -627,7 +760,15 @@ codeunit 75791 "LT SH Ops"
         Run(Observer, 'delchr_hi_hi', 137);
         Run(Observer, 'delchr_pair_hi', 138);
         Run(Observer, 'delchr_pair_lo', 139);
-        Observer.Finish();
+        Observer.Expect('convertstr_hi_ab', '1:55357');
+        Observer.Expect('convertstr_hi_hi_x', '1:120');
+        Observer.Expect('convertstr_abc_b_hi', '3:97,55357,99');
+        Observer.Expect('convertstr_ahi_hi_x', '2:97,120');
+        Observer.Expect('convertstr_pair_hi_x', '2:120,56832');
+        Observer.Expect('delchr_hi_hi', '0:');
+        Observer.Expect('delchr_pair_hi', '1:56832');
+        Observer.Expect('delchr_pair_lo', '1:55357');
+        Observer.Verify();
     end;
 
     [Test]
@@ -643,7 +784,15 @@ codeunit 75791 "LT SH Ops"
         Run(Observer, 'padstr_a_3_hi', 145);
         Run(Observer, 'padstr_hi_1', 146);
         Run(Observer, 'padstr_pair_5', 147);
-        Observer.Finish();
+        Observer.Expect('delchr_hi_a', '1:55357');
+        Observer.Expect('delchr_ahia_trim_a', '1:55357');
+        Observer.Expect('delchr_hia_trail_a', '1:55357');
+        Observer.Expect('delchr_hi_lead_hi', '1:97');
+        Observer.Expect('padstr_hi_3', '3:55357,120,120');
+        Observer.Expect('padstr_a_3_hi', '3:97,55357,55357');
+        Observer.Expect('padstr_hi_1', '1:55357');
+        Observer.Expect('padstr_pair_5', '5:55357,56832,120,120,120');
+        Observer.Verify();
     end;
 
     [Test]
@@ -659,7 +808,15 @@ codeunit 75791 "LT SH Ops"
         Run(Observer, 'format_lo', 153);
         Run(Observer, 'format_hi_lo', 154);
         Run(Observer, 'format_hi_len5', 155);
-        Observer.Finish();
+        Observer.Expect('selectstr_1', '1:55357');
+        Observer.Expect('selectstr_2', '1:56832');
+        Observer.Expect('selectstr_2_ahi', '1:55357');
+        Observer.Expect('selectstr_1_hi', '1:55357');
+        Observer.Expect('format_hi', '1:55357');
+        Observer.Expect('format_lo', '1:56832');
+        Observer.Expect('format_hi_lo', '2:55357,56832');
+        Observer.Expect('format_hi_len5', '5:55357,32,32,32,32');
+        Observer.Verify();
     end;
 
     [Test]
@@ -675,7 +832,15 @@ codeunit 75791 "LT SH Ops"
         Run(Observer, 'replace_b_hi', 161);
         Run(Observer, 'replace_ahib_hi_x', 162);
         Run(Observer, 'replace_pair_hi_x', 163);
-        Observer.Finish();
+        Observer.Expect('delstr_hi_1_1', '0:');
+        Observer.Expect('insstr_ab_hi_2', '3:97,55357,98');
+        Observer.Expect('insstr_hi_x_1', '2:120,55357');
+        Observer.Expect('incstr_hi', '0:');
+        Observer.Expect('incstr_ahi', '0:');
+        Observer.Expect('replace_b_hi', '3:97,55357,99');
+        Observer.Expect('replace_ahib_hi_x', '3:97,120,98');
+        Observer.Expect('replace_pair_hi_x', '2:120,56832');
+        Observer.Verify();
     end;
 
     [Test]
@@ -691,7 +856,15 @@ codeunit 75791 "LT SH Ops"
         Run(Observer, 'trimend_ahi_hi', 169);
         Run(Observer, 'trimstart_hia_hi', 170);
         Run(Observer, 'trim_hi_hi', 171);
-        Observer.Finish();
+        Observer.Expect('replace_pair_lo_x', '2:55357,120');
+        Observer.Expect('replace_hi_hi_lo', '1:56832');
+        Observer.Expect('replace_hi_a_b', '1:55357');
+        Observer.Expect('trim_hi', '1:55357');
+        Observer.Expect('trim_sp_hi_sp', '1:55357');
+        Observer.Expect('trimend_ahi_hi', '1:97');
+        Observer.Expect('trimstart_hia_hi', '1:97');
+        Observer.Expect('trim_hi_hi', '1:55357');
+        Observer.Verify();
     end;
 
     [Test]
@@ -707,7 +880,15 @@ codeunit 75791 "LT SH Ops"
         Run(Observer, 'concat_hi_a', 177);
         Run(Observer, 'concat_a_hi', 178);
         Run(Observer, 'concat_hi_lo', 179);
-        Observer.Finish();
+        Observer.Expect('substring_ahi_2', '1:55357');
+        Observer.Expect('substring_hi_1_1', '1:55357');
+        Observer.Expect('padleft_hi_3', '3:120,120,55357');
+        Observer.Expect('padright_a_3_ch', '3:55357,55357,55357');
+        Observer.Expect('padleft_a_3_ch', '3:55357,55357,55357');
+        Observer.Expect('concat_hi_a', '2:55357,97');
+        Observer.Expect('concat_a_hi', '2:97,55357');
+        Observer.Expect('concat_hi_lo', '2:55357,56832');
+        Observer.Verify();
     end;
 
     [Test]
@@ -723,7 +904,15 @@ codeunit 75791 "LT SH Ops"
         Run(Observer, 'substno_hi_fmt', 185);
         Run(Observer, 'substno_1_pair', 186);
         Run(Observer, 't1_assign_hi', 187);
-        Observer.Finish();
+        Observer.Expect('concat_lo_hi', '2:56832,55357');
+        Observer.Expect('concat_hi_hi', '2:55357,55357');
+        Observer.Expect('substno_1', '1:55357');
+        Observer.Expect('substno_12', '2:55357,56832');
+        Observer.Expect('substno_x1y', '3:120,56832,121');
+        Observer.Expect('substno_hi_fmt', '1:55357');
+        Observer.Expect('substno_1_pair', '2:55357,56832');
+        Observer.Expect('t1_assign_hi', '1:55357');
+        Observer.Verify();
     end;
 
     [Test]
@@ -739,7 +928,15 @@ codeunit 75791 "LT SH Ops"
         Run(Observer, 'code10_eq_hi', 193);
         Run(Observer, 'code10_copystr', 194);
         Run(Observer, 'code10_a_hi', 195);
-        Observer.Finish();
+        Observer.Expect('t1_assign_lo', '1:56832');
+        Observer.Expect('t1_assign_pair', 'ERR:The length of the string is 2, but it must be less than or equal to 1 characters. Value: \uD83D\uDE00');
+        Observer.Expect('t1_char_assign', '1:55357');
+        Observer.Expect('code10_assign_hi', '1:55357');
+        Observer.Expect('code10_assign_lo', '1:56832');
+        Observer.Expect('code10_eq_hi', 'Yes');
+        Observer.Expect('code10_copystr', '1:55357');
+        Observer.Expect('code10_a_hi', '2:65,55357');
+        Observer.Verify();
     end;
 
     [Test]
@@ -755,7 +952,15 @@ codeunit 75791 "LT SH Ops"
         Run(Observer, 'eval_code_hi', 201);
         Run(Observer, 'eval_bool_hi', 202);
         Run(Observer, 'eval_text_lo', 203);
-        Observer.Finish();
+        Observer.Expect('hi_char_int', '55357');
+        Observer.Expect('lo_char_int', '56832');
+        Observer.Expect('eval_int_hi', 'No|0');
+        Observer.Expect('eval_text_hi', 'Yes|1:55357');
+        Observer.Expect('eval_char_hi', 'Yes|55357');
+        Observer.Expect('eval_code_hi', 'Yes|1:55357');
+        Observer.Expect('eval_bool_hi', 'No|No');
+        Observer.Expect('eval_text_lo', 'Yes|1:56832');
+        Observer.Verify();
     end;
 
     [Test]
@@ -771,7 +976,15 @@ codeunit 75791 "LT SH Ops"
         Run(Observer, 'split_comma_ahi', 209);
         Run(Observer, 'split_hi_comma', 210);
         Run(Observer, 'list_contains_hi', 211);
-        Observer.Finish();
+        Observer.Expect('indexofany_ahib', '0|2');
+        Observer.Expect('split_hi_hi', '2|0:|0:');
+        Observer.Expect('split_ahib_hi', '2|1:97|1:98');
+        Observer.Expect('split_pair_hi', '2|0:|1:56832');
+        Observer.Expect('split_alob_lo', '2|1:97|1:98');
+        Observer.Expect('split_comma_ahi', '2|1:97|1:55357');
+        Observer.Expect('split_hi_comma', '1|1:55357');
+        Observer.Expect('list_contains_hi', 'YesNoNo1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -787,7 +1000,15 @@ codeunit 75791 "LT SH Ops"
         Run(Observer, 'json_setvalue_lo', 217);
         Run(Observer, 'json_obj_add_hi', 218);
         Run(Observer, 'json_obj_get_hi', 219);
-        Observer.Finish();
+        Observer.Expect('list_add_both', '22No');
+        Observer.Expect('dict_hi_lo', '2YesYesNo2');
+        Observer.Expect('dict_keys_codes', '1|1:55357');
+        Observer.Expect('dict_hi_dup', 'No');
+        Observer.Expect('json_setvalue_hi', '3:34,55357,34|1:55357');
+        Observer.Expect('json_setvalue_lo', '3:34,56832,34|1:56832');
+        Observer.Expect('json_obj_add_hi', '9:123,34,107,34,58,34,55357,34,125');
+        Observer.Expect('json_obj_get_hi', '1:55357');
+        Observer.Verify();
     end;
 
     [Test]
@@ -803,7 +1024,15 @@ codeunit 75791 "LT SH Ops"
         Run(Observer, 'base64_hi', 225);
         Run(Observer, 'base64_lo', 226);
         Run(Observer, 'base64_roundtrip_hi', 227);
-        Observer.Finish();
+        Observer.Expect('json_arr_add_lo', '5:91,34,56832,34,93');
+        Observer.Expect('json_obj_key_hi', '9:123,34,55357,34,58,34,120,34,125Yes');
+        Observer.Expect('json_read_escaped_hi', 'Yes|1:65533');
+        Observer.Expect('json_read_escaped_lo', 'Yes|1:65533');
+        Observer.Expect('json_obj_hi_text', 'Yes|1:55357');
+        Observer.Expect('base64_hi', '77+9');
+        Observer.Expect('base64_lo', '77+9');
+        Observer.Expect('base64_roundtrip_hi', '1:65533');
+        Observer.Verify();
     end;
 
     [Test]
@@ -813,7 +1042,9 @@ codeunit 75791 "LT SH Ops"
     begin
         Run(Observer, 'base64_roundtrip_ahib', 228);
         Run(Observer, 'base64_pair', 229);
-        Observer.Finish();
+        Observer.Expect('base64_roundtrip_ahib', '3:97,65533,98');
+        Observer.Expect('base64_pair', '8J+YgA==');
+        Observer.Verify();
     end;
 
     local procedure Attempt(Id: Integer; Src: Integer): Text
@@ -835,7 +1066,8 @@ codeunit 75791 "LT SH Ops"
             if Attempt(Id, 1) <> Attempt(Id, 2) then
                 Differing += ',' + Format(Id);
         Observer.Observe('differing ids', Differing);
-        Observer.Finish();
+        Observer.Expect('differing ids', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -855,7 +1087,11 @@ codeunit 75791 "LT SH Ops"
         Observer.Observe('error_fmt_hi', Codes(GetLastErrorText()));
         asserterror Error(Hi + 'a');
         Observer.Observe('error_hi_a', Codes(GetLastErrorText()));
-        Observer.Finish();
+        Observer.Expect('error_hi', '1:55357');
+        Observer.Expect('error_lo', '1:56832');
+        Observer.Expect('error_fmt_hi', '3:120,55357,121');
+        Observer.Expect('error_hi_a', '2:55357,97');
+        Observer.Verify();
     end;
 
     [Test]
@@ -870,7 +1106,10 @@ codeunit 75791 "LT SH Ops"
         Observer.Observe('message_lo', Codes(MsgText));
         Message('x%1y', Source(1, 1));
         Observer.Observe('message_fmt_hi', Codes(MsgText));
-        Observer.Finish();
+        Observer.Expect('message_hi', '1:55357');
+        Observer.Expect('message_lo', '1:56832');
+        Observer.Expect('message_fmt_hi', '3:120,55357,121');
+        Observer.Verify();
     end;
 
     [MessageHandler]
@@ -953,7 +1192,15 @@ codeunit 75791 "LT SH Ops"
     begin
         ObserveStreams(Observer, 'hi', Source(1, 1));
         ObserveStreams(Observer, 'ahib', 'a' + Source(1, 1) + 'b');
-        Observer.Finish();
+        Observer.Expect('hi none', 'bytes=63 |read=1:63');
+        Observer.Expect('hi utf8', 'bytes=239 191 189 |read=1:65533');
+        Observer.Expect('hi utf16', 'bytes=253 255 |read=1:65533');
+        Observer.Expect('hi windows', 'bytes=63 |read=1:63');
+        Observer.Expect('ahib none', 'bytes=97 63 98 |read=3:97,63,98');
+        Observer.Expect('ahib utf8', 'bytes=97 239 191 189 98 |read=3:97,65533,98');
+        Observer.Expect('ahib utf16', 'bytes=97 0 253 255 98 0 |read=3:97,65533,98');
+        Observer.Expect('ahib windows', 'bytes=97 63 98 |read=3:97,63,98');
+        Observer.Verify();
     end;
 
     [Test]
@@ -963,7 +1210,15 @@ codeunit 75791 "LT SH Ops"
     begin
         ObserveStreams(Observer, 'lo', Source(1, 2));
         ObserveStreams(Observer, 'lo_hi', Source(1, 2) + Source(1, 1));
-        Observer.Finish();
+        Observer.Expect('lo none', 'bytes=63 |read=1:63');
+        Observer.Expect('lo utf8', 'bytes=239 191 189 |read=1:65533');
+        Observer.Expect('lo utf16', 'bytes=253 255 |read=1:65533');
+        Observer.Expect('lo windows', 'bytes=63 |read=1:63');
+        Observer.Expect('lo_hi none', 'bytes=63 63 |read=2:63,63');
+        Observer.Expect('lo_hi utf8', 'bytes=239 191 189 239 191 189 |read=2:65533,65533');
+        Observer.Expect('lo_hi utf16', 'bytes=253 255 253 255 |read=2:65533,65533');
+        Observer.Expect('lo_hi windows', 'bytes=63 63 |read=2:63,63');
+        Observer.Verify();
     end;
 
     [Test]
@@ -999,7 +1254,15 @@ codeunit 75791 "LT SH Ops"
         Clear(Rec);
         Rec.Get('A');
         Observer.Observe('modified', Codes(Rec.T50));
-        Observer.Finish();
+        Observer.Expect('insert', 'Yes');
+        Observer.Expect('after insert', '1:55357 1:56832 1:55357');
+        Observer.Expect('get', 'Yes');
+        Observer.Expect('read back', '1:65533 1:65533 1:65533');
+        Observer.Expect('filter hi count', '1');
+        Observer.Expect('filter lo count', '1');
+        Observer.Expect('filter a count', '0');
+        Observer.Expect('modified', '2:65533,65533');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1019,6 +1282,12 @@ codeunit 75791 "LT SH Ops"
         Rec.Name := CopyStr(Source(1, 2), 1, 20);
         Observer.Observe('get lo', Format(Rec.Get(Rec.Name)));
         Observer.Observe('name codes', Codes(Rec.Name));
-        Observer.Finish();
+        Observer.Expect('insert hi key', 'Yes');
+        Observer.Expect('insert lo key', 'No');
+        Observer.Expect('insert hi key again', 'No');
+        Observer.Expect('count', '1');
+        Observer.Expect('get lo', 'Yes');
+        Observer.Expect('name codes', '1:65533');
+        Observer.Verify();
     end;
 }
