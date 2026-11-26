@@ -32,7 +32,22 @@
 //   every group -1..7 that has one, the filter group, Count, key, order, MarkedOnly, marked count, ReadIsolation, the FlowFilter, the
 //   current Id and Name, the FlowField Total after CalcFields; GetView next to it. BVH Reader.Light reads a report data item without
 //   Count, marks or CalcFields.
-// Facts: (observed, see the Expect lines)
+// Facts (observed, same on 27.5, 28.5 and 29.0; see the Expect lines):
+//   - In every group the by-value copy (copy, subscriber, hand on, sender) holds the caller's group-1 filter and row set, but its view
+//     is the plain primary-key view: no group-0 filter, no secondary key, no descending order, no marks, no filter in group 2 or higher,
+//     no rows of the caller's group-0 view (Count 4 when the caller's group-0 filter had 3).
+//   - A: inside the table's own triggers and procedures, Rec keeps the caller's view in full (group-0 filter, key, order, group 2+
+//     filters, marks, FlowFilter), and the caller's view is unchanged afterwards. The copy handed to Proc(Rec) and Rec.Proc(Rec) is
+//     view-less. The caller's filter group (-1..4) is kept on Rec.
+//   - E: a record of another table that is a local of the callee procedure reaches Proc(X) view-less (key Id, no group-0 filter), and the
+//     local record keeps its own view after the call.
+//   - B: the report data item keeps its view; the subscriber copy is view-less; the hand-on to a var parameter stays view-less until the
+//     sender sets SetRecFilter, which then stands in group 0 (Id=1); the second report's SetTableView sees that filter.
+//   - C: in the four-parameter event the by-value Line and Header are view-less (group-1 filter kept, key Id), the RecordRef from
+//     GetTable has no filters and the row of the by-value record.
+//   - D: a global record after Copy, SetAutoCalcFields and ReadIsolation: the copy is view-less with ReadIsolation Default whatever the
+//     global's isolation (UpdLock, ReadCommitted, none); the global keeps its isolation and group-0 view; the FlowField is 0 with or
+//     without SetAutoCalcFields(Total).
 // BC versions: 27.5, 28.5, 29.0
 
 table 89840 "BVH Row"
@@ -681,7 +696,13 @@ codeunit 89853 "BVH Hand On Tests"
         Row.SetRange(Status, Row.Status::Open);
         Row.FindFirst();
         ValidateRow1(Observer, Row, 1);
-        Observer.Finish();
+        Observer.Expect('copy', 'ld=Yes temp=No same=Yes gs={} grp=0 n=4 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('trigger rec', 'ld=Yes temp=No same=Yes gs={0:Status: Open;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('trigger rec view', 'VERSION(1) SORTING(Id) WHERE(Status=FILTER(Open))');
+        Observer.Expect('caller after', 'ld=Yes temp=No same=Yes gs={0:Status: Open;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('caller after view', 'VERSION(1) SORTING(Id) WHERE(Status=FILTER(Open))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -694,7 +715,13 @@ codeunit 89853 "BVH Hand On Tests"
         Row.SetRange(Status, Row.Status::Open);
         Row.FindFirst();
         ValidateRow1(Observer, Row, 2);
-        Observer.Finish();
+        Observer.Expect('copy', 'ld=Yes temp=No same=Yes gs={} grp=0 n=4 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('trigger rec', 'ld=Yes temp=No same=Yes gs={0:Status: Open;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('trigger rec view', 'VERSION(1) SORTING(Id) WHERE(Status=FILTER(Open))');
+        Observer.Expect('caller after', 'ld=Yes temp=No same=Yes gs={0:Status: Open;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('caller after view', 'VERSION(1) SORTING(Id) WHERE(Status=FILTER(Open))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -713,7 +740,13 @@ codeunit 89853 "BVH Hand On Tests"
         ObserveSlot(Observer, 'copy');
         ObserveSlot(Observer, 'trigger rec');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('copy', 'ld=Yes temp=No same=Yes gs={} grp=0 n=4 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=9 name=NEW total=0');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('trigger rec', 'ld=Yes temp=No same=Yes gs={0:Status: Open;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=9 name=NEW total=0');
+        Observer.Expect('trigger rec view', 'VERSION(1) SORTING(Id) WHERE(Status=FILTER(Open))');
+        Observer.Expect('caller after', 'ld=Yes temp=No same=Yes gs={0:Status: Open;} grp=0 n=4 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=9 name=NEW total=0');
+        Observer.Expect('caller after view', 'VERSION(1) SORTING(Id) WHERE(Status=FILTER(Open))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -732,7 +765,13 @@ codeunit 89853 "BVH Hand On Tests"
         ObserveSlot(Observer, 'copy');
         ObserveSlot(Observer, 'trigger rec');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('copy', 'ld=Yes temp=No same=Yes gs={} grp=0 n=4 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=9 name=NEW total=0');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('trigger rec', 'ld=Yes temp=No same=Yes gs={0:Status: Open;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=9 name=NEW total=0');
+        Observer.Expect('trigger rec view', 'VERSION(1) SORTING(Id) WHERE(Status=FILTER(Open))');
+        Observer.Expect('caller after', 'ld=Yes temp=No same=Yes gs={0:Status: Open;} grp=0 n=4 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=9 name=NEW total=0');
+        Observer.Expect('caller after view', 'VERSION(1) SORTING(Id) WHERE(Status=FILTER(Open))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -749,7 +788,13 @@ codeunit 89853 "BVH Hand On Tests"
         ObserveSlot(Observer, 'copy');
         ObserveSlot(Observer, 'trigger rec');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('copy', 'ld=Yes temp=No same=Yes gs={} grp=0 n=4 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('trigger rec', 'ld=Yes temp=No same=Yes gs={0:Status: Open;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('trigger rec view', 'VERSION(1) SORTING(Id) WHERE(Status=FILTER(Open))');
+        Observer.Expect('caller after', 'ld=Yes temp=No same=Yes gs={0:Status: Open;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('caller after view', 'VERSION(1) SORTING(Id) WHERE(Status=FILTER(Open))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -766,7 +811,13 @@ codeunit 89853 "BVH Hand On Tests"
         ObserveSlot(Observer, 'copy');
         ObserveSlot(Observer, 'trigger rec');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('copy', 'ld=Yes temp=No same=Yes gs={} grp=0 n=4 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('trigger rec', 'ld=Yes temp=No same=Yes gs={0:Status: Open;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('trigger rec view', 'VERSION(1) SORTING(Id) WHERE(Status=FILTER(Open))');
+        Observer.Expect('caller after', 'ld=Yes temp=No same=Yes gs={0:Status: Open;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('caller after view', 'VERSION(1) SORTING(Id) WHERE(Status=FILTER(Open))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -783,7 +834,13 @@ codeunit 89853 "BVH Hand On Tests"
         ObserveSlot(Observer, 'copy');
         ObserveSlot(Observer, 'trigger rec');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('copy', 'ld=Yes temp=No same=Yes gs={} grp=0 n=4 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('trigger rec', 'ld=Yes temp=No same=Yes gs={0:Status: Open;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('trigger rec view', 'VERSION(1) SORTING(Id) WHERE(Status=FILTER(Open))');
+        Observer.Expect('caller after', 'ld=Yes temp=No same=Yes gs={0:Status: Open;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('caller after view', 'VERSION(1) SORTING(Id) WHERE(Status=FILTER(Open))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -800,7 +857,13 @@ codeunit 89853 "BVH Hand On Tests"
         ObserveSlot(Observer, 'copy');
         ObserveSlot(Observer, 'trigger rec');
         ObserveCaller(Observer, Row);
-        Observer.Finish();
+        Observer.Expect('copy', 'ld=Yes temp=No same=Yes gs={} grp=0 n=4 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('trigger rec', 'ld=Yes temp=No same=Yes gs={0:Status: Open;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('trigger rec view', 'VERSION(1) SORTING(Id) WHERE(Status=FILTER(Open))');
+        Observer.Expect('caller after', 'ld=Yes temp=No same=Yes gs={0:Status: Open;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('caller after view', 'VERSION(1) SORTING(Id) WHERE(Status=FILTER(Open))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -812,7 +875,13 @@ codeunit 89853 "BVH Hand On Tests"
         Seed();
         Row.Get(1);
         ValidateRow1(Observer, Row, 1);
-        Observer.Finish();
+        Observer.Expect('copy', 'ld=Yes temp=No same=Yes gs={} grp=0 n=4 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('trigger rec', 'ld=Yes temp=No same=Yes gs={} grp=0 n=4 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('trigger rec view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'ld=Yes temp=No same=Yes gs={} grp=0 n=4 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('caller after view', 'VERSION(1) SORTING(Id)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -827,7 +896,13 @@ codeunit 89853 "BVH Hand On Tests"
         Row.SetRange(Status, Row.Status::Open);
         Row.Get(1);
         ValidateRow1(Observer, Row, 1);
-        Observer.Finish();
+        Observer.Expect('copy', 'ld=Yes temp=No same=Yes gs={} grp=0 n=4 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('trigger rec', 'ld=Yes temp=No same=Yes gs={0:Status: Open;} grp=0 n=3 key=Name asc=No iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('trigger rec view', 'VERSION(1) SORTING(Name) ORDER(Descending) WHERE(Status=FILTER(Open))');
+        Observer.Expect('caller after', 'ld=Yes temp=No same=Yes gs={0:Status: Open;} grp=0 n=3 key=Name asc=No iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('caller after view', 'VERSION(1) SORTING(Name) ORDER(Descending) WHERE(Status=FILTER(Open))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -841,7 +916,13 @@ codeunit 89853 "BVH Hand On Tests"
         Row.SetAscending(Name, false);
         Row.Get(1);
         ValidateRow1(Observer, Row, 1);
-        Observer.Finish();
+        Observer.Expect('copy', 'ld=Yes temp=No same=Yes gs={} grp=0 n=4 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('trigger rec', 'ld=Yes temp=No same=Yes gs={} grp=0 n=4 key=Name asc=No iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('trigger rec view', 'VERSION(1) SORTING(Name) ORDER(Descending)');
+        Observer.Expect('caller after', 'ld=Yes temp=No same=Yes gs={} grp=0 n=4 key=Name asc=No iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('caller after view', 'VERSION(1) SORTING(Name) ORDER(Descending)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -856,7 +937,13 @@ codeunit 89853 "BVH Hand On Tests"
         Row.FilterGroup(0);
         Row.Get(1);
         ValidateRow1(Observer, Row, 1);
-        Observer.Finish();
+        Observer.Expect('copy', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('trigger rec', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('trigger rec view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('caller after view', 'VERSION(1) SORTING(Id)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -871,7 +958,13 @@ codeunit 89853 "BVH Hand On Tests"
         Row.FilterGroup(0);
         Row.Get(1);
         ValidateRow1(Observer, Row, 1);
-        Observer.Finish();
+        Observer.Expect('copy', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('trigger rec', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;2:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('trigger rec view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;2:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('caller after view', 'VERSION(1) SORTING(Id)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -886,7 +979,13 @@ codeunit 89853 "BVH Hand On Tests"
         Row.FilterGroup(0);
         Row.Get(1);
         ValidateRow1(Observer, Row, 1);
-        Observer.Finish();
+        Observer.Expect('copy', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('trigger rec', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;3:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('trigger rec view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;3:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('caller after view', 'VERSION(1) SORTING(Id)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -901,7 +1000,13 @@ codeunit 89853 "BVH Hand On Tests"
         Row.FilterGroup(0);
         Row.Get(1);
         ValidateRow1(Observer, Row, 1);
-        Observer.Finish();
+        Observer.Expect('copy', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('trigger rec', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;4:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('trigger rec view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;4:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('caller after view', 'VERSION(1) SORTING(Id)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -916,7 +1021,13 @@ codeunit 89853 "BVH Hand On Tests"
         Row.FilterGroup(0);
         Row.Get(1);
         ValidateRow1(Observer, Row, 1);
-        Observer.Finish();
+        Observer.Expect('copy', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('trigger rec', 'ld=Yes temp=No same=Yes gs={-1:Amount: >15;1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('trigger rec view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'ld=Yes temp=No same=Yes gs={-1:Amount: >15;1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('caller after view', 'VERSION(1) SORTING(Id)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -935,7 +1046,13 @@ codeunit 89853 "BVH Hand On Tests"
         Row.FilterGroup(0);
         Row.Get(1);
         ValidateRow1(Observer, Row, 1);
-        Observer.Finish();
+        Observer.Expect('copy', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('trigger rec', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;5:Amount: >5;6:Flag: Yes;7:Status: Open;} grp=0 n=1 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('trigger rec view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;5:Amount: >5;6:Flag: Yes;7:Status: Open;} grp=0 n=1 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('caller after view', 'VERSION(1) SORTING(Id)');
+        Observer.Verify();
     end;
 
     local procedure CallerInGroup(var Observer: Codeunit "Probe Observer"; Group: Integer)
@@ -955,7 +1072,13 @@ codeunit 89853 "BVH Hand On Tests"
         Observer: Codeunit "Probe Observer";
     begin
         CallerInGroup(Observer, 1);
-        Observer.Finish();
+        Observer.Expect('copy', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('trigger rec', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;} grp=1 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('trigger rec view', 'VERSION(1) SORTING(Id) WHERE(Amount=FILTER(>15))');
+        Observer.Expect('caller after', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;} grp=1 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('caller after view', 'VERSION(1) SORTING(Id) WHERE(Amount=FILTER(>15))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -964,7 +1087,13 @@ codeunit 89853 "BVH Hand On Tests"
         Observer: Codeunit "Probe Observer";
     begin
         CallerInGroup(Observer, 2);
-        Observer.Finish();
+        Observer.Expect('copy', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('trigger rec', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;2:Amount: >15;} grp=2 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('trigger rec view', 'VERSION(1) SORTING(Id) WHERE(Amount=FILTER(>15))');
+        Observer.Expect('caller after', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;2:Amount: >15;} grp=2 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('caller after view', 'VERSION(1) SORTING(Id) WHERE(Amount=FILTER(>15))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -973,7 +1102,13 @@ codeunit 89853 "BVH Hand On Tests"
         Observer: Codeunit "Probe Observer";
     begin
         CallerInGroup(Observer, 3);
-        Observer.Finish();
+        Observer.Expect('copy', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('trigger rec', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;3:Amount: >15;} grp=3 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('trigger rec view', 'VERSION(1) SORTING(Id) WHERE(Amount=FILTER(>15))');
+        Observer.Expect('caller after', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;3:Amount: >15;} grp=3 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('caller after view', 'VERSION(1) SORTING(Id) WHERE(Amount=FILTER(>15))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -982,7 +1117,13 @@ codeunit 89853 "BVH Hand On Tests"
         Observer: Codeunit "Probe Observer";
     begin
         CallerInGroup(Observer, 4);
-        Observer.Finish();
+        Observer.Expect('copy', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('trigger rec', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;4:Amount: >15;} grp=4 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('trigger rec view', 'VERSION(1) SORTING(Id) WHERE(Amount=FILTER(>15))');
+        Observer.Expect('caller after', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;4:Amount: >15;} grp=4 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('caller after view', 'VERSION(1) SORTING(Id) WHERE(Amount=FILTER(>15))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -991,7 +1132,13 @@ codeunit 89853 "BVH Hand On Tests"
         Observer: Codeunit "Probe Observer";
     begin
         CallerInGroup(Observer, -1);
-        Observer.Finish();
+        Observer.Expect('copy', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('trigger rec', 'ld=Yes temp=No same=Yes gs={-1:Amount: >15;1:Amount: >15;} grp=-1 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('trigger rec view', 'VERSION(1) SORTING(Id) WHERE(Amount=FILTER(>15))');
+        Observer.Expect('caller after', 'ld=Yes temp=No same=Yes gs={-1:Amount: >15;1:Amount: >15;} grp=-1 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('caller after view', 'VERSION(1) SORTING(Id) WHERE(Amount=FILTER(>15))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1004,7 +1151,13 @@ codeunit 89853 "BVH Hand On Tests"
         Row.SetLoadFields(Id, Mode);
         Row.Get(1);
         ValidateRow1(Observer, Row, 1);
-        Observer.Finish();
+        Observer.Expect('copy', 'ld=No temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('trigger rec', 'ld=No temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('trigger rec view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('caller after view', 'VERSION(1) SORTING(Id)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1020,7 +1173,13 @@ codeunit 89853 "BVH Hand On Tests"
         Row.Mark(true);
         Row.MarkedOnly(true);
         ValidateRow1(Observer, Row, 1);
-        Observer.Finish();
+        Observer.Expect('copy', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('trigger rec', 'ld=Yes temp=No same=Yes gs={-1:Marked: Yes;0:Marked: Yes;1:Marked: Yes, Amount: >15;2:Marked: Yes;3:Marked: Yes;4:Marked: Yes;5:Marked: Yes;6:Marked: Yes;7:Marked: Yes;} grp=0 n=1 key=Id asc=Yes iso=Default mo=Yes m=1 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('trigger rec view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('caller after', 'ld=Yes temp=No same=Yes gs={-1:Marked: Yes;0:Marked: Yes;1:Marked: Yes, Amount: >15;2:Marked: Yes;3:Marked: Yes;4:Marked: Yes;5:Marked: Yes;6:Marked: Yes;7:Marked: Yes;} grp=0 n=1 key=Id asc=Yes iso=Default mo=Yes m=1 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('caller after view', 'VERSION(1) SORTING(Id)');
+        Observer.Verify();
     end;
 
     // Key ByName descending, Status = Open and Day Filter = 1 in group 0, Amount > 15 in group 2, current row 1, row 1 marked.
@@ -1046,7 +1205,13 @@ codeunit 89853 "BVH Hand On Tests"
         Seed();
         SetRichView(Row);
         ValidateRow1(Observer, Row, 1);
-        Observer.Finish();
+        Observer.Expect('copy', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('trigger rec', 'ld=Yes temp=No same=Yes gs={0:Status: Open, Day Filter: 1;1:Amount: >15;2:Amount: >15;} grp=0 n=2 key=Name asc=No iso=Default mo=No m=1 ff={1} cf={Day Filter: 1} id=1 name=C-NAME total=8');
+        Observer.Expect('trigger rec view', 'VERSION(1) SORTING(Name) ORDER(Descending) WHERE(Status=FILTER(Open),Day Filter=FILTER(1))');
+        Observer.Expect('caller after', 'ld=Yes temp=No same=Yes gs={0:Status: Open, Day Filter: 1;1:Amount: >15;2:Amount: >15;} grp=0 n=2 key=Name asc=No iso=Default mo=No m=1 ff={1} cf={Day Filter: 1} id=1 name=C-NAME total=8');
+        Observer.Expect('caller after view', 'VERSION(1) SORTING(Name) ORDER(Descending) WHERE(Status=FILTER(Open),Day Filter=FILTER(1))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1058,7 +1223,13 @@ codeunit 89853 "BVH Hand On Tests"
         Seed();
         SetRichView(Row);
         ValidateRow1(Observer, Row, 2);
-        Observer.Finish();
+        Observer.Expect('copy', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('trigger rec', 'ld=Yes temp=No same=Yes gs={0:Status: Open, Day Filter: 1;1:Amount: >15;2:Amount: >15;} grp=0 n=2 key=Name asc=No iso=Default mo=No m=1 ff={1} cf={Day Filter: 1} id=1 name=C-NAME total=8');
+        Observer.Expect('trigger rec view', 'VERSION(1) SORTING(Name) ORDER(Descending) WHERE(Status=FILTER(Open),Day Filter=FILTER(1))');
+        Observer.Expect('caller after', 'ld=Yes temp=No same=Yes gs={0:Status: Open, Day Filter: 1;1:Amount: >15;2:Amount: >15;} grp=0 n=2 key=Name asc=No iso=Default mo=No m=1 ff={1} cf={Day Filter: 1} id=1 name=C-NAME total=8');
+        Observer.Expect('caller after view', 'VERSION(1) SORTING(Name) ORDER(Descending) WHERE(Status=FILTER(Open),Day Filter=FILTER(1))');
+        Observer.Verify();
     end;
 
     // Group E: Buffer's own procedure, OnValidate and OnInsert hand a local BVH Row to Buffer.GetNext by value.
@@ -1080,7 +1251,11 @@ codeunit 89853 "BVH Hand On Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Apply(Observer, 0, 1);
-        Observer.Finish();
+        Observer.Expect('copy', 'ld=No temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('local after', 'ld=No temp=No same=Yes gs={0:Status: Open, Flag: Yes;1:Amount: >15;} grp=0 n=1 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('local after view', 'VERSION(1) SORTING(Id) WHERE(Status=FILTER(Open),Flag=FILTER(true))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1089,7 +1264,11 @@ codeunit 89853 "BVH Hand On Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Apply(Observer, 0, 2);
-        Observer.Finish();
+        Observer.Expect('copy', 'ld=No temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('local after', 'ld=No temp=No same=Yes gs={0:Status: Open, Flag: Yes;1:Amount: >15;} grp=0 n=1 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('local after view', 'VERSION(1) SORTING(Id) WHERE(Status=FILTER(Open),Flag=FILTER(true))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1098,7 +1277,11 @@ codeunit 89853 "BVH Hand On Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Apply(Observer, 1, 1);
-        Observer.Finish();
+        Observer.Expect('copy', 'ld=No temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('local after', 'ld=No temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('local after view', 'VERSION(1) SORTING(Id)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1107,7 +1290,11 @@ codeunit 89853 "BVH Hand On Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Apply(Observer, 2, 1);
-        Observer.Finish();
+        Observer.Expect('copy', 'ld=No temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('local after', 'ld=No temp=No same=Yes gs={0:Status: Open;1:Amount: >15;} grp=0 n=2 key=Name asc=No iso=Default mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('local after view', 'VERSION(1) SORTING(Name) ORDER(Descending) WHERE(Status=FILTER(Open))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1116,7 +1303,11 @@ codeunit 89853 "BVH Hand On Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Apply(Observer, 3, 1);
-        Observer.Finish();
+        Observer.Expect('copy', 'ld=No temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('local after', 'ld=No temp=No same=Yes gs={1:Amount: >15;2:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('local after view', 'VERSION(1) SORTING(Id)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1125,7 +1316,11 @@ codeunit 89853 "BVH Hand On Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Apply(Observer, 4, 1);
-        Observer.Finish();
+        Observer.Expect('copy', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('local after', 'ld=Yes temp=No same=Yes gs={0:Status: Open, Flag: Yes;1:Amount: >15;} grp=0 n=1 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('local after view', 'VERSION(1) SORTING(Id) WHERE(Status=FILTER(Open),Flag=FILTER(true))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1134,7 +1329,11 @@ codeunit 89853 "BVH Hand On Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Apply(Observer, 5, 1);
-        Observer.Finish();
+        Observer.Expect('copy', 'ld=No temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('local after', 'ld=No temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('local after view', 'VERSION(1) SORTING(Id)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1149,7 +1348,11 @@ codeunit 89853 "BVH Hand On Tests"
         Buffer.Validate(Code, 'X');
         ObserveSlot(Observer, 'copy');
         ObserveSlot(Observer, 'local after');
-        Observer.Finish();
+        Observer.Expect('copy', 'ld=No temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('local after', 'ld=No temp=No same=Yes gs={0:Status: Open, Flag: Yes;1:Amount: >15;} grp=0 n=1 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('local after view', 'VERSION(1) SORTING(Id) WHERE(Status=FILTER(Open),Flag=FILTER(true))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1164,7 +1367,11 @@ codeunit 89853 "BVH Hand On Tests"
         Buffer.Insert(true);
         ObserveSlot(Observer, 'copy');
         ObserveSlot(Observer, 'local after');
-        Observer.Finish();
+        Observer.Expect('copy', 'ld=No temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('local after', 'ld=No temp=No same=Yes gs={0:Status: Open, Flag: Yes;1:Amount: >15;} grp=0 n=1 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('local after view', 'VERSION(1) SORTING(Id) WHERE(Status=FILTER(Open),Flag=FILTER(true))');
+        Observer.Verify();
     end;
 
     // Group B: the report raises OnRowAfterGet for rows 3 (A-NAME) and 1 (C-NAME); the subscriber reads and hands on its copy.
@@ -1187,7 +1394,20 @@ codeunit 89853 "BVH Hand On Tests"
         ObserveSlot(Observer, 'second item');
         Observer.Observe('second rows', Log.Take('second rows'));
         ObserveSlot(Observer, 'subscriber after');
-        Observer.Finish();
+        Observer.Expect('item', 'gs={0:Amount: >5;1:Amount: >15;2:Status: Open, Flag: Yes;} grp=0 key=Name id=1 name=C-NAME');
+        Observer.Expect('item view', 'VERSION(1) SORTING(Name) WHERE(Amount=FILTER(>5))');
+        Observer.Expect('subscriber', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('subscriber view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('hand on', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('hand on view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('after setrecfilter', 'ld=Yes temp=No same=Yes gs={0:Id: 1;1:Amount: >15;} grp=0 n=1 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('after setrecfilter view', 'VERSION(1) SORTING(Id) WHERE(Id=FILTER(1))');
+        Observer.Expect('second item', 'ld=No temp=No same=Yes gs={0:Id: 1;1:Amount: >15;} grp=0 n=1 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('second item view', 'VERSION(1) SORTING(Id) WHERE(Id=FILTER(1))');
+        Observer.Expect('second rows', '1');
+        Observer.Expect('subscriber after', 'ld=Yes temp=No same=Yes gs={0:Id: 1;1:Amount: >15;} grp=0 n=1 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('subscriber after view', 'VERSION(1) SORTING(Id) WHERE(Id=FILTER(1))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1211,7 +1431,16 @@ codeunit 89853 "BVH Hand On Tests"
         ObserveSlot(Observer, 'after setrecfilter');
         ObserveSlot(Observer, 'second item');
         Observer.Observe('second rows', Log.Take('second rows'));
-        Observer.Finish();
+        Observer.Expect('item', 'gs={1:Amount: >15;2:Status: Open, Amount: >15, Flag: Yes;} grp=0 key=Name id=1 name=C-NAME');
+        Observer.Expect('item view', 'VERSION(1) SORTING(Name) ORDER(Descending)');
+        Observer.Expect('subscriber', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('subscriber view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('after setrecfilter', 'ld=Yes temp=No same=Yes gs={0:Id: 1;1:Amount: >15;} grp=0 n=1 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('after setrecfilter view', 'VERSION(1) SORTING(Id) WHERE(Id=FILTER(1))');
+        Observer.Expect('second item', 'ld=No temp=No same=Yes gs={0:Id: 1;1:Amount: >15;} grp=0 n=1 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=0 name= total=0');
+        Observer.Expect('second item view', 'VERSION(1) SORTING(Id) WHERE(Id=FILTER(1))');
+        Observer.Expect('second rows', '1');
+        Observer.Verify();
     end;
 
     // Group C: lines 1 and 2 (row 1, kind 1) are copied; four-parameter event, two subscribers.
@@ -1229,7 +1458,19 @@ codeunit 89853 "BVH Hand On Tests"
         ObserveSlot(Observer, 'old header');
         ObserveSlot(Observer, 'line ref');
         ObserveSlot(Observer, 'header ref');
-        Observer.Finish();
+        Observer.Expect('new line', 'temp=No gs={} grp=0 n=4 key=Id asc=Yes iso=Default id=101 rowid=2 kind=1 | temp=No gs={} grp=0 n=5 key=Id asc=Yes iso=Default id=102 rowid=2 kind=1');
+        Observer.Expect('new line view', 'VERSION(1) SORTING(Id) | VERSION(1) SORTING(Id)');
+        Observer.Expect('old line', 'temp=No gs={} grp=0 n=4 key=Id asc=Yes iso=Default id=1 rowid=1 kind=1 | temp=No gs={} grp=0 n=5 key=Id asc=Yes iso=Default id=2 rowid=1 kind=1');
+        Observer.Expect('old line view', 'VERSION(1) SORTING(Id) | VERSION(1) SORTING(Id)');
+        Observer.Expect('new header', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=2 name=B-NAME total=0 | ld=Yes temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=2 name=B-NAME total=0');
+        Observer.Expect('new header view', 'VERSION(1) SORTING(Id) | VERSION(1) SORTING(Id)');
+        Observer.Expect('old header', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15 | ld=Yes temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('old header view', 'VERSION(1) SORTING(Id) | VERSION(1) SORTING(Id)');
+        Observer.Expect('line ref', 'temp=No f={} n=4 rid=BVH Line: 1 f1=1 f2=1 iso=Default | temp=No f={} n=5 rid=BVH Line: 2 f1=2 f2=1 iso=Default');
+        Observer.Expect('line ref view', 'VERSION(1) SORTING(Id) | VERSION(1) SORTING(Id)');
+        Observer.Expect('header ref', 'temp=No f={} n=3 rid=BVH Row: 1 f1=1 f2=C-NAME iso=Default | temp=No f={} n=3 rid=BVH Row: 1 f1=1 f2=C-NAME iso=Default');
+        Observer.Expect('header ref view', 'VERSION(1) SORTING(Id) | VERSION(1) SORTING(Id)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1243,7 +1484,13 @@ codeunit 89853 "BVH Hand On Tests"
         ObserveSlot(Observer, 'old line');
         ObserveSlot(Observer, 'old header');
         ObserveSlot(Observer, 'line ref');
-        Observer.Finish();
+        Observer.Expect('old line', 'temp=No gs={} grp=0 n=4 key=Id asc=Yes iso=Default id=2 rowid=1 kind=1 | temp=No gs={} grp=0 n=5 key=Id asc=Yes iso=Default id=1 rowid=1 kind=1');
+        Observer.Expect('old line view', 'VERSION(1) SORTING(Id) | VERSION(1) SORTING(Id)');
+        Observer.Expect('old header', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15 | ld=Yes temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('old header view', 'VERSION(1) SORTING(Id) | VERSION(1) SORTING(Id)');
+        Observer.Expect('line ref', 'temp=No f={} n=4 rid=BVH Line: 2 f1=2 f2=1 iso=Default | temp=No f={} n=5 rid=BVH Line: 1 f1=1 f2=1 iso=Default');
+        Observer.Expect('line ref view', 'VERSION(1) SORTING(Id) | VERSION(1) SORTING(Id)');
+        Observer.Verify();
     end;
 
     // Group D: rows 1 and 3 (Open, Flag) go through SumLine; the caller's Src has Amount >= 10 in group 0.
@@ -1270,7 +1517,18 @@ codeunit 89853 "BVH Hand On Tests"
         Observer: Codeunit "Probe Observer";
     begin
         PostBatch(Observer, 1, 0);
-        Observer.Finish();
+        Observer.Expect('total before find', '0');
+        Observer.Expect('find', 'Yes');
+        Observer.Expect('total after find', '0');
+        Observer.Expect('copy', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('sender', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('sender view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('sender ref', 'temp=No f={} n=3 rid=BVH Row: 1 f1=1 f2=C-NAME iso=Default');
+        Observer.Expect('sender ref view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('global after', 'ld=Yes temp=No same=Yes gs={0:Status: Open, Amount: >=10, Flag: Yes;1:Amount: >15;} grp=0 n=1 key=Id asc=Yes iso=UpdLock mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('global after view', 'VERSION(1) SORTING(Id) WHERE(Status=FILTER(Open),Amount=FILTER(>=10),Flag=FILTER(true))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1279,7 +1537,18 @@ codeunit 89853 "BVH Hand On Tests"
         Observer: Codeunit "Probe Observer";
     begin
         PostBatch(Observer, 0, 0);
-        Observer.Finish();
+        Observer.Expect('total before find', '0');
+        Observer.Expect('find', 'Yes');
+        Observer.Expect('total after find', '0');
+        Observer.Expect('copy', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('sender', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('sender view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('sender ref', 'temp=No f={} n=3 rid=BVH Row: 1 f1=1 f2=C-NAME iso=Default');
+        Observer.Expect('sender ref view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('global after', 'ld=Yes temp=No same=Yes gs={0:Status: Open, Amount: >=10, Flag: Yes;1:Amount: >15;} grp=0 n=1 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('global after view', 'VERSION(1) SORTING(Id) WHERE(Status=FILTER(Open),Amount=FILTER(>=10),Flag=FILTER(true))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1288,7 +1557,18 @@ codeunit 89853 "BVH Hand On Tests"
         Observer: Codeunit "Probe Observer";
     begin
         PostBatch(Observer, 2, 0);
-        Observer.Finish();
+        Observer.Expect('total before find', '0');
+        Observer.Expect('find', 'Yes');
+        Observer.Expect('total after find', '0');
+        Observer.Expect('copy', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('sender', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('sender view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('sender ref', 'temp=No f={} n=3 rid=BVH Row: 1 f1=1 f2=C-NAME iso=Default');
+        Observer.Expect('sender ref view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('global after', 'ld=Yes temp=No same=Yes gs={0:Status: Open, Amount: >=10, Flag: Yes;1:Amount: >15;} grp=0 n=1 key=Id asc=Yes iso=ReadCommitted mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('global after view', 'VERSION(1) SORTING(Id) WHERE(Status=FILTER(Open),Amount=FILTER(>=10),Flag=FILTER(true))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1297,6 +1577,17 @@ codeunit 89853 "BVH Hand On Tests"
         Observer: Codeunit "Probe Observer";
     begin
         PostBatch(Observer, 1, 1);
-        Observer.Finish();
+        Observer.Expect('total before find', '0');
+        Observer.Expect('find', 'Yes');
+        Observer.Expect('total after find', '0');
+        Observer.Expect('copy', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('copy view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('sender', 'ld=Yes temp=No same=Yes gs={1:Amount: >15;} grp=0 n=3 key=Id asc=Yes iso=Default mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('sender view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('sender ref', 'temp=No f={} n=3 rid=BVH Row: 1 f1=1 f2=C-NAME iso=Default');
+        Observer.Expect('sender ref view', 'VERSION(1) SORTING(Id)');
+        Observer.Expect('global after', 'ld=Yes temp=No same=Yes gs={0:Status: Open, Amount: >=10, Flag: Yes;1:Amount: >15;} grp=0 n=1 key=Id asc=Yes iso=UpdLock mo=No m=0 ff={} cf={} id=1 name=C-NAME total=15');
+        Observer.Expect('global after view', 'VERSION(1) SORTING(Id) WHERE(Status=FILTER(Open),Amount=FILTER(>=10),Flag=FILTER(true))');
+        Observer.Verify();
     end;
 }
