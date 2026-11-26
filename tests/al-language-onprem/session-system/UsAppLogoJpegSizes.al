@@ -7,17 +7,20 @@
 //   apps whose logo is a JPEG of another size or encoding, and the Icon that the Guided Experience stores when it registers each
 //   app's assisted setup (GetExtensionLogo + Icon.ImportStream). The Guided Experience Item table is Internal, so it is read here
 //   through a RecordRef.
-// What BC did (27.5 and 29.0 measured locally; 28.5 by the corpus CI run):
-//   - Logo: for each of the four logos the Media row has Mime Type image/jpeg, Height and Width of the image, and the file's bytes
-//     unchanged. (The 8 x 8 logo of fixture E is image/png on 27.5 and 28.5, see UsAppLogoJpeg.al; these sizes are image/jpeg on
-//     every version.)
+// What BC did (Windows containers 27.5 and 29.0 measured locally; corpus CI on BC for Linux 27.5, 28.5 and 29.0):
+//   - Logo: for each of the four logos the Media row has Height and Width of the image and the file's bytes unchanged.
 //   - The test session's login does not raise OnRegisterAssistedSetup: without the call below the app has no Guided Experience
 //     Item. Guided Experience.SetupForExtensionExists raises it (it returns false: the fixtures register a codeunit, not a page).
-//   - Icon: one item per app; the Icon is a Tenant Media row of its own (not the logo's Media id), Mime Type image/jpeg, Height and
-//     Width of the image, Description = the app id, same length as the file. Its bytes differ from the file in exactly 3 bytes of
-//     the JFIF header: byte 14 (density units) 0 -> 1, bytes 16 and 18 (low bytes of the X and Y density) 1 -> 0. This holds for
-//     every logo here, the 8 x 8 one included, baseline and progressive.
+//   - Icon: one item per app; the Icon is a Tenant Media row of its own (not the logo's Media id), Height and Width of the image,
+//     Description = the app id, same length as the file.
 //   - No error in any registration (the regression of 9111 was an error there for JPEG logos other than 8 x 8).
+// Host dependent (Windows vs BC on Linux). These cells are observed but not asserted (Observer.Ignore):
+//   - Mime Type of the logo Media row and of the icon: Windows 27.5 and 29.0 image/jpeg; BC on Linux 29.0 image/jpeg, 28.5
+//     image/png. (The 8 x 8 logo of fixture E is image/png on CI 27.5 and 28.5, see UsAppLogoJpeg.al; that may be a Linux value.)
+//   - Icon bytes: Windows 27.5 and 29.0 differ from the file in exactly 3 bytes of the JFIF header (byte 14, density units,
+//     0 -> 1; bytes 16 and 18, low bytes of the X and Y density, 1 -> 0), for every logo here, baseline and progressive.
+//     BC on Linux 29.0: the icon is byte-identical to the file ('icon equals file' Yes, no differing bytes).
+//     Names of the ignored observations: 'icon equals file', 'icon vs logo media, differing bytes'.
 // Not measured: JPEG logos whose JFIF header already has density units 1 or another density, JPEG without a JFIF header (EXIF
 //   only), CMYK or grayscale JPEG, EXIF orientation, PNG, GIF or BMP logos of other sizes, the Icon of a manual setup
 //   (InsertManualSetup), and a second registration that modifies an existing item.
@@ -182,7 +185,7 @@ codeunit 98084 "LT US App Logo Jpeg Sizes"
         Observer.Expect('logo has value', 'Yes');
         Observer.Expect('logo media id null', 'No');
         Observer.Expect('media row found', 'Yes');
-        Observer.Expect('mime type', 'image/jpeg');
+        Observer.Ignore('mime type');
         Observer.Expect('height', '534');
         Observer.Expect('width', '535');
         Observer.Expect('content has value', 'Yes');
@@ -201,7 +204,7 @@ codeunit 98084 "LT US App Logo Jpeg Sizes"
         Observer.Expect('logo has value', 'Yes');
         Observer.Expect('logo media id null', 'No');
         Observer.Expect('media row found', 'Yes');
-        Observer.Expect('mime type', 'image/jpeg');
+        Observer.Ignore('mime type');
         Observer.Expect('height', '8');
         Observer.Expect('width', '16');
         Observer.Expect('content has value', 'Yes');
@@ -220,7 +223,7 @@ codeunit 98084 "LT US App Logo Jpeg Sizes"
         Observer.Expect('logo has value', 'Yes');
         Observer.Expect('logo media id null', 'No');
         Observer.Expect('media row found', 'Yes');
-        Observer.Expect('mime type', 'image/jpeg');
+        Observer.Ignore('mime type');
         Observer.Expect('height', '300');
         Observer.Expect('width', '400');
         Observer.Expect('content has value', 'Yes');
@@ -239,7 +242,7 @@ codeunit 98084 "LT US App Logo Jpeg Sizes"
         Observer.Expect('logo has value', 'Yes');
         Observer.Expect('logo media id null', 'No');
         Observer.Expect('media row found', 'Yes');
-        Observer.Expect('mime type', 'image/jpeg');
+        Observer.Ignore('mime type');
         Observer.Expect('height', '534');
         Observer.Expect('width', '535');
         Observer.Expect('content has value', 'Yes');
@@ -262,16 +265,16 @@ codeunit 98084 "LT US App Logo Jpeg Sizes"
         Observer.Expect('icon media id null', 'No');
         Observer.Expect('icon media id equals logo media id', 'No');
         Observer.Expect('tenant media row found', 'Yes');
-        Observer.Expect('icon mime type', 'image/jpeg');
+        Observer.Ignore('icon mime type');
         Observer.Expect('icon height', '8');
         Observer.Expect('icon width', '8');
         Observer.Expect('icon description is the app id', 'Yes');
         Observer.Expect('icon description has the app id', 'Yes');
         Observer.Expect('icon content has value', 'Yes');
         Observer.Expect('icon length', '307');
-        Observer.Expect('icon equals file', 'No');
+        Observer.Ignore('icon equals file');
         Observer.Expect('logo media equals file', 'Yes');
-        Observer.Expect('icon vs logo media, differing bytes', '14:1/0 16:0/1 18:0/1 count 3');
+        Observer.Ignore('icon vs logo media, differing bytes');
         Observer.Verify();
     end;
 
@@ -289,16 +292,16 @@ codeunit 98084 "LT US App Logo Jpeg Sizes"
         Observer.Expect('icon media id null', 'No');
         Observer.Expect('icon media id equals logo media id', 'No');
         Observer.Expect('tenant media row found', 'Yes');
-        Observer.Expect('icon mime type', 'image/jpeg');
+        Observer.Ignore('icon mime type');
         Observer.Expect('icon height', '534');
         Observer.Expect('icon width', '535');
         Observer.Expect('icon description is the app id', 'Yes');
         Observer.Expect('icon description has the app id', 'Yes');
         Observer.Expect('icon content has value', 'Yes');
         Observer.Expect('icon length', '14191');
-        Observer.Expect('icon equals file', 'No');
+        Observer.Ignore('icon equals file');
         Observer.Expect('logo media equals file', 'Yes');
-        Observer.Expect('icon vs logo media, differing bytes', '14:1/0 16:0/1 18:0/1 count 3');
+        Observer.Ignore('icon vs logo media, differing bytes');
         Observer.Verify();
     end;
 
@@ -316,16 +319,16 @@ codeunit 98084 "LT US App Logo Jpeg Sizes"
         Observer.Expect('icon media id null', 'No');
         Observer.Expect('icon media id equals logo media id', 'No');
         Observer.Expect('tenant media row found', 'Yes');
-        Observer.Expect('icon mime type', 'image/jpeg');
+        Observer.Ignore('icon mime type');
         Observer.Expect('icon height', '8');
         Observer.Expect('icon width', '16');
         Observer.Expect('icon description is the app id', 'Yes');
         Observer.Expect('icon description has the app id', 'Yes');
         Observer.Expect('icon content has value', 'Yes');
         Observer.Expect('icon length', '633');
-        Observer.Expect('icon equals file', 'No');
+        Observer.Ignore('icon equals file');
         Observer.Expect('logo media equals file', 'Yes');
-        Observer.Expect('icon vs logo media, differing bytes', '14:1/0 16:0/1 18:0/1 count 3');
+        Observer.Ignore('icon vs logo media, differing bytes');
         Observer.Verify();
     end;
 
@@ -343,16 +346,16 @@ codeunit 98084 "LT US App Logo Jpeg Sizes"
         Observer.Expect('icon media id null', 'No');
         Observer.Expect('icon media id equals logo media id', 'No');
         Observer.Expect('tenant media row found', 'Yes');
-        Observer.Expect('icon mime type', 'image/jpeg');
+        Observer.Ignore('icon mime type');
         Observer.Expect('icon height', '300');
         Observer.Expect('icon width', '400');
         Observer.Expect('icon description is the app id', 'Yes');
         Observer.Expect('icon description has the app id', 'Yes');
         Observer.Expect('icon content has value', 'Yes');
         Observer.Expect('icon length', '62851');
-        Observer.Expect('icon equals file', 'No');
+        Observer.Ignore('icon equals file');
         Observer.Expect('logo media equals file', 'Yes');
-        Observer.Expect('icon vs logo media, differing bytes', '14:1/0 16:0/1 18:0/1 count 3');
+        Observer.Ignore('icon vs logo media, differing bytes');
         Observer.Verify();
     end;
 
@@ -370,16 +373,16 @@ codeunit 98084 "LT US App Logo Jpeg Sizes"
         Observer.Expect('icon media id null', 'No');
         Observer.Expect('icon media id equals logo media id', 'No');
         Observer.Expect('tenant media row found', 'Yes');
-        Observer.Expect('icon mime type', 'image/jpeg');
+        Observer.Ignore('icon mime type');
         Observer.Expect('icon height', '534');
         Observer.Expect('icon width', '535');
         Observer.Expect('icon description is the app id', 'Yes');
         Observer.Expect('icon description has the app id', 'Yes');
         Observer.Expect('icon content has value', 'Yes');
         Observer.Expect('icon length', '9857');
-        Observer.Expect('icon equals file', 'No');
+        Observer.Ignore('icon equals file');
         Observer.Expect('logo media equals file', 'Yes');
-        Observer.Expect('icon vs logo media, differing bytes', '14:1/0 16:0/1 18:0/1 count 3');
+        Observer.Ignore('icon vs logo media, differing bytes');
         Observer.Verify();
     end;
 }
