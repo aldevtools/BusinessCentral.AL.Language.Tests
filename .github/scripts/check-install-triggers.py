@@ -14,6 +14,19 @@ import sys
 from pathlib import Path
 
 ALLOWED = {
+    # Issue 8954: local DotNet builders only in a write-free TryFunction; observation uses Get/Insert/Modify(false).
+    'tests/al-language-onprem-dotnet codeunit 99452',
+    # Workbook pipeline in a TryFunction: temporary Excel rows only, no persistent writes inside it;
+    # both source-file paths are cleaned by SaveToStream(true); errors become observation rows.
+    # First empty-database publish is the disposable native BC CI batch, not a customer environment.
+    'tests/al-language-onprem-dotnet codeunit 99462',
+    # al-runner issue 8071: filter group 1 across install sessions; each install code logs what it sees and writes only `if Insert() then;` into
+    # DataPerCompany = false tables (rows and log), and one DataPerCompany = true table (98485) from OnInstallAppPerCompany, where a company is set;
+    # FilterGroup, SetFilter, SetRange and Count do not raise. (G1sXaInstall.al, G1sXbInstall.al,
+    # G1sInstallSessionTests.al)
+    'tests/al-language-xapp-a codeunit 98472',  # "LT G1S XA Install"
+    'tests/al-language-xapp-b codeunit 98475',  # "LT G1S XB Install"
+    'tests/al-language codeunit 98482',  # "LT G1S Main Install"
     # al-runner issue 7348: writes inside TryFunctions whose result is used, in install code, with DisableWriteInsideTryFunctions=false. Only the
     # CI job "BC TryWrites" publishes this app. Every write outside the TryFunctions is `if Insert() then;` or `if Modify() then;` into DataPerCompany =
     # false tables, and each TryFunction call is used by `Log(..)`, so nothing the install code does can fail the publish. (TryWriteInstall.al)
@@ -44,6 +57,9 @@ ALLOWED = {
     'tests/al-language-xapp-a codeunit 97998',  # "LT PkgParts Install Co"
     # al-runner issue 7169: reads "Published As" in TryFunctions, writes only `if Insert() then;` into a DataPerCompany = false log. (R7169XaInstallPublishedAs.al)
     'tests/al-language-xapp-a codeunit 96081',  # "LT R7169 XA Install"
+    # al-runner issue 9123: CanCreateTask in install code, then CreateTask (in a TryFunction that writes nothing) or Codeunit.Run of a codeunit that
+    # writes only `if Insert() then;`; the log is written only with `if Insert() then;` into a DataPerCompany = false table. (IcXaInstallCanCreateTask.al)
+    'tests/al-language-xapp-a codeunit 98497',  # "LT IC XA Install"
     'tests/al-language-xapp-d codeunit 61190',  # "LT Y8 XD Install"
     'tests/al-language-xapp-d codeunit 61365',  # "LT Y64 XD Install"
     'tests/al-language-xapp-d codeunit 61394',  # "LT Y79 XD Install"

@@ -284,6 +284,7 @@ codeunit 72022 "LT HtT Headers Errors"
     procedure InvalidNames()
     var
         Headers: HttpHeaders;
+        PlatformBuild: Codeunit "ALT Platform Build";
     begin
         NewHeaders(Headers);
         asserterror Headers.Add('', 'v');
@@ -304,7 +305,10 @@ codeunit 72022 "LT HtT Headers Errors"
 #if BC29PLUS
         Observer.Expect('blankName|code', 'InvalidHeader:Format');
 #else
-        Observer.Expect('blankName|code', 'InvalidHeader:Argument');
+        if PlatformBuild.IsNet10Build() then
+            Observer.Expect('blankName|code', 'InvalidHeader:Format')
+        else
+            Observer.Expect('blankName|code', 'InvalidHeader:Argument');
 #endif
         Observer.Expect('spaceInName|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
         Observer.Expect('spaceInName|code', 'InvalidHeader:Format');
@@ -455,6 +459,7 @@ codeunit 72022 "LT HtT Headers Errors"
     procedure PW_InvalidNames_Bc27()
     var
         Headers: HttpHeaders;
+        PlatformBuild: Codeunit "ALT Platform Build";
     begin
         NewHeaders(Headers);
         asserterror Headers.Add('', 'v');
@@ -470,9 +475,17 @@ codeunit 72022 "LT HtT Headers Errors"
         Observer.Expect('emptyName|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
         Observer.Expect('emptyName|code', 'InvalidHeader:Argument');
         Observer.Expect('blankName|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
-        Observer.Expect('blankName|code', 'InvalidHeader:Argument');
+        // The .NET 10 build of 27.5 answers a name of one blank with InvalidHeader:Format, as BC 29 and the .NET 10 build of 28.5 do (corpus CI
+        // 2026-11-17). The code of three blanks gives InvalidHeader:Format on that build too (corpus CI run 44239002147, 2026-11-18).
+        if PlatformBuild.IsNet10Build() then
+            Observer.Expect('blankName|code', 'InvalidHeader:Format')
+        else
+            Observer.Expect('blankName|code', 'InvalidHeader:Argument');
         Observer.Expect('threeBlanksName|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
-        Observer.Expect('threeBlanksName|code', 'InvalidHeader:Argument');
+        if PlatformBuild.IsNet10Build() then
+            Observer.Expect('threeBlanksName|code', 'InvalidHeader:Format')
+        else
+            Observer.Expect('threeBlanksName|code', 'InvalidHeader:Argument');
         Observer.Expect('spaceInName|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
         Observer.Expect('spaceInName|code', 'InvalidHeader:Format');
         Observer.Expect('colonInName|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
@@ -480,6 +493,105 @@ codeunit 72022 "LT HtT Headers Errors"
         Observer.Verify();
     end;
 #endif
+
+    // Measured on BC 27.5, 28.5, and 29.1; CI checks BC 29.0.
+    local procedure Initialize()
+    begin
+        Observer.Discard();
+    end;
+
+    [TryFunction]
+    local procedure TryContainsEmpty(var Headers: HttpHeaders; var Found: Boolean)
+    begin
+        Found := Headers.Contains('');
+    end;
+
+    local procedure ObserveContainsEmpty(Name: Text; var Headers: HttpHeaders)
+    var
+        Found: Boolean;
+        Ok: Boolean;
+    begin
+        Found := true;
+        ClearLastError();
+        Ok := TryContainsEmpty(Headers, Found);
+        Observer.Observe(Name + '|ok', Format(Ok));
+        Observer.Observe(Name + '|found', Format(Found));
+        Observer.ObserveError(Name);
+    end;
+
+    local procedure ExpectContainsEmpty(Name: Text)
+    begin
+        Observer.Expect(Name + '|ok', 'No');
+        Observer.Expect(Name + '|found', 'Yes');
+        Observer.Expect(Name + '|text', 'Invalid HTTP header. Please, make sure the format of the header is correct.');
+        Observer.Expect(Name + '|code', 'InvalidHeader:Argument');
+    end;
+
+    [Test]
+    procedure HttpHeaders_ContainsEmpty_ReceiversError()
+    var
+        Headers: HttpHeaders;
+        Request: HttpRequestMessage;
+        Response: HttpResponseMessage;
+        Content: HttpContent;
+        Client: HttpClient;
+    begin
+        Initialize();
+        ObserveContainsEmpty('uninitialized', Headers);
+        Request.GetHeaders(Headers);
+        ObserveContainsEmpty('request', Headers);
+        Content.GetHeaders(Headers);
+        ObserveContainsEmpty('content', Headers);
+        Headers := Response.Headers();
+        ObserveContainsEmpty('response', Headers);
+        Headers := Client.DefaultRequestHeaders();
+        ObserveContainsEmpty('client', Headers);
+        ExpectContainsEmpty('uninitialized');
+        ExpectContainsEmpty('request');
+        ExpectContainsEmpty('content');
+        ExpectContainsEmpty('response');
+        ExpectContainsEmpty('client');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure HttpHeaders_ContainsEmpty_SecretError()
+    var
+        Headers: HttpHeaders;
+        Content: HttpContent;
+        Request: HttpRequestMessage;
+        Secret: SecretText;
+    begin
+        Initialize();
+        Secret := SecretStrSubstNo('body');
+        Request.GetHeaders(Headers);
+        Headers.Add('X-Secret', Secret);
+        ObserveContainsEmpty('secretHeader', Headers);
+        Content.WriteFrom(Secret);
+        Content.GetHeaders(Headers);
+        ObserveContainsEmpty('secretContent', Headers);
+        ExpectContainsEmpty('secretHeader');
+        ExpectContainsEmpty('secretContent');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure HttpHeaders_ContainsEmpty_RequestAndResponseContentError()
+    var
+        Request: HttpRequestMessage;
+        Response: HttpResponseMessage;
+        Headers: HttpHeaders;
+    begin
+        Initialize();
+        Request.Content.WriteFrom('request body');
+        Request.Content.GetHeaders(Headers);
+        ObserveContainsEmpty('requestContent', Headers);
+        Response.Content.GetHeaders(Headers);
+        ObserveContainsEmpty('responseContent', Headers);
+        ExpectContainsEmpty('requestContent');
+        ExpectContainsEmpty('responseContent');
+        Observer.Verify();
+    end;
 }
 
 codeunit 72023 "LT HtT Headers Secret"

@@ -2,6 +2,8 @@
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); self-contained codeunit 72505
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
+// Added, measured by the corpus CI matrix (BC 27.5, 28.5, 29.0, run 43121492269; the same on all three): raw and escaped control characters inside JSON strings, in JsonObject, JsonToken,
+// JsonArray and JsonValue ReadFrom (TAB, LF, CR, 1, 8, 12, 27, 31, 127), a raw TAB in a key, in a single-quoted string and between tokens.
 // BC versions: 29 (27 and 28 by CI)
 
 codeunit 72505 "LT JsT ReadFrom"
@@ -307,5 +309,250 @@ codeunit 72505 "LT JsT ReadFrom"
         Observer.Expect('af214|code', 'InvalidJsonData');
         Observer.Expect('array_after_failed_read', '[2]');
         Observer.Verify();
+    end;
+
+    // Control characters inside JSON strings (aldevtools/BusinessCentral.AL.Runner#7812): what each ReadFrom returns, the characters of
+    // the string it read (len and character codes) and what WriteTo writes back.
+    local procedure Ch(CharCode: Integer): Text
+    var
+        C: Text[1];
+    begin
+        C[1] := CharCode;
+        exit(C);
+    end;
+
+    local procedure Codes(S: Text): Text
+    var
+        Index: Integer;
+        CharCode: Integer;
+        R: Text;
+    begin
+        R := 'len=' + Format(StrLen(S)) + ' codes=';
+        for Index := 1 to StrLen(S) do begin
+            if Index > 1 then
+                R += ',';
+            CharCode := S[Index];
+            R += Format(CharCode);
+        end;
+        exit(R);
+    end;
+
+    [TryFunction]
+    local procedure DoCtlObj(Src: Text; var R: Text)
+    var
+        O: JsonObject;
+        T: JsonToken;
+        Out: Text;
+    begin
+        R := 'ret=' + Format(O.ReadFrom(Src));
+        if O.Get('a', T) then
+            R += ' ' + Codes(T.AsValue().AsText());
+        O.WriteTo(Out);
+        R += ' out=' + Out;
+    end;
+
+    [TryFunction]
+    local procedure DoCtlTok(Src: Text; var R: Text)
+    var
+        T: JsonToken;
+        V: JsonToken;
+        Out: Text;
+    begin
+        R := 'ret=' + Format(T.ReadFrom(Src));
+        if T.IsObject() then
+            if T.AsObject().Get('a', V) then
+                R += ' ' + Codes(V.AsValue().AsText());
+        T.WriteTo(Out);
+        R += ' out=' + Out;
+    end;
+
+    [TryFunction]
+    local procedure DoCtlArr(Src: Text; var R: Text)
+    var
+        A: JsonArray;
+        T: JsonToken;
+        Out: Text;
+    begin
+        R := 'ret=' + Format(A.ReadFrom(Src));
+        if A.Get(0, T) then
+            R += ' ' + Codes(T.AsValue().AsText());
+        A.WriteTo(Out);
+        R += ' out=' + Out;
+    end;
+
+    [TryFunction]
+    local procedure DoCtlVal(Src: Text; var R: Text)
+    var
+        V: JsonValue;
+        Ret: Boolean;
+        Out: Text;
+    begin
+        Ret := V.ReadFrom(Src);
+        R := 'ret=' + Format(Ret);
+        if Ret then
+            R += ' ' + Codes(V.AsText());
+        V.WriteTo(Out);
+        R += ' out=' + Out;
+    end;
+
+    local procedure Ctl(Kind: Text; Src: Text): Text
+    var
+        R: Text;
+        Ok: Boolean;
+    begin
+        ClearLastError();
+        case Kind of
+            'obj':
+                Ok := DoCtlObj(Src, R);
+            'tok':
+                Ok := DoCtlTok(Src, R);
+            'arr':
+                Ok := DoCtlArr(Src, R);
+            'val':
+                Ok := DoCtlVal(Src, R);
+        end;
+        if Ok then
+            exit(R);
+        exit('error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+    end;
+
+    local procedure RawControls(Kind: Text; var Obs: Codeunit "Probe Observer")
+    var
+        Src: Text;
+        CharCode: Integer;
+        CodeList: List of [Integer];
+    begin
+        CodeList.AddRange(9, 10, 13, 1, 8, 12, 27, 31, 127);
+        foreach CharCode in CodeList do begin
+            case Kind of
+                'obj', 'tok':
+                    Src := '{"a":"x' + Ch(CharCode) + 'y"}';
+                'arr':
+                    Src := '["x' + Ch(CharCode) + 'y"]';
+                'val':
+                    Src := '"x' + Ch(CharCode) + 'y"';
+            end;
+            Obs.Observe(Kind + '_raw_' + Format(CharCode), Ctl(Kind, Src));
+        end;
+    end;
+
+    [Test]
+    procedure ObjectReadFromRawControlInString()
+    var
+        Obs: Codeunit "Probe Observer";
+    begin
+        RawControls('obj', Obs);
+        Obs.Expect('obj_raw_9', 'ret=Yes len=3 codes=120,9,121 out={"a":"x\ty"}');
+        Obs.Expect('obj_raw_10', 'ret=Yes len=3 codes=120,10,121 out={"a":"x\ny"}');
+        Obs.Expect('obj_raw_13', 'ret=Yes len=3 codes=120,13,121 out={"a":"x\ry"}');
+        Obs.Expect('obj_raw_1', 'ret=Yes len=3 codes=120,1,121 out={"a":"x\u0001y"}');
+        Obs.Expect('obj_raw_8', 'ret=Yes len=3 codes=120,8,121 out={"a":"x\by"}');
+        Obs.Expect('obj_raw_12', 'ret=Yes len=3 codes=120,12,121 out={"a":"x\fy"}');
+        Obs.Expect('obj_raw_27', 'ret=Yes len=3 codes=120,27,121 out={"a":"x\u001by"}');
+        Obs.Expect('obj_raw_31', 'ret=Yes len=3 codes=120,31,121 out={"a":"x\u001fy"}');
+        Obs.Expect('obj_raw_127', 'ret=Yes len=3 codes=120,127,121 out={"a":"xy"}');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TokenReadFromRawControlInString()
+    var
+        Obs: Codeunit "Probe Observer";
+    begin
+        RawControls('tok', Obs);
+        Obs.Expect('tok_raw_9', 'ret=Yes len=3 codes=120,9,121 out={"a":"x\ty"}');
+        Obs.Expect('tok_raw_10', 'ret=Yes len=3 codes=120,10,121 out={"a":"x\ny"}');
+        Obs.Expect('tok_raw_13', 'ret=Yes len=3 codes=120,13,121 out={"a":"x\ry"}');
+        Obs.Expect('tok_raw_1', 'ret=Yes len=3 codes=120,1,121 out={"a":"x\u0001y"}');
+        Obs.Expect('tok_raw_8', 'ret=Yes len=3 codes=120,8,121 out={"a":"x\by"}');
+        Obs.Expect('tok_raw_12', 'ret=Yes len=3 codes=120,12,121 out={"a":"x\fy"}');
+        Obs.Expect('tok_raw_27', 'ret=Yes len=3 codes=120,27,121 out={"a":"x\u001by"}');
+        Obs.Expect('tok_raw_31', 'ret=Yes len=3 codes=120,31,121 out={"a":"x\u001fy"}');
+        Obs.Expect('tok_raw_127', 'ret=Yes len=3 codes=120,127,121 out={"a":"xy"}');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure ArrayReadFromRawControlInString()
+    var
+        Obs: Codeunit "Probe Observer";
+    begin
+        RawControls('arr', Obs);
+        Obs.Expect('arr_raw_9', 'ret=Yes len=3 codes=120,9,121 out=["x\ty"]');
+        Obs.Expect('arr_raw_10', 'ret=Yes len=3 codes=120,10,121 out=["x\ny"]');
+        Obs.Expect('arr_raw_13', 'ret=Yes len=3 codes=120,13,121 out=["x\ry"]');
+        Obs.Expect('arr_raw_1', 'ret=Yes len=3 codes=120,1,121 out=["x\u0001y"]');
+        Obs.Expect('arr_raw_8', 'ret=Yes len=3 codes=120,8,121 out=["x\by"]');
+        Obs.Expect('arr_raw_12', 'ret=Yes len=3 codes=120,12,121 out=["x\fy"]');
+        Obs.Expect('arr_raw_27', 'ret=Yes len=3 codes=120,27,121 out=["x\u001by"]');
+        Obs.Expect('arr_raw_31', 'ret=Yes len=3 codes=120,31,121 out=["x\u001fy"]');
+        Obs.Expect('arr_raw_127', 'ret=Yes len=3 codes=120,127,121 out=["xy"]');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure ValueReadFromRawControlInString()
+    var
+        Obs: Codeunit "Probe Observer";
+    begin
+        RawControls('val', Obs);
+        Obs.Expect('val_raw_9', 'ret=Yes len=3 codes=120,9,121 out="x\ty"');
+        Obs.Expect('val_raw_10', 'ret=Yes len=3 codes=120,10,121 out="x\ny"');
+        Obs.Expect('val_raw_13', 'ret=Yes len=3 codes=120,13,121 out="x\ry"');
+        Obs.Expect('val_raw_1', 'ret=Yes len=3 codes=120,1,121 out="x\u0001y"');
+        Obs.Expect('val_raw_8', 'ret=Yes len=3 codes=120,8,121 out="x\by"');
+        Obs.Expect('val_raw_12', 'ret=Yes len=3 codes=120,12,121 out="x\fy"');
+        Obs.Expect('val_raw_27', 'ret=Yes len=3 codes=120,27,121 out="x\u001by"');
+        Obs.Expect('val_raw_31', 'ret=Yes len=3 codes=120,31,121 out="x\u001fy"');
+        Obs.Expect('val_raw_127', 'ret=Yes len=3 codes=120,127,121 out="xy"');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure ReadFromEscapedControlInString()
+    var
+        Obs: Codeunit "Probe Observer";
+    begin
+        Obs.Observe('tok_esc_t', Ctl('tok', '{"a":"x\ty"}'));
+        Obs.Observe('tok_esc_n', Ctl('tok', '{"a":"x\ny"}'));
+        Obs.Observe('tok_esc_r', Ctl('tok', '{"a":"x\ry"}'));
+        Obs.Observe('tok_esc_b', Ctl('tok', '{"a":"x\by"}'));
+        Obs.Observe('tok_esc_f', Ctl('tok', '{"a":"x\fy"}'));
+        Obs.Observe('tok_esc_u0001', Ctl('tok', '{"a":"x\u0001y"}'));
+        Obs.Observe('tok_esc_u001f', Ctl('tok', '{"a":"x\u001fy"}'));
+        Obs.Observe('val_esc_t', Ctl('val', '"x\ty"'));
+        Obs.Observe('arr_esc_u0001', Ctl('arr', '["x\u0001y"]'));
+        Obs.Expect('tok_esc_t', 'ret=Yes len=3 codes=120,9,121 out={"a":"x\ty"}');
+        Obs.Expect('tok_esc_n', 'ret=Yes len=3 codes=120,10,121 out={"a":"x\ny"}');
+        Obs.Expect('tok_esc_r', 'ret=Yes len=3 codes=120,13,121 out={"a":"x\ry"}');
+        Obs.Expect('tok_esc_b', 'ret=Yes len=3 codes=120,8,121 out={"a":"x\by"}');
+        Obs.Expect('tok_esc_f', 'ret=Yes len=3 codes=120,12,121 out={"a":"x\fy"}');
+        Obs.Expect('tok_esc_u0001', 'ret=Yes len=3 codes=120,1,121 out={"a":"x\u0001y"}');
+        Obs.Expect('tok_esc_u001f', 'ret=Yes len=3 codes=120,31,121 out={"a":"x\u001fy"}');
+        Obs.Expect('val_esc_t', 'ret=Yes len=3 codes=120,9,121 out="x\ty"');
+        Obs.Expect('arr_esc_u0001', 'ret=Yes len=3 codes=120,1,121 out=["x\u0001y"]');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure ReadFromRawControlOtherPlaces()
+    var
+        Obs: Codeunit "Probe Observer";
+    begin
+        Obs.Observe('tok_tab_in_key', Ctl('tok', '{"a' + Ch(9) + 'b":1,"a":"v"}'));
+        Obs.Observe('tok_tab_single_quoted', Ctl('tok', '{''a'':''x' + Ch(9) + 'y''}'));
+        Obs.Observe('tok_tab_between', Ctl('tok', '{"a":' + Ch(9) + '"v"}'));
+        Obs.Observe('tok_1_between', Ctl('tok', '{"a":' + Ch(1) + '"v"}'));
+        Obs.Observe('tok_12_between', Ctl('tok', '{"a":' + Ch(12) + '"v"}'));
+        Obs.Observe('tok_tab_only_string', Ctl('tok', '{"a":"' + Ch(9) + '"}'));
+        Obs.Observe('tok_lf_crlf_string', Ctl('tok', '{"a":"x' + Ch(13) + Ch(10) + 'y"}'));
+        Obs.Expect('tok_tab_in_key', 'ret=Yes len=1 codes=118 out={"a\tb":1,"a":"v"}');
+        Obs.Expect('tok_tab_single_quoted', 'ret=Yes len=3 codes=120,9,121 out={"a":"x\ty"}');
+        Obs.Expect('tok_tab_between', 'ret=Yes len=1 codes=118 out={"a":"v"}');
+        Obs.Expect('tok_1_between', 'ret=No out=null');
+        Obs.Expect('tok_12_between', 'ret=Yes len=1 codes=118 out={"a":"v"}');
+        Obs.Expect('tok_tab_only_string', 'ret=Yes len=1 codes=9 out={"a":"\t"}');
+        Obs.Expect('tok_lf_crlf_string', 'ret=Yes len=4 codes=120,13,10,121 out={"a":"x\r\ny"}');
+        Obs.Verify();
     end;
 }

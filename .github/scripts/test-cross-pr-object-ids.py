@@ -101,6 +101,12 @@ def build(root: Path):
     git("add", "-A", cwd=root)
     git("commit", "-qm", "E", cwd=root)
     git("checkout", "-q", "master", cwd=root)
+    # "T" is a train: it merges A (head contained) and adds its own object.
+    git("checkout", "-q", "-B", "T", "A", cwd=root)
+    (root / "T1.al").write_text(obj("codeunit", 61900, "Train Own"))
+    git("add", "-A", cwd=root)
+    git("commit", "-qm", "T", cwd=root)
+    git("checkout", "-q", "master", cwd=root)
 
 
 def run_check(root: Path, refs: dict, pr_number: str) -> tuple[int, str]:
@@ -153,6 +159,15 @@ def main() -> int:
              {1: "A", 2: "C"}, "1", 0),
             ("an id inherited from master is NOT a claim",
              {1: "B", 2: "C"}, "1", 0),
+            # A train contains A's head: A's ids inside the train are the same objects.
+            ("a PR does NOT collide with an open PR whose head it contains",
+             {1: "A", 2: "T"}, "2", 0),
+            ("contained PR is skipped from the other side too",
+             {1: "A", 2: "T"}, "1", 0),
+            ("contained PR is skipped by the pairwise sweep",
+             {1: "A", 2: "T"}, "", 0),
+            ("a PR that is NOT contained still collides with the train",
+             {1: "B", 2: "T"}, "2", 1),
             ("a lone open PR has nothing to collide with",
              {1: "A"}, "1", 0),
             # The #1132 incident: two PRs on the same old base both still declare
