@@ -5,7 +5,7 @@
 //
 // Error(ErrorInfo) with AddAction: the method name Run (any case, with a description, after another action, on codeunit 0
 // or a missing codeunit, collectible in and out of a collecting scope, Internal), the names OnRun and NoSuchMethod, methods
-// of other signatures, and TestField / FieldError with such an ErrorInfo.
+// of other signatures. BC refuses the AddAction call itself for a Run method, so no Error, TestField or FieldError call with such an ErrorInfo is reachable.
 // Fixtures used: Probe Observer (69160); table 73026 and codeunit 73027 (EnTErrorInfoProps.al, EnTErrorInfoRaise.al);
 // self-contained codeunits 75840, 75841, 75842
 // BC versions: 27.5+
@@ -25,9 +25,11 @@ codeunit 75842 "LT EnT ErrorInfo Run Action"
         ErrInfo: ErrorInfo;
     begin
         ErrInfo.Message := 'run action, not raised';
-        ErrInfo.AddAction('Fix it', Codeunit::"LT EnT ErrorInfo Actions", 'Run');
-        Observer.Observe('add', 'no error');
-        Observer.Expect('add', 'no error');
+        asserterror ErrInfo.AddAction('Fix it', Codeunit::"LT EnT ErrorInfo Actions", 'Run');
+        Observer.Observe('text', GetLastErrorText());
+        Observer.Observe('code', GetLastErrorCode());
+        Observer.Expect('text', 'The type Microsoft.Dynamics.Nav.Types.DataError is unknown.');
+        Observer.Expect('code', 'NotSupportedType');
         Observer.Verify();
     end;
 
@@ -37,8 +39,8 @@ codeunit 75842 "LT EnT ErrorInfo Run Action"
         ErrInfo: ErrorInfo;
     begin
         ErrInfo.Message := 'plain with run action';
-        ErrInfo.AddAction('Fix it', Codeunit::"LT EnT ErrorInfo Actions", 'Run');
-        ExpectRaise(ErrInfo, 'The type Microsoft.Dynamics.Nav.Types.DataError is unknown.', 'NotSupportedType');
+        asserterror ErrInfo.AddAction('Fix it', Codeunit::"LT EnT ErrorInfo Actions", 'Run');
+        ExpectLastError('The type Microsoft.Dynamics.Nav.Types.DataError is unknown.', 'NotSupportedType');
     end;
 
     [Test]
@@ -47,8 +49,8 @@ codeunit 75842 "LT EnT ErrorInfo Run Action"
         ErrInfo: ErrorInfo;
     begin
         ErrInfo.Message := 'plain with table run action';
-        ErrInfo.AddAction('Fix it', Codeunit::"LT EnT ErrorInfo Run Target", 'Run');
-        ExpectRaise(ErrInfo, 'The type Microsoft.Dynamics.Nav.Types.DataError is unknown.', 'NotSupportedType');
+        asserterror ErrInfo.AddAction('Fix it', Codeunit::"LT EnT ErrorInfo Run Target", 'Run');
+        ExpectLastError('The type Microsoft.Dynamics.Nav.Types.DataError is unknown.', 'NotSupportedType');
     end;
 
     [Test]
@@ -71,8 +73,8 @@ codeunit 75842 "LT EnT ErrorInfo Run Action"
         ErrInfo: ErrorInfo;
     begin
         ErrInfo.Message := 'lower case run';
-        ErrInfo.AddAction('Fix it', Codeunit::"LT EnT ErrorInfo Actions", 'run');
-        ExpectRaise(ErrInfo, 'The type Microsoft.Dynamics.Nav.Types.DataError is unknown.', 'NotSupportedType');
+        asserterror ErrInfo.AddAction('Fix it', Codeunit::"LT EnT ErrorInfo Actions", 'run');
+        ExpectLastError('The type Microsoft.Dynamics.Nav.Types.DataError is unknown.', 'NotSupportedType');
     end;
 
     [Test]
@@ -81,8 +83,8 @@ codeunit 75842 "LT EnT ErrorInfo Run Action"
         ErrInfo: ErrorInfo;
     begin
         ErrInfo.Message := 'run with description';
-        ErrInfo.AddAction('Fix it', Codeunit::"LT EnT ErrorInfo Actions", 'Run', 'A description');
-        ExpectRaise(ErrInfo, 'The type Microsoft.Dynamics.Nav.Types.DataError is unknown.', 'NotSupportedType');
+        asserterror ErrInfo.AddAction('Fix it', Codeunit::"LT EnT ErrorInfo Actions", 'Run', 'A description');
+        ExpectLastError('The type Microsoft.Dynamics.Nav.Types.DataError is unknown.', 'NotSupportedType');
     end;
 
     [Test]
@@ -92,8 +94,8 @@ codeunit 75842 "LT EnT ErrorInfo Run Action"
     begin
         ErrInfo.Message := 'proper then run';
         ErrInfo.AddAction('Do it', Codeunit::"LT EnT ErrorInfo Actions", 'DoAction');
-        ErrInfo.AddAction('Fix it', Codeunit::"LT EnT ErrorInfo Actions", 'Run');
-        ExpectRaise(ErrInfo, 'The type Microsoft.Dynamics.Nav.Types.DataError is unknown.', 'NotSupportedType');
+        asserterror ErrInfo.AddAction('Fix it', Codeunit::"LT EnT ErrorInfo Actions", 'Run');
+        ExpectLastError('The type Microsoft.Dynamics.Nav.Types.DataError is unknown.', 'NotSupportedType');
     end;
 
     [Test]
@@ -121,8 +123,8 @@ codeunit 75842 "LT EnT ErrorInfo Run Action"
     var
         ErrInfo: ErrorInfo;
     begin
-        ErrInfo.AddAction('Fix it', Codeunit::"LT EnT ErrorInfo Actions", 'Run');
-        ExpectRaise(ErrInfo, 'The type Microsoft.Dynamics.Nav.Types.DataError is unknown.', 'NotSupportedType');
+        asserterror ErrInfo.AddAction('Fix it', Codeunit::"LT EnT ErrorInfo Actions", 'Run');
+        ExpectLastError('The type Microsoft.Dynamics.Nav.Types.DataError is unknown.', 'NotSupportedType');
     end;
 
     [Test]
@@ -132,8 +134,8 @@ codeunit 75842 "LT EnT ErrorInfo Run Action"
     begin
         ErrInfo.Message := 'internal with run action';
         ErrInfo.ErrorType := ErrorType::Internal;
-        ErrInfo.AddAction('Fix it', Codeunit::"LT EnT ErrorInfo Actions", 'Run');
-        ExpectRaise(ErrInfo, 'The type Microsoft.Dynamics.Nav.Types.DataError is unknown.', 'NotSupportedType');
+        asserterror ErrInfo.AddAction('Fix it', Codeunit::"LT EnT ErrorInfo Actions", 'Run');
+        ExpectLastError('The type Microsoft.Dynamics.Nav.Types.DataError is unknown.', 'NotSupportedType');
     end;
 
     [Test]
@@ -159,8 +161,8 @@ codeunit 75842 "LT EnT ErrorInfo Run Action"
         ErrInfo: ErrorInfo;
     begin
         ErrInfo := ErrorInfo.Create('collectible run outside scope', true);
-        ErrInfo.AddAction('Fix it', Codeunit::"LT EnT ErrorInfo Actions", 'Run');
-        ExpectRaise(ErrInfo, 'The type Microsoft.Dynamics.Nav.Types.DataError is unknown.', 'NotSupportedType');
+        asserterror ErrInfo.AddAction('Fix it', Codeunit::"LT EnT ErrorInfo Actions", 'Run');
+        ExpectLastError('The type Microsoft.Dynamics.Nav.Types.DataError is unknown.', 'NotSupportedType');
     end;
 
     [Test]
@@ -203,37 +205,14 @@ codeunit 75842 "LT EnT ErrorInfo Run Action"
         ExpectRaise(ErrInfo, 'no parameter action', 'Dialog');
     end;
 
-    [Test]
-    procedure RunAction_TestField()
+    local procedure ExpectLastError(ExpectedText: Text; ExpectedCode: Text)
     var
         Observer: Codeunit "Probe Observer";
-        Rec: Record "LT EnT Info Rec";
-        ErrInfo: ErrorInfo;
     begin
-        ErrInfo.Message := 'testfield with run action';
-        ErrInfo.AddAction('Fix it', Codeunit::"LT EnT ErrorInfo Actions", 'Run');
-        asserterror Rec.TestField(Name, ErrInfo);
         Observer.Observe('text', GetLastErrorText());
         Observer.Observe('code', GetLastErrorCode());
-        Observer.Expect('text', 'The type Microsoft.Dynamics.Nav.Types.DataError is unknown.');
-        Observer.Expect('code', 'NotSupportedType');
-        Observer.Verify();
-    end;
-
-    [Test]
-    procedure RunAction_FieldError()
-    var
-        Observer: Codeunit "Probe Observer";
-        Rec: Record "LT EnT Info Rec";
-        ErrInfo: ErrorInfo;
-    begin
-        ErrInfo.Message := 'fielderror with run action';
-        ErrInfo.AddAction('Fix it', Codeunit::"LT EnT ErrorInfo Actions", 'Run');
-        asserterror Rec.FieldError(Name, ErrInfo);
-        Observer.Observe('text', GetLastErrorText());
-        Observer.Observe('code', GetLastErrorCode());
-        Observer.Expect('text', 'The type Microsoft.Dynamics.Nav.Types.DataError is unknown.');
-        Observer.Expect('code', 'NotSupportedType');
+        Observer.Expect('text', ExpectedText);
+        Observer.Expect('code', ExpectedCode);
         Observer.Verify();
     end;
 
