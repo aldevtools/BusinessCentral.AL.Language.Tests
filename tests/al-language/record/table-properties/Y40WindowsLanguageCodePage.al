@@ -84,19 +84,19 @@ codeunit 74945 "LT Y40 WinLang CodePage"
         WindowsLanguage: Record "Windows Language";
         Observer: Codeunit "Probe Observer";
         Pages: Dictionary of [Text, Integer];
-        Key: Text;
+        PageKey: Text;
     begin
         if WindowsLanguage.FindSet() then
             repeat
-                Key := '[' + WindowsLanguage."Primary CodePage" + ']';
-                if Pages.ContainsKey(Key) then
-                    Pages.Set(Key, Pages.Get(Key) + 1)
+                PageKey := '[' + Format(WindowsLanguage."Primary CodePage", 0, 9) + ']';
+                if Pages.ContainsKey(PageKey) then
+                    Pages.Set(PageKey, Pages.Get(PageKey) + 1)
                 else
-                    Pages.Add(Key, 1);
+                    Pages.Add(PageKey, 1);
             until WindowsLanguage.Next() = 0;
         Observer.Observe('rows', Format(WindowsLanguage.Count(), 0, 9));
-        foreach Key in Pages.Keys() do
-            Observer.Observe('count' + Key, Format(Pages.Get(Key), 0, 9));
+        foreach PageKey in Pages.Keys() do
+            Observer.Observe('count' + PageKey, Format(Pages.Get(PageKey), 0, 9));
         Observer.Finish();
     end;
 
@@ -106,20 +106,20 @@ codeunit 74945 "LT Y40 WinLang CodePage"
         WindowsLanguage: Record "Windows Language";
         Observer: Codeunit "Probe Observer";
         Ids: Dictionary of [Text, Text];
-        Key: Text;
+        PageKey: Text;
     begin
         if WindowsLanguage.FindSet() then
             repeat
                 if not (WindowsLanguage."Primary CodePage" in ['437', '720', '737', '775', '850', '852', '855', '857', '862', '866', '874', '932', '936', '949', '950']) then begin
-                    Key := '[' + WindowsLanguage."Primary CodePage" + ']';
-                    if Ids.ContainsKey(Key) then
-                        Ids.Set(Key, Ids.Get(Key) + ',' + Format(WindowsLanguage."Language ID", 0, 9))
+                    PageKey := '[' + Format(WindowsLanguage."Primary CodePage", 0, 9) + ']';
+                    if Ids.ContainsKey(PageKey) then
+                        Ids.Set(PageKey, Ids.Get(PageKey) + ',' + Format(WindowsLanguage."Language ID", 0, 9))
                     else
-                        Ids.Add(Key, Format(WindowsLanguage."Language ID", 0, 9));
+                        Ids.Add(PageKey, Format(WindowsLanguage."Language ID", 0, 9));
                 end;
             until WindowsLanguage.Next() = 0;
-        foreach Key in Ids.Keys() do
-            Observer.Observe('ids' + Key, Ids.Get(Key));
+        foreach PageKey in Ids.Keys() do
+            Observer.Observe('ids' + PageKey, Ids.Get(PageKey));
         Observer.Finish();
     end;
 }
