@@ -60,6 +60,8 @@
 // ('missing', E1 always when it ran first; E1C, E4 and E5 now and then on the 29.0 leg, depending on the shard order), so a
 // cell's b_start depended on which codeunit the hub ran before it. Prepare commits the new sequence now, so every E cell
 // starts from a committed sequence whatever ran before it; the isolation then undoes only test a's own changes.
+// Second fix (E4b flaked on 28.5 after the Commit above: b_start was 'missing'): every E cell also commits in Initialize, at the
+// start of test a, so the sequence is committed whichever way OnRun reached it (made or found). No expected value changed.
 // Object ids 73330-73338.
 // BC versions: 27.5, 28.5, 29.0
 
@@ -216,6 +218,8 @@ codeunit 73331 "LT SQH E1 Existing Next"
     begin
         if IsInitialized then
             exit;
+        // Commit what OnRun made, before test a changes anything, so the isolation rolls back only test a (issue 1595, run 45767499284).
+        Commit();
         Base := Seq.CurrentOrZero(Name(), CompanyWide());
         IsInitialized := true;
     end;
@@ -302,6 +306,8 @@ codeunit 73332 "LT SQH E2 Existing CompanyWide"
     begin
         if IsInitialized then
             exit;
+        // Commit what OnRun made, before test a changes anything, so the isolation rolls back only test a (issue 1595, run 45767499284).
+        Commit();
         Base := Seq.CurrentOrZero(Name(), CompanyWide());
         IsInitialized := true;
     end;
@@ -389,6 +395,8 @@ codeunit 73333 "LT SQH E3 Existing Next Commit"
     begin
         if IsInitialized then
             exit;
+        // Commit what OnRun made, before test a changes anything, so the isolation rolls back only test a (issue 1595, run 45767499284).
+        Commit();
         Base := Seq.CurrentOrZero(Name(), CompanyWide());
         IsInitialized := true;
     end;
@@ -481,6 +489,8 @@ codeunit 73334 "LT SQH E4 Existing Restart"
     begin
         if IsInitialized then
             exit;
+        // Commit what OnRun made, before test a changes anything, so the isolation rolls back only test a (issue 1595, run 45767499284).
+        Commit();
         Base := Seq.CurrentOrZero(Name(), CompanyWide());
         IsInitialized := true;
     end;
@@ -573,6 +583,8 @@ codeunit 73335 "LT SQH E5 Existing Delete"
     begin
         if IsInitialized then
             exit;
+        // Commit what OnRun made, before test a changes anything, so the isolation rolls back only test a (issue 1595, run 45767499284).
+        Commit();
         Base := Seq.CurrentOrZero(Name(), CompanyWide());
         IsInitialized := true;
     end;
@@ -832,6 +844,8 @@ codeunit 73338 "LT SQH E1C Existing Next Late"
     begin
         if IsInitialized then
             exit;
+        // Commit what OnRun made, before test a changes anything, so the isolation rolls back only test a (issue 1595, run 45767499284).
+        Commit();
         Base := Seq.CurrentOrZero(Name(), CompanyWide());
         IsInitialized := true;
     end;
