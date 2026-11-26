@@ -1001,6 +1001,11 @@ jobs:
             @{ runner = '130450'; range = '76040..76089'; out = 'xunit-sequence-after-fail-130450.xml' },
             @{ runner = '61301'; range = '76040..76089'; out = 'xunit-sequence-after-fail-codeunit.xml' },
             @{ runner = '61300'; range = '76040..76089'; out = 'xunit-sequence-after-fail-function.xml' },
+            # A sequence that existed when the tests began, restarted or deleted, then the test fails (79300..79349,
+            # SqExistingRestart.al): each cell codeunit asserts its own readings in its test c; test b fails on purpose.
+            @{ runner = '130450'; range = '79300..79349'; out = 'xunit-sequence-existing-130450.xml' },
+            @{ runner = '61301'; range = '79300..79349'; out = 'xunit-sequence-existing-codeunit.xml' },
+            @{ runner = '61300'; range = '79300..79349'; out = 'xunit-sequence-existing-function.xml' },
             # The C14 and C2 cells with RecordRef access in the failed test (76239..76269): "LT SQ Ref Reader" (76239).
             @{ runner = '130450'; range = '76239..76269'; out = 'xunit-sequence-recordref-130450.xml' },
             @{ runner = '61301'; range = '76239..76269'; out = 'xunit-sequence-recordref-codeunit.xml' },
@@ -1078,6 +1083,21 @@ jobs:
             --outdir test-results/onrun-runner
 
       # NumberSequence and manual bindings after a test that commits and fails: every test of "LT SQ Reader" (76089).
+      # The existing-sequence cells (SqExistingRestart.al): every test of the cell codeunits 79310-79349.
+      - name: Existing sequence restarted or deleted in a failed test -- per-test rows
+        if: always()
+        continue-on-error: true
+        shell: bash
+        run: |
+          python .github/scripts/isolation-probe-results.py \
+            --title "A NumberSequence that existed when the tests began, restarted or deleted by a test that fails" \
+            --note "Not part of the headline above. In each cell codeunit (79310-79349) test b fails on purpose (not in RN, RE4, RE5, DN and SN) and test c asserts what the cell left under TestIsolation = Codeunit; a failure message of test c carries what was observed." \
+            --fixture tests/al-language-isolation-probe/src/SqExistingRestart.al \
+            --run "Runner 130450=xunit-sequence-existing-130450.xml" \
+            --run "TestIsolation = Codeunit (runner 61301)=xunit-sequence-existing-codeunit.xml" \
+            --run "TestIsolation = Function (runner 61300)=xunit-sequence-existing-function.xml" \
+            --outdir test-results/sequence-existing
+
       - name: Sequence after a failed test -- per-test rows
         if: always()
         continue-on-error: true
