@@ -180,7 +180,14 @@ codeunit 57982 "SBT Bool Into Text Tests"
         Probe: Codeunit "SBT Probe";
     begin
         Probe.CellsBool(2, false);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: NO');
+        Probe.Expect('b', 'ok: NO');
+        Probe.Expect('c', 'ok: NO');
+        Probe.Expect('e', 'ok: NO');
+        Probe.Expect('f', 'ok: NO');
+        Probe.Expect('gr', 'ok: NO');
+        Probe.Expect('v', 'ok: NO');
+        Probe.Verify();
     end;
 
     [Test]
@@ -189,7 +196,14 @@ codeunit 57982 "SBT Bool Into Text Tests"
         Probe: Codeunit "SBT Probe";
     begin
         Probe.CellsBool(3, false);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: No');
+        Probe.Expect('b', 'ok: No');
+        Probe.Expect('c', 'ok: No');
+        Probe.Expect('e', 'ok: No');
+        Probe.Expect('f', 'ok: No');
+        Probe.Expect('gr', 'ok: No');
+        Probe.Expect('v', 'ok: No');
+        Probe.Verify();
     end;
 
     [Test]
@@ -198,7 +212,14 @@ codeunit 57982 "SBT Bool Into Text Tests"
         Probe: Codeunit "SBT Probe";
     begin
         Probe.CellsBool(4, false);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: NO');
+        Probe.Expect('b', 'ok: NO');
+        Probe.Expect('c', 'ok: NO');
+        Probe.Expect('e', 'ok: NO');
+        Probe.Expect('f', 'ok: NO');
+        Probe.Expect('gr', 'ok: NO');
+        Probe.Expect('v', 'ok: NO');
+        Probe.Verify();
     end;
 
     [Test]
@@ -207,7 +228,14 @@ codeunit 57982 "SBT Bool Into Text Tests"
         Probe: Codeunit "SBT Probe";
     begin
         Probe.CellsBool(5, false);
-        Probe.Finish();
+        Probe.Expect('a', 'E: The length of the string is 2, but it must be less than or equal to 1 characters. Value: No | StringLengthExceeded');
+        Probe.Expect('b', 'E: The length of the string is 2, but it must be less than or equal to 1 characters. Value: No | StringLengthExceeded');
+        Probe.Expect('c', 'E: The length of the string is 2, but it must be less than or equal to 1 characters. Value: No | StringLengthExceeded');
+        Probe.Expect('e', 'E: The length of the string is 2, but it must be less than or equal to 1 characters. Value: No | StringLengthExceeded');
+        Probe.Expect('f', 'E: The length of the string is 2, but it must be less than or equal to 1 characters. Value: No | StringLengthExceeded');
+        Probe.Expect('gr', 'E: The length of the string is 2, but it must be less than or equal to 1 characters. Value: No | StringLengthExceeded');
+        Probe.Expect('v', 'E: The length of the string is 2, but it must be less than or equal to 1 characters. Value: No | StringLengthExceeded');
+        Probe.Verify();
     end;
 
     [Test]
@@ -216,7 +244,14 @@ codeunit 57982 "SBT Bool Into Text Tests"
         Probe: Codeunit "SBT Probe";
     begin
         Probe.CellsBool(6, false);
-        Probe.Finish();
+        Probe.Expect('a', 'E: The length of the string is 2, but it must be less than or equal to 1 characters. Value: No | StringLengthExceeded');
+        Probe.Expect('b', 'E: The length of the string is 2, but it must be less than or equal to 1 characters. Value: No | StringLengthExceeded');
+        Probe.Expect('c', 'E: The length of the string is 2, but it must be less than or equal to 1 characters. Value: No | StringLengthExceeded');
+        Probe.Expect('e', 'E: The length of the string is 2, but it must be less than or equal to 1 characters. Value: No | StringLengthExceeded');
+        Probe.Expect('f', 'E: The length of the string is 2, but it must be less than or equal to 1 characters. Value: No | StringLengthExceeded');
+        Probe.Expect('gr', 'E: The length of the string is 2, but it must be less than or equal to 1 characters. Value: No | StringLengthExceeded');
+        Probe.Expect('v', 'E: The length of the string is 2, but it must be less than or equal to 1 characters. Value: No | StringLengthExceeded');
+        Probe.Verify();
     end;
 
     [Test]
@@ -225,7 +260,14 @@ codeunit 57982 "SBT Bool Into Text Tests"
         Probe: Codeunit "SBT Probe";
     begin
         Probe.CellsBool(4, true);
-        Probe.Finish();
+        Probe.Expect('a', 'E: The length of the string is 3, but it must be less than or equal to 2 characters. Value: Yes | StringLengthExceeded');
+        Probe.Expect('b', 'E: The length of the string is 3, but it must be less than or equal to 2 characters. Value: Yes | StringLengthExceeded');
+        Probe.Expect('c', 'E: The length of the string is 3, but it must be less than or equal to 2 characters. Value: Yes | StringLengthExceeded');
+        Probe.Expect('e', 'E: The length of the string is 3, but it must be less than or equal to 2 characters. Value: Yes | StringLengthExceeded');
+        Probe.Expect('f', 'E: The length of the string is 3, but it must be less than or equal to 2 characters. Value: Yes | StringLengthExceeded');
+        Probe.Expect('gr', 'E: The length of the string is 3, but it must be less than or equal to 2 characters. Value: Yes | StringLengthExceeded');
+        Probe.Expect('v', 'E: The length of the string is 3, but it must be less than or equal to 2 characters. Value: Yes | StringLengthExceeded');
+        Probe.Verify();
     end;
 
     [Test]
@@ -234,7 +276,14 @@ codeunit 57982 "SBT Bool Into Text Tests"
         Probe: Codeunit "SBT Probe";
     begin
         Probe.CellsBool(5, true);
-        Probe.Finish();
+        Probe.Expect('a', 'E: The length of the string is 3, but it must be less than or equal to 1 characters. Value: Yes | StringLengthExceeded');
+        Probe.Expect('b', 'E: The length of the string is 3, but it must be less than or equal to 1 characters. Value: Yes | StringLengthExceeded');
+        Probe.Expect('c', 'E: The length of the string is 3, but it must be less than or equal to 1 characters. Value: Yes | StringLengthExceeded');
+        Probe.Expect('e', 'E: The length of the string is 3, but it must be less than or equal to 1 characters. Value: Yes | StringLengthExceeded');
+        Probe.Expect('f', 'E: The length of the string is 3, but it must be less than or equal to 1 characters. Value: Yes | StringLengthExceeded');
+        Probe.Expect('gr', 'E: The length of the string is 3, but it must be less than or equal to 1 characters. Value: Yes | StringLengthExceeded');
+        Probe.Expect('v', 'E: The length of the string is 3, but it must be less than or equal to 1 characters. Value: Yes | StringLengthExceeded');
+        Probe.Verify();
     end;
 
     [Test]
@@ -243,6 +292,13 @@ codeunit 57982 "SBT Bool Into Text Tests"
         Probe: Codeunit "SBT Probe";
     begin
         Probe.CellsBool(6, true);
-        Probe.Finish();
+        Probe.Expect('a', 'E: The length of the string is 3, but it must be less than or equal to 1 characters. Value: Yes | StringLengthExceeded');
+        Probe.Expect('b', 'E: The length of the string is 3, but it must be less than or equal to 1 characters. Value: Yes | StringLengthExceeded');
+        Probe.Expect('c', 'E: The length of the string is 3, but it must be less than or equal to 1 characters. Value: Yes | StringLengthExceeded');
+        Probe.Expect('e', 'E: The length of the string is 3, but it must be less than or equal to 1 characters. Value: Yes | StringLengthExceeded');
+        Probe.Expect('f', 'E: The length of the string is 3, but it must be less than or equal to 1 characters. Value: Yes | StringLengthExceeded');
+        Probe.Expect('gr', 'E: The length of the string is 3, but it must be less than or equal to 1 characters. Value: Yes | StringLengthExceeded');
+        Probe.Expect('v', 'E: The length of the string is 3, but it must be less than or equal to 1 characters. Value: Yes | StringLengthExceeded');
+        Probe.Verify();
     end;
 }
