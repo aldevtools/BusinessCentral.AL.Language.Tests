@@ -8,7 +8,7 @@
 //   The last test lists every row whose Primary CodePage is not a classic OEM page and the row count per Primary CodePage.
 // BC versions: 27, 28, 29
 
-codeunit 74960 "LT Y40 WinLang CodePage"
+codeunit 74945 "LT Y40 WinLang CodePage"
 {
     Subtype = Test;
     TestPermissions = Disabled;
