@@ -14,6 +14,11 @@
 // Measured on BC 27.5, 28.5 and 29.0 (the same on all three): the Insert buffer already holds a SystemRowVersion above 0, and every
 // re-read in every send shape (and with no send) gives that same value: the send does not change it. Copies (:= and Copy) keep it.
 // The record's own Modify gives its buffer a greater value, for an unsent Insert as well as after a Commit.
+// The NoBuffer/Buffer tests (procedure Unbuffered) insert row 1, then row 1 of "RVR Other Row" plus its Modify or a Get, then re-read
+// row 1, then Get the other row (read/other) and insert and Get row 2 (read/later). Measured on BC 27.5, 28.5 and 29.0 (the same on all
+// three): when the test never reads the Insert buffer's SystemRowVersion (NoBuffer, the shape of AL Runner issue 8993), the re-read
+// gives a value above 0 that is greater than the other table's row, inserted after it, and less than row 2. When the test reads the
+// Insert buffer first (Buffer), the re-read gives that buffer value, and it is less than the other table's row and row 2.
 // BC versions: 27+
 
 table 76606 "RVR Row"
@@ -887,7 +892,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Unbuffered(Observer, 'modify', 'recref', false);
-        Observer.Finish();
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/other', 'greater');
+        Observer.Expect('read/later', 'less');
+        Observer.Verify();
     end;
 
     [Test]
@@ -897,7 +905,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Unbuffered(Observer, 'modify', 'get', false);
-        Observer.Finish();
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/other', 'greater');
+        Observer.Expect('read/later', 'less');
+        Observer.Verify();
     end;
 
     [Test]
@@ -907,7 +918,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Unbuffered(Observer, 'modify', 'findfirst', false);
-        Observer.Finish();
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/other', 'greater');
+        Observer.Expect('read/later', 'less');
+        Observer.Verify();
     end;
 
     [Test]
@@ -917,7 +931,12 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Unbuffered(Observer, 'modify', 'recref', true);
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/other', 'less');
+        Observer.Expect('read/later', 'less');
+        Observer.Verify();
     end;
 
     [Test]
@@ -927,7 +946,12 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Unbuffered(Observer, 'get', 'get', true);
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/other', 'less');
+        Observer.Expect('read/later', 'less');
+        Observer.Verify();
     end;
 
     [Test]
@@ -937,7 +961,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Unbuffered(Observer, 'get', 'get', false);
-        Observer.Finish();
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/other', 'greater');
+        Observer.Expect('read/later', 'less');
+        Observer.Verify();
     end;
 
     [Test]
@@ -947,6 +974,9 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Unbuffered(Observer, 'get', 'recref', false);
-        Observer.Finish();
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/other', 'greater');
+        Observer.Expect('read/later', 'less');
+        Observer.Verify();
     end;
 }
