@@ -2,6 +2,17 @@
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160); "CKK Row" (table 86270) of ClearSharedCodeunitGlobalKinds.al; self-contained objects 86310 to 86369
 // Probe: written against BC 27.5, 28.5 and 29.0 (al-runner issue 8964), observed first, then asserted.
+// Facts measured, identical on BC 27.5, 28.5 and 29.0:
+// 1. A SingleInstance codeunit nested in a shared register (depth 1, 2 and 3, also below a non-SingleInstance middle codeunit)
+//    keeps its state when the owner of the register calls ClearAll. The value written before ClearAll is still there after it,
+//    for the caller and for a separate variable of the same SingleInstance codeunit.
+// 2. This holds whether the state was written through the register, through another variable, or not at all.
+// 3. After ClearAll the register's nested SingleInstance codeunit is still the shared instance: a later write through a separate
+//    variable (link.ext) shows in the register (link.reg), also at depth 3 and in the Whse. Jnl.-Register-shaped chain with
+//    two SingleInstance leaves (one shared by two parents).
+// 4. Records, temporary records and Labels held by the SingleInstance codeunit survive too. Locked and Comment Labels read the same.
+// 5. A non-SingleInstance nested codeunit with a temporary record, List, Dictionary and Labels is reset by ClearAll
+//    and is not linked to the separate variable (Kinds cells), as 1587 and 1596 measured.
 // singleinstance-shared-on-purpose: the subject is a SingleInstance codeunit nested in a register that ClearAll resets.
 // BC versions: 27, 28, 29
 codeunit 86310 "CKS Leaf"
@@ -1908,7 +1919,14 @@ codeunit 86369 "CKS Nested SI Test"
         Ext.SetN(5);
         Observer.Observe('link.ext', Ext.State());
         Observer.Observe('link.reg', Reg.State());
-        Observer.Finish();
+        Observer.Expect('owner.after', 'loc=0 jnl= bin=0 reg=0 child=0 entry=0 mov=false');
+        Observer.Expect('owner.entry', '1');
+        Observer.Expect('caller.after', 'loc=0 jnl= bin=0 reg=0 child=0 entry=1 mov=false');
+        Observer.Expect('ext.after', '0');
+        Observer.Expect('caller.next', 'loc=0 jnl= bin=0 reg=0 child=0 entry=2 mov=false');
+        Observer.Expect('link.ext', '5');
+        Observer.Expect('link.reg', 'loc=0 jnl= bin=0 reg=0 child=5 entry=2 mov=false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1932,7 +1950,14 @@ codeunit 86369 "CKS Nested SI Test"
         Ext.SetN(5);
         Observer.Observe('link.ext', Ext.State());
         Observer.Observe('link.reg', Reg.State());
-        Observer.Finish();
+        Observer.Expect('owner.after', 'loc=0 jnl= bin=0 reg=0 child=10 entry=0 mov=false');
+        Observer.Expect('owner.entry', '1');
+        Observer.Expect('caller.after', 'loc=0 jnl= bin=0 reg=0 child=10 entry=1 mov=false');
+        Observer.Expect('ext.after', '10');
+        Observer.Expect('caller.next', 'loc=0 jnl= bin=0 reg=0 child=10 entry=2 mov=false');
+        Observer.Expect('link.ext', '5');
+        Observer.Expect('link.reg', 'loc=0 jnl= bin=0 reg=0 child=5 entry=2 mov=false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1956,7 +1981,14 @@ codeunit 86369 "CKS Nested SI Test"
         Ext.SetN(5);
         Observer.Observe('link.ext', Ext.State());
         Observer.Observe('link.reg', Reg.State());
-        Observer.Finish();
+        Observer.Expect('owner.after', 'loc=0 jnl= bin=0 reg=0 child=77 entry=0 mov=false');
+        Observer.Expect('owner.entry', '1');
+        Observer.Expect('caller.after', 'loc=0 jnl= bin=0 reg=0 child=77 entry=1 mov=false');
+        Observer.Expect('ext.after', '77');
+        Observer.Expect('caller.next', 'loc=0 jnl= bin=0 reg=0 child=77 entry=2 mov=false');
+        Observer.Expect('link.ext', '5');
+        Observer.Expect('link.reg', 'loc=0 jnl= bin=0 reg=0 child=5 entry=2 mov=false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1979,7 +2011,14 @@ codeunit 86369 "CKS Nested SI Test"
         Ext.SetN(5);
         Observer.Observe('link.ext', Ext.State());
         Observer.Observe('link.reg', Reg.State());
-        Observer.Finish();
+        Observer.Expect('owner.after', 'loc=0 jnl= bin=0 reg=0 child=n=0 rows=0 leaf=0 lbl=9 entry=0 mov=false');
+        Observer.Expect('owner.entry', '1');
+        Observer.Expect('caller.after', 'loc=0 jnl= bin=0 reg=0 child=n=0 rows=0 leaf=0 lbl=9 entry=1 mov=false');
+        Observer.Expect('ext.after', 'n=0 rows=0 leaf=0 lbl=9');
+        Observer.Expect('caller.next', 'loc=0 jnl= bin=0 reg=0 child=n=0 rows=0 leaf=0 lbl=9 entry=2 mov=false');
+        Observer.Expect('link.ext', 'n=5 rows=1 leaf=6 lbl=9');
+        Observer.Expect('link.reg', 'loc=0 jnl= bin=0 reg=0 child=n=5 rows=1 leaf=6 lbl=9 entry=2 mov=false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2003,7 +2042,14 @@ codeunit 86369 "CKS Nested SI Test"
         Ext.SetN(5);
         Observer.Observe('link.ext', Ext.State());
         Observer.Observe('link.reg', Reg.State());
-        Observer.Finish();
+        Observer.Expect('owner.after', 'loc=0 jnl= bin=0 reg=0 child=n=10 rows=1 leaf=11 lbl=9 entry=0 mov=false');
+        Observer.Expect('owner.entry', '1');
+        Observer.Expect('caller.after', 'loc=0 jnl= bin=0 reg=0 child=n=10 rows=1 leaf=11 lbl=9 entry=1 mov=false');
+        Observer.Expect('ext.after', 'n=10 rows=1 leaf=11 lbl=9');
+        Observer.Expect('caller.next', 'loc=0 jnl= bin=0 reg=0 child=n=10 rows=1 leaf=11 lbl=9 entry=2 mov=false');
+        Observer.Expect('link.ext', 'n=5 rows=2 leaf=6 lbl=9');
+        Observer.Expect('link.reg', 'loc=0 jnl= bin=0 reg=0 child=n=5 rows=2 leaf=6 lbl=9 entry=2 mov=false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2027,7 +2073,14 @@ codeunit 86369 "CKS Nested SI Test"
         Ext.SetN(5);
         Observer.Observe('link.ext', Ext.State());
         Observer.Observe('link.reg', Reg.State());
-        Observer.Finish();
+        Observer.Expect('owner.after', 'loc=0 jnl= bin=0 reg=0 child=n=77 rows=1 leaf=78 lbl=9 entry=0 mov=false');
+        Observer.Expect('owner.entry', '1');
+        Observer.Expect('caller.after', 'loc=0 jnl= bin=0 reg=0 child=n=77 rows=1 leaf=78 lbl=9 entry=1 mov=false');
+        Observer.Expect('ext.after', 'n=77 rows=1 leaf=78 lbl=9');
+        Observer.Expect('caller.next', 'loc=0 jnl= bin=0 reg=0 child=n=77 rows=1 leaf=78 lbl=9 entry=2 mov=false');
+        Observer.Expect('link.ext', 'n=5 rows=2 leaf=6 lbl=9');
+        Observer.Expect('link.reg', 'loc=0 jnl= bin=0 reg=0 child=n=5 rows=2 leaf=6 lbl=9 entry=2 mov=false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2050,7 +2103,14 @@ codeunit 86369 "CKS Nested SI Test"
         Ext.SetN(5);
         Observer.Observe('link.ext', Ext.State());
         Observer.Observe('link.reg', Reg.State());
-        Observer.Finish();
+        Observer.Expect('owner.after', 'loc=0 jnl= bin=0 reg=0 child=0/n=0 rows=0 leaf=0 lbl=9 entry=0 mov=false');
+        Observer.Expect('owner.entry', '1');
+        Observer.Expect('caller.after', 'loc=0 jnl= bin=0 reg=0 child=0/n=0 rows=0 leaf=0 lbl=9 entry=1 mov=false');
+        Observer.Expect('ext.after', 'n=0 rows=0 leaf=0 lbl=9');
+        Observer.Expect('caller.next', 'loc=0 jnl= bin=0 reg=0 child=0/n=0 rows=0 leaf=0 lbl=9 entry=2 mov=false');
+        Observer.Expect('link.ext', 'n=5 rows=1 leaf=6 lbl=9');
+        Observer.Expect('link.reg', 'loc=0 jnl= bin=0 reg=0 child=0/n=5 rows=1 leaf=6 lbl=9 entry=2 mov=false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2074,7 +2134,14 @@ codeunit 86369 "CKS Nested SI Test"
         Ext.SetN(5);
         Observer.Observe('link.ext', Ext.State());
         Observer.Observe('link.reg', Reg.State());
-        Observer.Finish();
+        Observer.Expect('owner.after', 'loc=0 jnl= bin=0 reg=0 child=0/n=11 rows=1 leaf=12 lbl=9 entry=0 mov=false');
+        Observer.Expect('owner.entry', '1');
+        Observer.Expect('caller.after', 'loc=0 jnl= bin=0 reg=0 child=0/n=11 rows=1 leaf=12 lbl=9 entry=1 mov=false');
+        Observer.Expect('ext.after', 'n=11 rows=1 leaf=12 lbl=9');
+        Observer.Expect('caller.next', 'loc=0 jnl= bin=0 reg=0 child=0/n=11 rows=1 leaf=12 lbl=9 entry=2 mov=false');
+        Observer.Expect('link.ext', 'n=5 rows=2 leaf=6 lbl=9');
+        Observer.Expect('link.reg', 'loc=0 jnl= bin=0 reg=0 child=0/n=5 rows=2 leaf=6 lbl=9 entry=2 mov=false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2098,7 +2165,14 @@ codeunit 86369 "CKS Nested SI Test"
         Ext.SetN(5);
         Observer.Observe('link.ext', Ext.State());
         Observer.Observe('link.reg', Reg.State());
-        Observer.Finish();
+        Observer.Expect('owner.after', 'loc=0 jnl= bin=0 reg=0 child=0/n=77 rows=1 leaf=78 lbl=9 entry=0 mov=false');
+        Observer.Expect('owner.entry', '1');
+        Observer.Expect('caller.after', 'loc=0 jnl= bin=0 reg=0 child=0/n=77 rows=1 leaf=78 lbl=9 entry=1 mov=false');
+        Observer.Expect('ext.after', 'n=77 rows=1 leaf=78 lbl=9');
+        Observer.Expect('caller.next', 'loc=0 jnl= bin=0 reg=0 child=0/n=77 rows=1 leaf=78 lbl=9 entry=2 mov=false');
+        Observer.Expect('link.ext', 'n=5 rows=2 leaf=6 lbl=9');
+        Observer.Expect('link.reg', 'loc=0 jnl= bin=0 reg=0 child=0/n=5 rows=2 leaf=6 lbl=9 entry=2 mov=false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2121,7 +2195,14 @@ codeunit 86369 "CKS Nested SI Test"
         Ext.SetN(5);
         Observer.Observe('link.ext', Ext.State());
         Observer.Observe('link.reg', Reg.State());
-        Observer.Finish();
+        Observer.Expect('owner.after', 'loc=0 jnl= bin=0 reg=0 child=0/0/0 entry=0 mov=false');
+        Observer.Expect('owner.entry', '1');
+        Observer.Expect('caller.after', 'loc=0 jnl= bin=0 reg=0 child=0/0/0 entry=1 mov=false');
+        Observer.Expect('ext.after', '0');
+        Observer.Expect('caller.next', 'loc=0 jnl= bin=0 reg=0 child=0/0/0 entry=2 mov=false');
+        Observer.Expect('link.ext', '5');
+        Observer.Expect('link.reg', 'loc=0 jnl= bin=0 reg=0 child=0/0/5 entry=2 mov=false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2145,7 +2226,14 @@ codeunit 86369 "CKS Nested SI Test"
         Ext.SetN(5);
         Observer.Observe('link.ext', Ext.State());
         Observer.Observe('link.reg', Reg.State());
-        Observer.Finish();
+        Observer.Expect('owner.after', 'loc=0 jnl= bin=0 reg=0 child=0/0/12 entry=0 mov=false');
+        Observer.Expect('owner.entry', '1');
+        Observer.Expect('caller.after', 'loc=0 jnl= bin=0 reg=0 child=0/0/12 entry=1 mov=false');
+        Observer.Expect('ext.after', '12');
+        Observer.Expect('caller.next', 'loc=0 jnl= bin=0 reg=0 child=0/0/12 entry=2 mov=false');
+        Observer.Expect('link.ext', '5');
+        Observer.Expect('link.reg', 'loc=0 jnl= bin=0 reg=0 child=0/0/5 entry=2 mov=false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2168,7 +2256,14 @@ codeunit 86369 "CKS Nested SI Test"
         Ext.SetN(5);
         Observer.Observe('link.ext', Ext.State());
         Observer.Observe('link.reg', Reg.State());
-        Observer.Finish();
+        Observer.Expect('owner.after', 'loc=0 jnl= bin=0 reg=0 trk=[i=0 a=0 b=0 c=0 confirm=0 uom=n=0 rows=0 leaf=0 lbl=9 lbl=5] wms=[next=0 err=0 loc=0 trk=[i=0 a=0 b=0 c=0 confirm=0 uom=n=0 rows=0 leaf=0 lbl=9 lbl=5] uom=n=0 rows=0 leaf=0 lbl=9 lbl=10] entry=0 mov=false');
+        Observer.Expect('owner.entry', '1');
+        Observer.Expect('caller.after', 'loc=0 jnl= bin=0 reg=0 trk=[i=0 a=0 b=0 c=0 confirm=0 uom=n=0 rows=0 leaf=0 lbl=9 lbl=5] wms=[next=0 err=0 loc=0 trk=[i=0 a=0 b=0 c=0 confirm=0 uom=n=0 rows=0 leaf=0 lbl=9 lbl=5] uom=n=0 rows=0 leaf=0 lbl=9 lbl=10] entry=1 mov=false');
+        Observer.Expect('ext.after', 'n=0 rows=0 leaf=0 lbl=9');
+        Observer.Expect('caller.next', 'loc=0 jnl= bin=0 reg=0 trk=[i=0 a=0 b=0 c=0 confirm=0 uom=n=0 rows=0 leaf=0 lbl=9 lbl=5] wms=[next=0 err=0 loc=0 trk=[i=0 a=0 b=0 c=0 confirm=0 uom=n=0 rows=0 leaf=0 lbl=9 lbl=5] uom=n=0 rows=0 leaf=0 lbl=9 lbl=10] entry=2 mov=false');
+        Observer.Expect('link.ext', 'n=5 rows=1 leaf=6 lbl=9');
+        Observer.Expect('link.reg', 'loc=0 jnl= bin=0 reg=0 trk=[i=0 a=0 b=0 c=0 confirm=0 uom=n=5 rows=1 leaf=6 lbl=9 lbl=5] wms=[next=0 err=0 loc=0 trk=[i=0 a=0 b=0 c=0 confirm=0 uom=n=5 rows=1 leaf=6 lbl=9 lbl=5] uom=n=5 rows=1 leaf=6 lbl=9 lbl=10] entry=2 mov=false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2192,7 +2287,14 @@ codeunit 86369 "CKS Nested SI Test"
         Ext.SetN(5);
         Observer.Observe('link.ext', Ext.State());
         Observer.Observe('link.reg', Reg.State());
-        Observer.Finish();
+        Observer.Expect('owner.after', 'loc=0 jnl= bin=0 reg=0 trk=[i=0 a=1 b=0 c=0 confirm=122 uom=n=114 rows=3 leaf=115 lbl=9 lbl=5] wms=[next=0 err=1 loc=0 trk=[i=0 a=1 b=0 c=0 confirm=122 uom=n=114 rows=3 leaf=115 lbl=9 lbl=5] uom=n=114 rows=3 leaf=115 lbl=9 lbl=10] entry=0 mov=false');
+        Observer.Expect('owner.entry', '1');
+        Observer.Expect('caller.after', 'loc=0 jnl= bin=0 reg=0 trk=[i=0 a=1 b=0 c=0 confirm=122 uom=n=114 rows=3 leaf=115 lbl=9 lbl=5] wms=[next=0 err=1 loc=0 trk=[i=0 a=1 b=0 c=0 confirm=122 uom=n=114 rows=3 leaf=115 lbl=9 lbl=5] uom=n=114 rows=3 leaf=115 lbl=9 lbl=10] entry=1 mov=false');
+        Observer.Expect('ext.after', 'n=114 rows=3 leaf=115 lbl=9');
+        Observer.Expect('caller.next', 'loc=0 jnl= bin=0 reg=0 trk=[i=0 a=1 b=0 c=0 confirm=122 uom=n=114 rows=3 leaf=115 lbl=9 lbl=5] wms=[next=0 err=1 loc=0 trk=[i=0 a=1 b=0 c=0 confirm=122 uom=n=114 rows=3 leaf=115 lbl=9 lbl=5] uom=n=114 rows=3 leaf=115 lbl=9 lbl=10] entry=2 mov=false');
+        Observer.Expect('link.ext', 'n=5 rows=4 leaf=6 lbl=9');
+        Observer.Expect('link.reg', 'loc=0 jnl= bin=0 reg=0 trk=[i=0 a=1 b=0 c=0 confirm=122 uom=n=5 rows=4 leaf=6 lbl=9 lbl=5] wms=[next=0 err=1 loc=0 trk=[i=0 a=1 b=0 c=0 confirm=122 uom=n=5 rows=4 leaf=6 lbl=9 lbl=5] uom=n=5 rows=4 leaf=6 lbl=9 lbl=10] entry=2 mov=false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2215,7 +2317,14 @@ codeunit 86369 "CKS Nested SI Test"
         Ext.SetN(5);
         Observer.Observe('link.ext', Ext.State());
         Observer.Observe('link.reg', Reg.State());
-        Observer.Finish();
+        Observer.Expect('owner.after', 'loc=0 jnl= bin=0 reg=0 child=n=%0 rows=%0 names=%0 map=%0 lbl=%10 entry=0 mov=false');
+        Observer.Expect('owner.entry', '1');
+        Observer.Expect('caller.after', 'loc=0 jnl= bin=0 reg=0 child=n=%0 rows=%0 names=%0 map=%0 lbl=%10 entry=1 mov=false');
+        Observer.Expect('ext.after', 'n=%0 rows=%0 names=%0 map=%0 lbl=%10');
+        Observer.Expect('caller.next', 'loc=0 jnl= bin=0 reg=0 child=n=%0 rows=%0 names=%0 map=%0 lbl=%10 entry=2 mov=false');
+        Observer.Expect('link.ext', 'n=%5 rows=%1 names=%1 map=%1 lbl=%10');
+        Observer.Expect('link.reg', 'loc=0 jnl= bin=0 reg=0 child=n=%0 rows=%0 names=%0 map=%0 lbl=%10 entry=2 mov=false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2239,6 +2348,13 @@ codeunit 86369 "CKS Nested SI Test"
         Ext.SetN(5);
         Observer.Observe('link.ext', Ext.State());
         Observer.Observe('link.reg', Reg.State());
-        Observer.Finish();
+        Observer.Expect('owner.after', 'loc=0 jnl= bin=0 reg=0 child=n=%0 rows=%1 names=%0 map=%0 lbl=%10 entry=0 mov=false');
+        Observer.Expect('owner.entry', '1');
+        Observer.Expect('caller.after', 'loc=0 jnl= bin=0 reg=0 child=n=%0 rows=%1 names=%0 map=%0 lbl=%10 entry=1 mov=false');
+        Observer.Expect('ext.after', 'n=%0 rows=%0 names=%0 map=%0 lbl=%10');
+        Observer.Expect('caller.next', 'loc=0 jnl= bin=0 reg=0 child=n=%0 rows=%1 names=%0 map=%0 lbl=%10 entry=2 mov=false');
+        Observer.Expect('link.ext', 'n=%5 rows=%1 names=%1 map=%1 lbl=%10');
+        Observer.Expect('link.reg', 'loc=0 jnl= bin=0 reg=0 child=n=%0 rows=%1 names=%0 map=%0 lbl=%10 entry=2 mov=false');
+        Observer.Verify();
     end;
 }
