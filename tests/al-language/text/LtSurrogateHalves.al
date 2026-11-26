@@ -277,12 +277,12 @@ codeunit 75791 "LT SH Ops"
             168: begin Res := Codes((' ' + Hi + ' ').Trim()); end;
             169: begin Res := Codes(('a' + Hi).TrimEnd(Hi)); end;
             170: begin Res := Codes((Hi + 'a').TrimStart(Hi)); end;
-            171: begin Res := Codes(Hi.Trim(Hi)); end;
+            171: begin Res := Codes(Hi.Trim()); end;
             172: begin Res := Codes(('a' + Hi).Substring(2)); end;
             173: begin Res := Codes(Hi.Substring(1, 1)); end;
             174: begin Res := Codes(Hi.PadLeft(3, 'x')); end;
-            175: begin Res := Codes('a'.PadRight(3, HiCh)); end;
-            176: begin Res := Codes('a'.PadLeft(3, HiCh)); end;
+            175: begin Res := Codes(Hi.PadRight(3, HiCh)); end;
+            176: begin Res := Codes(Hi.PadLeft(3, HiCh)); end;
             177: begin Res := Codes(Hi + 'a'); end;
             178: begin Res := Codes('a' + Hi); end;
             179: begin Res := Codes(Hi + Lo); end;
@@ -310,7 +310,7 @@ codeunit 75791 "LT SH Ops"
             201: begin Bo := Evaluate(C10, Hi); Res := Format(Bo) + '|' + Codes(C10); end;
             202: begin Bo := Evaluate(Bo2, Hi); Res := Format(Bo) + '|' + Format(Bo2); end;
             203: begin Bo := Evaluate(T, Lo); Res := Format(Bo) + '|' + Codes(T); end;
-            204: begin LC.Add(HiCh); Res := Format('a'.IndexOfAny(LC)) + '|' + Format(('a' + Hi + 'b').IndexOfAny(LC)); end;
+            204: begin LC.Add(HiCh); Res := Format(('a' + 'b').IndexOfAny(LC)) + '|' + Format(('a' + Hi + 'b').IndexOfAny(LC)); end;
             205: begin L := Hi.Split(Hi); Res := SplitRes(L); end;
             206: begin L := ('a' + Hi + 'b').Split(Hi); Res := SplitRes(L); end;
             207: begin L := Pair.Split(Hi); Res := SplitRes(L); end;
