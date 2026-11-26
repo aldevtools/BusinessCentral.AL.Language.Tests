@@ -6,13 +6,14 @@
 //   21 Globally Enabled, 22 Form Enabled, 23 Report Enabled, 24 Dataport Enabled, 25 XMLport Enabled, 30 Primary CodePage,
 //   31 STX File Exist, 32 ETX File Exist, 33 Help File Exist, 34 Localization Exist, 35 Language Tag), primary key Language ID.
 //   Each expected row below is "<field values in that order>" joined by '|'.
-// Facts: Windows BC 27.5 and 28.5 containers and a BC 29 SaaS sandbox give the same 248 rows. The one difference: Primary CodePage of
-//   44 rows (Armenian, Georgian, Hindi and other languages with no OEM code page) is '65001' on Windows 27.5/28.5 and '1' on SaaS 29
-//   (Utf8CodePage(); no Windows BC 29 container answered, so the split is by major).
+// Facts: Windows BC 27.5 and 28.5 containers and a BC 29 SaaS sandbox give the same 248 rows. Primary CodePage of the 44 rows with no
+//   OEM code page (Armenian, Georgian, Hindi and others) is '1' (Utf8CodePage()): measured 2026-11-26 on Windows 27.5, 28.5 and 29.0 on
+//   the .NET 10 builds Microsoft republished for BC 27/28 (corpus PR 1607, aldevtools/MsDyn365Bc.On.Linux issue 238). The older
+//   .NET 8 builds of BC 27/28 gave '65001' (measured 2026-10-31); those builds are no longer published.
 // Linux suspect: the Linux CI containers build the table from ICU culture data, not Windows NLS data, and differ from Windows and SaaS
 //   (aldevtools/MsDyn365Bc.On.Linux issue 198 covers the Chinese ids): other culture names (1027 'Catalan (Spain)' for 'Catalan (Catalan)',
 //   2107 'Northern Sami (Sweden)' for 'Sami, Northern (Sweden)'), rows that do not exist there (9225 en-029, 3076 zh-HK, 4100 zh-SG, 5124 zh-MO and
-//   more; 1028 zh-TW on BC 27/28), an extra row 31748 zh-Hant, and Primary CodePage '1' on BC 27/28. The [Test] procedures check the rows on which Linux agrees;
+//   more; 1028 zh-TW on BC 27/28), an extra row 31748 zh-Hant, and (before the .NET 10 builds) Primary CodePage '1' on BC 27/28. The [Test] procedures check the rows on which Linux agrees;
 //   the Suspect_ procedures (no [Test]) hold the Windows/SaaS values of the other rows, the row count and the full walk.
 // Linux CI (rows, rows equal to Windows/SaaS, extra rows): 27.5 (208, 150, 1), 28.5 (208, 150, 1), 29.0 (212, 182, 1).
 // BC versions: 27, 28, 29
@@ -28,11 +29,7 @@ codeunit 92700 "LT Y39 WinLang Table"
 
     local procedure Utf8CodePage(): Text
     begin
-#if BC29PLUS
         exit('1');
-#else
-        exit('65001');
-#endif
     end;
 
     local procedure RowText(var WindowsLanguage: Record "Windows Language"): Text
@@ -358,109 +355,53 @@ codeunit 92700 "LT Y39 WinLang Table"
         Ids.Add(1063);
         Ids.Add(1065);
         Ids.Add(1066);
-#if BC29PLUS
         Ids.Add(1067);
-#endif
         Ids.Add(1068);
         Ids.Add(1070);
         Ids.Add(1071);
         Ids.Add(1078);
-#if BC29PLUS
         Ids.Add(1079);
-#endif
         Ids.Add(1080);
-#if BC29PLUS
         Ids.Add(1081);
-#endif
-#if BC29PLUS
         Ids.Add(1082);
-#endif
         Ids.Add(1086);
-#if BC29PLUS
         Ids.Add(1087);
-#endif
         Ids.Add(1088);
         Ids.Add(1090);
         Ids.Add(1091);
         Ids.Add(1092);
-#if BC29PLUS
         Ids.Add(1094);
-#endif
-#if BC29PLUS
         Ids.Add(1095);
-#endif
-#if BC29PLUS
         Ids.Add(1096);
-#endif
-#if BC29PLUS
         Ids.Add(1097);
-#endif
-#if BC29PLUS
         Ids.Add(1098);
-#endif
-#if BC29PLUS
         Ids.Add(1099);
-#endif
-#if BC29PLUS
         Ids.Add(1100);
-#endif
-#if BC29PLUS
         Ids.Add(1101);
-#endif
-#if BC29PLUS
         Ids.Add(1102);
-#endif
-#if BC29PLUS
         Ids.Add(1103);
-#endif
         Ids.Add(1104);
-#if BC29PLUS
         Ids.Add(1105);
-#endif
         Ids.Add(1106);
-#if BC29PLUS
         Ids.Add(1107);
-#endif
-#if BC29PLUS
         Ids.Add(1108);
-#endif
-#if BC29PLUS
         Ids.Add(1111);
-#endif
-#if BC29PLUS
         Ids.Add(1113);
-#endif
-#if BC29PLUS
         Ids.Add(1114);
-#endif
-#if BC29PLUS
         Ids.Add(1115);
-#endif
-#if BC29PLUS
         Ids.Add(1118);
-#endif
-#if BC29PLUS
         Ids.Add(1121);
-#endif
         Ids.Add(1122);
-#if BC29PLUS
         Ids.Add(1123);
-#endif
         Ids.Add(1124);
         Ids.Add(1130);
         Ids.Add(1134);
         Ids.Add(1135);
         Ids.Add(1136);
-#if BC29PLUS
         Ids.Add(1138);
-#endif
-#if BC29PLUS
         Ids.Add(1139);
-#endif
         Ids.Add(1141);
-#if BC29PLUS
         Ids.Add(1143);
-#endif
         Ids.Add(1150);
         Ids.Add(1152);
         Ids.Add(1154);
@@ -485,18 +426,10 @@ codeunit 92700 "LT Y39 WinLang Table"
         Ids.Add(2108);
         Ids.Add(2110);
         Ids.Add(2115);
-#if BC29PLUS
         Ids.Add(2117);
-#endif
-#if BC29PLUS
         Ids.Add(2121);
-#endif
-#if BC29PLUS
         Ids.Add(2145);
-#endif
-#if BC29PLUS
         Ids.Add(2163);
-#endif
         Ids.Add(3073);
         Ids.Add(3079);
         Ids.Add(3081);
