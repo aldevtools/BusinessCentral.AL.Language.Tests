@@ -9,6 +9,15 @@
 //   Text[4] field with ObsoleteState = Pending, a live Text[4] field. The child table is empty, holds one row whose related field
 //   holds the old key, or one row that holds another value (a removed field cannot hold a value, so its row sets only the other
 //   fields). Record.Rename and RecordRef.Rename. Old key 'AB', new key 'ABCDEFGHIJ' (10 characters).
+// Results (corpus CI, BC 27.5, 28.5 and 29.0 on Linux, identical on all three):
+//   - A related field with ObsoleteState = Removed is not checked: Rename succeeds for a Text[4] field with a 10-character new key
+//     and for an Integer field with a new key that is not a number, with Record.Rename and RecordRef.Rename, with the child table
+//     empty or holding a row. The child row stays as it was.
+//   - A related Text[4] field with ObsoleteState = Pending or live: Rename raises 'The record could not be renamed. A type conversion
+//     error occurred while updating reference field <child table>.<field>. The record has data type Code and the referencing field
+//     has data type Text.' with GetLastErrorCode 'InvalidType:StringLengthExceeded'. Whether any row holds the old key does not
+//     matter: the same error with the child table empty, with a row that holds the old key, another value or a blank value.
+//     RecordRef.Rename raises the same error. The master keeps its old key and the child row stays as it was.
 // BC versions: 27, 28, 29
 
 table 79159 "RSR RemText Master"
@@ -240,7 +249,10 @@ codeunit 79160 "RSR Rename Short Related"
     begin
         Prepare(Database::"RSR RemText Master", Database::"RSR RemText Child", false, false, '');
         RenameAndObserve(Database::"RSR RemText Master", Database::"RSR RemText Child", false, false);
-        Observer.Finish();
+        Observer.Expect('rename', 'no error');
+        Observer.Expect('master rows', '[ABCDEFGHIJ]');
+        Observer.Expect('child rows', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -248,7 +260,10 @@ codeunit 79160 "RSR Rename Short Related"
     begin
         Prepare(Database::"RSR RemText Master", Database::"RSR RemText Child", true, false, '');
         RenameAndObserve(Database::"RSR RemText Master", Database::"RSR RemText Child", false, false);
-        Observer.Finish();
+        Observer.Expect('rename', 'no error');
+        Observer.Expect('master rows', '[ABCDEFGHIJ]');
+        Observer.Expect('child rows', '[1:other]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -256,7 +271,10 @@ codeunit 79160 "RSR Rename Short Related"
     begin
         Prepare(Database::"RSR RemInt Master", Database::"RSR RemInt Child", false, false, '');
         RenameAndObserve(Database::"RSR RemInt Master", Database::"RSR RemInt Child", false, false);
-        Observer.Finish();
+        Observer.Expect('rename', 'no error');
+        Observer.Expect('master rows', '[ABCDEFGHIJ]');
+        Observer.Expect('child rows', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -264,7 +282,10 @@ codeunit 79160 "RSR Rename Short Related"
     begin
         Prepare(Database::"RSR RemInt Master", Database::"RSR RemInt Child", true, false, '');
         RenameAndObserve(Database::"RSR RemInt Master", Database::"RSR RemInt Child", false, false);
-        Observer.Finish();
+        Observer.Expect('rename', 'no error');
+        Observer.Expect('master rows', '[ABCDEFGHIJ]');
+        Observer.Expect('child rows', '[1:other]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -272,7 +293,10 @@ codeunit 79160 "RSR Rename Short Related"
     begin
         Prepare(Database::"RSR RemText Master", Database::"RSR RemText Child", false, false, '');
         RenameAndObserve(Database::"RSR RemText Master", Database::"RSR RemText Child", true, false);
-        Observer.Finish();
+        Observer.Expect('rename', 'no error');
+        Observer.Expect('master rows', '[ABCDEFGHIJ]');
+        Observer.Expect('child rows', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -280,7 +304,10 @@ codeunit 79160 "RSR Rename Short Related"
     begin
         Prepare(Database::"RSR RemText Master", Database::"RSR RemText Child", true, false, '');
         RenameAndObserve(Database::"RSR RemText Master", Database::"RSR RemText Child", true, false);
-        Observer.Finish();
+        Observer.Expect('rename', 'no error');
+        Observer.Expect('master rows', '[ABCDEFGHIJ]');
+        Observer.Expect('child rows', '[1:other]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -288,7 +315,10 @@ codeunit 79160 "RSR Rename Short Related"
     begin
         Prepare(Database::"RSR RemInt Master", Database::"RSR RemInt Child", true, false, '');
         RenameAndObserve(Database::"RSR RemInt Master", Database::"RSR RemInt Child", true, false);
-        Observer.Finish();
+        Observer.Expect('rename', 'no error');
+        Observer.Expect('master rows', '[ABCDEFGHIJ]');
+        Observer.Expect('child rows', '[1:other]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -296,7 +326,12 @@ codeunit 79160 "RSR Rename Short Related"
     begin
         Prepare(Database::"RSR Pend Master", Database::"RSR Pend Child", false, false, '');
         RenameAndObserve(Database::"RSR Pend Master", Database::"RSR Pend Child", false, true);
-        Observer.Finish();
+        Observer.Expect('rename', 'error');
+        Observer.Expect('error|text', 'The record could not be renamed. A type conversion error occurred while updating reference field RSR Pend Child.Ref. The record has data type Code and the referencing field has data type Text.');
+        Observer.Expect('error|code', 'InvalidType:StringLengthExceeded');
+        Observer.Expect('master rows', '[AB]');
+        Observer.Expect('child rows', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -304,7 +339,12 @@ codeunit 79160 "RSR Rename Short Related"
     begin
         Prepare(Database::"RSR Pend Master", Database::"RSR Pend Child", true, true, 'AB');
         RenameAndObserve(Database::"RSR Pend Master", Database::"RSR Pend Child", false, true);
-        Observer.Finish();
+        Observer.Expect('rename', 'error');
+        Observer.Expect('error|text', 'The record could not be renamed. A type conversion error occurred while updating reference field RSR Pend Child.Ref. The record has data type Code and the referencing field has data type Text.');
+        Observer.Expect('error|code', 'InvalidType:StringLengthExceeded');
+        Observer.Expect('master rows', '[AB]');
+        Observer.Expect('child rows', '[1:other:AB]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -312,7 +352,12 @@ codeunit 79160 "RSR Rename Short Related"
     begin
         Prepare(Database::"RSR Pend Master", Database::"RSR Pend Child", true, true, 'ZZ');
         RenameAndObserve(Database::"RSR Pend Master", Database::"RSR Pend Child", false, true);
-        Observer.Finish();
+        Observer.Expect('rename', 'error');
+        Observer.Expect('error|text', 'The record could not be renamed. A type conversion error occurred while updating reference field RSR Pend Child.Ref. The record has data type Code and the referencing field has data type Text.');
+        Observer.Expect('error|code', 'InvalidType:StringLengthExceeded');
+        Observer.Expect('master rows', '[AB]');
+        Observer.Expect('child rows', '[1:other:ZZ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -320,7 +365,12 @@ codeunit 79160 "RSR Rename Short Related"
     begin
         Prepare(Database::"RSR Live Master", Database::"RSR Live Child", false, false, '');
         RenameAndObserve(Database::"RSR Live Master", Database::"RSR Live Child", false, true);
-        Observer.Finish();
+        Observer.Expect('rename', 'error');
+        Observer.Expect('error|text', 'The record could not be renamed. A type conversion error occurred while updating reference field RSR Live Child.Ref. The record has data type Code and the referencing field has data type Text.');
+        Observer.Expect('error|code', 'InvalidType:StringLengthExceeded');
+        Observer.Expect('master rows', '[AB]');
+        Observer.Expect('child rows', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -328,7 +378,12 @@ codeunit 79160 "RSR Rename Short Related"
     begin
         Prepare(Database::"RSR Live Master", Database::"RSR Live Child", true, true, 'AB');
         RenameAndObserve(Database::"RSR Live Master", Database::"RSR Live Child", false, true);
-        Observer.Finish();
+        Observer.Expect('rename', 'error');
+        Observer.Expect('error|text', 'The record could not be renamed. A type conversion error occurred while updating reference field RSR Live Child.Ref. The record has data type Code and the referencing field has data type Text.');
+        Observer.Expect('error|code', 'InvalidType:StringLengthExceeded');
+        Observer.Expect('master rows', '[AB]');
+        Observer.Expect('child rows', '[1:other:AB]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -336,7 +391,12 @@ codeunit 79160 "RSR Rename Short Related"
     begin
         Prepare(Database::"RSR Live Master", Database::"RSR Live Child", true, true, 'ZZ');
         RenameAndObserve(Database::"RSR Live Master", Database::"RSR Live Child", false, true);
-        Observer.Finish();
+        Observer.Expect('rename', 'error');
+        Observer.Expect('error|text', 'The record could not be renamed. A type conversion error occurred while updating reference field RSR Live Child.Ref. The record has data type Code and the referencing field has data type Text.');
+        Observer.Expect('error|code', 'InvalidType:StringLengthExceeded');
+        Observer.Expect('master rows', '[AB]');
+        Observer.Expect('child rows', '[1:other:ZZ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -344,7 +404,12 @@ codeunit 79160 "RSR Rename Short Related"
     begin
         Prepare(Database::"RSR Live Master", Database::"RSR Live Child", true, false, '');
         RenameAndObserve(Database::"RSR Live Master", Database::"RSR Live Child", false, true);
-        Observer.Finish();
+        Observer.Expect('rename', 'error');
+        Observer.Expect('error|text', 'The record could not be renamed. A type conversion error occurred while updating reference field RSR Live Child.Ref. The record has data type Code and the referencing field has data type Text.');
+        Observer.Expect('error|code', 'InvalidType:StringLengthExceeded');
+        Observer.Expect('master rows', '[AB]');
+        Observer.Expect('child rows', '[1:other:]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -352,7 +417,12 @@ codeunit 79160 "RSR Rename Short Related"
     begin
         Prepare(Database::"RSR Live Master", Database::"RSR Live Child", false, false, '');
         RenameAndObserve(Database::"RSR Live Master", Database::"RSR Live Child", true, true);
-        Observer.Finish();
+        Observer.Expect('rename', 'error');
+        Observer.Expect('error|text', 'The record could not be renamed. A type conversion error occurred while updating reference field RSR Live Child.Ref. The record has data type Code and the referencing field has data type Text.');
+        Observer.Expect('error|code', 'InvalidType:StringLengthExceeded');
+        Observer.Expect('master rows', '[AB]');
+        Observer.Expect('child rows', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -360,6 +430,11 @@ codeunit 79160 "RSR Rename Short Related"
     begin
         Prepare(Database::"RSR Live Master", Database::"RSR Live Child", true, true, 'AB');
         RenameAndObserve(Database::"RSR Live Master", Database::"RSR Live Child", true, true);
-        Observer.Finish();
+        Observer.Expect('rename', 'error');
+        Observer.Expect('error|text', 'The record could not be renamed. A type conversion error occurred while updating reference field RSR Live Child.Ref. The record has data type Code and the referencing field has data type Text.');
+        Observer.Expect('error|code', 'InvalidType:StringLengthExceeded');
+        Observer.Expect('master rows', '[AB]');
+        Observer.Expect('child rows', '[1:other:AB]');
+        Observer.Verify();
     end;
 }
