@@ -2,8 +2,15 @@
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160); own objects 78765..78772 (BVE Row, BVE Log, BVE Describe, BVE Publisher,
 //   BVE Subscriber, BVE Subscriber A, BVE Subscriber B, BVE Event View Tests)
-// OBSERVE FORM
-// BC versions: 27.5, 28.5, 29.0
+// What this probe measures: a record passed by value to an event (integration event, codeunit and table publisher, one to three
+//   parameters, two subscribers, a Variant that holds a record). In each case the subscriber sees a fresh view on the copy:
+//   key Id, ascending, no filters in groups 0, 2 and 4, no marks, no mark-only mode. The caller keeps its own filters, sort
+//   order, ascending flag and marks after the event returns. The copy still carries the current row and the row count.
+//   Each case runs with a fresh record and after Find, FindSet/Next, FindLast, FindMinus, Get, SetAscending(false) or marking.
+// Measured on: BC 27.5, 28.5, 29.0 (same result on all three, no version guard needed).
+// Not measured: filter groups 1 and -1 in the event cells, a caller standing in filter group 2, SetLoadFields before the event,
+//   a temporary record, a manually bound subscriber, report or page publishers, a record passed as var to an event.
+//   GetAscending on a non-key field is not part of this probe: BC raises an error for it ("not part of the current sorting").
 
 table 78765 "BVE Row"
 {
@@ -303,7 +310,10 @@ codeunit 78772 "BVE Event View Tests"
         Publisher.RaiseTwo(Row, Note);
         Observer.Observe('subscriber', Log.Take('two'));
         ObserveCaller(Observer, Row, Note);
-        Observer.Finish();
+        Observer.Expect('subscriber', 'row=0//Open/0 grp=0 f0={} f2={} f4={} key=Id asc=Yes view=VERSION(1) SORTING(Id) n=4 mark=No mo=No marked=0 next=1:1 find==Yes:1');
+        Observer.Expect('note', 'x+two');
+        Observer.Expect('caller after', 'row=0 grp=0 view=VERSION(1) SORTING(Id) WHERE(Status=FILTER(Open)) mark=No mo=No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -325,7 +335,10 @@ codeunit 78772 "BVE Event View Tests"
         Publisher.RaiseTwo(Row, Note);
         Observer.Observe('subscriber', Log.Take('two'));
         ObserveCaller(Observer, Row, Note);
-        Observer.Finish();
+        Observer.Expect('subscriber', 'row=3/A-NAME/Open/10 grp=0 f0={} f2={} f4={} key=Id asc=Yes view=VERSION(1) SORTING(Id) n=4 mark=No mo=No marked=0 next=1:4 find==Yes:4');
+        Observer.Expect('note', 'x+two');
+        Observer.Expect('caller after', 'row=3 grp=0 view=VERSION(1) SORTING(Name) ORDER(Descending) mark=No mo=No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -343,7 +356,10 @@ codeunit 78772 "BVE Event View Tests"
         Publisher.RaiseThree(Row, Note);
         Observer.Observe('subscriber', Log.Take('three'));
         ObserveCaller(Observer, Row, Note);
-        Observer.Finish();
+        Observer.Expect('subscriber', 'row=0//Open/0 grp=0 f0={} f2={} f4={} key=Id asc=Yes view=VERSION(1) SORTING(Id) n=4 mark=No mo=No marked=0 next=1:1 find==Yes:1');
+        Observer.Expect('note', 'x+three7');
+        Observer.Expect('caller after', 'row=0 grp=0 view=VERSION(1) SORTING(Id) mark=No mo=No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -366,7 +382,10 @@ codeunit 78772 "BVE Event View Tests"
         Publisher.RaiseThree(Row, Note);
         Observer.Observe('subscriber', Log.Take('three'));
         ObserveCaller(Observer, Row, Note);
-        Observer.Finish();
+        Observer.Expect('subscriber', 'row=2/B-NAME/Posted/20 grp=0 f0={} f2={} f4={} key=Id asc=Yes view=VERSION(1) SORTING(Id) n=4 mark=No mo=No marked=0 next=1:3 find==Yes:3');
+        Observer.Expect('note', 'x+three7');
+        Observer.Expect('caller after', 'row=2 grp=0 view=VERSION(1) SORTING(Id) mark=Yes mo=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -384,7 +403,10 @@ codeunit 78772 "BVE Event View Tests"
         Publisher.RaiseThree(Row, Note);
         Observer.Observe('subscriber', Log.Take('three'));
         ObserveCaller(Observer, Row, Note);
-        Observer.Finish();
+        Observer.Expect('subscriber', 'row=4/D-NAME/Posted/40 grp=0 f0={} f2={} f4={} key=Id asc=Yes view=VERSION(1) SORTING(Id) n=4 mark=No mo=No marked=0 next=0:4 find==Yes:4');
+        Observer.Expect('note', 'x+three7');
+        Observer.Expect('caller after', 'row=4 grp=0 view=VERSION(1) SORTING(Id) ORDER(Descending) WHERE(Name=FILTER(<>B*)) mark=No mo=No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -408,7 +430,11 @@ codeunit 78772 "BVE Event View Tests"
         Observer.Observe('subscriber A', Log.Take('A'));
         Observer.Observe('subscriber B', Log.Take('B'));
         ObserveCaller(Observer, Row, Note);
-        Observer.Finish();
+        Observer.Expect('subscriber A', 'row=3/A-NAME/Open/10 grp=0 f0={} f2={} f4={} key=Id asc=Yes view=VERSION(1) SORTING(Id) n=4 mark=No mo=No marked=0 next=1:4 find==Yes:4');
+        Observer.Expect('subscriber B', 'row=3/A-NAME/Open/10 grp=0 f0={} f2={} f4={} key=Id asc=Yes view=VERSION(1) SORTING(Id) n=4 mark=No mo=No marked=0 next=1:4 find==Yes:4');
+        Observer.Expect('note', 'x+A+B');
+        Observer.Expect('caller after', 'row=3 grp=0 view=VERSION(1) SORTING(Name) ORDER(Descending) WHERE(Status=FILTER(Open)) mark=Yes mo=No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -424,7 +450,10 @@ codeunit 78772 "BVE Event View Tests"
         Row.RaiseFromTable(Note);
         Observer.Observe('subscriber', Log.Take('table'));
         ObserveCaller(Observer, Row, Note);
-        Observer.Finish();
+        Observer.Expect('subscriber', 'row=0//Open/0 grp=0 f0={} f2={} f4={} key=Id asc=Yes view=VERSION(1) SORTING(Id) n=4 mark=No mo=No marked=0 next=1:1 find==Yes:1');
+        Observer.Expect('note', 'x+table');
+        Observer.Expect('caller after', 'row=0 grp=0 view=VERSION(1) SORTING(Id) WHERE(Status=FILTER(Open)) mark=No mo=No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -445,7 +474,10 @@ codeunit 78772 "BVE Event View Tests"
         Row.RaiseFromTable(Note);
         Observer.Observe('subscriber', Log.Take('table'));
         ObserveCaller(Observer, Row, Note);
-        Observer.Finish();
+        Observer.Expect('subscriber', 'row=2/B-NAME/Posted/20 grp=0 f0={} f2={} f4={} key=Id asc=Yes view=VERSION(1) SORTING(Id) n=4 mark=No mo=No marked=0 next=1:3 find==Yes:3');
+        Observer.Expect('note', 'x+table');
+        Observer.Expect('caller after', 'row=2 grp=0 view=VERSION(1) SORTING(Name) ORDER(Descending) mark=No mo=No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -467,7 +499,10 @@ codeunit 78772 "BVE Event View Tests"
         Publisher.RaiseTwoFromValue(Row, Note);
         Observer.Observe('subscriber', Log.Take('two'));
         ObserveCaller(Observer, Row, Note);
-        Observer.Finish();
+        Observer.Expect('subscriber', 'row=4/D-NAME/Posted/40 grp=0 f0={} f2={} f4={} key=Id asc=Yes view=VERSION(1) SORTING(Id) n=4 mark=No mo=No marked=0 next=0:4 find==Yes:4');
+        Observer.Expect('note', 'x+two');
+        Observer.Expect('caller after', 'row=4 grp=0 view=VERSION(1) SORTING(Name) ORDER(Descending) mark=Yes mo=No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -483,7 +518,10 @@ codeunit 78772 "BVE Event View Tests"
         Publisher.RaiseTwoFromValue(Row, Note);
         Observer.Observe('subscriber', Log.Take('two'));
         ObserveCaller(Observer, Row, Note);
-        Observer.Finish();
+        Observer.Expect('subscriber', 'row=0//Open/0 grp=0 f0={} f2={} f4={} key=Id asc=Yes view=VERSION(1) SORTING(Id) n=4 mark=No mo=No marked=0 next=1:1 find==Yes:1');
+        Observer.Expect('note', 'x+two');
+        Observer.Expect('caller after', 'row=0 grp=0 view=VERSION(1) SORTING(Id) WHERE(Status=FILTER(Posted)) mark=No mo=No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -504,7 +542,11 @@ codeunit 78772 "BVE Event View Tests"
         Observer.Observe('subscriber', Log.Take('variant'));
         Observer.Observe('subscriber after', Log.Take('variant after'));
         ObserveCaller(Observer, Row, Note);
-        Observer.Finish();
+        Observer.Expect('subscriber', 'isrec=Yes id=1 name=C-NAME grp=0 f={} fr3={} f2={} key=1 asc=Yes view=VERSION(1) SORTING(Id) n=4 next=1:2');
+        Observer.Expect('subscriber after', 'row=1 f={}');
+        Observer.Expect('note', 'x+variant');
+        Observer.Expect('caller after', 'row=1 grp=0 view=VERSION(1) SORTING(Id) WHERE(Status=FILTER(Open)) mark=No mo=No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -521,6 +563,10 @@ codeunit 78772 "BVE Event View Tests"
         Observer.Observe('subscriber', Log.Take('variant'));
         Observer.Observe('subscriber after', Log.Take('variant after'));
         ObserveCaller(Observer, Row, Note);
-        Observer.Finish();
+        Observer.Expect('subscriber', 'isrec=Yes id=0 name= grp=0 f={} fr3={} f2={} key=1 asc=Yes view=VERSION(1) SORTING(Id) n=4 next=1:1');
+        Observer.Expect('subscriber after', 'row=0 f={}');
+        Observer.Expect('note', 'x+variant');
+        Observer.Expect('caller after', 'row=0 grp=0 view=VERSION(1) SORTING(Id) WHERE(Status=FILTER(Open)) mark=No mo=No');
+        Observer.Verify();
     end;
 }
