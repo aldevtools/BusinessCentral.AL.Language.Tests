@@ -76,6 +76,7 @@ codeunit 98084 "LT US App Logo Jpeg Sizes"
         App: Record "Published Application";
         TenantMedia: Record "Tenant Media";
         TempBlob: Codeunit "Temp Blob";
+        GuidedExperience: Codeunit "Guided Experience";
         Item: RecordRef;
         IconField: FieldRef;
         InS: InStream;
@@ -83,6 +84,9 @@ codeunit 98084 "LT US App Logo Jpeg Sizes"
         IconId: Guid;
     begin
         Evaluate(Id, AppIdText);
+        // SetupForExtensionExists raises OnRegisterAssistedSetup (the test session's login does not), so the app's subscriber
+        // calls InsertAssistedSetup, which reads the app logo (GetExtensionLogo) and imports it as the item's Icon.
+        Observer.Observe('setup for extension exists (page setups only)', Format(GuidedExperience.SetupForExtensionExists(Id)));
         Item.Open(1990); // Guided Experience Item (System Application, Access = Internal)
         Item.Field(10).SetRange(Id); // Extension ID
         Observer.Observe('items of the app', Format(Item.Count()));
