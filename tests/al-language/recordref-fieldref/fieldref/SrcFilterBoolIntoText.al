@@ -194,7 +194,7 @@ codeunit 57981 "SBT Probe"
     end;
 
     [TryFunction]
-    local procedure TryLiteral(var R: Record "SBT Row"; var F: FieldRef; Route: Text; X: Boolean)
+    local procedure TryLiteral(var F: FieldRef; Route: Text; X: Boolean)
     begin
         // Literal Boolean constants, not a variable.
         case Route of
@@ -208,38 +208,28 @@ codeunit 57981 "SBT Probe"
                     F.SetFilter('%1', true)
                 else
                     F.SetFilter('%1', false);
-            'lr':
-                if X then
-                    R.SetFilter(Cod, '%1', true)
-                else
-                    R.SetFilter(Cod, '%1', false);
         end;
     end;
 
     local procedure CellLiteral(Route: Text; X: Boolean)
     var
-        R: Record "SBT Row";
         RecRef: RecordRef;
         F: FieldRef;
         Ok: Boolean;
     begin
         RecRef.Open(Database::"SBT Row");
         F := RecRef.Field(2);
-        Ok := TryLiteral(R, F, Route, X);
-        if Route = 'lr' then
-            Outcome(Route, Ok, R.GetFilter(Cod))
-        else
-            Outcome(Route, Ok, Result(F, Route, Ok));
+        Ok := TryLiteral(F, Route, X);
+        Outcome(Route, Ok, Result(F, Route, Ok));
         RecRef.Close();
     end;
 
-    // Literal false or true into Code[20] (field 2): la FieldRef.SetRange(<literal>); le FieldRef.SetFilter('%1', <literal>);
-    // lr Record.SetFilter(Cod, '%1', <literal>).
+    // Literal false or true into Code[20] (field 2): la FieldRef.SetRange(<literal>); le FieldRef.SetFilter('%1', <literal>).
+    // Record.SetFilter(Cod, '%1', <literal>) does not compile (AL0193), so it has no route here.
     procedure CellsLiteral(X: Boolean)
     begin
         CellLiteral('la', X);
         CellLiteral('le', X);
-        CellLiteral('lr', X);
     end;
 
     // All routes for one Boolean value on one field, in the order a, b, c, e, f, gr, v.
