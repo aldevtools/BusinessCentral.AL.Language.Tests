@@ -178,6 +178,49 @@ codeunit 76608 "RVR Steps"
         exit(Rd.SystemRowVersion);
     end;
 
+    // The shapes of AL Runner issue 8993 without a read of the Insert buffer (ReadBuffer = false) and with it. Send 'modify' is another
+    // table's Insert + Modify, 'get' another table's Insert + Get (a read, no write after the Insert). The re-read value is compared with
+    // the other table's row (read by a Get after the re-read) and with a second row of "RVR Row" inserted after the re-read.
+    procedure Unbuffered(var Observer: Codeunit "Probe Observer"; Send: Text; Read: Text; ReadBuffer: Boolean)
+    var
+        Row: Record "RVR Row";
+        Later: Record "RVR Row";
+        Other: Record "RVR Other Row";
+        Other2: Record "RVR Other Row";
+        Before: BigInteger;
+        Value: BigInteger;
+    begin
+        Clean();
+        Row.Id := 1;
+        Row.Insert();
+        if ReadBuffer then
+            Before := Row.SystemRowVersion;
+        Other.Id := 1;
+        Other.Insert();
+        case Send of
+            'modify':
+                begin
+                    Other.Name := 'changed';
+                    Other.Modify();
+                end;
+            'get':
+                Other.Get(1);
+        end;
+        Value := ReRead(Read);
+        Other2.Get(1);
+        Later.Id := 2;
+        Later.Insert();
+        Later.Get(2);
+        if ReadBuffer then begin
+            Observer.Observe('before/0', Rel(Before, 0));
+            Observer.Observe('read/before', Rel(Value, Before));
+        end;
+        Observer.Observe('read/0', Rel(Value, 0));
+        Observer.Observe('read/other', Rel(Value, Other2.SystemRowVersion));
+        Observer.Observe('read/later', Rel(Value, Later.SystemRowVersion));
+        Clean();
+    end;
+
     procedure Own(var Observer: Codeunit "Probe Observer"; Shape: Text)
     var
         Row: Record "RVR Row";
@@ -835,5 +878,75 @@ codeunit 76609 "RVR ReRead Shapes"
         Observer.Expect('read/0', 'greater');
         Observer.Expect('read/before', 'greater');
         Observer.Verify();
+    end;
+
+    [Test]
+    procedure NoBuffer_OtherInsertModify_RecRefFindFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+        Steps: Codeunit "RVR Steps";
+    begin
+        Steps.Unbuffered(Observer, 'modify', 'recref', false);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NoBuffer_OtherInsertModify_Get()
+    var
+        Observer: Codeunit "Probe Observer";
+        Steps: Codeunit "RVR Steps";
+    begin
+        Steps.Unbuffered(Observer, 'modify', 'get', false);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NoBuffer_OtherInsertModify_FindFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+        Steps: Codeunit "RVR Steps";
+    begin
+        Steps.Unbuffered(Observer, 'modify', 'findfirst', false);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Buffer_OtherInsertModify_RecRefFindFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+        Steps: Codeunit "RVR Steps";
+    begin
+        Steps.Unbuffered(Observer, 'modify', 'recref', true);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Buffer_OtherInsertGet_Get()
+    var
+        Observer: Codeunit "Probe Observer";
+        Steps: Codeunit "RVR Steps";
+    begin
+        Steps.Unbuffered(Observer, 'get', 'get', true);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NoBuffer_OtherInsertGet_Get()
+    var
+        Observer: Codeunit "Probe Observer";
+        Steps: Codeunit "RVR Steps";
+    begin
+        Steps.Unbuffered(Observer, 'get', 'get', false);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NoBuffer_OtherInsertGet_RecRefFindFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+        Steps: Codeunit "RVR Steps";
+    begin
+        Steps.Unbuffered(Observer, 'get', 'recref', false);
+        Observer.Finish();
     end;
 }
