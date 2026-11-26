@@ -826,7 +826,18 @@ codeunit 75155 "LT OBC Evaluate More"
     begin
         // OptionMembers = One,Two; OptionCaption = 'One,Two'
         ObserveOrdinals(Observer, 2);
-        Observer.Finish();
+        Observer.Expect('2', 'ok|2');
+        Observer.Expect('3', 'ok|3');
+        Observer.Expect('99', 'ok|99');
+        Observer.Expect('-1', 'rejected|0');
+        Observer.Expect('-1 from 1', 'rejected|1');
+        Observer.Expect('+2', 'ok|2');
+        Observer.Expect('2147483647', 'ok|2147483647');
+        Observer.Expect('2147483648', 'rejected|0');
+        Observer.Expect('statement 99', 'no error|99');
+        Observer.Expect('statement -1|text', '''-1'' is not an option. The existing options are: One,Two');
+        Observer.Expect('statement -1|code', 'InvalidOptionString');
+        Observer.Verify();
     end;
 
     [Test]
@@ -836,7 +847,18 @@ codeunit 75155 "LT OBC Evaluate More"
     begin
         // OptionMembers = A,B; OptionCaption = 'A,B'
         ObserveOrdinals(Observer, 3);
-        Observer.Finish();
+        Observer.Expect('2', 'ok|2');
+        Observer.Expect('3', 'ok|3');
+        Observer.Expect('99', 'ok|99');
+        Observer.Expect('-1', 'rejected|0');
+        Observer.Expect('-1 from 1', 'rejected|1');
+        Observer.Expect('+2', 'ok|2');
+        Observer.Expect('2147483647', 'ok|2147483647');
+        Observer.Expect('2147483648', 'rejected|0');
+        Observer.Expect('statement 99', 'no error|99');
+        Observer.Expect('statement -1|text', '''-1'' is not an option. The existing options are: A,B');
+        Observer.Expect('statement -1|code', 'InvalidOptionString');
+        Observer.Verify();
     end;
 
     [Test]
@@ -846,7 +868,18 @@ codeunit 75155 "LT OBC Evaluate More"
     begin
         // OptionMembers = Alpha,Beta,Gamma; OptionCaption = 'Alpha,Beta,Gamma'
         ObserveOrdinals(Observer, 4);
-        Observer.Finish();
+        Observer.Expect('2', 'ok|2');
+        Observer.Expect('3', 'ok|3');
+        Observer.Expect('99', 'ok|99');
+        Observer.Expect('-1', 'rejected|0');
+        Observer.Expect('-1 from 1', 'rejected|1');
+        Observer.Expect('+2', 'ok|2');
+        Observer.Expect('2147483647', 'ok|2147483647');
+        Observer.Expect('2147483648', 'rejected|0');
+        Observer.Expect('statement 99', 'no error|99');
+        Observer.Expect('statement -1|text', '''-1'' is not an option. The existing options are: Alpha,Beta,Gamma');
+        Observer.Expect('statement -1|code', 'InvalidOptionString');
+        Observer.Verify();
     end;
 
     [Test]
@@ -856,7 +889,13 @@ codeunit 75155 "LT OBC Evaluate More"
     begin
         // OptionMembers = None,"",B; OptionCaption = ',Blank1,B cap'
         ObserveBlanks(Observer, 5, 2);
-        Observer.Finish();
+        Observer.Expect('empty', 'rejected|2');
+        Observer.Expect('space', 'rejected|2');
+        Observer.Expect('two spaces', 'rejected|2');
+        Observer.Expect('tab', 'rejected|2');
+        Observer.Expect('statement empty|text', ''''' is not an option. The existing options are: None,Blank1,B cap');
+        Observer.Expect('statement empty|code', 'InvalidOptionString');
+        Observer.Verify();
     end;
 
     [Test]
@@ -866,7 +905,13 @@ codeunit 75155 "LT OBC Evaluate More"
     begin
         // OptionMembers = "",None,B; OptionCaption = ',,B cap'
         ObserveBlanks(Observer, 6, 2);
-        Observer.Finish();
+        Observer.Expect('empty', 'rejected|2');
+        Observer.Expect('space', 'rejected|2');
+        Observer.Expect('two spaces', 'rejected|2');
+        Observer.Expect('tab', 'rejected|2');
+        Observer.Expect('statement empty|text', ''''' is not an option. The existing options are: ,None,B cap');
+        Observer.Expect('statement empty|code', 'InvalidOptionString');
+        Observer.Verify();
     end;
 
     [Test]
@@ -880,7 +925,17 @@ codeunit 75155 "LT OBC Evaluate More"
         ObserveStatement(Observer, 'FirstEmpty xyz', 9, 2, 'xyz');
         ObserveStatement(Observer, 'Reporter xyz', 10, 0, 'xyz');
         ObserveStatement(Observer, 'MixEmptyNone xyz', 6, 2, 'xyz');
-        Observer.Finish();
+        Observer.Expect('NamedEmptyCap xyz|text', '''xyz'' is not an option. The existing options are: None,A cap,B cap');
+        Observer.Expect('NamedEmptyCap xyz|code', 'InvalidOptionString');
+        Observer.Expect('NamedSpaceCapMid xyz|text', '''xyz'' is not an option. The existing options are: A cap, ,B cap');
+        Observer.Expect('NamedSpaceCapMid xyz|code', 'InvalidOptionString');
+        Observer.Expect('FirstEmpty xyz|text', '''xyz'' is not an option. The existing options are: ,A cap,B cap');
+        Observer.Expect('FirstEmpty xyz|code', 'InvalidOptionString');
+        Observer.Expect('Reporter xyz|text', '''xyz'' is not an option. The existing options are: First one,Second one,Third one,,,Skip it');
+        Observer.Expect('Reporter xyz|code', 'InvalidOptionString');
+        Observer.Expect('MixEmptyNone xyz|text', '''xyz'' is not an option. The existing options are: ,None,B cap');
+        Observer.Expect('MixEmptyNone xyz|code', 'InvalidOptionString');
+        Observer.Verify();
     end;
 
     [Test]
@@ -890,7 +945,13 @@ codeunit 75155 "LT OBC Evaluate More"
     begin
         // OptionMembers = First,Second,Third,,,Skip; OptionCaptionML = ENU = 'First one,Second one,Third one,,,Skip it'
         ObserveBlanks(Observer, 11, 0);
-        Observer.Finish();
+        Observer.Expect('empty', 'rejected|0');
+        Observer.Expect('space', 'rejected|0');
+        Observer.Expect('two spaces', 'rejected|0');
+        Observer.Expect('tab', 'rejected|0');
+        Observer.Expect('statement empty|text', ''''' is not an option. The existing options are: First one,Second one,Third one,,,Skip it');
+        Observer.Expect('statement empty|code', 'InvalidOptionString');
+        Observer.Verify();
     end;
 
     local procedure ViaFieldRef(Word: Text): Text
@@ -921,7 +982,11 @@ codeunit 75155 "LT OBC Evaluate More"
         Observer.Observe('space', ViaFieldRef(' '));
         Observer.Observe('two spaces', ViaFieldRef('  '));
         Observer.Observe('tab', ViaFieldRef(Tab()));
-        Observer.Finish();
+        Observer.Expect('empty', 'rejected|0');
+        Observer.Expect('space', 'rejected|0');
+        Observer.Expect('two spaces', 'rejected|0');
+        Observer.Expect('tab', 'rejected|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -931,7 +996,12 @@ codeunit 75155 "LT OBC Evaluate More"
     begin
         // An Enum field of "LT OBC Enum Space Mid", from Beta
         ObserveBlanks(Observer, 12, 2);
-        Observer.Finish();
+        Observer.Expect('empty', 'ok|1');
+        Observer.Expect('space', 'ok|1');
+        Observer.Expect('two spaces', 'ok|1');
+        Observer.Expect('tab', 'ok|1');
+        Observer.Expect('statement empty', 'no error|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -941,6 +1011,11 @@ codeunit 75155 "LT OBC Evaluate More"
     begin
         // An Enum field of "LT OBC Enum Two Blank", from Beta
         ObserveBlanks(Observer, 13, 3);
-        Observer.Finish();
+        Observer.Expect('empty', 'ok|1');
+        Observer.Expect('space', 'ok|1');
+        Observer.Expect('two spaces', 'ok|1');
+        Observer.Expect('tab', 'ok|1');
+        Observer.Expect('statement empty', 'no error|1');
+        Observer.Verify();
     end;
 }
