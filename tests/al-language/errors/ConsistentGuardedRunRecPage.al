@@ -2,8 +2,8 @@
 //   https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/codeunit/codeunit-run-method
 //   https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/record/record-filtergroup-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own objects 99525-99534 (GRP X, GRP Y, GRP Z, GRP Mode, GRP Steps, GRP Inner X,
-//   GRP Inner Z, GRP List X, GRP List Z, GRP Tests)
+// Fixtures used: Probe Observer (codeunit 69160); own objects 99525-99537 (GRP X, GRP Y, GRP Z, GRP Mode, GRP Steps, GRP Inner X,
+//   GRP Inner Z, GRP List X, GRP List Z, GRP Tests, GRP Kind, GRP Page X, GRP Page Z)
 // Probe: from al-runner issue 8970, page-style filters. Same shape as ConsistentGuardedRunRecFiltered.al (inner codeunit marks tables
 //   with Consistent(false), then ends or fails), but the record argument of Codeunit.Run(Id, Rec) carries the filters a page puts on
 //   its record: a filter in FilterGroup 2 (and 1, 4, 6), a range on a FlowFilter field, and a key filter, together or alone.
@@ -29,6 +29,18 @@
 //   - A group-1 filter on the record passed to Codeunit.Run stays on a fresh variable of that table in the same test (cell
 //     RecZ_G1_Fails, expectation 'fresh record'); Reset on the fresh variable did not clear it. Initialize therefore clears the filter
 //     groups 0..6 of the fixture records before every cell, so the cells do not depend on each other.
+// Cells added for al-runner issue 8970 (the mark orders and filter mixes of the Microsoft preview and SCM tests that still refuse):
+//   - Mark orders: MarkedAgain = startx,fya,fyc,err (GRP X held, GRP Y marked again by another variable); ReleasedThenHeld =
+//     startx,txb,fya,err (GRP X released by another variable, then GRP Y marked); AgainThenHeld = fxa,txb,fxc,fya,err (GRP X marked
+//     again by another variable after a release, then GRP Y marked). Every one of them ends with Error('inner failed').
+//   - Filter shapes: PageMix (group 2 SetRange on the enum field Kind, group 0 SetRange("Date Filter", 0D, WorkDate())); PageMixKey
+//     (the same and SetFilter(Id, '1')); Three (three group 0 SetRange filters on Name, Doc Type, Amount); Key (SetRange(Id, 1)).
+//   - EnumViewDateFilter: page GRP Page X / Z with SourceTableView Kind = Order and OnOpenPage SetRange("Date Filter", 0D,
+//     WorkDate()); the test opens it, goes to the row 'caller' with GoToRecord and invokes the action that runs the codeunit.
+//   What BC did (identical on 27.5, 28.5 and 29.0, for GRP Z and GRP X as the argument): the run returns false with the inner
+//   error (code Dialog), the argument keeps its filters, the later Commit is not blocked (the marks are gone), and all committed
+//   rows are durable (the row the inner codeunit inserted is rolled back). The page cell sees the view in group 2 and the Date
+//   Filter range in group 0. The WorkDate of the containers differs (10/01/26 on 29.0, 11/01/26 on 27.5 and 28.5).
 // The values are what BC produced.
 // local object: the tests must commit (a guarded Codeunit.Run commits), and the inner codeunit is the code under test.
 // BC versions: 27.5, 28.5, 29.0
@@ -2544,40 +2556,13 @@ codeunit 99534 "GRP Tests"
     //   MarkedAgain = startx,fya,fyc,err (GRP X held, GRP Y marked again by another variable, then the run fails);
     //   ReleasedThenHeld = startx,txb,fya,err (GRP X released by another variable, GRP Y held);
     //   AgainThenHeld = fxa,txb,fxc,fya,err (GRP X marked again by another variable after a release, GRP Y held).
-    local procedure ObsText(): Text
-    begin
-        exit(GetLastErrorCode() + '|' + ShortText(GetLastErrorText()));
-    end;
-
-    local procedure ShortText(T: Text): Text
-    begin
-        if T.StartsWith('The transaction cannot be completed because it will cause inconsistencies in the ') then
-            exit('INC:' + CopyStr(T, 82, 10));
-        exit(T);
-    end;
-
-    local procedure ObsRec(Kind: Text; Shape: Text; Steps: Text)
-    var
-        R: Text;
-    begin
-        Initialize(Steps);
-        asserterror RunThenEnd(Kind, Shape);
-        R := 'end=' + ObsText();
-        R += ' log=' + ShortText(Mode.GetLog());
-        asserterror CommitThenEnd();
-        R += ' commit=' + ObsText();
-        R += ' rows=' + DurableRows();
-        R += ' fresh=' + FreshState();
-        Error('OBS ' + R);
-    end;
-
-    local procedure ObsPage(Kind: Text; Steps: Text)
+    //   The Date Filter range ends on WorkDate(), which differs between containers: the expected log takes Format(WorkDate()).
+    local procedure EnumPageCell(var Observer: Codeunit "Probe Observer"; Kind: Text; Steps: Text)
     var
         X: Record "GRP X";
         Z: Record "GRP Z";
         TPX: TestPage "GRP Page X";
         TPZ: TestPage "GRP Page Z";
-        R: Text;
     begin
         Initialize(Steps);
         if Kind = 'x' then begin
@@ -2585,106 +2570,244 @@ codeunit 99534 "GRP Tests"
             TPX.OpenView();
             TPX.GoToRecord(X);
             asserterror TPX.RunInner.Invoke();
-            R := 'end=' + ObsText();
+            Observer.ObserveError('run end');
             TPX.Close();
         end else begin
             Z.Get(1);
             TPZ.OpenView();
             TPZ.GoToRecord(Z);
             asserterror TPZ.RunInner.Invoke();
-            R := 'end=' + ObsText();
+            Observer.ObserveError('run end');
             TPZ.Close();
         end;
-        R += ' log=' + ShortText(Mode.GetLog());
+        Observer.Observe('log', Mode.GetLog());
         asserterror CommitThenEnd();
-        R += ' commit=' + ObsText();
-        R += ' rows=' + DurableRows();
-        R += ' fresh=' + FreshState();
-        Error('OBS ' + R);
+        Observer.ObserveError('commit');
+        Observer.Observe('durable rows', DurableRows());
+        Observer.Observe('fresh record', FreshState());
     end;
 
     [Test]
     procedure RecZ_PageMix_MarkedAgain()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ObsRec('z', 'PageMix', 'startx,fya,fyc,err');
+        RecCell(Observer, 'z', 'PageMix', 'startx,fya,fyc,err');
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure RecZ_PageMixKey_MarkedAgain()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ObsRec('z', 'PageMixKey', 'startx,fya,fyc,err');
+        RecCell(Observer, 'z', 'PageMixKey', 'startx,fya,fyc,err');
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Id: 1, Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Id: 1, Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure PageZ_EnumViewDateFilter_MarkedAgain()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ObsPage('z', 'startx,fya,fyc,err');
+        EnumPageCell(Observer, 'z', 'startx,fya,fyc,err');
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'TestWrapped:Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure RecZ_Three_ReleasedThenHeld()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ObsRec('z', 'Three', 'startx,txb,fya,err');
+        RecCell(Observer, 'z', 'Three', 'startx,txb,fya,err');
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Name: caller, Doc Type: 1, Amount: 5] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Name: caller, Doc Type: 1, Amount: 5] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure RecZ_Three_AgainThenHeld()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ObsRec('z', 'Three', 'fxa,txb,fxc,fya,err');
+        RecCell(Observer, 'z', 'Three', 'fxa,txb,fxc,fya,err');
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Name: caller, Doc Type: 1, Amount: 5] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Name: caller, Doc Type: 1, Amount: 5] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure RecZ_Key_ReleasedThenHeld()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ObsRec('z', 'Key', 'startx,txb,fya,err');
+        RecCell(Observer, 'z', 'Key', 'startx,txb,fya,err');
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Id: 1] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Id: 1] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure RecZ_Key_AgainThenHeld()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ObsRec('z', 'Key', 'fxa,txb,fxc,fya,err');
+        RecCell(Observer, 'z', 'Key', 'fxa,txb,fxc,fya,err');
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Id: 1] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Id: 1] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure RecX_PageMix_MarkedAgain()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ObsRec('x', 'PageMix', 'startx,fya,fyc,err');
+        RecCell(Observer, 'x', 'PageMix', 'startx,fya,fyc,err');
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure RecX_PageMixKey_MarkedAgain()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ObsRec('x', 'PageMixKey', 'startx,fya,fyc,err');
+        RecCell(Observer, 'x', 'PageMixKey', 'startx,fya,fyc,err');
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Id: 1, Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Id: 1, Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure PageX_EnumViewDateFilter_MarkedAgain()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ObsPage('x', 'startx,fya,fyc,err');
+        EnumPageCell(Observer, 'x', 'startx,fya,fyc,err');
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'TestWrapped:Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure RecX_Three_ReleasedThenHeld()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ObsRec('x', 'Three', 'startx,txb,fya,err');
+        RecCell(Observer, 'x', 'Three', 'startx,txb,fya,err');
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Name: caller, Doc Type: 1, Amount: 5] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Name: caller, Doc Type: 1, Amount: 5] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure RecX_Three_AgainThenHeld()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ObsRec('x', 'Three', 'fxa,txb,fxc,fya,err');
+        RecCell(Observer, 'x', 'Three', 'fxa,txb,fxc,fya,err');
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Name: caller, Doc Type: 1, Amount: 5] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Name: caller, Doc Type: 1, Amount: 5] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure RecX_Key_ReleasedThenHeld()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ObsRec('x', 'Key', 'startx,txb,fya,err');
+        RecCell(Observer, 'x', 'Key', 'startx,txb,fya,err');
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Id: 1] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Id: 1] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure RecX_Key_AgainThenHeld()
+    var
+        Observer: Codeunit "Probe Observer";
     begin
-        ObsRec('x', 'Key', 'fxa,txb,fxc,fya,err');
+        RecCell(Observer, 'x', 'Key', 'fxa,txb,fxc,fya,err');
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Id: 1] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Id: 1] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
-
 }
