@@ -44,28 +44,36 @@ codeunit 98084 "LT US App Logo Jpeg Sizes"
         exit(LowerCase(Crypto.GenerateHash(InS, 2)));
     end;
 
-    local procedure FirstDifference(var A: Codeunit "Temp Blob"; var B: Codeunit "Temp Blob"): Text
+    // Lists the 1-based positions where A and B differ as position:byte of A/byte of B (at most 12), then the count.
+    local procedure Differences(var A: Codeunit "Temp Blob"; var B: Codeunit "Temp Blob"): Text
     var
         InA: InStream;
         InB: InStream;
         ByteA: Byte;
         ByteB: Byte;
+        IntA: Integer;
+        IntB: Integer;
         Position: Integer;
+        Count: Integer;
+        Result: Text;
     begin
+        if A.Length() <> B.Length() then
+            exit(StrSubstNo('lengths %1 vs %2', A.Length(), B.Length()));
         A.CreateInStream(InA);
         B.CreateInStream(InB);
         while not InA.EOS() do begin
             Position += 1;
             InA.Read(ByteA);
-            if InB.EOS() then
-                exit(StrSubstNo('at %1: %2 vs end', Position, ByteA));
             InB.Read(ByteB);
-            if ByteA <> ByteB then
-                exit(StrSubstNo('at %1: %2 vs %3', Position, ByteA, ByteB));
+            if ByteA <> ByteB then begin
+                Count += 1;
+                IntA := ByteA;
+                IntB := ByteB;
+                if Count <= 12 then
+                    Result += StrSubstNo('%1:%2/%3 ', Position, IntA, IntB);
+            end;
         end;
-        if not InB.EOS() then
-            exit(StrSubstNo('at %1: end vs more', Position + 1));
-        exit('none');
+        exit(Result + StrSubstNo('count %1', Count));
     end;
 
     local procedure ObserveLogo(var Observer: Codeunit "Probe Observer"; AppIdText: Text; Sha: Text)
@@ -146,7 +154,7 @@ codeunit 98084 "LT US App Logo Jpeg Sizes"
             CopyToBlob(LogoInS, LogoBlob);
         end;
         Observer.Observe('logo media equals file', Format(Sha256Of(LogoBlob) = Sha));
-        Observer.Observe('icon vs logo media, first different byte', FirstDifference(TempBlob, LogoBlob));
+        Observer.Observe('icon vs logo media, differing bytes', Differences(TempBlob, LogoBlob));
         Item.Close();
     end;
 
