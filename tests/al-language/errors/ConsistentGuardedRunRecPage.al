@@ -21,6 +21,14 @@
 //   Each cell reads: the run's error, the log of the caller (inner codeunit's view of the argument: FilterGroup, GetFilters of group
 //   0, 1, 2, 4, 6, filtered count; return value; last error text and code; the argument's Name; the same view of the argument after
 //   the run), the error of a later Commit, and the rows that are durable. Every cell starts with two committed rows per table.
+// What BC did (identical on 27.5, 28.5 and 29.0):
+//   - Page cells: the inner codeunit sees the page view as a filter in FilterGroup 2 (Doc Type: 1), the TestPage Id and Date Filter
+//     filters in group 0, and FilterGroup 0 current. Ends: the Codeunit.Run call raises the inconsistency error (TestWrapped:CSide);
+//     Fails and PlainCommit: the run ends with the guarded error (TestWrapped:Dialog), the later Commit is not blocked, and all
+//     rows of GRP X, GRP Y and GRP Z are durable.
+//   - A group-1 filter on the record passed to Codeunit.Run stays on a fresh variable of that table in the same test (cell
+//     RecZ_G1_Fails, expectation 'fresh record'); Reset on the fresh variable did not clear it. Initialize therefore clears the filter
+//     groups 0..6 of the fixture records before every cell, so the cells do not depend on each other.
 // The values are what BC produced.
 // local object: the tests must commit (a guarded Codeunit.Run commits), and the inner codeunit is the code under test.
 // BC versions: 27.5, 28.5, 29.0
@@ -662,7 +670,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'NoFilter', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=2;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -671,7 +686,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'NoFilter', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -680,7 +702,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'NoFilter', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=2;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -689,7 +718,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'G2', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -698,7 +734,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'G2', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -707,7 +750,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'G2', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -716,7 +766,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'G2Left', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=2 g0=[] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=2 g0=[] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -725,7 +782,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'G2Left', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=2 g0=[] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -734,7 +798,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'G2Left', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=2 g0=[] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=2 g0=[] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -743,7 +814,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'G1', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[Doc Type: 1] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[] g1=[Doc Type: 1] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;]');
+        Observer.Expect('fresh record', 'x count=2 z count=1 z fg=0 g0=[] g1=[Doc Type: 1] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -752,7 +830,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'G1', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[Doc Type: 1] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;]');
+        Observer.Expect('fresh record', 'x count=2 z count=1 z fg=0 g0=[] g1=[Doc Type: 1] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -761,7 +846,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'G1', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[Doc Type: 1] g2=[] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[] g1=[Doc Type: 1] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;]');
+        Observer.Expect('fresh record', 'x count=2 z count=1 z fg=0 g0=[] g1=[Doc Type: 1] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -770,7 +862,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'G4', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[Doc Type: 1] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[] g1=[] g2=[] g4=[Doc Type: 1] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -779,7 +878,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'G4', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[Doc Type: 1] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -788,7 +894,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'G4', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[Doc Type: 1] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[] g1=[] g2=[] g4=[Doc Type: 1] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -797,7 +910,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'G6', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[] g6=[Doc Type: 1] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[] g1=[] g2=[] g4=[] g6=[Doc Type: 1] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -806,7 +926,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'G6', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[] g6=[Doc Type: 1] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -815,7 +942,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'G6', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[] g6=[Doc Type: 1] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[] g1=[] g2=[] g4=[] g6=[Doc Type: 1] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -824,7 +958,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'FlowRange', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: 01/01/25..12/31/25] g1=[] g2=[] g4=[] g6=[] count=2;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Date Filter: 01/01/25..12/31/25] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -833,7 +974,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'FlowRange', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: 01/01/25..12/31/25] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -842,7 +990,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'FlowRange', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: 01/01/25..12/31/25] g1=[] g2=[] g4=[] g6=[] count=2;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[Date Filter: 01/01/25..12/31/25] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -851,7 +1006,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'FlowFilterPat', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ..12/31/25] g1=[] g2=[] g4=[] g6=[] count=2;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Date Filter: ..12/31/25] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -860,7 +1022,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'FlowFilterPat', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ..12/31/25] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -869,7 +1038,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'FlowFilterPat', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ..12/31/25] g1=[] g2=[] g4=[] g6=[] count=2;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[Date Filter: ..12/31/25] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -878,7 +1054,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'NormalRange', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Amount: 0..10] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Amount: 0..10] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -887,7 +1070,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'NormalRange', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[Amount: 0..10] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -896,7 +1086,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'NormalRange', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Amount: 0..10] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[Amount: 0..10] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -905,7 +1102,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'G2Key', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Id: 1] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Id: 1] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -914,7 +1118,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'G2Key', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[Id: 1] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -923,7 +1134,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'G2Key', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Id: 1] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[Id: 1] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -932,7 +1150,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'G2FlowKey', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Id: 1, Date Filter: 01/01/25..12/31/25] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Id: 1, Date Filter: 01/01/25..12/31/25] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -941,7 +1166,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'G2FlowKey', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[Id: 1, Date Filter: 01/01/25..12/31/25] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -950,7 +1182,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'G2FlowKey', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Id: 1, Date Filter: 01/01/25..12/31/25] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[Id: 1, Date Filter: 01/01/25..12/31/25] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -959,7 +1198,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'Pipe', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Name: caller|zzz] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Name: caller|zzz] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -968,7 +1214,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'Pipe', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[Name: caller|zzz] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -977,7 +1230,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'Pipe', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Name: caller|zzz] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[Name: caller|zzz] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -986,7 +1246,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'NotEqual', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Name: <>other] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Name: <>other] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -995,7 +1262,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'NotEqual', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[Name: <>other] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1004,7 +1278,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'NotEqual', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Name: <>other] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[Name: <>other] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1013,7 +1294,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'G2NotEqual', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[Doc Type: <>2] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[] g1=[] g2=[Doc Type: <>2] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1022,7 +1310,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'G2NotEqual', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[Doc Type: <>2] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1031,7 +1326,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'G2NotEqual', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[Doc Type: <>2] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[] g1=[] g2=[Doc Type: <>2] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1040,7 +1342,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'NoFilter', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=2;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1049,7 +1358,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'NoFilter', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1058,7 +1374,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'NoFilter', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=2;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1067,7 +1390,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'G2', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1076,7 +1406,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'G2', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1085,7 +1422,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'G2', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1094,7 +1438,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'G2Left', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=2 g0=[] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=2 g0=[] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1103,7 +1454,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'G2Left', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=2 g0=[] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1112,7 +1470,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'G2Left', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=2 g0=[] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=2 g0=[] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1121,7 +1486,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'G1', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[Doc Type: 1] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[] g1=[Doc Type: 1] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=1 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1130,7 +1502,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'G1', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[Doc Type: 1] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=1 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1139,7 +1518,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'G1', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[Doc Type: 1] g2=[] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[] g1=[Doc Type: 1] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=1 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1148,7 +1534,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'G4', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[Doc Type: 1] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[] g1=[] g2=[] g4=[Doc Type: 1] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1157,7 +1550,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'G4', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[Doc Type: 1] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1166,7 +1566,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'G4', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[Doc Type: 1] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[] g1=[] g2=[] g4=[Doc Type: 1] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1175,7 +1582,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'G6', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[] g6=[Doc Type: 1] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[] g1=[] g2=[] g4=[] g6=[Doc Type: 1] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1184,7 +1598,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'G6', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[] g6=[Doc Type: 1] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1193,7 +1614,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'G6', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[] g6=[Doc Type: 1] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[] g1=[] g2=[] g4=[] g6=[Doc Type: 1] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1202,7 +1630,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'FlowRange', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: 01/01/25..12/31/25] g1=[] g2=[] g4=[] g6=[] count=2;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Date Filter: 01/01/25..12/31/25] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1211,7 +1646,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'FlowRange', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: 01/01/25..12/31/25] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1220,7 +1662,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'FlowRange', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: 01/01/25..12/31/25] g1=[] g2=[] g4=[] g6=[] count=2;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[Date Filter: 01/01/25..12/31/25] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1229,7 +1678,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'FlowFilterPat', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ..12/31/25] g1=[] g2=[] g4=[] g6=[] count=2;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Date Filter: ..12/31/25] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1238,7 +1694,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'FlowFilterPat', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ..12/31/25] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1247,7 +1710,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'FlowFilterPat', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ..12/31/25] g1=[] g2=[] g4=[] g6=[] count=2;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[Date Filter: ..12/31/25] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1256,7 +1726,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'NormalRange', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Amount: 0..10] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Amount: 0..10] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1265,7 +1742,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'NormalRange', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[Amount: 0..10] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1274,7 +1758,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'NormalRange', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Amount: 0..10] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[Amount: 0..10] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1283,7 +1774,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'G2Key', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Id: 1] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Id: 1] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1292,7 +1790,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'G2Key', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[Id: 1] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1301,7 +1806,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'G2Key', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Id: 1] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[Id: 1] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1310,7 +1822,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'G2FlowKey', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Id: 1, Date Filter: 01/01/25..12/31/25] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Id: 1, Date Filter: 01/01/25..12/31/25] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1319,7 +1838,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'G2FlowKey', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[Id: 1, Date Filter: 01/01/25..12/31/25] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1328,7 +1854,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'G2FlowKey', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Id: 1, Date Filter: 01/01/25..12/31/25] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[Id: 1, Date Filter: 01/01/25..12/31/25] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1337,7 +1870,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'Pipe', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Name: caller|zzz] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Name: caller|zzz] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1346,7 +1886,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'Pipe', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[Name: caller|zzz] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1355,7 +1902,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'Pipe', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Name: caller|zzz] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[Name: caller|zzz] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1364,7 +1918,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'NotEqual', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Name: <>other] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Name: <>other] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1373,7 +1934,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'NotEqual', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[Name: <>other] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1382,7 +1950,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'NotEqual', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Name: <>other] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[Name: <>other] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1391,7 +1966,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'G2NotEqual', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[Doc Type: <>2] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[] g1=[] g2=[Doc Type: <>2] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1400,7 +1982,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'G2NotEqual', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[Doc Type: <>2] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1409,7 +1998,14 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'G2NotEqual', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[Doc Type: <>2] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[] g1=[] g2=[Doc Type: <>2] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Expect('fresh record', 'x count=2 z count=2 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1418,7 +2014,13 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         PageCell(Observer, 'z', 'View', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'TestWrapped:Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1427,7 +2029,13 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         PageCell(Observer, 'z', 'View', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'TestWrapped:CSide');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1436,7 +2044,13 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         PageCell(Observer, 'z', 'View', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'TestWrapped:Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1445,7 +2059,13 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         PageCell(Observer, 'z', 'ViewId', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'TestWrapped:Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Id: 1] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Id: 1] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1454,7 +2074,13 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         PageCell(Observer, 'z', 'ViewId', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'TestWrapped:CSide');
+        Observer.Expect('log', 'inner fg=0 g0=[Id: 1] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1463,7 +2089,13 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         PageCell(Observer, 'z', 'ViewId', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'TestWrapped:Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Id: 1] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[Id: 1] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1472,7 +2104,13 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         PageCell(Observer, 'z', 'ViewFlow', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'TestWrapped:Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ..12/31/25] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Date Filter: ..12/31/25] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1481,7 +2119,13 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         PageCell(Observer, 'z', 'ViewFlow', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'TestWrapped:CSide');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ..12/31/25] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1490,7 +2134,13 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         PageCell(Observer, 'z', 'ViewFlow', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'TestWrapped:Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ..12/31/25] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[Date Filter: ..12/31/25] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1499,7 +2149,13 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         PageCell(Observer, 'z', 'ViewIdFlow', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'TestWrapped:Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Id: 1, Date Filter: ..12/31/25] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Id: 1, Date Filter: ..12/31/25] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1508,7 +2164,13 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         PageCell(Observer, 'z', 'ViewIdFlow', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'TestWrapped:CSide');
+        Observer.Expect('log', 'inner fg=0 g0=[Id: 1, Date Filter: ..12/31/25] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1517,7 +2179,13 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         PageCell(Observer, 'z', 'ViewIdFlow', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'TestWrapped:Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Id: 1, Date Filter: ..12/31/25] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[Id: 1, Date Filter: ..12/31/25] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1526,7 +2194,13 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         PageCell(Observer, 'x', 'View', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'TestWrapped:Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1535,7 +2209,13 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         PageCell(Observer, 'x', 'View', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'TestWrapped:CSide');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1544,7 +2224,13 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         PageCell(Observer, 'x', 'View', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'TestWrapped:Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1553,7 +2239,13 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         PageCell(Observer, 'x', 'ViewId', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'TestWrapped:Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Id: 1] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Id: 1] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1562,7 +2254,13 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         PageCell(Observer, 'x', 'ViewId', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'TestWrapped:CSide');
+        Observer.Expect('log', 'inner fg=0 g0=[Id: 1] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1571,7 +2269,13 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         PageCell(Observer, 'x', 'ViewId', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'TestWrapped:Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Id: 1] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[Id: 1] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1580,7 +2284,13 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         PageCell(Observer, 'x', 'ViewFlow', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'TestWrapped:Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ..12/31/25] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Date Filter: ..12/31/25] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1589,7 +2299,13 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         PageCell(Observer, 'x', 'ViewFlow', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'TestWrapped:CSide');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ..12/31/25] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1598,7 +2314,13 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         PageCell(Observer, 'x', 'ViewFlow', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'TestWrapped:Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ..12/31/25] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[Date Filter: ..12/31/25] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1607,7 +2329,13 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         PageCell(Observer, 'x', 'ViewIdFlow', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'TestWrapped:Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Id: 1, Date Filter: ..12/31/25] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Id: 1, Date Filter: ..12/31/25] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1616,7 +2344,13 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         PageCell(Observer, 'x', 'ViewIdFlow', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'TestWrapped:CSide');
+        Observer.Expect('log', 'inner fg=0 g0=[Id: 1, Date Filter: ..12/31/25] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1625,6 +2359,12 @@ codeunit 99534 "GRP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         PageCell(Observer, 'x', 'ViewIdFlow', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'TestWrapped:Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Id: 1, Date Filter: ..12/31/25] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRP X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[Id: 1, Date Filter: ..12/31/25] g1=[] g2=[Doc Type: 1] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
+        Observer.Verify();
     end;
 }
