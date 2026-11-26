@@ -12,10 +12,11 @@
 //   XApp A cells: XApp A's Subtype = Install codeunit (tests/al-language-xapp-a/IcXaInstallCanCreateTask.al) reads the same facts in
 //   OnInstallAppPerCompany (session company, other company) and OnInstallAppPerDatabase, then runs
 //   `if CanCreateTask then CreateTask("LT IC XA Seen", 0) else Codeunit.Run("LT IC XA Seen")`. The test reads which branch ran, whether the task
-//   still exists (TaskExists, Scheduled Task rows), and the rows the codeunit wrote (task session or install session), when the test starts and
-//   again after a pause of up to 60 seconds.
-// Measured on: BC 27.5, 28.5 and 29.0 in corpus CI (fresh install of every app). The three subscriber tests gave the same values on all three.
-//   In the install session CanCreateTask answers Yes in all four subscribers, in XApp A's subscribers, and in both install triggers; in the
+//   still exists (TaskExists, Scheduled Task rows), and the rows the codeunit wrote (task session or install session), when the test starts.
+//   A first run waited up to 60 seconds: the tasks still had not run, on all three versions. The final test does not wait (60 s per version).
+// Measured on: BC 27.5, 28.5 and 29.0 in corpus CI (fresh install of every app). All tests gave the same values on all three.
+//   In the install session CanCreateTask answers Yes in all four subscribers, in XApp A's subscribers, and in both install triggers, and CreateTask there
+//   returns a non-blank task id (per database and per company, in both companies); all 3 tasks exist (TaskExists = Yes) and none has run when the test starts; in the
 //   test session it answers Yes in the subscribers and No in the test procedure.
 // Not measured: upgrade sessions (CI installs fresh; the fixtures write rows for Upgrade too).
 // BC versions: 27 - 29
@@ -89,37 +90,14 @@ codeunit 75993 "LT IC Install CCT Tests"
         exit(Result);
     end;
 
-    local procedure CreateTaskCount(): Integer
-    var
-        XaLog: Record "LT IC XA Log";
-    begin
-        XaLog.SetRange(Branch, 'CreateTask');
-        exit(XaLog.Count());
-    end;
-
-    local procedure RanCount(): Integer
-    var
-        XaLog: Record "LT IC XA Log";
-    begin
-        SelectLatestVersion();
-        XaLog.SetRange(Kind, 'codeunit ran');
-        exit(XaLog.Count());
-    end;
-
     [Test]
-    procedure XAppAInstall_CreateTask_OrCodeunitRun_TaskRuns()
+    procedure XAppAInstall_CreateTask_TasksExistAndHaveNotRun()
     var
         Observer: Codeunit "Probe Observer";
-        Waited: Integer;
     begin
         Observer.Observe('when the test starts', TaskState());
-        while (RanCount() < CreateTaskCount()) and (Waited < 60) do begin
-            Sleep(1000);
-            Waited += 1;
-        end;
-        Observer.Observe('all tasks ran within 60 seconds', Format(RanCount() >= CreateTaskCount()));
-        Observer.Observe('after the pause', TaskState());
-        Observer.Finish();
+        Observer.Expect('when the test starts', 'install per company session company: TaskExists=Yes;install per company other company: TaskExists=Yes;install per database blank: TaskExists=Yes;Scheduled Task rows=3;codeunit ran rows=0;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -142,7 +120,13 @@ codeunit 75993 "LT IC Install CCT Tests"
             until XaLog.Next() = 0;
         Observer.Observe('all install rows in one session', Format(OneSession));
         Observer.Observe('test session is the install session', Format(SessionId() = InstallId));
-        Observer.Finish();
+        Observer.Expect('install per database row', 'Yes');
+        Observer.Expect('install per company session company', 'ctx=Install,mod=Install,mode=Standard,cct=Yes|CreateTask|task id blank=No');
+        Observer.Expect('install per company other company', 'ctx=Install,mod=Install,mode=Standard,cct=Yes|CreateTask|task id blank=No');
+        Observer.Expect('install per database blank', 'ctx=Install,mod=Install,mode=Standard,cct=Yes|CreateTask|task id blank=No');
+        Observer.Expect('all install rows in one session', 'Yes');
+        Observer.Expect('test session is the install session', 'No');
+        Observer.Verify();
     end;
 
     [Test]
