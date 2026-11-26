@@ -5,7 +5,12 @@
 // "Whse. Jnl.-Register Line" (al-runner issues 9194 and 9176), observed first, then asserted.
 // singleinstance-shared-on-purpose: the subject is a SingleInstance codeunit held below a register that ClearAll resets.
 // BC versions: 27, 28, 29
-// What BC did: OBSERVE
+// What BC did (same on 27.5, 28.5 and 29.0): ClearAll in the owner resets every non-SingleInstance codeunit it reaches through
+// the shared register, at depth 1, 2 and 3: integers, Booleans, Text, Code, Decimal, Date, BigInteger, Option, Char and record
+// filters go to their defaults, and the caller's own variable of the register sees the reset. Labels (with Comment, plain,
+// Locked) keep their text. A SingleInstance codeunit at depth 2 or 3, and the SingleInstance codeunit it holds, keep their
+// state, and a plain codeunit held by such a SingleInstance codeunit keeps its state too. Writes to the SingleInstance
+// codeunit after ClearAll, direct or through the register, are seen through the register and the owner.
 codeunit 86720 "CSW Impl"
 {
     SingleInstance = true;
@@ -367,7 +372,14 @@ codeunit 86734 "CSW Test"
         Observer.Observe('after.confirm', Confirm.State());
         Observer.Observe('after.impl', Impl.State());
         Observer.Observe('after.mid', Mid.State());
-        Observer.Finish();
+        Observer.Expect('before.r', 'reg[1000,Yes,1000,Qty 1 short,Serial 2 found]mid[1100,1100]confirm[1110]impl[Yes,1111]');
+        Observer.Expect('before.owner', 'owner[7]reg[1000,Yes,1000,Qty 1 short,Serial 2 found]mid[1100,1100]confirm[1110]impl[Yes,1111]');
+        Observer.Expect('after.r', 'reg[0,No,,Qty 1 short,Serial 2 found]mid[0,]confirm[1110]impl[Yes,1111]');
+        Observer.Expect('after.owner', 'owner[0]reg[0,No,,Qty 1 short,Serial 2 found]mid[0,]confirm[1110]impl[Yes,1111]');
+        Observer.Expect('after.confirm', 'confirm[1110]impl[Yes,1111]');
+        Observer.Expect('after.impl', 'impl[Yes,1111]');
+        Observer.Expect('after.mid', 'mid[0,]confirm[1110]impl[Yes,1111]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -388,7 +400,12 @@ codeunit 86734 "CSW Test"
         Observer.Observe('direct.r', R.State());
         R.Prime(2600);
         Observer.Observe('reprime.owner', Owner.State());
-        Observer.Finish();
+        Observer.Expect('before.r', 'reg[2000,Yes,2000,Qty 1 short,Serial 2 found]mid[2100,2100]confirm[2110]impl[Yes,2111]');
+        Observer.Expect('after.r', 'reg[0,No,,Qty 1 short,Serial 2 found]mid[0,]confirm[2110]impl[Yes,2111]');
+        Observer.Expect('after.owner', 'owner[0]reg[0,No,,Qty 1 short,Serial 2 found]mid[0,]confirm[2110]impl[Yes,2111]');
+        Observer.Expect('direct.r', 'reg[0,No,,Qty 1 short,Serial 2 found]mid[0,]confirm[2500]impl[Yes,2501]');
+        Observer.Expect('reprime.owner', 'owner[0]reg[2600,Yes,2600,Qty 1 short,Serial 2 found]mid[2700,2700]confirm[2710]impl[Yes,2711]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -405,7 +422,9 @@ codeunit 86734 "CSW Test"
         Owner.DoClearAll();
         Observer.Observe('after.r', R.State());
         Observer.Observe('after.impl', Impl.State());
-        Observer.Finish();
+        Observer.Expect('after.r', 'reg[0,No,,Qty 1 short,Serial 2 found]mid[0,]confirm[3110]impl[Yes,3333]');
+        Observer.Expect('after.impl', 'impl[Yes,3333]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -422,7 +441,10 @@ codeunit 86734 "CSW Test"
         Owner.DoClearAll();
         Observer.Observe('after.r', R.State());
         Observer.Observe('after.si', Si.State());
-        Observer.Finish();
+        Observer.Expect('before.r', 'kreg[40,t40,u40,C40,40.5,2020-02-01,40000,C,A,Yes,comment 1,plain 2,locked]ksi[41]');
+        Observer.Expect('after.r', 'kreg[0,,,,0,,0,A,\u0000,No,comment 1,plain 2,locked]ksi[41]');
+        Observer.Expect('after.si', 'ksi[41]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -443,6 +465,11 @@ codeunit 86734 "CSW Test"
         Observer.Observe('after.d3', D3.State());
         D2.Prime(5500);
         Observer.Observe('direct.r', R.State());
-        Observer.Finish();
+        Observer.Expect('before.r', 'dreg[5000]d1[5100]d2si[5110]d3[5111,5111,deep 3]d2p[5120]d3[5121,5121,deep 3]');
+        Observer.Expect('after.r', 'dreg[0]d1[0]d2si[5110]d3[5111,5111,deep 3]d2p[0]d3[0,,deep 3]');
+        Observer.Expect('after.d2si', 'd2si[5110]d3[5111,5111,deep 3]');
+        Observer.Expect('after.d3', 'd3[0,,deep 3]');
+        Observer.Expect('direct.r', 'dreg[0]d1[0]d2si[5500]d3[5501,5501,deep 3]d2p[0]d3[0,,deep 3]');
+        Observer.Verify();
     end;
 }
