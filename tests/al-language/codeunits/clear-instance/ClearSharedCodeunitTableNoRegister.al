@@ -2,7 +2,13 @@
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160); "CKK Row" (table 86270) of ClearSharedCodeunitGlobalKinds.al; self-contained objects 86293 to 86312
 // Probe: written against BC 27.5, 28.5 and 29.0 (al-runner issue 8964), observed first, then asserted.
-// Facts: OBSERVING
+// Facts: a codeunit that holds a register codeunit through a setter (the register is also a variable of the caller) and
+// runs ClearAll resets that shared instance for every register shape measured: with a TableNo or without, primed, only
+// read, never called, or run before the share, with nested codeunits 2, 3 and 4 levels below it, and with a cycle
+// (the register holds a codeunit that holds the register back). The owner and the caller see the same reset instance:
+// records, counters, flags and nested codeunits are at their defaults, the first entry registered afterwards is 1.
+// A Label (also with Comment) keeps its text. Cycle, primed: the nested codeunit's own Integer is reset, and the caller
+// still reads the register's entry counter through the nested codeunit's back link (the back link is kept). No difference between BC 27.5, 28.5 and 29.0.
 // BC versions: 27, 28, 29
 
 codeunit 86293 "CKT Leaf"
@@ -650,7 +656,12 @@ codeunit 86307 "CKT Register Test"
         Observer: Codeunit "Probe Observer";
     begin
         ShareReg(1, Observer);
-        Observer.Finish();
+        Observer.Expect('owner.after', 'loc=|0 jnl= bin=0 reg=0 trk=0/0 wms=0/0/0 entry=0 mov=false lbl=44');
+        Observer.Expect('owner.entry', '1');
+        Observer.Expect('owner.suppress', 'true');
+        Observer.Expect('caller.after', 'loc=|0 jnl= bin=0 reg=0 trk=0/0 wms=0/0/0 entry=1 mov=false lbl=44');
+        Observer.Expect('caller.next', 'loc=|0 jnl= bin=0 reg=0 trk=0/0 wms=0/0/0 entry=2 mov=false lbl=44');
+        Observer.Verify();
     end;
 
     [Test]
@@ -659,7 +670,13 @@ codeunit 86307 "CKT Register Test"
         Observer: Codeunit "Probe Observer";
     begin
         ShareReg(2, Observer);
-        Observer.Finish();
+        Observer.Expect('peek', '0');
+        Observer.Expect('owner.after', 'loc=|0 jnl= bin=0 reg=0 trk=0/0 wms=0/0/0 entry=0 mov=false lbl=44');
+        Observer.Expect('owner.entry', '1');
+        Observer.Expect('owner.suppress', 'true');
+        Observer.Expect('caller.after', 'loc=|0 jnl= bin=0 reg=0 trk=0/0 wms=0/0/0 entry=1 mov=false lbl=44');
+        Observer.Expect('caller.next', 'loc=|0 jnl= bin=0 reg=0 trk=0/0 wms=0/0/0 entry=2 mov=false lbl=44');
+        Observer.Verify();
     end;
 
     [Test]
@@ -668,7 +685,12 @@ codeunit 86307 "CKT Register Test"
         Observer: Codeunit "Probe Observer";
     begin
         ShareReg(3, Observer);
-        Observer.Finish();
+        Observer.Expect('owner.after', 'loc=|0 jnl= bin=0 reg=0 trk=0/0 wms=0/0/0 entry=0 mov=false lbl=44');
+        Observer.Expect('owner.entry', '1');
+        Observer.Expect('owner.suppress', 'true');
+        Observer.Expect('caller.after', 'loc=|0 jnl= bin=0 reg=0 trk=0/0 wms=0/0/0 entry=1 mov=false lbl=44');
+        Observer.Expect('caller.next', 'loc=|0 jnl= bin=0 reg=0 trk=0/0 wms=0/0/0 entry=2 mov=false lbl=44');
+        Observer.Verify();
     end;
 
     [Test]
@@ -677,7 +699,12 @@ codeunit 86307 "CKT Register Test"
         Observer: Codeunit "Probe Observer";
     begin
         ShareReg(4, Observer);
-        Observer.Finish();
+        Observer.Expect('owner.after', 'loc=|0 jnl= bin=0 reg=0 trk=0/0 wms=0/0/0 entry=0 mov=false lbl=44');
+        Observer.Expect('owner.entry', '1');
+        Observer.Expect('owner.suppress', 'true');
+        Observer.Expect('caller.after', 'loc=|0 jnl= bin=0 reg=0 trk=0/0 wms=0/0/0 entry=1 mov=false lbl=44');
+        Observer.Expect('caller.next', 'loc=|0 jnl= bin=0 reg=0 trk=0/0 wms=0/0/0 entry=2 mov=false lbl=44');
+        Observer.Verify();
     end;
 
     [Test]
@@ -686,7 +713,12 @@ codeunit 86307 "CKT Register Test"
         Observer: Codeunit "Probe Observer";
     begin
         ShareReg(5, Observer);
-        Observer.Finish();
+        Observer.Expect('owner.after', 'loc=|0 jnl= bin=0 reg=0 trk=0/0 wms=0/0/0 entry=0 mov=false lbl=44');
+        Observer.Expect('owner.entry', '1');
+        Observer.Expect('owner.suppress', 'true');
+        Observer.Expect('caller.after', 'loc=|0 jnl= bin=0 reg=0 trk=0/0 wms=0/0/0 entry=1 mov=false lbl=44');
+        Observer.Expect('caller.next', 'loc=|0 jnl= bin=0 reg=0 trk=0/0 wms=0/0/0 entry=2 mov=false lbl=44');
+        Observer.Verify();
     end;
 
     [Test]
@@ -695,7 +727,12 @@ codeunit 86307 "CKT Register Test"
         Observer: Codeunit "Probe Observer";
     begin
         ShareRegPlain(1, Observer);
-        Observer.Finish();
+        Observer.Expect('owner.after', 'loc=|0 jnl= bin=0 reg=0 trk=0/0 wms=0/0/0 entry=0 mov=false lbl=44');
+        Observer.Expect('owner.entry', '1');
+        Observer.Expect('owner.suppress', 'true');
+        Observer.Expect('caller.after', 'loc=|0 jnl= bin=0 reg=0 trk=0/0 wms=0/0/0 entry=1 mov=false lbl=44');
+        Observer.Expect('caller.next', 'loc=|0 jnl= bin=0 reg=0 trk=0/0 wms=0/0/0 entry=2 mov=false lbl=44');
+        Observer.Verify();
     end;
 
     [Test]
@@ -704,7 +741,12 @@ codeunit 86307 "CKT Register Test"
         Observer: Codeunit "Probe Observer";
     begin
         ShareRegPlain(3, Observer);
-        Observer.Finish();
+        Observer.Expect('owner.after', 'loc=|0 jnl= bin=0 reg=0 trk=0/0 wms=0/0/0 entry=0 mov=false lbl=44');
+        Observer.Expect('owner.entry', '1');
+        Observer.Expect('owner.suppress', 'true');
+        Observer.Expect('caller.after', 'loc=|0 jnl= bin=0 reg=0 trk=0/0 wms=0/0/0 entry=1 mov=false lbl=44');
+        Observer.Expect('caller.next', 'loc=|0 jnl= bin=0 reg=0 trk=0/0 wms=0/0/0 entry=2 mov=false lbl=44');
+        Observer.Verify();
     end;
 
     [Test]
@@ -713,7 +755,12 @@ codeunit 86307 "CKT Register Test"
         Observer: Codeunit "Probe Observer";
     begin
         ShareRegPlain(4, Observer);
-        Observer.Finish();
+        Observer.Expect('owner.after', 'loc=|0 jnl= bin=0 reg=0 trk=0/0 wms=0/0/0 entry=0 mov=false lbl=44');
+        Observer.Expect('owner.entry', '1');
+        Observer.Expect('owner.suppress', 'true');
+        Observer.Expect('caller.after', 'loc=|0 jnl= bin=0 reg=0 trk=0/0 wms=0/0/0 entry=1 mov=false lbl=44');
+        Observer.Expect('caller.next', 'loc=|0 jnl= bin=0 reg=0 trk=0/0 wms=0/0/0 entry=2 mov=false lbl=44');
+        Observer.Verify();
     end;
 
     [Test]
@@ -722,7 +769,12 @@ codeunit 86307 "CKT Register Test"
         Observer: Codeunit "Probe Observer";
     begin
         ShareDeep(1, Observer);
-        Observer.Finish();
+        Observer.Expect('owner.after', 'chain=0/0/0/0 entry=0 mov=false');
+        Observer.Expect('owner.entry', '1');
+        Observer.Expect('owner.suppress', 'true');
+        Observer.Expect('caller.after', 'chain=0/0/0/0 entry=1 mov=false');
+        Observer.Expect('caller.next', 'chain=0/0/0/0 entry=2 mov=false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -731,7 +783,13 @@ codeunit 86307 "CKT Register Test"
         Observer: Codeunit "Probe Observer";
     begin
         ShareDeep(2, Observer);
-        Observer.Finish();
+        Observer.Expect('peek', '0');
+        Observer.Expect('owner.after', 'chain=0/0/0/0 entry=0 mov=false');
+        Observer.Expect('owner.entry', '1');
+        Observer.Expect('owner.suppress', 'true');
+        Observer.Expect('caller.after', 'chain=0/0/0/0 entry=1 mov=false');
+        Observer.Expect('caller.next', 'chain=0/0/0/0 entry=2 mov=false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -740,7 +798,12 @@ codeunit 86307 "CKT Register Test"
         Observer: Codeunit "Probe Observer";
     begin
         ShareDeep(3, Observer);
-        Observer.Finish();
+        Observer.Expect('owner.after', 'chain=0/0/0/0 entry=0 mov=false');
+        Observer.Expect('owner.entry', '1');
+        Observer.Expect('owner.suppress', 'true');
+        Observer.Expect('caller.after', 'chain=0/0/0/0 entry=1 mov=false');
+        Observer.Expect('caller.next', 'chain=0/0/0/0 entry=2 mov=false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -749,7 +812,12 @@ codeunit 86307 "CKT Register Test"
         Observer: Codeunit "Probe Observer";
     begin
         ShareDeep(4, Observer);
-        Observer.Finish();
+        Observer.Expect('owner.after', 'chain=0/0/0/0 entry=0 mov=false');
+        Observer.Expect('owner.entry', '1');
+        Observer.Expect('owner.suppress', 'true');
+        Observer.Expect('caller.after', 'chain=0/0/0/0 entry=1 mov=false');
+        Observer.Expect('caller.next', 'chain=0/0/0/0 entry=2 mov=false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -758,7 +826,12 @@ codeunit 86307 "CKT Register Test"
         Observer: Codeunit "Probe Observer";
     begin
         ShareCyc(1, Observer);
-        Observer.Finish();
+        Observer.Expect('owner.after', 'cyc=0/0 entry=0 mov=false');
+        Observer.Expect('owner.entry', '1');
+        Observer.Expect('owner.suppress', 'true');
+        Observer.Expect('caller.after', 'cyc=0/1 entry=1 mov=false');
+        Observer.Expect('caller.next', 'cyc=0/2 entry=2 mov=false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -767,7 +840,13 @@ codeunit 86307 "CKT Register Test"
         Observer: Codeunit "Probe Observer";
     begin
         ShareCyc(2, Observer);
-        Observer.Finish();
+        Observer.Expect('peek', '0');
+        Observer.Expect('owner.after', 'cyc=0/0 entry=0 mov=false');
+        Observer.Expect('owner.entry', '1');
+        Observer.Expect('owner.suppress', 'true');
+        Observer.Expect('caller.after', 'cyc=0/0 entry=1 mov=false');
+        Observer.Expect('caller.next', 'cyc=0/0 entry=2 mov=false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -776,7 +855,12 @@ codeunit 86307 "CKT Register Test"
         Observer: Codeunit "Probe Observer";
     begin
         ShareCyc(3, Observer);
-        Observer.Finish();
+        Observer.Expect('owner.after', 'cyc=0/0 entry=0 mov=false');
+        Observer.Expect('owner.entry', '1');
+        Observer.Expect('owner.suppress', 'true');
+        Observer.Expect('caller.after', 'cyc=0/0 entry=1 mov=false');
+        Observer.Expect('caller.next', 'cyc=0/0 entry=2 mov=false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -785,7 +869,12 @@ codeunit 86307 "CKT Register Test"
         Observer: Codeunit "Probe Observer";
     begin
         ShareCyc(4, Observer);
-        Observer.Finish();
+        Observer.Expect('owner.after', 'cyc=0/0 entry=0 mov=false');
+        Observer.Expect('owner.entry', '1');
+        Observer.Expect('owner.suppress', 'true');
+        Observer.Expect('caller.after', 'cyc=0/0 entry=1 mov=false');
+        Observer.Expect('caller.next', 'cyc=0/0 entry=2 mov=false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -794,7 +883,12 @@ codeunit 86307 "CKT Register Test"
         Observer: Codeunit "Probe Observer";
     begin
         SharePlainReg(1, Observer);
-        Observer.Finish();
+        Observer.Expect('owner.after', 'entry=0 mov=false lbl=21');
+        Observer.Expect('owner.entry', '1');
+        Observer.Expect('owner.suppress', 'true');
+        Observer.Expect('caller.after', 'entry=1 mov=false lbl=21');
+        Observer.Expect('caller.next', 'entry=2 mov=false lbl=21');
+        Observer.Verify();
     end;
 
     [Test]
@@ -803,7 +897,13 @@ codeunit 86307 "CKT Register Test"
         Observer: Codeunit "Probe Observer";
     begin
         SharePlainReg(2, Observer);
-        Observer.Finish();
+        Observer.Expect('peek', '0');
+        Observer.Expect('owner.after', 'entry=0 mov=false lbl=21');
+        Observer.Expect('owner.entry', '1');
+        Observer.Expect('owner.suppress', 'true');
+        Observer.Expect('caller.after', 'entry=1 mov=false lbl=21');
+        Observer.Expect('caller.next', 'entry=2 mov=false lbl=21');
+        Observer.Verify();
     end;
 
     [Test]
@@ -812,7 +912,12 @@ codeunit 86307 "CKT Register Test"
         Observer: Codeunit "Probe Observer";
     begin
         SharePlainReg(3, Observer);
-        Observer.Finish();
+        Observer.Expect('owner.after', 'entry=0 mov=false lbl=21');
+        Observer.Expect('owner.entry', '1');
+        Observer.Expect('owner.suppress', 'true');
+        Observer.Expect('caller.after', 'entry=1 mov=false lbl=21');
+        Observer.Expect('caller.next', 'entry=2 mov=false lbl=21');
+        Observer.Verify();
     end;
 
     [Test]
@@ -821,6 +926,11 @@ codeunit 86307 "CKT Register Test"
         Observer: Codeunit "Probe Observer";
     begin
         SharePlainReg(4, Observer);
-        Observer.Finish();
+        Observer.Expect('owner.after', 'entry=0 mov=false lbl=21');
+        Observer.Expect('owner.entry', '1');
+        Observer.Expect('owner.suppress', 'true');
+        Observer.Expect('caller.after', 'entry=1 mov=false lbl=21');
+        Observer.Expect('caller.next', 'entry=2 mov=false lbl=21');
+        Observer.Verify();
     end;
 }
