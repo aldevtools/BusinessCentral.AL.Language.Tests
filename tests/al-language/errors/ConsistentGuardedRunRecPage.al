@@ -44,6 +44,7 @@ table 99525 "GRP X"
         field(3; "Doc Type"; Integer) { }
         field(4; Amount; Decimal) { }
         field(5; "Date Filter"; Date) { FieldClass = FlowFilter; }
+        field(6; Kind; Enum "GRP Kind") { }
     }
 
     keys
@@ -79,6 +80,7 @@ table 99527 "GRP Z"
         field(3; "Doc Type"; Integer) { }
         field(4; Amount; Decimal) { }
         field(5; "Date Filter"; Date) { FieldClass = FlowFilter; }
+        field(6; Kind; Enum "GRP Kind") { }
     }
 
     keys
@@ -152,6 +154,9 @@ codeunit 99529 "GRP Steps"
         Mode: Codeunit "GRP Mode";
         XA: Record "GRP X";
         YA: Record "GRP Y";
+        XB: Record "GRP X";
+        XC: Record "GRP X";
+        YC: Record "GRP Y";
         Step: Text;
     begin
         foreach Step in Mode.Get().Split(',') do
@@ -162,6 +167,12 @@ codeunit 99529 "GRP Steps"
                     XA.Consistent(false);
                 'fya':
                     YA.Consistent(false);
+                'fyc':
+                    YC.Consistent(false);
+                'fxc':
+                    XC.Consistent(false);
+                'txb':
+                    XB.Consistent(true);
                 'commit':
                     Commit();
                 'err':
@@ -324,6 +335,129 @@ page 99533 "GRP List Z"
 }
 
 
+enum 99535 "GRP Kind"
+{
+    Extensible = false;
+    value(0; None) { }
+    value(1; Order) { }
+    value(2; Invoice) { }
+}
+
+
+// A list page like the preview pages: the view filters an enum field, OnOpenPage sets a Date Filter range.
+page 99536 "GRP Page X"
+{
+    PageType = List;
+    ApplicationArea = All;
+    UsageCategory = None;
+    SourceTable = "GRP X";
+    SourceTableView = where(Kind = const(Order));
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Lines)
+            {
+                field(Id; Rec.Id) { ApplicationArea = All; }
+                field(Name; Rec.Name) { ApplicationArea = All; }
+                field(Kind; Rec.Kind) { ApplicationArea = All; }
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(RunInner)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                var
+                    Mode: Codeunit "GRP Mode";
+                    RecRef: RecordRef;
+                    Ok: Boolean;
+                begin
+                    Ok := Codeunit.Run(Codeunit::"GRP Inner X", Rec);
+                    RecRef.GetTable(Rec);
+                    Mode.Log('run=' + Format(Ok));
+                    Mode.Log('text=' + GetLastErrorText());
+                    Mode.Log('code=' + GetLastErrorCode());
+                    Mode.Log('arg=' + Rec.Name);
+                    Mode.Log('argstate ' + Mode.Describe(RecRef, Rec.FilterGroup()));
+                    ClearLastError();
+                    Error('END');
+                end;
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    begin
+        Rec.SetRange("Date Filter", 0D, WorkDate());
+    end;
+}
+
+
+// A list page like the preview pages: the view filters an enum field, OnOpenPage sets a Date Filter range.
+page 99537 "GRP Page Z"
+{
+    PageType = List;
+    ApplicationArea = All;
+    UsageCategory = None;
+    SourceTable = "GRP Z";
+    SourceTableView = where(Kind = const(Order));
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Lines)
+            {
+                field(Id; Rec.Id) { ApplicationArea = All; }
+                field(Name; Rec.Name) { ApplicationArea = All; }
+                field(Kind; Rec.Kind) { ApplicationArea = All; }
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(RunInner)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                var
+                    Mode: Codeunit "GRP Mode";
+                    RecRef: RecordRef;
+                    Ok: Boolean;
+                begin
+                    Ok := Codeunit.Run(Codeunit::"GRP Inner Z", Rec);
+                    RecRef.GetTable(Rec);
+                    Mode.Log('run=' + Format(Ok));
+                    Mode.Log('text=' + GetLastErrorText());
+                    Mode.Log('code=' + GetLastErrorCode());
+                    Mode.Log('arg=' + Rec.Name);
+                    Mode.Log('argstate ' + Mode.Describe(RecRef, Rec.FilterGroup()));
+                    ClearLastError();
+                    Error('END');
+                end;
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    begin
+        Rec.SetRange("Date Filter", 0D, WorkDate());
+    end;
+}
+
+
 codeunit 99534 "GRP Tests"
 {
     Subtype = Test;
@@ -349,8 +483,10 @@ codeunit 99534 "GRP Tests"
         for G := 0 to 6 do begin
             X.FilterGroup(G);
             X.SetRange("Doc Type");
+            X.SetRange(Kind);
             Z.FilterGroup(G);
             Z.SetRange("Doc Type");
+            Z.SetRange(Kind);
         end;
         X.FilterGroup(0);
         Z.FilterGroup(0);
@@ -361,11 +497,13 @@ codeunit 99534 "GRP Tests"
         X.Id := 1;
         X.Name := 'caller';
         X."Doc Type" := 1;
+        X.Kind := X.Kind::Order;
         X.Amount := 5;
         X.Insert();
         X.Id := 2;
         X.Name := 'other';
         X."Doc Type" := 2;
+        X.Kind := X.Kind::Invoice;
         X.Amount := 50;
         X.Insert();
         Y.Init();
@@ -379,11 +517,13 @@ codeunit 99534 "GRP Tests"
         Z.Id := 1;
         Z.Name := 'caller';
         Z."Doc Type" := 1;
+        Z.Kind := Z.Kind::Order;
         Z.Amount := 5;
         Z.Insert();
         Z.Id := 2;
         Z.Name := 'other';
         Z."Doc Type" := 2;
+        Z.Kind := Z.Kind::Invoice;
         Z.Amount := 50;
         Z.Insert();
         Commit();
@@ -502,6 +642,22 @@ codeunit 99534 "GRP Tests"
                 begin
                     R.SetFilter(Name, '<>other');
                 end;
+            'PageMix':
+                begin
+                    R.FilterGroup(2); R.SetRange(Kind, R.Kind::Order); R.FilterGroup(0); R.SetRange("Date Filter", 0D, WorkDate());
+                end;
+            'PageMixKey':
+                begin
+                    R.FilterGroup(2); R.SetRange(Kind, R.Kind::Order); R.FilterGroup(0); R.SetRange("Date Filter", 0D, WorkDate()); R.SetFilter(Id, '1');
+                end;
+            'Three':
+                begin
+                    R.SetRange(Name, 'caller'); R.SetRange("Doc Type", 1); R.SetRange(Amount, 5);
+                end;
+            'Key':
+                begin
+                    R.SetRange(Id, 1);
+                end;
             'G2NotEqual':
                 begin
                     R.FilterGroup(2); R.SetFilter("Doc Type", '<>2'); R.FilterGroup(0);
@@ -560,6 +716,22 @@ codeunit 99534 "GRP Tests"
             'NotEqual':
                 begin
                     R.SetFilter(Name, '<>other');
+                end;
+            'PageMix':
+                begin
+                    R.FilterGroup(2); R.SetRange(Kind, R.Kind::Order); R.FilterGroup(0); R.SetRange("Date Filter", 0D, WorkDate());
+                end;
+            'PageMixKey':
+                begin
+                    R.FilterGroup(2); R.SetRange(Kind, R.Kind::Order); R.FilterGroup(0); R.SetRange("Date Filter", 0D, WorkDate()); R.SetFilter(Id, '1');
+                end;
+            'Three':
+                begin
+                    R.SetRange(Name, 'caller'); R.SetRange("Doc Type", 1); R.SetRange(Amount, 5);
+                end;
+            'Key':
+                begin
+                    R.SetRange(Id, 1);
                 end;
             'G2NotEqual':
                 begin
@@ -2367,4 +2539,152 @@ codeunit 99534 "GRP Tests"
         Observer.Expect('durable rows', 'x=[caller;other;] y=[caller;other;] z=[caller;other;]');
         Observer.Verify();
     end;
+
+    // Cells of al-runner issue 8970 (recount): mark orders and filter mixes of the Microsoft preview and SCM tests.
+    //   MarkedAgain = startx,fya,fyc,err (GRP X held, GRP Y marked again by another variable, then the run fails);
+    //   ReleasedThenHeld = startx,txb,fya,err (GRP X released by another variable, GRP Y held);
+    //   AgainThenHeld = fxa,txb,fxc,fya,err (GRP X marked again by another variable after a release, GRP Y held).
+    local procedure ObsText(): Text
+    begin
+        exit(GetLastErrorCode() + '|' + ShortText(GetLastErrorText()));
+    end;
+
+    local procedure ShortText(T: Text): Text
+    begin
+        if T.StartsWith('The transaction cannot be completed because it will cause inconsistencies in the ') then
+            exit('INC:' + CopyStr(T, 82, 10));
+        exit(T);
+    end;
+
+    local procedure ObsRec(Kind: Text; Shape: Text; Steps: Text)
+    var
+        R: Text;
+    begin
+        Initialize(Steps);
+        asserterror RunThenEnd(Kind, Shape);
+        R := 'end=' + ObsText();
+        R += ' log=' + ShortText(Mode.GetLog());
+        asserterror CommitThenEnd();
+        R += ' commit=' + ObsText();
+        R += ' rows=' + DurableRows();
+        R += ' fresh=' + FreshState();
+        Error('OBS ' + R);
+    end;
+
+    local procedure ObsPage(Kind: Text; Steps: Text)
+    var
+        X: Record "GRP X";
+        Z: Record "GRP Z";
+        TPX: TestPage "GRP Page X";
+        TPZ: TestPage "GRP Page Z";
+        R: Text;
+    begin
+        Initialize(Steps);
+        if Kind = 'x' then begin
+            X.Get(1);
+            TPX.OpenView();
+            TPX.GoToRecord(X);
+            asserterror TPX.RunInner.Invoke();
+            R := 'end=' + ObsText();
+            TPX.Close();
+        end else begin
+            Z.Get(1);
+            TPZ.OpenView();
+            TPZ.GoToRecord(Z);
+            asserterror TPZ.RunInner.Invoke();
+            R := 'end=' + ObsText();
+            TPZ.Close();
+        end;
+        R += ' log=' + ShortText(Mode.GetLog());
+        asserterror CommitThenEnd();
+        R += ' commit=' + ObsText();
+        R += ' rows=' + DurableRows();
+        R += ' fresh=' + FreshState();
+        Error('OBS ' + R);
+    end;
+
+    [Test]
+    procedure RecZ_PageMix_MarkedAgain()
+    begin
+        ObsRec('z', 'PageMix', 'startx,fya,fyc,err');
+    end;
+
+    [Test]
+    procedure RecZ_PageMixKey_MarkedAgain()
+    begin
+        ObsRec('z', 'PageMixKey', 'startx,fya,fyc,err');
+    end;
+
+    [Test]
+    procedure PageZ_EnumViewDateFilter_MarkedAgain()
+    begin
+        ObsPage('z', 'startx,fya,fyc,err');
+    end;
+
+    [Test]
+    procedure RecZ_Three_ReleasedThenHeld()
+    begin
+        ObsRec('z', 'Three', 'startx,txb,fya,err');
+    end;
+
+    [Test]
+    procedure RecZ_Three_AgainThenHeld()
+    begin
+        ObsRec('z', 'Three', 'fxa,txb,fxc,fya,err');
+    end;
+
+    [Test]
+    procedure RecZ_Key_ReleasedThenHeld()
+    begin
+        ObsRec('z', 'Key', 'startx,txb,fya,err');
+    end;
+
+    [Test]
+    procedure RecZ_Key_AgainThenHeld()
+    begin
+        ObsRec('z', 'Key', 'fxa,txb,fxc,fya,err');
+    end;
+
+    [Test]
+    procedure RecX_PageMix_MarkedAgain()
+    begin
+        ObsRec('x', 'PageMix', 'startx,fya,fyc,err');
+    end;
+
+    [Test]
+    procedure RecX_PageMixKey_MarkedAgain()
+    begin
+        ObsRec('x', 'PageMixKey', 'startx,fya,fyc,err');
+    end;
+
+    [Test]
+    procedure PageX_EnumViewDateFilter_MarkedAgain()
+    begin
+        ObsPage('x', 'startx,fya,fyc,err');
+    end;
+
+    [Test]
+    procedure RecX_Three_ReleasedThenHeld()
+    begin
+        ObsRec('x', 'Three', 'startx,txb,fya,err');
+    end;
+
+    [Test]
+    procedure RecX_Three_AgainThenHeld()
+    begin
+        ObsRec('x', 'Three', 'fxa,txb,fxc,fya,err');
+    end;
+
+    [Test]
+    procedure RecX_Key_ReleasedThenHeld()
+    begin
+        ObsRec('x', 'Key', 'startx,txb,fya,err');
+    end;
+
+    [Test]
+    procedure RecX_Key_AgainThenHeld()
+    begin
+        ObsRec('x', 'Key', 'fxa,txb,fxc,fya,err');
+    end;
+
 }
