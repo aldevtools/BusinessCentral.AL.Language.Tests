@@ -44,6 +44,30 @@ codeunit 98084 "LT US App Logo Jpeg Sizes"
         exit(LowerCase(Crypto.GenerateHash(InS, 2)));
     end;
 
+    local procedure FirstDifference(var A: Codeunit "Temp Blob"; var B: Codeunit "Temp Blob"): Text
+    var
+        InA: InStream;
+        InB: InStream;
+        ByteA: Byte;
+        ByteB: Byte;
+        Position: Integer;
+    begin
+        A.CreateInStream(InA);
+        B.CreateInStream(InB);
+        while not InA.EOS() do begin
+            Position += 1;
+            InA.Read(ByteA);
+            if InB.EOS() then
+                exit(StrSubstNo('at %1: %2 vs end', Position, ByteA));
+            InB.Read(ByteB);
+            if ByteA <> ByteB then
+                exit(StrSubstNo('at %1: %2 vs %3', Position, ByteA, ByteB));
+        end;
+        if not InB.EOS() then
+            exit(StrSubstNo('at %1: end vs more', Position + 1));
+        exit('none');
+    end;
+
     local procedure ObserveLogo(var Observer: Codeunit "Probe Observer"; AppIdText: Text; Sha: Text)
     var
         App: Record "Published Application";
@@ -75,7 +99,10 @@ codeunit 98084 "LT US App Logo Jpeg Sizes"
     var
         App: Record "Published Application";
         TenantMedia: Record "Tenant Media";
+        Media: Record Media;
         TempBlob: Codeunit "Temp Blob";
+        LogoBlob: Codeunit "Temp Blob";
+        LogoInS: InStream;
         GuidedExperience: Codeunit "Guided Experience";
         Item: RecordRef;
         IconField: FieldRef;
@@ -112,6 +139,14 @@ codeunit 98084 "LT US App Logo Jpeg Sizes"
         CopyToBlob(InS, TempBlob);
         Observer.Observe('icon length', Format(TempBlob.Length()));
         Observer.Observe('icon equals file', Format(Sha256Of(TempBlob) = Sha));
+        Media.SetRange(ID, App.Logo.MediaId());
+        if Media.FindFirst() then begin
+            Media.CalcFields(Content);
+            Media.Content.CreateInStream(LogoInS);
+            CopyToBlob(LogoInS, LogoBlob);
+        end;
+        Observer.Observe('logo media equals file', Format(Sha256Of(LogoBlob) = Sha));
+        Observer.Observe('icon vs logo media, first different byte', FirstDifference(TempBlob, LogoBlob));
         Item.Close();
     end;
 
