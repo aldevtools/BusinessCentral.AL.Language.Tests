@@ -3,7 +3,7 @@
 // Session.GetExecutionContext(), Session.GetCurrentModuleExecutionContext() and Session.CurrentExecutionMode(). Then it does what install code
 // of Microsoft's apps does: `if CanCreateTask then CreateTask(<codeunit>, 0) else Codeunit.Run(<codeunit>)`. The codeunit is "LT IC XA Seen"
 // (IcXaCanCreateTask.al): its OnRun writes one row with the session id and client type, so the test can tell a task session from the install session.
-// CreateTask runs in a TryFunction that writes nothing, so an error becomes a logged fact instead of a failed publish. Every write is
+// CreateTask is called directly (a TryFunction is refused in an install trigger: INSERT is not allowed inside a TryFunction called from OnInstallAppPerCompany), so an error there would fail the install. Every write is
 // `if Insert() then;` into the DataPerCompany = false table below (check-install-triggers.py).
 // BC versions: 27 - 29
 
@@ -52,10 +52,8 @@ codeunit 98497 "LT IC XA Install"
         Read := 'ctx=' + Format(Session.GetExecutionContext()) + ',mod=' + Format(Session.GetCurrentModuleExecutionContext()) +
             ',mode=' + Format(Session.CurrentExecutionMode()) + ',cct=' + Format(CanCreate);
         if CanCreate then begin
-            if TryCreateTask(TaskId) then
-                Branch := 'CreateTask'
-            else
-                Branch := 'CreateTask error: ' + GetLastErrorText();
+            TaskId := TaskScheduler.CreateTask(Codeunit::"LT IC XA Seen", 0);
+            Branch := 'CreateTask';
         end else begin
             Codeunit.Run(Codeunit::"LT IC XA Seen");
             Branch := 'Codeunit.Run';
@@ -68,11 +66,5 @@ codeunit 98497 "LT IC XA Install"
         Log.Branch := CopyStr(Branch, 1, MaxStrLen(Log.Branch));
         Log."Task Id" := TaskId;
         if Log.Insert() then;
-    end;
-
-    [TryFunction]
-    local procedure TryCreateTask(var TaskId: Guid)
-    begin
-        TaskId := TaskScheduler.CreateTask(Codeunit::"LT IC XA Seen", 0);
     end;
 }
