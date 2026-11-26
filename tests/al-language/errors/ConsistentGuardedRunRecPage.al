@@ -330,6 +330,7 @@ codeunit 99534 "GRP Tests"
         X: Record "GRP X";
         Y: Record "GRP Y";
         Z: Record "GRP Z";
+        G: Integer;
     begin
         X.Consistent(true);
         Y.Consistent(true);
@@ -337,6 +338,14 @@ codeunit 99534 "GRP Tests"
         X.Reset();
         Y.Reset();
         Z.Reset();
+        for G := 0 to 6 do begin
+            X.FilterGroup(G);
+            X.SetRange("Doc Type");
+            Z.FilterGroup(G);
+            Z.SetRange("Doc Type");
+        end;
+        X.FilterGroup(0);
+        Z.FilterGroup(0);
         X.DeleteAll();
         Y.DeleteAll();
         Z.DeleteAll();
