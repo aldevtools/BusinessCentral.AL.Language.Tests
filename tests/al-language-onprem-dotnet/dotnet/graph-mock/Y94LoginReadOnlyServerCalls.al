@@ -11,6 +11,11 @@
 //   TaskScheduler.CanCreateTask() (value and second call already pinned by PlTTaskScheduler.al:26; here only the session state).
 // Related: Y93GraphNoDirectory.al (GraphQuery without Microsoft Entra ID, same state snapshot), PVEnvironmentTestability.al
 //   (default IsSaaSInfrastructure per version), PlTTaskScheduler.al.
+// Facts: every call succeeds (no error, no last error). IsM365CollaborationEnabled answers No (direct and through "Azure AD Graph");
+//   EnableEntraGroupsOnPrem answers No; ApiServicesEnabled answers Yes; NavUserAccountHelper.IsAzure and IsSaaSInfrastructure answer No
+//   while IsSaaS answers Yes; CanCreateTask answers No. Each answer is the same on the second call. No call changes GlobalLanguage (1033),
+//   WorkDate, the User Personalization row (BUSINESS MANAGER/1033/Tenant) or the User Property row count (3). Same on all three versions.
+// Expected values: corpus CI (Linux containers) BC 27.5, 28.5 and 29.0, observe run 45897959235.
 // BC versions: 27, 28, 29
 dotnet
 {
@@ -146,7 +151,15 @@ codeunit 61495 "LT Y94 Login ReadOnly Calls"
         Observer.Observe('facade_again', Outcome(TryFacadeM365(B), B));
         Observer.Observe('last_error_after_facade', '[' + GetLastErrorText() + ']');
         Observer.Observe('state_after_facade_unchanged', Format(Snapshot() = Before));
-        Observer.Finish();
+        Observer.Expect('state_before', 'lang=1033;workdate=<workdate>;pers=BUSINESS MANAGER/1033/Tenant;userprops=3');
+        Observer.Expect('direct', 'ok:No');
+        Observer.Expect('direct_again', 'ok:No');
+        Observer.Expect('state_after_direct_unchanged', 'Yes');
+        Observer.Expect('facade', 'ok:No');
+        Observer.Expect('facade_again', 'ok:No');
+        Observer.Expect('last_error_after_facade', '[]');
+        Observer.Expect('state_after_facade_unchanged', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -167,7 +180,13 @@ codeunit 61495 "LT Y94 Login ReadOnly Calls"
         ClearLastError();
         Observer.Observe('facade_again', Outcome(TryFacadeEntraGroups(B), B));
         Observer.Observe('state_after_facade_unchanged', Format(Snapshot() = Before));
-        Observer.Finish();
+        Observer.Expect('direct', 'ok:No');
+        Observer.Expect('direct_again', 'ok:No');
+        Observer.Expect('state_after_direct_unchanged', 'Yes');
+        Observer.Expect('facade', 'ok:No');
+        Observer.Expect('facade_again', 'ok:No');
+        Observer.Expect('state_after_facade_unchanged', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -188,7 +207,13 @@ codeunit 61495 "LT Y94 Login ReadOnly Calls"
         ClearLastError();
         Observer.Observe('facade_again', Outcome(TryFacadeApiServices(B), B));
         Observer.Observe('state_after_facade_unchanged', Format(Snapshot() = Before));
-        Observer.Finish();
+        Observer.Expect('direct', 'ok:Yes');
+        Observer.Expect('direct_again', 'ok:Yes');
+        Observer.Expect('state_after_direct_unchanged', 'Yes');
+        Observer.Expect('facade', 'ok:Yes');
+        Observer.Expect('facade_again', 'ok:Yes');
+        Observer.Expect('state_after_facade_unchanged', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -211,7 +236,14 @@ codeunit 61495 "LT Y94 Login ReadOnly Calls"
         ClearLastError();
         Observer.Observe('facade_again', Outcome(TryFacadeSaaSInfrastructure(B), B));
         Observer.Observe('state_after_facade_unchanged', Format(Snapshot() = Before));
-        Observer.Finish();
+        Observer.Expect('is_saas', 'Yes');
+        Observer.Expect('direct', 'ok:No');
+        Observer.Expect('direct_again', 'ok:No');
+        Observer.Expect('state_after_direct_unchanged', 'Yes');
+        Observer.Expect('facade', 'ok:No');
+        Observer.Expect('facade_again', 'ok:No');
+        Observer.Expect('state_after_facade_unchanged', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -224,6 +256,9 @@ codeunit 61495 "LT Y94 Login ReadOnly Calls"
         Observer.Observe('value', Format(TaskScheduler.CanCreateTask()));
         Observer.Observe('again', Format(TaskScheduler.CanCreateTask()));
         Observer.Observe('state_after_unchanged', Format(Snapshot() = Before));
-        Observer.Finish();
+        Observer.Expect('value', 'No');
+        Observer.Expect('again', 'No');
+        Observer.Expect('state_after_unchanged', 'Yes');
+        Observer.Verify();
     end;
 }
