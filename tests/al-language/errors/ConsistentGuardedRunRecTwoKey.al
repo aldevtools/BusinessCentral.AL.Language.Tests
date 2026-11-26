@@ -3,10 +3,11 @@
 //   https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/record/record-filtergroup-method
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160); own objects 99538-99546 (GRK X, GRK Y, GRK Mode, GRK Steps, GRK Inner X,
-//   GRK Inner Z, GRK Z, GRK Kind, GRK Tests)
+//   GRK Inner Z, GRK Z, GRK Kind, GRK Tests), 99547-99550 (GRK X3, GRK Z3, GRK Inner X3, GRK Inner Z3)
 // Probe: from al-runner issue 9188 (follow-up of al-runner PR 9182, issue 8970). Same cells as ConsistentGuardedRunRecPage.al, but the
 //   record argument of Codeunit.Run(Id, Rec) belongs to a table with a two-field primary key (an Enum field and a Code field), like
-//   Purchase Header (Document Type, No.) and Warehouse Activity Header (Type, No.).
+//   Purchase Header (Document Type, No.) and Warehouse Activity Header (Type, No.), or a three-field primary key (an Option, a Code
+//   and an Integer field), like Warehouse Activity Line (Activity Type, No., Line No.).
 // Area: the cells (the guarded run under asserterror that ends in Error('END'); then a Commit in the caller; then the durable rows):
 //   - Argument table: GRK Z (never marked) and GRK X (marked first by the step startx or fxa). Fields: Doc Kind (Enum, key 1), No.
 //     (Code, key 2), Name, Doc Type, Amount, Date Filter (FlowFilter), Kind (Enum, not in the key). Rows: (Order, 1) 'caller',
@@ -17,6 +18,12 @@
 //     KeyCode (SetRange("No.", '1')); KeyEnum (SetRange("Doc Kind", Order)); KeyBoth (both); Three (SetRange on Name, Doc Type,
 //     Amount); ThreeKey (SetRange on Doc Type, Name and the key field Doc Kind: the shape of FindWarehouseActivityLine in the put-away
 //     preview tests, Source Type, Source No., Activity Type).
+//   - Three-field key table: GRK Z3 (never marked) and GRK X3 (marked first by startx or fxa, which then act on GRK X3). Fields:
+//     Activity Type (Option ' ,Put-away,Pick', key 1), No. (Code, key 2), Line No. (Integer, key 3), Source Type, Source No., Name.
+//     Rows: (Put-away, 1, 10000) 'caller', (Put-away, 1, 20000) 'line2', (Pick, 1, 10000) 'twin', (Put-away, 2, 10000) 'other'
+//     (all Source Type 39; Source No. S1, but S2 on 'other'). Shapes: NoFilter3; KeyCode3 (SetRange("No.", '1')); ThreeKey3
+//     (SetRange on Source Type 39, Source No. S1 and the key field Activity Type Put-away: FindWarehouseActivityLine of the
+//     put-away preview tests in SCMInvtPutAwayPostPrev, which hand a Warehouse Activity Line to Gen. Jnl.-Post Preview).
 //   - Marks (steps of the inner codeunit): Fails = startx,fya,err; Ends = startx,fya; PlainCommit = fxa,fya,commit; MarkedAgain =
 //     startx,fya,fyc,err; ReleasedThenHeld = startx,txb,fya,err; AgainThenHeld = fxa,txb,fxc,fya,err (as in
 //     ConsistentGuardedRunRecPage.al).
@@ -95,6 +102,46 @@ enum 99545 "GRK Kind"
     value(2; Invoice) { }
 }
 
+table 99547 "GRK X3"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "Activity Type"; Option) { OptionMembers = " ","Put-away",Pick; }
+        field(2; "No."; Code[20]) { }
+        field(3; "Line No."; Integer) { }
+        field(4; "Source Type"; Integer) { }
+        field(5; "Source No."; Code[20]) { }
+        field(6; Name; Text[30]) { }
+    }
+
+    keys
+    {
+        key(PK; "Activity Type", "No.", "Line No.") { Clustered = true; }
+    }
+}
+
+table 99548 "GRK Z3"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "Activity Type"; Option) { OptionMembers = " ","Put-away",Pick; }
+        field(2; "No."; Code[20]) { }
+        field(3; "Line No."; Integer) { }
+        field(4; "Source Type"; Integer) { }
+        field(5; "Source No."; Code[20]) { }
+        field(6; Name; Text[30]) { }
+    }
+
+    keys
+    {
+        key(PK; "Activity Type", "No.", "Line No.") { Clustered = true; }
+    }
+}
+
 // The steps the inner codeunit runs, and a log the caller writes (a SingleInstance codeunit is not rolled back).
 codeunit 99540 "GRK Mode"
 {
@@ -103,11 +150,24 @@ codeunit 99540 "GRK Mode"
     var
         Steps: Text;
         LogText: Text;
+        ThreeKey: Boolean;
 
     procedure Set(NewSteps: Text)
     begin
         Steps := NewSteps;
         LogText := '';
+        ThreeKey := false;
+    end;
+
+    // true: the steps that mark the argument table act on GRK X3 (three-field key) instead of GRK X.
+    procedure SetThreeKey(NewThreeKey: Boolean)
+    begin
+        ThreeKey := NewThreeKey;
+    end;
+
+    procedure GetThreeKey(): Boolean
+    begin
+        exit(ThreeKey);
     end;
 
     procedure Get(): Text
@@ -153,6 +213,7 @@ codeunit 99540 "GRK Mode"
 // The step interpreter: runs the steps of "GRK Mode", comma separated.
 //   startx: insert a row into GRK X and mark GRK X from the same local variable (the preview state shape).
 //   fxa, fya: Consistent(false) on a local variable for GRK X, GRK Y. commit: Commit. err: Error('inner failed').
+//   For a cell on the three-field key (Mode.GetThreeKey()), startx, fxa, fxc and txb act on GRK X3 instead of GRK X.
 codeunit 99541 "GRK Steps"
 {
     procedure DoSteps()
@@ -163,9 +224,24 @@ codeunit 99541 "GRK Steps"
         XB: Record "GRK X";
         XC: Record "GRK X";
         YC: Record "GRK Y";
+        X3A: Record "GRK X3";
+        X3B: Record "GRK X3";
+        X3C: Record "GRK X3";
         Step: Text;
     begin
         foreach Step in Mode.Get().Split(',') do
+            if Mode.GetThreeKey() and (Step in ['startx', 'fxa', 'fxc', 'txb']) then
+                case Step of
+                    'startx':
+                        StartX3();
+                    'fxa':
+                        X3A.Consistent(false);
+                    'fxc':
+                        X3C.Consistent(false);
+                    'txb':
+                        X3B.Consistent(true);
+                end
+            else
             case Step of
                 'startx':
                     StartX();
@@ -196,6 +272,19 @@ codeunit 99541 "GRK Steps"
         X.Name := 'state';
         X.Insert();
         X.Consistent(false);
+    end;
+
+    local procedure StartX3()
+    var
+        X3: Record "GRK X3";
+    begin
+        X3.Init();
+        X3."Activity Type" := X3."Activity Type"::Pick;
+        X3."No." := '50';
+        X3."Line No." := 10000;
+        X3.Name := 'state';
+        X3.Insert();
+        X3.Consistent(false);
     end;
 }
 
@@ -236,6 +325,42 @@ codeunit 99543 "GRK Inner Z"
 }
 
 
+// The inner codeunit for a record of GRK X3. It logs the filter state of its argument.
+codeunit 99549 "GRK Inner X3"
+{
+    TableNo = "GRK X3";
+
+    trigger OnRun()
+    var
+        Steps: Codeunit "GRK Steps";
+        Mode: Codeunit "GRK Mode";
+        RecRef: RecordRef;
+    begin
+        RecRef.GetTable(Rec);
+        Mode.Log('inner ' + Mode.Describe(RecRef, Rec.FilterGroup()));
+        Steps.DoSteps();
+    end;
+}
+
+
+// The inner codeunit for a record of GRK Z3. It logs the filter state of its argument.
+codeunit 99550 "GRK Inner Z3"
+{
+    TableNo = "GRK Z3";
+
+    trigger OnRun()
+    var
+        Steps: Codeunit "GRK Steps";
+        Mode: Codeunit "GRK Mode";
+        RecRef: RecordRef;
+    begin
+        RecRef.GetTable(Rec);
+        Mode.Log('inner ' + Mode.Describe(RecRef, Rec.FilterGroup()));
+        Steps.DoSteps();
+    end;
+}
+
+
 codeunit 99546 "GRK Tests"
 {
     Subtype = Test;
@@ -251,11 +376,15 @@ codeunit 99546 "GRK Tests"
         X: Record "GRK X";
         Y: Record "GRK Y";
         Z: Record "GRK Z";
+        X3: Record "GRK X3";
+        Z3: Record "GRK Z3";
         G: Integer;
     begin
         X.Consistent(true);
         Y.Consistent(true);
         Z.Consistent(true);
+        X3.Consistent(true);
+        Z3.Consistent(true);
         for G := 0 to 6 do begin
             X.FilterGroup(G);
             X.SetRange("Doc Kind"); X.SetRange("No."); X.SetRange(Name); X.SetRange("Doc Type"); X.SetRange(Amount); X.SetRange("Date Filter"); X.SetRange(Kind);
@@ -267,6 +396,12 @@ codeunit 99546 "GRK Tests"
         X.DeleteAll();
         Y.DeleteAll();
         Z.DeleteAll();
+        X3.DeleteAll();
+        Z3.DeleteAll();
+        InsertRow3(X3, Z3, X3."Activity Type"::"Put-away", '1', 10000, 'caller', 'S1');
+        InsertRow3(X3, Z3, X3."Activity Type"::"Put-away", '1', 20000, 'line2', 'S1');
+        InsertRow3(X3, Z3, X3."Activity Type"::Pick, '1', 10000, 'twin', 'S1');
+        InsertRow3(X3, Z3, X3."Activity Type"::"Put-away", '2', 10000, 'other', 'S2');
         InsertRow(X, Z, X."Doc Kind"::Order, '1', 'caller', 1, 5);
         InsertRow(X, Z, X."Doc Kind"::Invoice, '2', 'other', 2, 50);
         InsertRow(X, Z, X."Doc Kind"::Invoice, '1', 'twin', 2, 50);
@@ -297,11 +432,30 @@ codeunit 99546 "GRK Tests"
         Z.Insert();
     end;
 
+    local procedure InsertRow3(var X3: Record "GRK X3"; var Z3: Record "GRK Z3"; ActivityType: Option; No: Code[20]; LineNo: Integer; NewName: Text[30]; SourceNo: Code[20])
+    begin
+        X3.Init();
+        X3."Activity Type" := ActivityType;
+        X3."No." := No;
+        X3."Line No." := LineNo;
+        X3."Source Type" := 39;
+        X3."Source No." := SourceNo;
+        X3.Name := NewName;
+        X3.Insert();
+        Z3.Init();
+        Z3.TransferFields(X3);
+        Z3.Insert();
+    end;
+
     local procedure Rows(): Text
     var
         X: Record "GRK X";
         Y: Record "GRK Y";
         Z: Record "GRK Z";
+        X3: Record "GRK X3";
+        Z3: Record "GRK Z3";
+        X3Names: Text;
+        Z3Names: Text;
         XNames: Text;
         YNames: Text;
         ZNames: Text;
@@ -318,7 +472,15 @@ codeunit 99546 "GRK Tests"
             repeat
                 ZNames += Z.Name + ';';
             until Z.Next() = 0;
-        exit('x=[' + XNames + '] y=[' + YNames + '] z=[' + ZNames + ']');
+        if X3.FindSet() then
+            repeat
+                X3Names += X3.Name + ';';
+            until X3.Next() = 0;
+        if Z3.FindSet() then
+            repeat
+                Z3Names += Z3.Name + ';';
+            until Z3.Next() = 0;
+        exit('x=[' + XNames + '] y=[' + YNames + '] z=[' + ZNames + '] x3=[' + X3Names + '] z3=[' + Z3Names + ']');
     end;
 
     // The rows a commit made durable: an unrelated error undoes every write since the last commit.
@@ -329,11 +491,14 @@ codeunit 99546 "GRK Tests"
         exit(Rows());
     end;
 
-    // Runs the inner codeunit. Kind: z, x = a database record of GRK Z / X. The argument is on the row 'caller'.
+    // Runs the inner codeunit. Kind: z, x = a database record of GRK Z / X; z3, x3 = of GRK Z3 / X3. The argument is on the row
+    // 'caller'.
     local procedure RunRec(Kind: Text; Shape: Text; var ArgName: Text; var ArgState: Text) Ok: Boolean
     var
         X: Record "GRK X";
         Z: Record "GRK Z";
+        X3: Record "GRK X3";
+        Z3: Record "GRK Z3";
         RecRef: RecordRef;
     begin
         case Kind of
@@ -352,6 +517,22 @@ codeunit 99546 "GRK Tests"
                     ArgName := X.Name;
                     RecRef.GetTable(X);
                     ArgState := Mode.Describe(RecRef, X.FilterGroup());
+                end;
+            'z3':
+                begin
+                    PrepareZ3(Z3, Shape);
+                    Ok := Codeunit.Run(Codeunit::"GRK Inner Z3", Z3);
+                    ArgName := Z3.Name;
+                    RecRef.GetTable(Z3);
+                    ArgState := Mode.Describe(RecRef, Z3.FilterGroup());
+                end;
+            'x3':
+                begin
+                    PrepareX3(X3, Shape);
+                    Ok := Codeunit.Run(Codeunit::"GRK Inner X3", X3);
+                    ArgName := X3.Name;
+                    RecRef.GetTable(X3);
+                    ArgState := Mode.Describe(RecRef, X3.FilterGroup());
                 end;
         end;
     end;
@@ -442,6 +623,36 @@ codeunit 99546 "GRK Tests"
         end;
         R.FindFirst();
     end;
+
+    local procedure PrepareX3(var R: Record "GRK X3"; Shape: Text)
+    begin
+        case Shape of
+            'KeyCode3':
+                begin
+                    R.SetRange("No.", '1');
+                end;
+            'ThreeKey3':
+                begin
+                    R.SetRange("Source Type", 39); R.SetRange("Source No.", 'S1'); R.SetRange("Activity Type", R."Activity Type"::"Put-away");
+                end;
+        end;
+        R.FindFirst();
+    end;
+
+    local procedure PrepareZ3(var R: Record "GRK Z3"; Shape: Text)
+    begin
+        case Shape of
+            'KeyCode3':
+                begin
+                    R.SetRange("No.", '1');
+                end;
+            'ThreeKey3':
+                begin
+                    R.SetRange("Source Type", 39); R.SetRange("Source No.", 'S1'); R.SetRange("Activity Type", R."Activity Type"::"Put-away");
+                end;
+        end;
+        R.FindFirst();
+    end;
     local procedure RunThenEnd(Kind: Text; Shape: Text)
     var
         Ok: Boolean;
@@ -467,6 +678,7 @@ codeunit 99546 "GRK Tests"
     local procedure RecCell(var Observer: Codeunit "Probe Observer"; Kind: Text; Shape: Text; Steps: Text)
     begin
         Initialize(Steps);
+        Mode.SetThreeKey(Kind in ['z3', 'x3']);
         asserterror RunThenEnd(Kind, Shape);
         Observer.ObserveError('run end');
         Observer.Observe('log', Mode.GetLog());
@@ -480,10 +692,12 @@ codeunit 99546 "GRK Tests"
     var
         X: Record "GRK X";
         Z: Record "GRK Z";
+        X3: Record "GRK X3";
+        Z3: Record "GRK Z3";
         Res: Text;
         G: Integer;
     begin
-        Res := 'x count=' + Format(X.Count()) + ' z count=' + Format(Z.Count()) + ' z fg=' + Format(Z.FilterGroup());
+        Res := 'x count=' + Format(X.Count()) + ' z count=' + Format(Z.Count()) + ' x3 count=' + Format(X3.Count()) + ' z3 count=' + Format(Z3.Count()) + ' z fg=' + Format(Z.FilterGroup());
         for G := 0 to 6 do begin
             Z.FilterGroup(G);
             Res += ' g' + Format(G) + '=[' + Z.GetFilters() + ']';
@@ -1032,6 +1246,168 @@ codeunit 99546 "GRK Tests"
     end;
 
     [Test]
+    procedure RecZ_NoFilter3_Fails()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RecCell(Observer, 'z3', 'NoFilter3', 'startx,fya,err');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecZ_NoFilter3_Ends()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RecCell(Observer, 'z3', 'NoFilter3', 'startx,fya');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecZ_NoFilter3_PlainCommit()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RecCell(Observer, 'z3', 'NoFilter3', 'fxa,fya,commit');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecZ_NoFilter3_MarkedAgain()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RecCell(Observer, 'z3', 'NoFilter3', 'startx,fya,fyc,err');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecZ_NoFilter3_ReleasedThenHeld()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RecCell(Observer, 'z3', 'NoFilter3', 'startx,txb,fya,err');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecZ_NoFilter3_AgainThenHeld()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RecCell(Observer, 'z3', 'NoFilter3', 'fxa,txb,fxc,fya,err');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecZ_KeyCode3_Fails()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RecCell(Observer, 'z3', 'KeyCode3', 'startx,fya,err');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecZ_KeyCode3_Ends()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RecCell(Observer, 'z3', 'KeyCode3', 'startx,fya');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecZ_KeyCode3_PlainCommit()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RecCell(Observer, 'z3', 'KeyCode3', 'fxa,fya,commit');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecZ_KeyCode3_MarkedAgain()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RecCell(Observer, 'z3', 'KeyCode3', 'startx,fya,fyc,err');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecZ_KeyCode3_ReleasedThenHeld()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RecCell(Observer, 'z3', 'KeyCode3', 'startx,txb,fya,err');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecZ_KeyCode3_AgainThenHeld()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RecCell(Observer, 'z3', 'KeyCode3', 'fxa,txb,fxc,fya,err');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecZ_ThreeKey3_Fails()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RecCell(Observer, 'z3', 'ThreeKey3', 'startx,fya,err');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecZ_ThreeKey3_Ends()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RecCell(Observer, 'z3', 'ThreeKey3', 'startx,fya');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecZ_ThreeKey3_PlainCommit()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RecCell(Observer, 'z3', 'ThreeKey3', 'fxa,fya,commit');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecZ_ThreeKey3_MarkedAgain()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RecCell(Observer, 'z3', 'ThreeKey3', 'startx,fya,fyc,err');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecZ_ThreeKey3_ReleasedThenHeld()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RecCell(Observer, 'z3', 'ThreeKey3', 'startx,txb,fya,err');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecZ_ThreeKey3_AgainThenHeld()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RecCell(Observer, 'z3', 'ThreeKey3', 'fxa,txb,fxc,fya,err');
+        Observer.Finish();
+    end;
+
+    [Test]
     procedure RecX_NoFilter_Fails()
     var
         Observer: Codeunit "Probe Observer";
@@ -1568,6 +1944,168 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'ThreeKey', 'fxa,txb,fxc,fya,err');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecX_NoFilter3_Fails()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RecCell(Observer, 'x3', 'NoFilter3', 'startx,fya,err');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecX_NoFilter3_Ends()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RecCell(Observer, 'x3', 'NoFilter3', 'startx,fya');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecX_NoFilter3_PlainCommit()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RecCell(Observer, 'x3', 'NoFilter3', 'fxa,fya,commit');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecX_NoFilter3_MarkedAgain()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RecCell(Observer, 'x3', 'NoFilter3', 'startx,fya,fyc,err');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecX_NoFilter3_ReleasedThenHeld()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RecCell(Observer, 'x3', 'NoFilter3', 'startx,txb,fya,err');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecX_NoFilter3_AgainThenHeld()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RecCell(Observer, 'x3', 'NoFilter3', 'fxa,txb,fxc,fya,err');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecX_KeyCode3_Fails()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RecCell(Observer, 'x3', 'KeyCode3', 'startx,fya,err');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecX_KeyCode3_Ends()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RecCell(Observer, 'x3', 'KeyCode3', 'startx,fya');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecX_KeyCode3_PlainCommit()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RecCell(Observer, 'x3', 'KeyCode3', 'fxa,fya,commit');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecX_KeyCode3_MarkedAgain()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RecCell(Observer, 'x3', 'KeyCode3', 'startx,fya,fyc,err');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecX_KeyCode3_ReleasedThenHeld()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RecCell(Observer, 'x3', 'KeyCode3', 'startx,txb,fya,err');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecX_KeyCode3_AgainThenHeld()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RecCell(Observer, 'x3', 'KeyCode3', 'fxa,txb,fxc,fya,err');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecX_ThreeKey3_Fails()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RecCell(Observer, 'x3', 'ThreeKey3', 'startx,fya,err');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecX_ThreeKey3_Ends()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RecCell(Observer, 'x3', 'ThreeKey3', 'startx,fya');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecX_ThreeKey3_PlainCommit()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RecCell(Observer, 'x3', 'ThreeKey3', 'fxa,fya,commit');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecX_ThreeKey3_MarkedAgain()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RecCell(Observer, 'x3', 'ThreeKey3', 'startx,fya,fyc,err');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecX_ThreeKey3_ReleasedThenHeld()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RecCell(Observer, 'x3', 'ThreeKey3', 'startx,txb,fya,err');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RecX_ThreeKey3_AgainThenHeld()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RecCell(Observer, 'x3', 'ThreeKey3', 'fxa,txb,fxc,fya,err');
         Observer.Finish();
     end;
 }
