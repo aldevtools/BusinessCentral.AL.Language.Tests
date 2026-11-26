@@ -2,8 +2,16 @@
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160)
 // Probe: what the APIVersion column of Page Metadata and Query Metadata holds for an API object that declares several
-//   versions (al-runner issue 7818). The expected literals are the reporter's reading of Microsoft's MCP module
-//   (it splits the column on ','); the corpus CI matrix measures them on BC 27, 28 and 29.
+//   versions (al-runner issue 7818).
+// What BC did (measured on BC 27.5, 28.5 and 29.0, the same on all three):
+//   - APIVersion holds the declared versions joined by ',' with no spaces, in declaration order (no sorting), for
+//     Page Metadata and Query Metadata alike, with 2, 3 and 4 versions. Format() and FieldRef.Value give the same
+//     text; FieldRef.Length is 250.
+//   - SetRange on APIVersion is exact equality on the whole joined text: the full list matches, a single declared
+//     version does not.
+//   - SetFilter wildcards match against the joined text: '*v2.0*', 'v1.0*' (prefix) and '*v1.0' (suffix) match when
+//     the joined text contains, starts or ends with it; '*beta' does not match 'v2.0,beta,v1.0'. An OR filter
+//     'v1.0|<full list>' matches through its full-list part.
 // BC versions: 27, 28, 29
 // RISKY: API pages and queries need a valid publisher, group, version and entity names; own file so a compile failure
 //   drops only this file.
@@ -212,7 +220,10 @@ codeunit 68089 "LT MAV Multi ApiVersion Obs"
         Observer.Observe('two_value', '[' + QueryMetadata.APIVersion + ']');
         Observer.Observe('two_format', '[' + Format(QueryMetadata.APIVersion) + ']');
         Observer.Observe('two_length', Format(StrLen(QueryMetadata.APIVersion)));
-        Observer.Finish();
+        Observer.Expect('two_value', '[v2.0,v1.0]');
+        Observer.Expect('two_format', '[v2.0,v1.0]');
+        Observer.Expect('two_length', '9');
+        Observer.Verify();
     end;
 
     [Test]
@@ -224,7 +235,9 @@ codeunit 68089 "LT MAV Multi ApiVersion Obs"
         QueryMetadata.Get(Query::"LT MAV Api Query");
         Observer.Observe('three_format', '[' + Format(QueryMetadata.APIVersion) + ']');
         Observer.Observe('three_length', Format(StrLen(QueryMetadata.APIVersion)));
-        Observer.Finish();
+        Observer.Expect('three_format', '[v2.0,beta,v1.0]');
+        Observer.Expect('three_length', '14');
+        Observer.Verify();
     end;
 
     [Test]
@@ -245,7 +258,12 @@ codeunit 68089 "LT MAV Multi ApiVersion Obs"
         Observer.Observe('q2_full_list', Format(QueryMetadata.Count()));
         QueryMetadata.SetRange(APIVersion, 'v1.0');
         Observer.Observe('q2_one_version', Format(QueryMetadata.Count()));
-        Observer.Finish();
+        Observer.Expect('q3_full_list', '1');
+        Observer.Expect('q3_first_version', '0');
+        Observer.Expect('q3_last_version', '0');
+        Observer.Expect('q2_full_list', '1');
+        Observer.Expect('q2_one_version', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -272,7 +290,15 @@ codeunit 68089 "LT MAV Multi ApiVersion Obs"
         Observer.Observe('p2_or_list', Format(PageMetadata.Count()));
         PageMetadata.SetFilter(APIVersion, 'v1.0');
         Observer.Observe('p2_exact_one', Format(PageMetadata.Count()));
-        Observer.Finish();
+        Observer.Expect('p3_contains_v2', '1');
+        Observer.Expect('p3_starts_v1', '1');
+        Observer.Expect('p3_ends_beta', '1');
+        Observer.Expect('p3_or_list', '1');
+        Observer.Expect('p2_ends_v1', '1');
+        Observer.Expect('p2_starts_v2', '1');
+        Observer.Expect('p2_or_list', '1');
+        Observer.Expect('p2_exact_one', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -292,7 +318,12 @@ codeunit 68089 "LT MAV Multi ApiVersion Obs"
         Observer.Observe('q3_ends_beta', Format(QueryMetadata.Count()));
         QueryMetadata.SetFilter(APIVersion, 'v1.0|v2.0,beta,v1.0');
         Observer.Observe('q3_or_list', Format(QueryMetadata.Count()));
-        Observer.Finish();
+        Observer.Expect('q3_contains_v2', '1');
+        Observer.Expect('q3_starts_v2', '1');
+        Observer.Expect('q3_ends_v1', '1');
+        Observer.Expect('q3_ends_beta', '0');
+        Observer.Expect('q3_or_list', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -309,7 +340,10 @@ codeunit 68089 "LT MAV Multi ApiVersion Obs"
         FldRef := RecRef.Field(PageMetadata.FieldNo(APIVersion));
         Observer.Observe('p3_fieldref_value', '[' + Format(FldRef.Value) + ']');
         Observer.Observe('p3_fieldref_length', Format(FldRef.Length));
-        Observer.Finish();
+        Observer.Expect('p3_format', '[v1.0,v2.0,beta]');
+        Observer.Expect('p3_fieldref_value', '[v1.0,v2.0,beta]');
+        Observer.Expect('p3_fieldref_length', '250');
+        Observer.Verify();
     end;
 
     [Test]
@@ -328,7 +362,12 @@ codeunit 68089 "LT MAV Multi ApiVersion Obs"
         Observer.Observe('p4_first_version', Format(PageMetadata.Count()));
         PageMetadata.SetFilter(APIVersion, '*v3.0*');
         Observer.Observe('p4_contains_v3', Format(PageMetadata.Count()));
-        Observer.Finish();
+        Observer.Expect('p4_value', '[v1.0,v2.0,v3.0,beta]');
+        Observer.Expect('p4_length', '19');
+        Observer.Expect('p4_full_list', '1');
+        Observer.Expect('p4_first_version', '0');
+        Observer.Expect('p4_contains_v3', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -345,6 +384,10 @@ codeunit 68089 "LT MAV Multi ApiVersion Obs"
         Observer.Observe('q4_full_list', Format(QueryMetadata.Count()));
         QueryMetadata.SetRange(APIVersion, 'v1.0');
         Observer.Observe('q4_first_version', Format(QueryMetadata.Count()));
-        Observer.Finish();
+        Observer.Expect('q4_value', '[v1.0,v2.0,v3.0,beta]');
+        Observer.Expect('q4_length', '19');
+        Observer.Expect('q4_full_list', '1');
+        Observer.Expect('q4_first_version', '0');
+        Observer.Verify();
     end;
 }
