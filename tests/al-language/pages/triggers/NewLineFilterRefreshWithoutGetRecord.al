@@ -2,7 +2,16 @@
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160); own enum 91313, tables 91314 and 91315, log codeunit 91316 (SingleInstance, used by
 //   test codeunit 91328 only), pages 91317 to 91327, test codeunit 91328
-// Probe: written against BC on CI (no local container); every literal asserted below is what the CI tier produced. Other BC versions are checked by the corpus CI matrix.
+// Probe: written against BC on CI (no local container); every literal asserted below is what BC produced on 27.5, 28.5 and 29.0.
+//   The values were identical on all three versions, so no version guard.
+// Measured on: BC 27.5, 28.5 and 29.0 (CI, run of the observe-only commit).
+// Result: after the OnValidate changes the filter and calls CurrPage.Update(false), the new-row line shows the new filter value in the
+//   filtered key field and empty values elsewhere; no row is stored; OnAfterGetCurrRecord runs twice on open and twice again on the
+//   refresh (both runs show the new filter value); OnAfterGetRecord never runs on the empty line; OnNewRecord also runs twice and twice
+//   again where it is declared. A page without any of these triggers shows the same line values and logs nothing.
+//   A filter in filter group 2 or 4, a range filter, a two-value filter and a filter on a field outside the key leave the filtered field as it was.
+//   Page-variable shape: a procedure control in a hidden group is not evaluated; in a visible group it runs on open and on refresh.
+// Not measured: Code key on the Two-page shape, filter groups 2 and 4 on the Two page, OnNewRecord/OnAfterGetRecord on the Two page.
 // Facts: a List page with DelayedInsert over an empty table, opened with OpenEdit. A filter control's OnValidate changes a filter on Rec,
 //   then calls CurrPage.Update(false). What the new-row line shows afterwards (its key and non-key fields), which page triggers run
 //   (OnNewRecord, OnAfterGetRecord, OnAfterGetCurrRecord, with how often and on which values) and whether a row is stored.
@@ -1412,7 +1421,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('descr', P.Descr.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;');
+        Observer.Expect('item', '');
+        Observer.Expect('kind', 'C');
+        Observer.Expect('descr', '');
+        Observer.Expect('log', '');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1431,7 +1446,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('descr', P.Descr.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;');
+        Observer.Expect('item', '');
+        Observer.Expect('kind', 'C');
+        Observer.Expect('descr', '');
+        Observer.Expect('log', '');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1450,7 +1471,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('descr', P.Descr.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;');
+        Observer.Expect('item', '');
+        Observer.Expect('kind', 'C');
+        Observer.Expect('descr', '');
+        Observer.Expect('log', '');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1469,7 +1496,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('descr', P.Descr.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;');
+        Observer.Expect('item', '');
+        Observer.Expect('kind', 'C');
+        Observer.Expect('descr', '');
+        Observer.Expect('log', '');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1488,7 +1521,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('descr', P.Descr.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;Curr A//;Curr A//;');
+        Observer.Expect('item', '');
+        Observer.Expect('kind', 'C');
+        Observer.Expect('descr', '');
+        Observer.Expect('log', 'Curr C//;Curr C//;');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1507,7 +1546,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('descr', P.Descr.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;Curr A//;Curr A//;');
+        Observer.Expect('item', '');
+        Observer.Expect('kind', 'C');
+        Observer.Expect('descr', '');
+        Observer.Expect('log', 'Curr C//;Curr C//;');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1526,7 +1571,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('descr', P.Descr.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;Curr A//;Curr A//;');
+        Observer.Expect('item', '');
+        Observer.Expect('kind', 'C');
+        Observer.Expect('descr', '');
+        Observer.Expect('log', 'Curr C//;Curr C//;');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1545,7 +1596,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('descr', P.Descr.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;Curr A//;Curr A//;');
+        Observer.Expect('item', '');
+        Observer.Expect('kind', 'C');
+        Observer.Expect('descr', '');
+        Observer.Expect('log', 'Curr C//;Curr C//;');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1564,7 +1621,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('descr', P.Descr.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;');
+        Observer.Expect('item', '');
+        Observer.Expect('kind', 'C');
+        Observer.Expect('descr', '');
+        Observer.Expect('log', '');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1583,7 +1646,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('descr', P.Descr.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;');
+        Observer.Expect('item', '');
+        Observer.Expect('kind', 'C');
+        Observer.Expect('descr', '');
+        Observer.Expect('log', '');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1602,7 +1671,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('descr', P.Descr.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;');
+        Observer.Expect('item', '');
+        Observer.Expect('kind', 'C');
+        Observer.Expect('descr', '');
+        Observer.Expect('log', '');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1621,7 +1696,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('descr', P.Descr.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;');
+        Observer.Expect('item', '');
+        Observer.Expect('kind', 'C');
+        Observer.Expect('descr', '');
+        Observer.Expect('log', '');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1640,7 +1721,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('descr', P.Descr.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;New A///Yes;New A///Yes;');
+        Observer.Expect('item', '');
+        Observer.Expect('kind', 'C');
+        Observer.Expect('descr', '');
+        Observer.Expect('log', 'New C///Yes;New C///Yes;');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1659,7 +1746,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('descr', P.Descr.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;New A///Yes;New A///Yes;');
+        Observer.Expect('item', '');
+        Observer.Expect('kind', 'C');
+        Observer.Expect('descr', '');
+        Observer.Expect('log', 'New C///Yes;New C///Yes;');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1678,7 +1771,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('descr', P.Descr.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;New A///Yes;New A///Yes;');
+        Observer.Expect('item', '');
+        Observer.Expect('kind', 'C');
+        Observer.Expect('descr', '');
+        Observer.Expect('log', 'New C///Yes;New C///Yes;');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1697,7 +1796,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('descr', P.Descr.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;New A///Yes;New A///Yes;');
+        Observer.Expect('item', '');
+        Observer.Expect('kind', 'C');
+        Observer.Expect('descr', '');
+        Observer.Expect('log', 'New C///Yes;New C///Yes;');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1716,7 +1821,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('descr', P.Descr.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;New A///Yes;Curr A//;New A///Yes;Curr A//;');
+        Observer.Expect('item', '');
+        Observer.Expect('kind', 'C');
+        Observer.Expect('descr', '');
+        Observer.Expect('log', 'New C///Yes;Curr C//;New C///Yes;Curr C//;');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1735,7 +1846,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('descr', P.Descr.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;New A///Yes;Curr A//;New A///Yes;Curr A//;');
+        Observer.Expect('item', '');
+        Observer.Expect('kind', 'C');
+        Observer.Expect('descr', '');
+        Observer.Expect('log', 'New C///Yes;Curr C//;New C///Yes;Curr C//;');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1754,7 +1871,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('descr', P.Descr.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;New A///Yes;Curr A//;New A///Yes;Curr A//;');
+        Observer.Expect('item', '');
+        Observer.Expect('kind', 'C');
+        Observer.Expect('descr', '');
+        Observer.Expect('log', 'New C///Yes;Curr C//;New C///Yes;Curr C//;');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1773,7 +1896,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('descr', P.Descr.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;New A///Yes;Curr A//;New A///Yes;Curr A//;');
+        Observer.Expect('item', '');
+        Observer.Expect('kind', 'C');
+        Observer.Expect('descr', '');
+        Observer.Expect('log', 'New C///Yes;Curr C//;New C///Yes;Curr C//;');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1792,7 +1921,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('descr', P.Descr.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;Curr A//;Curr A//;');
+        Observer.Expect('item', '');
+        Observer.Expect('kind', 'C');
+        Observer.Expect('descr', '');
+        Observer.Expect('log', 'Curr C//;Curr C//;');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1811,7 +1946,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('descr', P.Descr.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;Curr A//;Curr A//;');
+        Observer.Expect('item', '');
+        Observer.Expect('kind', 'C');
+        Observer.Expect('descr', '');
+        Observer.Expect('log', 'Curr C//;Curr C//;');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1830,7 +1971,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('descr', P.Descr.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;Curr A//;Curr A//;');
+        Observer.Expect('item', '');
+        Observer.Expect('kind', 'C');
+        Observer.Expect('descr', '');
+        Observer.Expect('log', 'Curr C//;Curr C//;');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1849,7 +1996,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('descr', P.Descr.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;Curr A//;Curr A//;');
+        Observer.Expect('item', '');
+        Observer.Expect('kind', 'C');
+        Observer.Expect('descr', '');
+        Observer.Expect('log', 'Curr C//;Curr C//;');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1868,7 +2021,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('descr', P.Descr.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;Curr A//;Curr A//;');
+        Observer.Expect('item', '');
+        Observer.Expect('kind', 'A');
+        Observer.Expect('descr', '');
+        Observer.Expect('log', 'Curr A//;Curr A//;');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1887,7 +2046,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('descr', P.Descr.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;Curr A//;Curr A//;');
+        Observer.Expect('item', '');
+        Observer.Expect('kind', 'A');
+        Observer.Expect('descr', '');
+        Observer.Expect('log', 'Curr A//;Curr A//;');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1906,7 +2071,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('descr', P.Descr.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;Curr A//;Curr A//;');
+        Observer.Expect('item', '');
+        Observer.Expect('kind', 'A');
+        Observer.Expect('descr', '');
+        Observer.Expect('log', 'Curr A//;Curr A//;');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1925,7 +2096,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('descr', P.Descr.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;Curr A//;Curr A//;');
+        Observer.Expect('item', '');
+        Observer.Expect('kind', 'A');
+        Observer.Expect('descr', '');
+        Observer.Expect('log', 'Curr A//;Curr A//;');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1944,7 +2121,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('descr', P.Descr.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;Curr A//;Curr A//;');
+        Observer.Expect('item', '');
+        Observer.Expect('kind', 'A');
+        Observer.Expect('descr', '');
+        Observer.Expect('log', 'Curr A//;Curr A//;');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1963,7 +2146,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('descr', P.Descr.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;Curr A//;Curr A//;');
+        Observer.Expect('item', 'X');
+        Observer.Expect('kind', 'A');
+        Observer.Expect('descr', '');
+        Observer.Expect('log', 'Curr A/X/;Curr A/X/;');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1982,7 +2171,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('descr', P.Descr.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;Curr A//;Curr A//;');
+        Observer.Expect('item', 'X');
+        Observer.Expect('kind', 'C');
+        Observer.Expect('descr', '');
+        Observer.Expect('log', 'Curr C/X/;Curr C/X/;');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2001,7 +2196,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('descr', P.Descr.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;');
+        Observer.Expect('item', '');
+        Observer.Expect('kind', 'A');
+        Observer.Expect('descr', '');
+        Observer.Expect('log', '');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2020,7 +2221,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('descr', P.Descr.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;Curr A//;Curr A//;');
+        Observer.Expect('item', '');
+        Observer.Expect('kind', 'A');
+        Observer.Expect('descr', 'X');
+        Observer.Expect('log', 'Curr A//X;Curr A//X;');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2039,7 +2246,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('descr', P.Descr.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;Curr A//;Curr A//;');
+        Observer.Expect('item', 'X');
+        Observer.Expect('kind', 'A');
+        Observer.Expect('descr', '');
+        Observer.Expect('log', 'Curr A/X/;Curr A/X/;');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2062,7 +2275,15 @@ codeunit 91328 "NLF New Line Filter Refresh"
         P.Close();
         Observer.Observe('logAfterTyping', Log.Get());
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;Curr A//;Curr A//;');
+        Observer.Expect('item', '');
+        Observer.Expect('kind', 'C');
+        Observer.Expect('descr', '');
+        Observer.Expect('log', 'Curr C//;Curr C//;');
+        Observer.Expect('rows', '0/0');
+        Observer.Expect('logAfterTyping', 'Curr C//;Curr C//;');
+        Observer.Expect('stored', 'E /C/0/T;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2081,7 +2302,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('salesType', P."Sales Type".Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;Curr Item//A;Curr Item//A;');
+        Observer.Expect('type', 'Item');
+        Observer.Expect('code', '');
+        Observer.Expect('salesType', 'C');
+        Observer.Expect('log', 'Curr Item//C;Curr Item//C;');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2100,7 +2327,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('salesType', P."Sales Type".Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;Curr Item//A;Curr Item//A;');
+        Observer.Expect('type', 'Item');
+        Observer.Expect('code', '');
+        Observer.Expect('salesType', 'C');
+        Observer.Expect('log', 'Curr Item//C;Curr Item//C;');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2119,7 +2352,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('salesType', P."Sales Type".Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;Curr Item//A;Curr Item//A;');
+        Observer.Expect('type', 'Item');
+        Observer.Expect('code', '');
+        Observer.Expect('salesType', 'C');
+        Observer.Expect('log', 'Curr Item//C;Curr Item//C;');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2138,7 +2377,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('salesType', P."Sales Type".Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;Curr Item//A;Curr Item//A;');
+        Observer.Expect('type', 'Group');
+        Observer.Expect('code', '');
+        Observer.Expect('salesType', 'C');
+        Observer.Expect('log', 'Curr Group//C;Curr Group//C;');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2157,7 +2402,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('salesType', P."Sales Type".Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;Curr Item//A;Curr Item//A;');
+        Observer.Expect('type', 'Group');
+        Observer.Expect('code', '');
+        Observer.Expect('salesType', 'A');
+        Observer.Expect('log', 'Curr Group//A;Curr Group//A;');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2176,7 +2427,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('salesType', P."Sales Type".Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;Curr Item//A;Curr Item//A;');
+        Observer.Expect('type', 'Item');
+        Observer.Expect('code', '');
+        Observer.Expect('salesType', 'C');
+        Observer.Expect('log', 'Curr Item//C;Curr Item//C;');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2195,7 +2452,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('salesType', P."Sales Type".Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;');
+        Observer.Expect('type', 'Item');
+        Observer.Expect('code', '');
+        Observer.Expect('salesType', 'C');
+        Observer.Expect('log', '');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2214,7 +2477,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('salesType', P."Sales Type".Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;');
+        Observer.Expect('type', 'Item');
+        Observer.Expect('code', '');
+        Observer.Expect('salesType', 'C');
+        Observer.Expect('log', '');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2233,7 +2502,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('salesType', P."Sales Type".Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;');
+        Observer.Expect('type', 'Item');
+        Observer.Expect('code', '');
+        Observer.Expect('salesType', 'C');
+        Observer.Expect('log', '');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2252,7 +2527,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('salesType', P."Sales Type".Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;');
+        Observer.Expect('type', 'Group');
+        Observer.Expect('code', '');
+        Observer.Expect('salesType', 'C');
+        Observer.Expect('log', '');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2271,7 +2552,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('salesType', P."Sales Type".Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;');
+        Observer.Expect('type', 'Group');
+        Observer.Expect('code', '');
+        Observer.Expect('salesType', 'A');
+        Observer.Expect('log', '');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2290,7 +2577,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('salesType', P."Sales Type".Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;');
+        Observer.Expect('type', 'Item');
+        Observer.Expect('code', '');
+        Observer.Expect('salesType', 'C');
+        Observer.Expect('log', '');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2313,7 +2606,15 @@ codeunit 91328 "NLF New Line Filter Refresh"
         P.Close();
         Observer.Observe('logAfterTyping', Log.Get());
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;Curr Item//A;Curr Item//A;');
+        Observer.Expect('type', 'Item');
+        Observer.Expect('code', '');
+        Observer.Expect('salesType', 'C');
+        Observer.Expect('log', 'Curr Item//C;Curr Item//C;');
+        Observer.Expect('rows', '0/0');
+        Observer.Expect('logAfterTyping', 'Curr Item//C;Curr Item//C;');
+        Observer.Expect('stored', 'T Item//C/T;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2333,7 +2634,14 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('seen', P.Seen.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;Curr A//;Curr A//;');
+        Observer.Expect('item', '');
+        Observer.Expect('kind', 'C');
+        Observer.Expect('descr', '');
+        Observer.Expect('seen', '');
+        Observer.Expect('log', 'Curr C//;Curr C//;');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2353,7 +2661,14 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('seen', P.Seen.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;Curr A//;Curr A//;');
+        Observer.Expect('item', '');
+        Observer.Expect('kind', 'C');
+        Observer.Expect('descr', '');
+        Observer.Expect('seen', '');
+        Observer.Expect('log', 'Curr C//;Curr C//;');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2373,7 +2688,14 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('seen', P.Seen.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;');
+        Observer.Expect('item', '');
+        Observer.Expect('kind', 'C');
+        Observer.Expect('descr', '');
+        Observer.Expect('seen', '');
+        Observer.Expect('log', '');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2393,7 +2715,14 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('seen', P.Seen.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;');
+        Observer.Expect('item', '');
+        Observer.Expect('kind', 'C');
+        Observer.Expect('descr', '');
+        Observer.Expect('seen', '');
+        Observer.Expect('log', '');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2413,7 +2742,14 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('seen', P.Seen.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;Fn A;Curr A//;Fn A;Fn A;Curr A//;Fn A;');
+        Observer.Expect('item', '');
+        Observer.Expect('kind', 'C');
+        Observer.Expect('descr', '');
+        Observer.Expect('seen', 'C');
+        Observer.Expect('log', 'Fn C;Curr C//;Fn C;Fn C;Curr C//;Fn C;');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2433,6 +2769,13 @@ codeunit 91328 "NLF New Line Filter Refresh"
         Observer.Observe('seen', P.Seen.Value);
         Observer.Observe('log', Log.Get());
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('open', 'Open;Fn A;Curr A//;Fn A;Fn A;Curr A//;Fn A;');
+        Observer.Expect('item', '');
+        Observer.Expect('kind', 'C');
+        Observer.Expect('descr', '');
+        Observer.Expect('seen', 'C');
+        Observer.Expect('log', 'Fn C;Fn C;Curr C//;Fn C;Fn C;Curr C//;Fn C;');
+        Observer.Expect('rows', '0/0');
+        Observer.Verify();
     end;
 }
