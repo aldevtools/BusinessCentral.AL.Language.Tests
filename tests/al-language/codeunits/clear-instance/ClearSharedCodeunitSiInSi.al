@@ -29,6 +29,8 @@ codeunit 86660 "CSS a L0"
         Rec.Insert();
         Rec.SetRange("No.", V, V + 5);
         Rec.FindFirst();
+        Clear(L);
+        Clear(D);
         L.Add('a' + Format(V));
         D.Add('k', V);
         Flag := true;
@@ -85,6 +87,8 @@ codeunit 86661 "CSS a L1"
         Rec.Insert();
         Rec.SetRange("No.", V, V + 5);
         Rec.FindFirst();
+        Clear(L);
+        Clear(D);
         L.Add('a' + Format(V));
         D.Add('k', V);
         Flag := true;
@@ -241,6 +245,8 @@ codeunit 86665 "CSS b L0"
         Rec.Insert();
         Rec.SetRange("No.", V, V + 5);
         Rec.FindFirst();
+        Clear(L);
+        Clear(D);
         L.Add('a' + Format(V));
         D.Add('k', V);
         Flag := true;
@@ -297,6 +303,8 @@ codeunit 86666 "CSS b L1"
         Rec.Insert();
         Rec.SetRange("No.", V, V + 5);
         Rec.FindFirst();
+        Clear(L);
+        Clear(D);
         L.Add('a' + Format(V));
         D.Add('k', V);
         Flag := true;
@@ -395,6 +403,8 @@ codeunit 86668 "CSS c L0"
         Rec.Insert();
         Rec.SetRange("No.", V, V + 5);
         Rec.FindFirst();
+        Clear(L);
+        Clear(D);
         L.Add('a' + Format(V));
         D.Add('k', V);
         Flag := true;
@@ -451,6 +461,8 @@ codeunit 86669 "CSS c L1"
         Rec.Insert();
         Rec.SetRange("No.", V, V + 5);
         Rec.FindFirst();
+        Clear(L);
+        Clear(D);
         L.Add('a' + Format(V));
         D.Add('k', V);
         Flag := true;
@@ -549,6 +561,8 @@ codeunit 86671 "CSS d L0"
         Rec.Insert();
         Rec.SetRange("No.", V, V + 5);
         Rec.FindFirst();
+        Clear(L);
+        Clear(D);
         L.Add('a' + Format(V));
         D.Add('k', V);
         Flag := true;
@@ -606,6 +620,8 @@ codeunit 86672 "CSS d L1"
         Rec.Insert();
         Rec.SetRange("No.", V, V + 5);
         Rec.FindFirst();
+        Clear(L);
+        Clear(D);
         L.Add('a' + Format(V));
         D.Add('k', V);
         Flag := true;
@@ -662,6 +678,8 @@ codeunit 86673 "CSS d L2"
         Rec.Insert();
         Rec.SetRange("No.", V, V + 5);
         Rec.FindFirst();
+        Clear(L);
+        Clear(D);
         L.Add('a' + Format(V));
         D.Add('k', V);
         Flag := true;
@@ -789,6 +807,8 @@ codeunit 86676 "CSS e L0"
         Rec.Insert();
         Rec.SetRange("No.", V, V + 5);
         Rec.FindFirst();
+        Clear(L);
+        Clear(D);
         L.Add('a' + Format(V));
         D.Add('k', V);
         Flag := true;
@@ -845,6 +865,8 @@ codeunit 86677 "CSS e L1"
         Rec.Insert();
         Rec.SetRange("No.", V, V + 5);
         Rec.FindFirst();
+        Clear(L);
+        Clear(D);
         L.Add('a' + Format(V));
         D.Add('k', V);
         Flag := true;
@@ -901,6 +923,8 @@ codeunit 86678 "CSS e L2"
         Rec.Insert();
         Rec.SetRange("No.", V, V + 5);
         Rec.FindFirst();
+        Clear(L);
+        Clear(D);
         L.Add('a' + Format(V));
         D.Add('k', V);
         Flag := true;
@@ -1027,6 +1051,8 @@ codeunit 86681 "CSS f L0"
         Rec.Insert();
         Rec.SetRange("No.", V, V + 5);
         Rec.FindFirst();
+        Clear(L);
+        Clear(D);
         L.Add('a' + Format(V));
         D.Add('k', V);
         Flag := true;
@@ -1084,6 +1110,8 @@ codeunit 86682 "CSS f L1"
         Rec.Insert();
         Rec.SetRange("No.", V, V + 5);
         Rec.FindFirst();
+        Clear(L);
+        Clear(D);
         L.Add('a' + Format(V));
         D.Add('k', V);
         Flag := true;
@@ -1140,6 +1168,8 @@ codeunit 86683 "CSS f L2"
         Rec.Insert();
         Rec.SetRange("No.", V, V + 5);
         Rec.FindFirst();
+        Clear(L);
+        Clear(D);
         L.Add('a' + Format(V));
         D.Add('k', V);
         Flag := true;
