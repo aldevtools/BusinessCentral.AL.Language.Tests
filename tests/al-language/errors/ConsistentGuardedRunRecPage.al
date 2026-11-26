@@ -334,6 +334,9 @@ codeunit 99534 "GRP Tests"
         X.Consistent(true);
         Y.Consistent(true);
         Z.Consistent(true);
+        X.Reset();
+        Y.Reset();
+        Z.Reset();
         X.DeleteAll();
         Y.DeleteAll();
         Z.DeleteAll();
@@ -580,6 +583,22 @@ codeunit 99534 "GRP Tests"
         asserterror CommitThenEnd();
         Observer.ObserveError('commit');
         Observer.Observe('durable rows', DurableRows());
+        Observer.Observe('fresh record', FreshState());
+    end;
+
+    local procedure FreshState(): Text
+    var
+        X: Record "GRP X";
+        Z: Record "GRP Z";
+        Res: Text;
+        G: Integer;
+    begin
+        Res := 'x count=' + Format(X.Count()) + ' z count=' + Format(Z.Count()) + ' z fg=' + Format(Z.FilterGroup());
+        for G := 0 to 6 do begin
+            Z.FilterGroup(G);
+            Res += ' g' + Format(G) + '=[' + Z.GetFilters() + ']';
+        end;
+        exit(Res);
     end;
 
     local procedure PageCell(var Observer: Codeunit "Probe Observer"; Kind: Text; Variant: Text; Steps: Text)
