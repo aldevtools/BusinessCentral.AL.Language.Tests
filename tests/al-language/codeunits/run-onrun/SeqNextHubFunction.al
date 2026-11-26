@@ -56,6 +56,10 @@
 //     CODEUNIT.Run on the test codeunit and its OnBeforeTestRun returns true for 'OnRun' (TestRunnerGetMethods.Codeunit.al,
 //     lines 28 and 38-39), and 130452 sets no TestIsolation, so the test codeunit's OnRun makes the sequences outside any
 //     isolation before the run.
+// Run order (issue 1595): without the Commit() at the end of Prepare, the sequence OnRun made was sometimes gone in test b
+// ('missing', E1 always when it ran first; E1C, E4 and E5 now and then on the 29.0 leg, depending on the shard order), so a
+// cell's b_start depended on which codeunit the hub ran before it. Prepare commits the new sequence now, so every E cell
+// starts from a committed sequence whatever ran before it; the isolation then undoes only test a's own changes.
 // Object ids 73330-73338.
 // BC versions: 27.5, 28.5, 29.0
 
@@ -70,6 +74,8 @@ codeunit 73330 "LT SQH Seq"
         NumberSequence.Insert(Name, 1, 1, CompanyWide);
         if NumberSequence.Next(Name, CompanyWide) = 0 then;
         if NumberSequence.Next(Name, CompanyWide) = 0 then;
+        // Commit the new sequence, so it exists before test a on every run order (issue 1595).
+        Commit();
         exit('created');
     end;
 
