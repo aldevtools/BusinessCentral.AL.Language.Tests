@@ -294,7 +294,35 @@ codeunit 88415 "XEB Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunInsert(Observer, 0, 0, false);
-        Observer.Finish();
+        Observer.Expect('log.count', '21');
+        Observer.Expect('1 SB.Name', 'N0');
+        Observer.Expect('2 EB.xName', 'N0');
+        Observer.Expect('3 EB.xTag', 'T0');
+        Observer.Expect('4 EB.Name', 'N0');
+        Observer.Expect('5 T.xId', 'A');
+        Observer.Expect('6 T.xName', 'N0');
+        Observer.Expect('7 T.xTag', 'T0');
+        Observer.Expect('8 T.Name', 'N0');
+        Observer.Expect('9 T.Tag', 'T0');
+        Observer.Expect('10 T.xFmt', 'A\tN0\tT0\t');
+        Observer.Expect('11 T.fmtEq', 'Yes');
+        Observer.Expect('12 T.xFilt', '');
+        Observer.Expect('13 T.xKey', 'Id');
+        Observer.Expect('14 T.filt', '');
+        Observer.Expect('15 T.key', 'Id');
+        Observer.Expect('16 EI.xName', 'N0');
+        Observer.Expect('17 EI.xTag', 'T0');
+        Observer.Expect('18 EI.Name', 'N0');
+        Observer.Expect('19 EA.xName', 'N0');
+        Observer.Expect('20 EA.xTag', 'T0');
+        Observer.Expect('21 EA.Name', 'N0');
+        Observer.Expect('caller.Name', 'N0');
+        Observer.Expect('caller.Tag', 'T0');
+        Observer.Expect('caller.Copy', 'T0');
+        Observer.Expect('caller.filt', '');
+        Observer.Expect('caller.key', 'Id');
+        Observer.Expect('stored', 'N0/T0/T0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -303,7 +331,35 @@ codeunit 88415 "XEB Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunInsert(Observer, 1, 0, false);
-        Observer.Finish();
+        Observer.Expect('log.count', '21');
+        Observer.Expect('1 SB.Name', 'N0');
+        Observer.Expect('2 EB.xName', 'N0');
+        Observer.Expect('3 EB.xTag', 'T0');
+        Observer.Expect('4 EB.Name', 'N0');
+        Observer.Expect('5 T.xId', 'A');
+        Observer.Expect('6 T.xName', 'N0');
+        Observer.Expect('7 T.xTag', 'T0');
+        Observer.Expect('8 T.Name', 'EXT');
+        Observer.Expect('9 T.Tag', 'T0');
+        Observer.Expect('10 T.xFmt', 'A\tN0\tT0\t');
+        Observer.Expect('11 T.fmtEq', 'No');
+        Observer.Expect('12 T.xFilt', '');
+        Observer.Expect('13 T.xKey', 'Id');
+        Observer.Expect('14 T.filt', '');
+        Observer.Expect('15 T.key', 'Id');
+        Observer.Expect('16 EI.xName', 'N0');
+        Observer.Expect('17 EI.xTag', 'T0');
+        Observer.Expect('18 EI.Name', 'EXT');
+        Observer.Expect('19 EA.xName', 'N0');
+        Observer.Expect('20 EA.xTag', 'T0');
+        Observer.Expect('21 EA.Name', 'EXT');
+        Observer.Expect('caller.Name', 'EXT');
+        Observer.Expect('caller.Tag', 'T0');
+        Observer.Expect('caller.Copy', 'T0');
+        Observer.Expect('caller.filt', '');
+        Observer.Expect('caller.key', 'Id');
+        Observer.Expect('stored', 'EXT/T0/T0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -312,7 +368,35 @@ codeunit 88415 "XEB Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunInsert(Observer, 2, 0, false);
-        Observer.Finish();
+        Observer.Expect('log.count', '21');
+        Observer.Expect('1 SB.Name', 'N0');
+        Observer.Expect('2 EB.xName', 'N0');
+        Observer.Expect('3 EB.xTag', 'T0');
+        Observer.Expect('4 EB.Name', 'N0');
+        Observer.Expect('5 T.xId', 'A');
+        Observer.Expect('6 T.xName', 'N0');
+        Observer.Expect('7 T.xTag', 'T0');
+        Observer.Expect('8 T.Name', 'N0');
+        Observer.Expect('9 T.Tag', 'EXTTAG');
+        Observer.Expect('10 T.xFmt', 'A\tN0\tT0\t');
+        Observer.Expect('11 T.fmtEq', 'No');
+        Observer.Expect('12 T.xFilt', '');
+        Observer.Expect('13 T.xKey', 'Id');
+        Observer.Expect('14 T.filt', '');
+        Observer.Expect('15 T.key', 'Id');
+        Observer.Expect('16 EI.xName', 'N0');
+        Observer.Expect('17 EI.xTag', 'T0');
+        Observer.Expect('18 EI.Name', 'N0');
+        Observer.Expect('19 EA.xName', 'N0');
+        Observer.Expect('20 EA.xTag', 'T0');
+        Observer.Expect('21 EA.Name', 'N0');
+        Observer.Expect('caller.Name', 'N0');
+        Observer.Expect('caller.Tag', 'EXTTAG');
+        Observer.Expect('caller.Copy', 'EXTTAG');
+        Observer.Expect('caller.filt', '');
+        Observer.Expect('caller.key', 'Id');
+        Observer.Expect('stored', 'N0/EXTTAG/EXTTAG');
+        Observer.Verify();
     end;
 
     [Test]
@@ -321,7 +405,36 @@ codeunit 88415 "XEB Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunInsert(Observer, 0, 0, true);
-        Observer.Finish();
+        Observer.Expect('log.count', '22');
+        Observer.Expect('1 SB.Name', 'OTHER');
+        Observer.Expect('2 SB.Name', 'N0');
+        Observer.Expect('3 EB.xName', 'N0');
+        Observer.Expect('4 EB.xTag', 'T0');
+        Observer.Expect('5 EB.Name', 'N0');
+        Observer.Expect('6 T.xId', 'A');
+        Observer.Expect('7 T.xName', 'N0');
+        Observer.Expect('8 T.xTag', 'T0');
+        Observer.Expect('9 T.Name', 'N0');
+        Observer.Expect('10 T.Tag', 'T0');
+        Observer.Expect('11 T.xFmt', 'A\tN0\tT0\t');
+        Observer.Expect('12 T.fmtEq', 'Yes');
+        Observer.Expect('13 T.xFilt', '');
+        Observer.Expect('14 T.xKey', 'Id');
+        Observer.Expect('15 T.filt', '');
+        Observer.Expect('16 T.key', 'Id');
+        Observer.Expect('17 EI.xName', 'N0');
+        Observer.Expect('18 EI.xTag', 'T0');
+        Observer.Expect('19 EI.Name', 'N0');
+        Observer.Expect('20 EA.xName', 'N0');
+        Observer.Expect('21 EA.xTag', 'T0');
+        Observer.Expect('22 EA.Name', 'N0');
+        Observer.Expect('caller.Name', 'N0');
+        Observer.Expect('caller.Tag', 'T0');
+        Observer.Expect('caller.Copy', 'T0');
+        Observer.Expect('caller.filt', '');
+        Observer.Expect('caller.key', 'Id');
+        Observer.Expect('stored', 'N0/T0/T0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -330,7 +443,36 @@ codeunit 88415 "XEB Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunInsert(Observer, 1, 0, true);
-        Observer.Finish();
+        Observer.Expect('log.count', '22');
+        Observer.Expect('1 SB.Name', 'OTHER');
+        Observer.Expect('2 SB.Name', 'N0');
+        Observer.Expect('3 EB.xName', 'N0');
+        Observer.Expect('4 EB.xTag', 'T0');
+        Observer.Expect('5 EB.Name', 'N0');
+        Observer.Expect('6 T.xId', 'A');
+        Observer.Expect('7 T.xName', 'N0');
+        Observer.Expect('8 T.xTag', 'T0');
+        Observer.Expect('9 T.Name', 'EXT');
+        Observer.Expect('10 T.Tag', 'T0');
+        Observer.Expect('11 T.xFmt', 'A\tN0\tT0\t');
+        Observer.Expect('12 T.fmtEq', 'No');
+        Observer.Expect('13 T.xFilt', '');
+        Observer.Expect('14 T.xKey', 'Id');
+        Observer.Expect('15 T.filt', '');
+        Observer.Expect('16 T.key', 'Id');
+        Observer.Expect('17 EI.xName', 'N0');
+        Observer.Expect('18 EI.xTag', 'T0');
+        Observer.Expect('19 EI.Name', 'EXT');
+        Observer.Expect('20 EA.xName', 'N0');
+        Observer.Expect('21 EA.xTag', 'T0');
+        Observer.Expect('22 EA.Name', 'EXT');
+        Observer.Expect('caller.Name', 'EXT');
+        Observer.Expect('caller.Tag', 'T0');
+        Observer.Expect('caller.Copy', 'T0');
+        Observer.Expect('caller.filt', '');
+        Observer.Expect('caller.key', 'Id');
+        Observer.Expect('stored', 'EXT/T0/T0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -339,7 +481,35 @@ codeunit 88415 "XEB Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunInsert(Observer, 0, 1, false);
-        Observer.Finish();
+        Observer.Expect('log.count', '21');
+        Observer.Expect('1 SB.Name', 'N0');
+        Observer.Expect('2 EB.xName', 'N0');
+        Observer.Expect('3 EB.xTag', 'T0');
+        Observer.Expect('4 EB.Name', 'SUB');
+        Observer.Expect('5 T.xId', 'A');
+        Observer.Expect('6 T.xName', 'N0');
+        Observer.Expect('7 T.xTag', 'T0');
+        Observer.Expect('8 T.Name', 'SUB');
+        Observer.Expect('9 T.Tag', 'T0');
+        Observer.Expect('10 T.xFmt', 'A\tN0\tT0\t');
+        Observer.Expect('11 T.fmtEq', 'No');
+        Observer.Expect('12 T.xFilt', '');
+        Observer.Expect('13 T.xKey', 'Id');
+        Observer.Expect('14 T.filt', '');
+        Observer.Expect('15 T.key', 'Id');
+        Observer.Expect('16 EI.xName', 'N0');
+        Observer.Expect('17 EI.xTag', 'T0');
+        Observer.Expect('18 EI.Name', 'SUB');
+        Observer.Expect('19 EA.xName', 'N0');
+        Observer.Expect('20 EA.xTag', 'T0');
+        Observer.Expect('21 EA.Name', 'SUB');
+        Observer.Expect('caller.Name', 'SUB');
+        Observer.Expect('caller.Tag', 'T0');
+        Observer.Expect('caller.Copy', 'T0');
+        Observer.Expect('caller.filt', '');
+        Observer.Expect('caller.key', 'Id');
+        Observer.Expect('stored', 'SUB/T0/T0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -348,7 +518,35 @@ codeunit 88415 "XEB Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunInsert(Observer, 0, 2, false);
-        Observer.Finish();
+        Observer.Expect('log.count', '21');
+        Observer.Expect('1 SB.Name', 'N0');
+        Observer.Expect('2 EB.xName', 'N0');
+        Observer.Expect('3 EB.xTag', 'T0');
+        Observer.Expect('4 EB.Name', 'N0');
+        Observer.Expect('5 T.xId', 'A');
+        Observer.Expect('6 T.xName', 'N0');
+        Observer.Expect('7 T.xTag', 'T0');
+        Observer.Expect('8 T.Name', 'N0');
+        Observer.Expect('9 T.Tag', 'SUBTAG');
+        Observer.Expect('10 T.xFmt', 'A\tN0\tT0\t');
+        Observer.Expect('11 T.fmtEq', 'No');
+        Observer.Expect('12 T.xFilt', '');
+        Observer.Expect('13 T.xKey', 'Id');
+        Observer.Expect('14 T.filt', '');
+        Observer.Expect('15 T.key', 'Id');
+        Observer.Expect('16 EI.xName', 'N0');
+        Observer.Expect('17 EI.xTag', 'T0');
+        Observer.Expect('18 EI.Name', 'N0');
+        Observer.Expect('19 EA.xName', 'N0');
+        Observer.Expect('20 EA.xTag', 'T0');
+        Observer.Expect('21 EA.Name', 'N0');
+        Observer.Expect('caller.Name', 'N0');
+        Observer.Expect('caller.Tag', 'SUBTAG');
+        Observer.Expect('caller.Copy', 'SUBTAG');
+        Observer.Expect('caller.filt', '');
+        Observer.Expect('caller.key', 'Id');
+        Observer.Expect('stored', 'N0/SUBTAG/SUBTAG');
+        Observer.Verify();
     end;
 
     [Test]
@@ -357,7 +555,35 @@ codeunit 88415 "XEB Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunInsert(Observer, 1, 1, false);
-        Observer.Finish();
+        Observer.Expect('log.count', '21');
+        Observer.Expect('1 SB.Name', 'N0');
+        Observer.Expect('2 EB.xName', 'N0');
+        Observer.Expect('3 EB.xTag', 'T0');
+        Observer.Expect('4 EB.Name', 'SUB');
+        Observer.Expect('5 T.xId', 'A');
+        Observer.Expect('6 T.xName', 'N0');
+        Observer.Expect('7 T.xTag', 'T0');
+        Observer.Expect('8 T.Name', 'EXT');
+        Observer.Expect('9 T.Tag', 'T0');
+        Observer.Expect('10 T.xFmt', 'A\tN0\tT0\t');
+        Observer.Expect('11 T.fmtEq', 'No');
+        Observer.Expect('12 T.xFilt', '');
+        Observer.Expect('13 T.xKey', 'Id');
+        Observer.Expect('14 T.filt', '');
+        Observer.Expect('15 T.key', 'Id');
+        Observer.Expect('16 EI.xName', 'N0');
+        Observer.Expect('17 EI.xTag', 'T0');
+        Observer.Expect('18 EI.Name', 'EXT');
+        Observer.Expect('19 EA.xName', 'N0');
+        Observer.Expect('20 EA.xTag', 'T0');
+        Observer.Expect('21 EA.Name', 'EXT');
+        Observer.Expect('caller.Name', 'EXT');
+        Observer.Expect('caller.Tag', 'T0');
+        Observer.Expect('caller.Copy', 'T0');
+        Observer.Expect('caller.filt', '');
+        Observer.Expect('caller.key', 'Id');
+        Observer.Expect('stored', 'EXT/T0/T0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -366,7 +592,35 @@ codeunit 88415 "XEB Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunInsert(Observer, 3, 0, false);
-        Observer.Finish();
+        Observer.Expect('log.count', '21');
+        Observer.Expect('1 SB.Name', 'N0');
+        Observer.Expect('2 EB.xName', 'N0');
+        Observer.Expect('3 EB.xTag', 'T0');
+        Observer.Expect('4 EB.Name', 'N0');
+        Observer.Expect('5 T.xId', 'A');
+        Observer.Expect('6 T.xName', 'N0');
+        Observer.Expect('7 T.xTag', 'T0');
+        Observer.Expect('8 T.Name', 'N0');
+        Observer.Expect('9 T.Tag', 'T0');
+        Observer.Expect('10 T.xFmt', 'A\tN0\tT0\t');
+        Observer.Expect('11 T.fmtEq', 'Yes');
+        Observer.Expect('12 T.xFilt', 'Name: N0');
+        Observer.Expect('13 T.xKey', 'Id');
+        Observer.Expect('14 T.filt', 'Name: N0');
+        Observer.Expect('15 T.key', 'Id');
+        Observer.Expect('16 EI.xName', 'N0');
+        Observer.Expect('17 EI.xTag', 'T0');
+        Observer.Expect('18 EI.Name', 'N0');
+        Observer.Expect('19 EA.xName', 'N0');
+        Observer.Expect('20 EA.xTag', 'T0');
+        Observer.Expect('21 EA.Name', 'N0');
+        Observer.Expect('caller.Name', 'N0');
+        Observer.Expect('caller.Tag', 'T0');
+        Observer.Expect('caller.Copy', 'T0');
+        Observer.Expect('caller.filt', 'Name: N0');
+        Observer.Expect('caller.key', 'Id');
+        Observer.Expect('stored', 'N0/T0/T0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -375,7 +629,35 @@ codeunit 88415 "XEB Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunInsert(Observer, 4, 0, false);
-        Observer.Finish();
+        Observer.Expect('log.count', '21');
+        Observer.Expect('1 SB.Name', 'N0');
+        Observer.Expect('2 EB.xName', 'N0');
+        Observer.Expect('3 EB.xTag', 'T0');
+        Observer.Expect('4 EB.Name', 'N0');
+        Observer.Expect('5 T.xId', 'A');
+        Observer.Expect('6 T.xName', 'N0');
+        Observer.Expect('7 T.xTag', 'T0');
+        Observer.Expect('8 T.Name', 'N0');
+        Observer.Expect('9 T.Tag', 'T0');
+        Observer.Expect('10 T.xFmt', 'A\tN0\tT0\t');
+        Observer.Expect('11 T.fmtEq', 'Yes');
+        Observer.Expect('12 T.xFilt', '');
+        Observer.Expect('13 T.xKey', 'Name');
+        Observer.Expect('14 T.filt', '');
+        Observer.Expect('15 T.key', 'Name');
+        Observer.Expect('16 EI.xName', 'N0');
+        Observer.Expect('17 EI.xTag', 'T0');
+        Observer.Expect('18 EI.Name', 'N0');
+        Observer.Expect('19 EA.xName', 'N0');
+        Observer.Expect('20 EA.xTag', 'T0');
+        Observer.Expect('21 EA.Name', 'N0');
+        Observer.Expect('caller.Name', 'N0');
+        Observer.Expect('caller.Tag', 'T0');
+        Observer.Expect('caller.Copy', 'T0');
+        Observer.Expect('caller.filt', '');
+        Observer.Expect('caller.key', 'Name');
+        Observer.Expect('stored', 'N0/T0/T0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -384,7 +666,33 @@ codeunit 88415 "XEB Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunDelete(Observer, 0, 0, false);
-        Observer.Finish();
+        Observer.Expect('log.count', '22');
+        Observer.Expect('1 SB.Name', 'N0');
+        Observer.Expect('2 SB.Name', 'N0');
+        Observer.Expect('3 EB.xName', 'N0');
+        Observer.Expect('4 EB.xTag', 'T0');
+        Observer.Expect('5 EB.Name', 'N0');
+        Observer.Expect('6 T.xId', 'A');
+        Observer.Expect('7 T.xName', 'N0');
+        Observer.Expect('8 T.xTag', 'T0');
+        Observer.Expect('9 T.Name', 'N0');
+        Observer.Expect('10 T.Tag', 'T0');
+        Observer.Expect('11 T.xFmt', 'A\tN0\tT0\t');
+        Observer.Expect('12 T.fmtEq', 'Yes');
+        Observer.Expect('13 T.xFilt', '');
+        Observer.Expect('14 T.xKey', 'Id');
+        Observer.Expect('15 T.filt', '');
+        Observer.Expect('16 T.key', 'Id');
+        Observer.Expect('17 ED.xName', 'N0');
+        Observer.Expect('18 ED.xTag', 'T0');
+        Observer.Expect('19 ED.Name', 'N0');
+        Observer.Expect('20 EA.xName', 'N0');
+        Observer.Expect('21 EA.xTag', 'T0');
+        Observer.Expect('22 EA.Name', 'N0');
+        Observer.Expect('caller.Name', 'N0');
+        Observer.Expect('caller.filt', '');
+        Observer.Expect('stored.count', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -393,7 +701,33 @@ codeunit 88415 "XEB Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunDelete(Observer, 0, 0, true);
-        Observer.Finish();
+        Observer.Expect('log.count', '22');
+        Observer.Expect('1 SB.Name', 'N0');
+        Observer.Expect('2 SB.Name', 'BUF');
+        Observer.Expect('3 EB.xName', 'BUF');
+        Observer.Expect('4 EB.xTag', 'T0');
+        Observer.Expect('5 EB.Name', 'BUF');
+        Observer.Expect('6 T.xId', 'A');
+        Observer.Expect('7 T.xName', 'BUF');
+        Observer.Expect('8 T.xTag', 'T0');
+        Observer.Expect('9 T.Name', 'BUF');
+        Observer.Expect('10 T.Tag', 'T0');
+        Observer.Expect('11 T.xFmt', 'A\tBUF\tT0\t');
+        Observer.Expect('12 T.fmtEq', 'Yes');
+        Observer.Expect('13 T.xFilt', '');
+        Observer.Expect('14 T.xKey', 'Id');
+        Observer.Expect('15 T.filt', '');
+        Observer.Expect('16 T.key', 'Id');
+        Observer.Expect('17 ED.xName', 'BUF');
+        Observer.Expect('18 ED.xTag', 'T0');
+        Observer.Expect('19 ED.Name', 'BUF');
+        Observer.Expect('20 EA.xName', 'BUF');
+        Observer.Expect('21 EA.xTag', 'T0');
+        Observer.Expect('22 EA.Name', 'BUF');
+        Observer.Expect('caller.Name', 'BUF');
+        Observer.Expect('caller.filt', '');
+        Observer.Expect('stored.count', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -402,7 +736,33 @@ codeunit 88415 "XEB Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunDelete(Observer, 1, 0, false);
-        Observer.Finish();
+        Observer.Expect('log.count', '22');
+        Observer.Expect('1 SB.Name', 'N0');
+        Observer.Expect('2 SB.Name', 'N0');
+        Observer.Expect('3 EB.xName', 'N0');
+        Observer.Expect('4 EB.xTag', 'T0');
+        Observer.Expect('5 EB.Name', 'N0');
+        Observer.Expect('6 T.xId', 'A');
+        Observer.Expect('7 T.xName', 'N0');
+        Observer.Expect('8 T.xTag', 'T0');
+        Observer.Expect('9 T.Name', 'EXT');
+        Observer.Expect('10 T.Tag', 'T0');
+        Observer.Expect('11 T.xFmt', 'A\tN0\tT0\t');
+        Observer.Expect('12 T.fmtEq', 'No');
+        Observer.Expect('13 T.xFilt', '');
+        Observer.Expect('14 T.xKey', 'Id');
+        Observer.Expect('15 T.filt', '');
+        Observer.Expect('16 T.key', 'Id');
+        Observer.Expect('17 ED.xName', 'N0');
+        Observer.Expect('18 ED.xTag', 'T0');
+        Observer.Expect('19 ED.Name', 'EXT');
+        Observer.Expect('20 EA.xName', 'N0');
+        Observer.Expect('21 EA.xTag', 'T0');
+        Observer.Expect('22 EA.Name', 'EXT');
+        Observer.Expect('caller.Name', 'EXT');
+        Observer.Expect('caller.filt', '');
+        Observer.Expect('stored.count', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -411,7 +771,33 @@ codeunit 88415 "XEB Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunDelete(Observer, 1, 0, true);
-        Observer.Finish();
+        Observer.Expect('log.count', '22');
+        Observer.Expect('1 SB.Name', 'N0');
+        Observer.Expect('2 SB.Name', 'BUF');
+        Observer.Expect('3 EB.xName', 'BUF');
+        Observer.Expect('4 EB.xTag', 'T0');
+        Observer.Expect('5 EB.Name', 'BUF');
+        Observer.Expect('6 T.xId', 'A');
+        Observer.Expect('7 T.xName', 'BUF');
+        Observer.Expect('8 T.xTag', 'T0');
+        Observer.Expect('9 T.Name', 'EXT');
+        Observer.Expect('10 T.Tag', 'T0');
+        Observer.Expect('11 T.xFmt', 'A\tBUF\tT0\t');
+        Observer.Expect('12 T.fmtEq', 'No');
+        Observer.Expect('13 T.xFilt', '');
+        Observer.Expect('14 T.xKey', 'Id');
+        Observer.Expect('15 T.filt', '');
+        Observer.Expect('16 T.key', 'Id');
+        Observer.Expect('17 ED.xName', 'BUF');
+        Observer.Expect('18 ED.xTag', 'T0');
+        Observer.Expect('19 ED.Name', 'EXT');
+        Observer.Expect('20 EA.xName', 'BUF');
+        Observer.Expect('21 EA.xTag', 'T0');
+        Observer.Expect('22 EA.Name', 'EXT');
+        Observer.Expect('caller.Name', 'EXT');
+        Observer.Expect('caller.filt', '');
+        Observer.Expect('stored.count', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -420,7 +806,33 @@ codeunit 88415 "XEB Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunDelete(Observer, 2, 0, false);
-        Observer.Finish();
+        Observer.Expect('log.count', '22');
+        Observer.Expect('1 SB.Name', 'N0');
+        Observer.Expect('2 SB.Name', 'N0');
+        Observer.Expect('3 EB.xName', 'N0');
+        Observer.Expect('4 EB.xTag', 'T0');
+        Observer.Expect('5 EB.Name', 'N0');
+        Observer.Expect('6 T.xId', 'A');
+        Observer.Expect('7 T.xName', 'N0');
+        Observer.Expect('8 T.xTag', 'T0');
+        Observer.Expect('9 T.Name', 'N0');
+        Observer.Expect('10 T.Tag', 'EXTTAG');
+        Observer.Expect('11 T.xFmt', 'A\tN0\tT0\t');
+        Observer.Expect('12 T.fmtEq', 'No');
+        Observer.Expect('13 T.xFilt', '');
+        Observer.Expect('14 T.xKey', 'Id');
+        Observer.Expect('15 T.filt', '');
+        Observer.Expect('16 T.key', 'Id');
+        Observer.Expect('17 ED.xName', 'N0');
+        Observer.Expect('18 ED.xTag', 'T0');
+        Observer.Expect('19 ED.Name', 'N0');
+        Observer.Expect('20 EA.xName', 'N0');
+        Observer.Expect('21 EA.xTag', 'T0');
+        Observer.Expect('22 EA.Name', 'N0');
+        Observer.Expect('caller.Name', 'N0');
+        Observer.Expect('caller.filt', '');
+        Observer.Expect('stored.count', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -429,7 +841,33 @@ codeunit 88415 "XEB Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunDelete(Observer, 3, 0, false);
-        Observer.Finish();
+        Observer.Expect('log.count', '22');
+        Observer.Expect('1 SB.Name', 'N0');
+        Observer.Expect('2 SB.Name', 'N0');
+        Observer.Expect('3 EB.xName', 'N0');
+        Observer.Expect('4 EB.xTag', 'T0');
+        Observer.Expect('5 EB.Name', 'N0');
+        Observer.Expect('6 T.xId', 'A');
+        Observer.Expect('7 T.xName', 'N0');
+        Observer.Expect('8 T.xTag', 'T0');
+        Observer.Expect('9 T.Name', 'N0');
+        Observer.Expect('10 T.Tag', 'T0');
+        Observer.Expect('11 T.xFmt', 'A\tN0\tT0\t');
+        Observer.Expect('12 T.fmtEq', 'Yes');
+        Observer.Expect('13 T.xFilt', 'Name: N0');
+        Observer.Expect('14 T.xKey', 'Id');
+        Observer.Expect('15 T.filt', 'Name: N0');
+        Observer.Expect('16 T.key', 'Id');
+        Observer.Expect('17 ED.xName', 'N0');
+        Observer.Expect('18 ED.xTag', 'T0');
+        Observer.Expect('19 ED.Name', 'N0');
+        Observer.Expect('20 EA.xName', 'N0');
+        Observer.Expect('21 EA.xTag', 'T0');
+        Observer.Expect('22 EA.Name', 'N0');
+        Observer.Expect('caller.Name', 'N0');
+        Observer.Expect('caller.filt', 'Name: N0');
+        Observer.Expect('stored.count', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -438,6 +876,32 @@ codeunit 88415 "XEB Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunDelete(Observer, 0, 1, false);
-        Observer.Finish();
+        Observer.Expect('log.count', '22');
+        Observer.Expect('1 SB.Name', 'N0');
+        Observer.Expect('2 SB.Name', 'N0');
+        Observer.Expect('3 EB.xName', 'N0');
+        Observer.Expect('4 EB.xTag', 'T0');
+        Observer.Expect('5 EB.Name', 'SUB');
+        Observer.Expect('6 T.xId', 'A');
+        Observer.Expect('7 T.xName', 'N0');
+        Observer.Expect('8 T.xTag', 'T0');
+        Observer.Expect('9 T.Name', 'SUB');
+        Observer.Expect('10 T.Tag', 'T0');
+        Observer.Expect('11 T.xFmt', 'A\tN0\tT0\t');
+        Observer.Expect('12 T.fmtEq', 'No');
+        Observer.Expect('13 T.xFilt', '');
+        Observer.Expect('14 T.xKey', 'Id');
+        Observer.Expect('15 T.filt', '');
+        Observer.Expect('16 T.key', 'Id');
+        Observer.Expect('17 ED.xName', 'N0');
+        Observer.Expect('18 ED.xTag', 'T0');
+        Observer.Expect('19 ED.Name', 'SUB');
+        Observer.Expect('20 EA.xName', 'N0');
+        Observer.Expect('21 EA.xTag', 'T0');
+        Observer.Expect('22 EA.Name', 'SUB');
+        Observer.Expect('caller.Name', 'SUB');
+        Observer.Expect('caller.filt', '');
+        Observer.Expect('stored.count', '0');
+        Observer.Verify();
     end;
 }
