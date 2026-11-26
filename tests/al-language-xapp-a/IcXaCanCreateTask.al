@@ -3,7 +3,9 @@
 // OnCompanyOpenCompleted and "System Initialization".OnAfterLogin call it gets, what TaskScheduler.CanCreateTask() answers there, beside
 // Session.GetExecutionContext(), Session.GetCurrentModuleExecutionContext() and Session.CurrentExecutionMode(). The main app's install subscribers
 // read the list (IcInstallCanCreateTask.al): Microsoft's own login subscribers (System Application) are in another app than the one being installed,
-// like this one. No writes, no install code.
+// like this one. The subscribers write nothing.
+// OnRun is the codeunit that the install code of IcXaInstallCanCreateTask.al hands to TaskScheduler.CreateTask (or runs with Codeunit.Run when
+// CanCreateTask answers No): it writes one row with its session id, company, client type and the same reads, only with `if Insert() then;`.
 // BC versions: 27 - 29
 
 codeunit 98498 "LT IC XA Seen"
@@ -12,6 +14,19 @@ codeunit 98498 "LT IC XA Seen"
 
     var
         Calls: Text;
+
+    trigger OnRun()
+    var
+        Log: Record "LT IC XA Log";
+    begin
+        Log.Init();
+        Log.Kind := 'codeunit ran';
+        Log.Company := CopyStr(CompanyName(), 1, MaxStrLen(Log.Company));
+        Log."Session Id" := SessionId();
+        Log.Facts := CopyStr('client=' + Format(CurrentClientType()) + ',ctx=' + Format(Session.GetExecutionContext()) +
+            ',mod=' + Format(Session.GetCurrentModuleExecutionContext()) + ',cct=' + Format(TaskScheduler.CanCreateTask()), 1, MaxStrLen(Log.Facts));
+        if Log.Insert() then;
+    end;
 
     procedure AsText(): Text
     begin

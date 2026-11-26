@@ -9,6 +9,15 @@
 //   Session.GetExecutionContext() (ctx), Session.GetCurrentModuleExecutionContext() (mod) and Session.CurrentExecutionMode() (mode).
 //   Install-session rows are the rows with the session id of the install code's rows. The test session is the control.
 //   Companies are numbered C1, C2, ... in the order of their first row (no names: the company order differs between hosts).
+//   XApp A cells: XApp A's Subtype = Install codeunit (tests/al-language-xapp-a/IcXaInstallCanCreateTask.al) reads the same facts in
+//   OnInstallAppPerCompany (session company, other company) and OnInstallAppPerDatabase, then runs
+//   `if CanCreateTask then CreateTask("LT IC XA Seen", 0) else Codeunit.Run("LT IC XA Seen")`. The test reads which branch ran, whether the task
+//   still exists (TaskExists, Scheduled Task rows), and the rows the codeunit wrote (task session or install session), when the test starts and
+//   again after a pause of up to 60 seconds.
+// Measured on: BC 27.5, 28.5 and 29.0 in corpus CI (fresh install of every app). The three subscriber tests gave the same values on all three.
+//   In the install session CanCreateTask answers Yes in all four subscribers, in XApp A's subscribers, and in both install triggers; in the
+//   test session it answers Yes in the subscribers and No in the test procedure.
+// Not measured: upgrade sessions (CI installs fresh; the fixtures write rows for Upgrade too).
 // BC versions: 27 - 29
 codeunit 75993 "LT IC Install CCT Tests"
 {
@@ -32,6 +41,108 @@ codeunit 75993 "LT IC Install CCT Tests"
         if Log.FindFirst() then
             exit(Log."Session Id");
         exit(-1);
+    end;
+
+    local procedure CompanyLabel(Company: Text): Text
+    begin
+        if Company = '' then
+            exit('blank');
+        if Company = CompanyName() then
+            exit('session company');
+        exit('other company');
+    end;
+
+    local procedure XaInstallSessionId(): Integer
+    var
+        XaLog: Record "LT IC XA Log";
+    begin
+        XaLog.SetRange(Kind, 'install per database');
+        if XaLog.FindFirst() then
+            exit(XaLog."Session Id");
+        exit(-1);
+    end;
+
+    local procedure TaskState(): Text
+    var
+        XaLog: Record "LT IC XA Log";
+        Task: Record "Scheduled Task";
+        Result: Text;
+        InstallId: Integer;
+    begin
+        SelectLatestVersion();
+        InstallId := XaInstallSessionId();
+        XaLog.SetCurrentKey(Id);
+        XaLog.SetFilter(Kind, 'install per company|install per database');
+        if XaLog.FindSet() then
+            repeat
+                if not IsNullGuid(XaLog."Task Id") then
+                    Result += XaLog.Kind + ' ' + CompanyLabel(XaLog.Company) + ': TaskExists=' + Format(TaskScheduler.TaskExists(XaLog."Task Id")) + ';';
+            until XaLog.Next() = 0;
+        Task.SetRange("Run Codeunit", Codeunit::"LT IC XA Seen");
+        Result += 'Scheduled Task rows=' + Format(Task.Count()) + ';';
+        XaLog.SetRange(Kind, 'codeunit ran');
+        Result += 'codeunit ran rows=' + Format(XaLog.Count()) + ';';
+        if XaLog.FindSet() then
+            repeat
+                Result += CompanyLabel(XaLog.Company) + '|install session=' + Format(XaLog."Session Id" = InstallId) + '|' + XaLog.Facts + ';';
+            until XaLog.Next() = 0;
+        exit(Result);
+    end;
+
+    local procedure CreateTaskCount(): Integer
+    var
+        XaLog: Record "LT IC XA Log";
+    begin
+        XaLog.SetRange(Branch, 'CreateTask');
+        exit(XaLog.Count());
+    end;
+
+    local procedure RanCount(): Integer
+    var
+        XaLog: Record "LT IC XA Log";
+    begin
+        SelectLatestVersion();
+        XaLog.SetRange(Kind, 'codeunit ran');
+        exit(XaLog.Count());
+    end;
+
+    [Test]
+    procedure XAppAInstall_CreateTask_OrCodeunitRun_TaskRuns()
+    var
+        Observer: Codeunit "Probe Observer";
+        Waited: Integer;
+    begin
+        Observer.Observe('when the test starts', TaskState());
+        while (RanCount() < CreateTaskCount()) and (Waited < 60) do begin
+            Sleep(1000);
+            Waited += 1;
+        end;
+        Observer.Observe('all tasks ran within 60 seconds', Format(RanCount() >= CreateTaskCount()));
+        Observer.Observe('after the pause', TaskState());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure XAppAInstall_CanCreateTask_InInstallTriggers()
+    var
+        Observer: Codeunit "Probe Observer";
+        XaLog: Record "LT IC XA Log";
+        InstallId: Integer;
+        OneSession: Boolean;
+    begin
+        InstallId := XaInstallSessionId();
+        Observer.Observe('install per database row', Format(InstallId <> -1));
+        OneSession := true;
+        XaLog.SetCurrentKey(Id);
+        XaLog.SetFilter(Kind, 'install per company|install per database');
+        if XaLog.FindSet() then
+            repeat
+                Observer.Observe(XaLog.Kind + ' ' + CompanyLabel(XaLog.Company), XaLog.Facts + '|' + XaLog.Branch + '|task id blank=' + Format(IsNullGuid(XaLog."Task Id")));
+                OneSession := OneSession and (XaLog."Session Id" = InstallId);
+            until XaLog.Next() = 0;
+        Observer.Observe('all install rows in one session', Format(OneSession));
+        Observer.Observe('test session is the install session', Format(SessionId() = InstallId));
+        Observer.Finish();
     end;
 
     [Test]
@@ -61,7 +172,12 @@ codeunit 75993 "LT IC Install CCT Tests"
         PerCompanySessions := Log.Count();
         Observer.Observe('per company install rows in another session', Format(PerCompanySessions));
         Observer.Observe('test session is the install session', Format(SessionId() = InstallId));
-        Observer.Finish();
+        Observer.Expect('install per database rows', 'Yes');
+        Observer.Expect('install session', 'OnAfterInitialization|C1|ctx=Install,mod=Install,mode=Standard,cct=Yes;OnCompanyOpen|C1|ctx=Install,mod=Install,mode=Standard,cct=Yes;OnAfterLogin|C1|ctx=Install,mod=Install,mode=Standard,cct=Yes;OnCompanyOpenCompleted|C1|ctx=Install,mod=Install,mode=Standard,cct=Yes;install per company|C1|ctx=Install,mod=Install,mode=Standard,cct=Yes;OnAfterInitialization|C2|ctx=Install,mod=Install,mode=Standard,cct=Yes;OnCompanyOpen|C2|ctx=Install,mod=Install,mode=Standard,cct=Yes;OnAfterLogin|C2|ctx=Install,mod=Install,mode=Standard,cct=Yes;OnCompanyOpenCompleted|C2|ctx=Install,mod=Install,mode=Standard,cct=Yes;install per company|C2|ctx=Install,mod=Install,mode=Standard,cct=Yes;install per database|blank|ctx=Install,mod=Install,mode=Standard,cct=Yes;');
+        Observer.Expect('rows of other sessions', '0');
+        Observer.Expect('per company install rows in another session', '0');
+        Observer.Expect('test session is the install session', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -77,7 +193,10 @@ codeunit 75993 "LT IC Install CCT Tests"
             repeat
                 Observer.Observe(Log.Kind + ' ' + CompanyNo(Companies, Log.Company) + ': xapp a subscriber', Log."XA Seen");
             until Log.Next() = 0;
-        Observer.Finish();
+        Observer.Expect('install per company C1: xapp a subscriber', 'OnCompanyOpen|ctx=Install,mod=Normal,mode=Standard,cct=Yes;OnAfterLogin|ctx=Install,mod=Normal,mode=Standard,cct=Yes;OnCompanyOpenCompleted|ctx=Install,mod=Normal,mode=Standard,cct=Yes;');
+        Observer.Expect('install per company C2: xapp a subscriber', 'OnCompanyOpen|ctx=Install,mod=Normal,mode=Standard,cct=Yes;OnAfterLogin|ctx=Install,mod=Normal,mode=Standard,cct=Yes;OnCompanyOpenCompleted|ctx=Install,mod=Normal,mode=Standard,cct=Yes;');
+        Observer.Expect('install per database blank: xapp a subscriber', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -91,6 +210,9 @@ codeunit 75993 "LT IC Install CCT Tests"
         Observer.Observe('subscribers in the test session', State.AsText());
         Observer.Observe('xapp a subscriber in the test session', XaSeen.AsText());
         Observer.Observe('test procedure', Subs.Facts());
-        Observer.Finish();
+        Observer.Expect('subscribers in the test session', 'OnAfterInitialization|ctx=Normal,mod=Normal,mode=Standard,cct=Yes;OnCompanyOpen|ctx=Normal,mod=Normal,mode=Standard,cct=Yes;OnAfterLogin|ctx=Normal,mod=Normal,mode=Standard,cct=Yes;OnCompanyOpenCompleted|ctx=Normal,mod=Normal,mode=Standard,cct=Yes;');
+        Observer.Expect('xapp a subscriber in the test session', 'OnCompanyOpen|ctx=Normal,mod=Normal,mode=Standard,cct=Yes;OnAfterLogin|ctx=Normal,mod=Normal,mode=Standard,cct=Yes;OnCompanyOpenCompleted|ctx=Normal,mod=Normal,mode=Standard,cct=Yes;');
+        Observer.Expect('test procedure', 'ctx=Normal,mod=Normal,mode=Standard,cct=No');
+        Observer.Verify();
     end;
 }

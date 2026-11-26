@@ -57,6 +57,9 @@ ALLOWED = {
     'tests/al-language-xapp-a codeunit 97998',  # "LT PkgParts Install Co"
     # al-runner issue 7169: reads "Published As" in TryFunctions, writes only `if Insert() then;` into a DataPerCompany = false log. (R7169XaInstallPublishedAs.al)
     'tests/al-language-xapp-a codeunit 96081',  # "LT R7169 XA Install"
+    # al-runner issue 9123: CanCreateTask in install code, then CreateTask (in a TryFunction that writes nothing) or Codeunit.Run of a codeunit that
+    # writes only `if Insert() then;`; the log is written only with `if Insert() then;` into a DataPerCompany = false table. (IcXaInstallCanCreateTask.al)
+    'tests/al-language-xapp-a codeunit 98497',  # "LT IC XA Install"
     'tests/al-language-xapp-d codeunit 61190',  # "LT Y8 XD Install"
     'tests/al-language-xapp-d codeunit 61365',  # "LT Y64 XD Install"
     'tests/al-language-xapp-d codeunit 61394',  # "LT Y79 XD Install"
