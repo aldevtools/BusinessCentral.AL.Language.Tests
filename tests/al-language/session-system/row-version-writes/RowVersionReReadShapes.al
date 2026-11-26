@@ -11,6 +11,9 @@
 // own buffer after its Insert and Modify, and copies of an Insert buffer, with no re-read.
 // Only relations are asserted (same, greater, less): row version numbers differ per database.
 // Observation names: before/0 is Before against 0, read/0 and read/before the re-read (or buffer) value against 0 and against Before.
+// Measured on BC 27.5, 28.5 and 29.0 (the same on all three): the Insert buffer already holds a SystemRowVersion above 0, and every
+// re-read in every send shape (and with no send) gives that same value: the send does not change it. Copies (:= and Copy) keep it.
+// The record's own Modify gives its buffer a greater value, for an unsent Insert as well as after a Commit.
 // BC versions: 27+
 
 table 76606 "RVR Row"
@@ -230,7 +233,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'other', 'get');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -240,7 +246,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'other', 'findfirst');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -250,7 +259,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'other', 'findset');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -260,7 +272,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'other', 'findminus');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -270,7 +285,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'other', 'next');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -280,7 +298,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'other', 'recref');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -290,7 +311,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'other', 'getrecref');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -300,7 +324,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'other', 'assign');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -310,7 +337,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'other', 'copy');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -320,7 +350,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'commit', 'get');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -330,7 +363,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'commit', 'findfirst');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -340,7 +376,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'commit', 'findset');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -350,7 +389,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'commit', 'findminus');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -360,7 +402,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'commit', 'next');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -370,7 +415,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'commit', 'recref');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -380,7 +428,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'commit', 'getrecref');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -390,7 +441,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'commit', 'assign');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -400,7 +454,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'commit', 'copy');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -410,7 +467,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'same', 'get');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -420,7 +480,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'same', 'findfirst');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -430,7 +493,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'same', 'findset');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -440,7 +506,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'same', 'findminus');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -450,7 +519,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'same', 'next');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -460,7 +532,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'same', 'recref');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -470,7 +545,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'same', 'getrecref');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -480,7 +558,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'same', 'assign');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -490,7 +571,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'same', 'copy');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -500,7 +584,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'none', 'get');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -510,7 +597,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'none', 'findfirst');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -520,7 +610,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'none', 'findset');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -530,7 +623,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'none', 'findminus');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -540,7 +636,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'none', 'next');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -550,7 +649,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'none', 'recref');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -560,7 +662,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'none', 'getrecref');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -570,7 +675,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'none', 'assign');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -580,7 +688,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'none', 'copy');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -590,7 +701,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'otherinsert', 'get');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -600,7 +714,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'otherinsert', 'findfirst');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -610,7 +727,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'otherinsert', 'recref');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -620,7 +740,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'othercommit', 'get');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -630,7 +753,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'othercommit', 'findfirst');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -640,7 +766,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Run(Observer, 'othercommit', 'recref');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -650,7 +779,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Own(Observer, 'insert');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -660,7 +792,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Own(Observer, 'assign');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -670,7 +805,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Own(Observer, 'copy');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -680,7 +818,10 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Own(Observer, 'modify');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'greater');
+        Observer.Verify();
     end;
 
     [Test]
@@ -690,6 +831,9 @@ codeunit 76609 "RVR ReRead Shapes"
         Steps: Codeunit "RVR Steps";
     begin
         Steps.Own(Observer, 'commitmodify');
-        Observer.Finish();
+        Observer.Expect('before/0', 'greater');
+        Observer.Expect('read/0', 'greater');
+        Observer.Expect('read/before', 'greater');
+        Observer.Verify();
     end;
 }
