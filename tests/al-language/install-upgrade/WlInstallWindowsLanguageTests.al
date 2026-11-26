@@ -14,6 +14,12 @@
 // Expected values: the rows of record/table-properties/Y39WindowsLanguageTable.al (248 rows, all Globally Enabled, Language ID sum 1091889);
 //   Primary CodePage of 1067 is '1' on every major (corpus PR 1607).
 // No Initialize() with DeleteAll: the tests read the rows the install session wrote; deleting them would remove what is measured.
+// Measured on: BC 27.5, 28.5 and 29.0 in corpus CI (fresh install of every app; SaaS shards, OnPrem, OnPrem DotNet, TestLibraries and TryWrites runs). All three tests
+//   gave the same values on all three. The install session reads the same Windows Language rows in OnInstallAppPerDatabase, OnInstallAppPerCompany (both
+//   companies) and the OnCompanyOpen subscriber (both companies) as the test session: Count 248, 1033 English (United States) 437 en-US, 1031 German (Germany)
+//   850 de-DE, 1049 Russian (Russia) 866 ru-RU, 1067 Armenian (Armenia) with Primary CodePage 1 hy-AM, all 248 rows Globally Enabled (Language ID sum 1091889).
+//   The install session runs OnCompanyOpen, install per company for C1, then the same for C2, then install per database; it is a different session than
+//   the test session and left no rows in other sessions. The test session reads the same values in its own OnCompanyOpen subscriber and in the test procedure.
 // Not measured: upgrade sessions (CI installs fresh, an upgrade trigger never runs here; the OnCompanyOpen subscriber also writes rows for an
 //   Upgrade context, so a later upgrade job reads them without a fixture change). A second company beyond the ones CI creates.
 // BC versions: 27 - 29
