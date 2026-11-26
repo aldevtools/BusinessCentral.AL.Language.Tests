@@ -4,6 +4,18 @@
 // Probe: SingleInstance codeunits nested in SingleInstance codeunits, reached from a register whose owner calls ClearAll (al-runner issue 8964), observed first, then asserted.
 // singleinstance-shared-on-purpose: the subject is a SingleInstance codeunit held by a SingleInstance codeunit nested in a register that ClearAll resets.
 // BC versions: 27, 28, 29
+// What BC did (27.5, 28.5 and 29.0 alike, no version guard):
+// - ClearAll in an owner codeunit that got the register by assignment (Reg := R) clears the shared register instance in place: the
+//   caller then sees Entry and Tag reset. The SingleInstance codeunits nested in the register (two or three levels) keep every value
+//   (Integer, Text, record filters and fields, List, Dictionary, Boolean), and a direct variable of the same SingleInstance codeunit still
+//   reaches the very instance the register holds (SetN on it shows through the register). A second owner does the same.
+// - A plain (not SingleInstance) codeunit in the chain is reset by the owner's ClearAll when it is the register's direct child; a plain
+//   codeunit between two SingleInstance levels keeps its values. A direct variable of a plain codeunit is a separate, empty instance.
+// - Clear(Reg) on the caller's variable resets the register's own globals; the nested SingleInstance codeunits keep their values.
+// - ClearAll inside a SingleInstance codeunit resets only that codeunit's own globals; its SingleInstance child keeps its values, and the
+//   cleared instance stays the shared one (later writes through a direct variable show through the register).
+// - SingleInstance state outlives a test: Si2_OwnerClearAll_Unprimed and Si2_WrittenByDirectLeaf_OwnerClearAll start with the values the
+//   earlier tests of this codeunit left (n=900 in "CSS a L0"), so these two tests depend on the declaration order of the tests.
 codeunit 86660 "CSS a L0"
 {
     SingleInstance = true;
@@ -1310,7 +1322,22 @@ codeunit 86686 "CSS Nested SI SI Test"
         Observer.Observe('link.L0', Reg.State());
         V1.SetN(901);
         Observer.Observe('link.L1', Reg.State());
-        Observer.Finish();
+        Observer.Expect('prime', 'entry=5 tag=reg :: n=10 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes | n=11 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes');
+        Observer.Expect('ask.before', 'Yes');
+        Observer.Expect('owner.after', 'entry=0 tag= :: n=10 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes | n=11 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes');
+        Observer.Expect('owner.ask', 'Yes');
+        Observer.Expect('caller.after', 'entry=1 tag= :: n=10 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes | n=11 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes');
+        Observer.Expect('direct.L0', 'n=10 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes');
+        Observer.Expect('direct.L1', 'n=11 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes');
+        Observer.Expect('ask.caller', 'Yes');
+        Observer.Expect('second.after', 'entry=1 tag= :: n=10 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes | n=11 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes');
+        Observer.Expect('second.L0', 'n=10 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes');
+        Observer.Expect('second.L1', 'n=11 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes');
+        Observer.Expect('second.ask', 'Yes');
+        Observer.Expect('caller.next', 'entry=2 tag= :: n=10 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes | n=11 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes');
+        Observer.Expect('link.L0', 'entry=2 tag= :: n=900 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes | n=11 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes');
+        Observer.Expect('link.L1', 'entry=2 tag= :: n=900 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes | n=901 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1344,7 +1371,20 @@ codeunit 86686 "CSS Nested SI SI Test"
         Observer.Observe('link.L1', Reg.State());
         V2.SetN(902);
         Observer.Observe('link.L2', Reg.State());
-        Observer.Finish();
+        Observer.Expect('prime', 'entry=5 tag=reg :: n=10 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes | n=11 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes | n=12 t=t12 filt=No.: 12..17 row=ROW12 list=1 dict=1 flag=Yes');
+        Observer.Expect('ask.before', 'Yes');
+        Observer.Expect('owner.after', 'entry=0 tag= :: n=10 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes | n=11 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes | n=12 t=t12 filt=No.: 12..17 row=ROW12 list=1 dict=1 flag=Yes');
+        Observer.Expect('owner.ask', 'Yes');
+        Observer.Expect('caller.after', 'entry=1 tag= :: n=10 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes | n=11 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes | n=12 t=t12 filt=No.: 12..17 row=ROW12 list=1 dict=1 flag=Yes');
+        Observer.Expect('direct.L0', 'n=10 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes');
+        Observer.Expect('direct.L1', 'n=11 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes');
+        Observer.Expect('direct.L2', 'n=12 t=t12 filt=No.: 12..17 row=ROW12 list=1 dict=1 flag=Yes');
+        Observer.Expect('ask.caller', 'Yes');
+        Observer.Expect('caller.next', 'entry=2 tag= :: n=10 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes | n=11 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes | n=12 t=t12 filt=No.: 12..17 row=ROW12 list=1 dict=1 flag=Yes');
+        Observer.Expect('link.L0', 'entry=2 tag= :: n=900 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes | n=11 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes | n=12 t=t12 filt=No.: 12..17 row=ROW12 list=1 dict=1 flag=Yes');
+        Observer.Expect('link.L1', 'entry=2 tag= :: n=900 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes | n=901 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes | n=12 t=t12 filt=No.: 12..17 row=ROW12 list=1 dict=1 flag=Yes');
+        Observer.Expect('link.L2', 'entry=2 tag= :: n=900 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes | n=901 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes | n=902 t=t12 filt=No.: 12..17 row=ROW12 list=1 dict=1 flag=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1378,7 +1418,20 @@ codeunit 86686 "CSS Nested SI SI Test"
         Observer.Observe('link.L1', Reg.State());
         V2.SetN(902);
         Observer.Observe('link.L2', Reg.State());
-        Observer.Finish();
+        Observer.Expect('prime', 'entry=5 tag=reg :: n=10 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes | n=11 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes | n=12 t=t12 filt=No.: 12..17 row=ROW12 list=1 dict=1 flag=Yes');
+        Observer.Expect('ask.before', 'Yes');
+        Observer.Expect('owner.after', 'entry=0 tag= :: n=10 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes | n=11 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes | n=12 t=t12 filt=No.: 12..17 row=ROW12 list=1 dict=1 flag=Yes');
+        Observer.Expect('owner.ask', 'Yes');
+        Observer.Expect('caller.after', 'entry=1 tag= :: n=10 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes | n=11 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes | n=12 t=t12 filt=No.: 12..17 row=ROW12 list=1 dict=1 flag=Yes');
+        Observer.Expect('direct.L0', 'n=10 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes');
+        Observer.Expect('direct.L1', 'n=0 t= filt= row= list=0 dict=0 flag=No');
+        Observer.Expect('direct.L2', 'n=12 t=t12 filt=No.: 12..17 row=ROW12 list=1 dict=1 flag=Yes');
+        Observer.Expect('ask.caller', 'Yes');
+        Observer.Expect('caller.next', 'entry=2 tag= :: n=10 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes | n=11 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes | n=12 t=t12 filt=No.: 12..17 row=ROW12 list=1 dict=1 flag=Yes');
+        Observer.Expect('link.L0', 'entry=2 tag= :: n=900 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes | n=11 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes | n=12 t=t12 filt=No.: 12..17 row=ROW12 list=1 dict=1 flag=Yes');
+        Observer.Expect('link.L1', 'entry=2 tag= :: n=900 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes | n=11 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes | n=12 t=t12 filt=No.: 12..17 row=ROW12 list=1 dict=1 flag=Yes');
+        Observer.Expect('link.L2', 'entry=2 tag= :: n=900 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes | n=11 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes | n=902 t=t12 filt=No.: 12..17 row=ROW12 list=1 dict=1 flag=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1412,7 +1465,20 @@ codeunit 86686 "CSS Nested SI SI Test"
         Observer.Observe('link.L1', Reg.State());
         V2.SetN(902);
         Observer.Observe('link.L2', Reg.State());
-        Observer.Finish();
+        Observer.Expect('prime', 'entry=5 tag=reg :: n=10 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes | n=11 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes | n=12 t=t12 filt=No.: 12..17 row=ROW12 list=1 dict=1 flag=Yes');
+        Observer.Expect('ask.before', 'Yes');
+        Observer.Expect('owner.after', 'entry=0 tag= :: n=0 t= filt= row= list=0 dict=0 flag=No | n=11 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes | n=12 t=t12 filt=No.: 12..17 row=ROW12 list=1 dict=1 flag=Yes');
+        Observer.Expect('owner.ask', 'Yes');
+        Observer.Expect('caller.after', 'entry=1 tag= :: n=0 t= filt= row= list=0 dict=0 flag=No | n=11 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes | n=12 t=t12 filt=No.: 12..17 row=ROW12 list=1 dict=1 flag=Yes');
+        Observer.Expect('direct.L0', 'n=0 t= filt= row= list=0 dict=0 flag=No');
+        Observer.Expect('direct.L1', 'n=11 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes');
+        Observer.Expect('direct.L2', 'n=12 t=t12 filt=No.: 12..17 row=ROW12 list=1 dict=1 flag=Yes');
+        Observer.Expect('ask.caller', 'Yes');
+        Observer.Expect('caller.next', 'entry=2 tag= :: n=0 t= filt= row= list=0 dict=0 flag=No | n=11 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes | n=12 t=t12 filt=No.: 12..17 row=ROW12 list=1 dict=1 flag=Yes');
+        Observer.Expect('link.L0', 'entry=2 tag= :: n=0 t= filt= row= list=0 dict=0 flag=No | n=11 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes | n=12 t=t12 filt=No.: 12..17 row=ROW12 list=1 dict=1 flag=Yes');
+        Observer.Expect('link.L1', 'entry=2 tag= :: n=0 t= filt= row= list=0 dict=0 flag=No | n=901 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes | n=12 t=t12 filt=No.: 12..17 row=ROW12 list=1 dict=1 flag=Yes');
+        Observer.Expect('link.L2', 'entry=2 tag= :: n=0 t= filt= row= list=0 dict=0 flag=No | n=901 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes | n=902 t=t12 filt=No.: 12..17 row=ROW12 list=1 dict=1 flag=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1438,7 +1504,15 @@ codeunit 86686 "CSS Nested SI SI Test"
         Observer.Observe('link.L0', Reg.State());
         V1.SetN(901);
         Observer.Observe('link.L1', Reg.State());
-        Observer.Finish();
+        Observer.Expect('prime', 'entry=0 tag= :: n=900 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes | n=901 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes');
+        Observer.Expect('owner.after', 'entry=0 tag= :: n=900 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes | n=901 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes');
+        Observer.Expect('owner.ask', 'Yes');
+        Observer.Expect('caller.after', 'entry=1 tag= :: n=900 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes | n=901 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes');
+        Observer.Expect('direct.L0', 'n=900 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes');
+        Observer.Expect('direct.L1', 'n=901 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes');
+        Observer.Expect('link.L0', 'entry=1 tag= :: n=900 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes | n=901 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes');
+        Observer.Expect('link.L1', 'entry=1 tag= :: n=900 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes | n=901 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1465,7 +1539,15 @@ codeunit 86686 "CSS Nested SI SI Test"
         Observer.Observe('link.L0', Reg.State());
         V1.SetN(901);
         Observer.Observe('link.L1', Reg.State());
-        Observer.Finish();
+        Observer.Expect('pre.reg', 'entry=0 tag= :: n=900 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes | n=20 t=t20 filt=No.: 20..25 row=ROW20 list=1 dict=1 flag=Yes');
+        Observer.Expect('owner.after', 'entry=0 tag= :: n=900 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes | n=20 t=t20 filt=No.: 20..25 row=ROW20 list=1 dict=1 flag=Yes');
+        Observer.Expect('owner.ask', 'Yes');
+        Observer.Expect('caller.after', 'entry=1 tag= :: n=900 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes | n=20 t=t20 filt=No.: 20..25 row=ROW20 list=1 dict=1 flag=Yes');
+        Observer.Expect('direct.L0', 'n=900 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes');
+        Observer.Expect('direct.L1', 'n=20 t=t20 filt=No.: 20..25 row=ROW20 list=1 dict=1 flag=Yes');
+        Observer.Expect('link.L0', 'entry=1 tag= :: n=900 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes | n=20 t=t20 filt=No.: 20..25 row=ROW20 list=1 dict=1 flag=Yes');
+        Observer.Expect('link.L1', 'entry=1 tag= :: n=900 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes | n=901 t=t20 filt=No.: 20..25 row=ROW20 list=1 dict=1 flag=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1488,7 +1570,13 @@ codeunit 86686 "CSS Nested SI SI Test"
         Observer.Observe('link.L0', Reg.State());
         V1.SetN(901);
         Observer.Observe('link.L1', Reg.State());
-        Observer.Finish();
+        Observer.Expect('clear.reg', 'entry=0 tag= :: n=10 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes | n=11 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes');
+        Observer.Expect('clear.ask', 'Yes');
+        Observer.Expect('direct.L0', 'n=10 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes');
+        Observer.Expect('direct.L1', 'n=11 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes');
+        Observer.Expect('link.L0', 'entry=0 tag= :: n=900 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes | n=11 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes');
+        Observer.Expect('link.L1', 'entry=0 tag= :: n=900 t=t10 filt=No.: 10..15 row=ROW10 list=1 dict=1 flag=Yes | n=901 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1517,6 +1605,16 @@ codeunit 86686 "CSS Nested SI SI Test"
         Observer.Observe('link.L0', Reg.State());
         V1.SetN(901);
         Observer.Observe('link.L1', Reg.State());
-        Observer.Finish();
+        Observer.Expect('mid.clearall.reg', 'entry=5 tag=reg :: n=0 t= filt= row= list=0 dict=0 flag=No | n=11 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes');
+        Observer.Expect('direct1.L0', 'n=0 t= filt= row= list=0 dict=0 flag=No');
+        Observer.Expect('direct1.L1', 'n=11 t=t11 filt=No.: 11..16 row=ROW11 list=1 dict=1 flag=Yes');
+        Observer.Expect('ask.1', 'Yes');
+        Observer.Expect('leaf.clearall.reg', 'entry=5 tag=reg :: n=30 t=t30 filt=No.: 30..35 row=ROW30 list=1 dict=1 flag=Yes | n=0 t= filt= row= list=0 dict=0 flag=No');
+        Observer.Expect('direct2.L0', 'n=30 t=t30 filt=No.: 30..35 row=ROW30 list=1 dict=1 flag=Yes');
+        Observer.Expect('direct2.L1', 'n=0 t= filt= row= list=0 dict=0 flag=No');
+        Observer.Expect('ask.2', 'No');
+        Observer.Expect('link.L0', 'entry=5 tag=reg :: n=900 t=t30 filt=No.: 30..35 row=ROW30 list=1 dict=1 flag=Yes | n=0 t= filt= row= list=0 dict=0 flag=No');
+        Observer.Expect('link.L1', 'entry=5 tag=reg :: n=900 t=t30 filt=No.: 30..35 row=ROW30 list=1 dict=1 flag=Yes | n=901 t= filt= row= list=0 dict=0 flag=No');
+        Observer.Verify();
     end;
 }
