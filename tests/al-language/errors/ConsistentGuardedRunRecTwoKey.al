@@ -30,7 +30,19 @@
 //   Each cell reads: the run's error, the log of the caller (inner codeunit's view of the argument: FilterGroup, GetFilters of group
 //   0, 1, 2, 4, 6, filtered count; return value; last error text and code; the argument's Name; the same view of the argument after
 //   the run), the error of a later Commit, and the rows that are durable. Every cell starts with committed rows in every table.
-//WHATBCDID
+//   What BC did (identical on 27.5, 28.5 and 29.0, for every filter shape, for the two-field and the three-field key, and for
+//   GRK Z/GRK Z3 and GRK X/GRK X3 as the argument):
+//   - Fails, MarkedAgain, ReleasedThenHeld, AgainThenHeld: the guarded run returns false with the inner error 'inner failed'
+//     (code Dialog); PlainCommit: it returns false with the TableInConsistent error on GRK X (code DB:TableInConsistent). The
+//     inner codeunit sees the caller's filters in the same groups (the page cells: the view in group 2, the Date Filter range in
+//     group 0), the argument keeps its filters and the record 'caller' after the run, and the filtered count is the same before
+//     and after (NoFilter 3, KeyCode 2, the other two-field shapes 1; NoFilter3 4, KeyCode3 3, ThreeKey3 2).
+//   - Ends (no error in the inner codeunit): the run itself raises the TableInConsistent error on GRK X (code
+//     DB:TableInConsistent), so the caller's log has no return value.
+//   - In the other cells the caller's Error('END') after the run is the error the asserterror sees. In every cell the later Commit
+//     is not blocked (CommitThenEnd ends in its own Error('END')), and only the committed rows are durable (x, z: caller, twin, other; x3, z3: caller, line2, other, twin; the inner rows are rolled back).
+//   - The Date Filter range ends on WorkDate(), which differs between containers (10/01/26 on 29.0, 11/01/26 on 27.5 and 28.5):
+//     the expected log takes Format(WorkDate()).
 // The values are what BC produced.
 // local object: the tests must commit (a guarded Codeunit.Run commits), and the inner codeunit is the code under test.
 // BC versions: 27.5, 28.5, 29.0
@@ -711,7 +723,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'NoFilter', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=3;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=3;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -720,7 +739,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'NoFilter', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=3;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -729,7 +755,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'NoFilter', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=3;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=3;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -738,7 +771,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'NoFilter', 'startx,fya,fyc,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=3;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=3;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -747,7 +787,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'NoFilter', 'startx,txb,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=3;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=3;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -756,7 +803,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'NoFilter', 'fxa,txb,fxc,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=3;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=3;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -765,7 +819,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'PageMix', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -774,7 +835,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'PageMix', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -783,7 +851,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'PageMix', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -792,7 +867,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'PageMix', 'startx,fya,fyc,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -801,7 +883,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'PageMix', 'startx,txb,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -810,7 +899,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'PageMix', 'fxa,txb,fxc,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -819,7 +915,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'PageMixKey', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -828,7 +931,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'PageMixKey', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -837,7 +947,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'PageMixKey', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -846,7 +963,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'PageMixKey', 'startx,fya,fyc,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -855,7 +979,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'PageMixKey', 'startx,txb,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -864,7 +995,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'PageMixKey', 'fxa,txb,fxc,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -873,7 +1011,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'PageMixOut', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -882,7 +1027,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'PageMixOut', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -891,7 +1043,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'PageMixOut', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -900,7 +1059,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'PageMixOut', 'startx,fya,fyc,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -909,7 +1075,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'PageMixOut', 'startx,txb,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -918,7 +1091,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'PageMixOut', 'fxa,txb,fxc,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -927,7 +1107,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'PageMixOutKey', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -936,7 +1123,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'PageMixOutKey', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -945,7 +1139,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'PageMixOutKey', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -954,7 +1155,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'PageMixOutKey', 'startx,fya,fyc,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -963,7 +1171,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'PageMixOutKey', 'startx,txb,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -972,7 +1187,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'PageMixOutKey', 'fxa,txb,fxc,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -981,7 +1203,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'KeyCode', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=2;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -990,7 +1219,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'KeyCode', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -999,7 +1235,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'KeyCode', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=2;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1008,7 +1251,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'KeyCode', 'startx,fya,fyc,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=2;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1017,7 +1267,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'KeyCode', 'startx,txb,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=2;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1026,7 +1283,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'KeyCode', 'fxa,txb,fxc,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=2;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1035,7 +1299,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'KeyEnum', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Doc Kind: Order] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Doc Kind: Order] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1044,7 +1315,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'KeyEnum', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[Doc Kind: Order] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1053,7 +1331,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'KeyEnum', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Doc Kind: Order] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[Doc Kind: Order] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1062,7 +1347,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'KeyEnum', 'startx,fya,fyc,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Doc Kind: Order] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Doc Kind: Order] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1071,7 +1363,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'KeyEnum', 'startx,txb,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Doc Kind: Order] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Doc Kind: Order] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1080,7 +1379,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'KeyEnum', 'fxa,txb,fxc,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Doc Kind: Order] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Doc Kind: Order] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1089,7 +1395,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'KeyBoth', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Doc Kind: Order, No.: 1] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Doc Kind: Order, No.: 1] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1098,7 +1411,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'KeyBoth', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[Doc Kind: Order, No.: 1] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1107,7 +1427,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'KeyBoth', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Doc Kind: Order, No.: 1] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[Doc Kind: Order, No.: 1] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1116,7 +1443,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'KeyBoth', 'startx,fya,fyc,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Doc Kind: Order, No.: 1] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Doc Kind: Order, No.: 1] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1125,7 +1459,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'KeyBoth', 'startx,txb,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Doc Kind: Order, No.: 1] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Doc Kind: Order, No.: 1] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1134,7 +1475,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'KeyBoth', 'fxa,txb,fxc,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Doc Kind: Order, No.: 1] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Doc Kind: Order, No.: 1] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1143,7 +1491,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'Three', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Name: caller, Doc Type: 1, Amount: 5] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Name: caller, Doc Type: 1, Amount: 5] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1152,7 +1507,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'Three', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[Name: caller, Doc Type: 1, Amount: 5] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1161,7 +1523,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'Three', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Name: caller, Doc Type: 1, Amount: 5] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[Name: caller, Doc Type: 1, Amount: 5] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1170,7 +1539,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'Three', 'startx,fya,fyc,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Name: caller, Doc Type: 1, Amount: 5] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Name: caller, Doc Type: 1, Amount: 5] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1179,7 +1555,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'Three', 'startx,txb,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Name: caller, Doc Type: 1, Amount: 5] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Name: caller, Doc Type: 1, Amount: 5] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1188,7 +1571,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'Three', 'fxa,txb,fxc,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Name: caller, Doc Type: 1, Amount: 5] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Name: caller, Doc Type: 1, Amount: 5] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1197,7 +1587,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'ThreeKey', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Doc Kind: Order, Name: caller, Doc Type: 1] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Doc Kind: Order, Name: caller, Doc Type: 1] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1206,7 +1603,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'ThreeKey', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[Doc Kind: Order, Name: caller, Doc Type: 1] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1215,7 +1619,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'ThreeKey', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Doc Kind: Order, Name: caller, Doc Type: 1] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[Doc Kind: Order, Name: caller, Doc Type: 1] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1224,7 +1635,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'ThreeKey', 'startx,fya,fyc,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Doc Kind: Order, Name: caller, Doc Type: 1] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Doc Kind: Order, Name: caller, Doc Type: 1] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1233,7 +1651,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'ThreeKey', 'startx,txb,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Doc Kind: Order, Name: caller, Doc Type: 1] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Doc Kind: Order, Name: caller, Doc Type: 1] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1242,7 +1667,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z', 'ThreeKey', 'fxa,txb,fxc,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Doc Kind: Order, Name: caller, Doc Type: 1] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Doc Kind: Order, Name: caller, Doc Type: 1] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1251,7 +1683,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z3', 'NoFilter3', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=4;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=4;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1260,7 +1699,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z3', 'NoFilter3', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRK X3 table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=4;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1269,7 +1715,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z3', 'NoFilter3', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=4;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRK X3 table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=4;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1278,7 +1731,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z3', 'NoFilter3', 'startx,fya,fyc,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=4;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=4;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1287,7 +1747,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z3', 'NoFilter3', 'startx,txb,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=4;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=4;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1296,7 +1763,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z3', 'NoFilter3', 'fxa,txb,fxc,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=4;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=4;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1305,7 +1779,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z3', 'KeyCode3', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=3;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=3;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1314,7 +1795,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z3', 'KeyCode3', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRK X3 table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=3;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1323,7 +1811,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z3', 'KeyCode3', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=3;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRK X3 table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=3;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1332,7 +1827,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z3', 'KeyCode3', 'startx,fya,fyc,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=3;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=3;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1341,7 +1843,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z3', 'KeyCode3', 'startx,txb,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=3;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=3;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1350,7 +1859,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z3', 'KeyCode3', 'fxa,txb,fxc,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=3;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=3;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1359,7 +1875,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z3', 'ThreeKey3', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Activity Type: Put-away, Source Type: 39, Source No.: S1] g1=[] g2=[] g4=[] g6=[] count=2;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Activity Type: Put-away, Source Type: 39, Source No.: S1] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1368,7 +1891,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z3', 'ThreeKey3', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRK X3 table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[Activity Type: Put-away, Source Type: 39, Source No.: S1] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1377,7 +1907,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z3', 'ThreeKey3', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Activity Type: Put-away, Source Type: 39, Source No.: S1] g1=[] g2=[] g4=[] g6=[] count=2;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRK X3 table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[Activity Type: Put-away, Source Type: 39, Source No.: S1] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1386,7 +1923,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z3', 'ThreeKey3', 'startx,fya,fyc,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Activity Type: Put-away, Source Type: 39, Source No.: S1] g1=[] g2=[] g4=[] g6=[] count=2;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Activity Type: Put-away, Source Type: 39, Source No.: S1] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1395,7 +1939,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z3', 'ThreeKey3', 'startx,txb,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Activity Type: Put-away, Source Type: 39, Source No.: S1] g1=[] g2=[] g4=[] g6=[] count=2;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Activity Type: Put-away, Source Type: 39, Source No.: S1] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1404,7 +1955,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'z3', 'ThreeKey3', 'fxa,txb,fxc,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Activity Type: Put-away, Source Type: 39, Source No.: S1] g1=[] g2=[] g4=[] g6=[] count=2;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Activity Type: Put-away, Source Type: 39, Source No.: S1] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1413,7 +1971,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'NoFilter', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=3;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=3;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1422,7 +1987,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'NoFilter', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=3;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1431,7 +2003,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'NoFilter', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=3;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=3;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1440,7 +2019,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'NoFilter', 'startx,fya,fyc,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=3;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=3;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1449,7 +2035,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'NoFilter', 'startx,txb,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=3;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=3;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1458,7 +2051,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'NoFilter', 'fxa,txb,fxc,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=3;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=3;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1467,7 +2067,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'PageMix', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1476,7 +2083,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'PageMix', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1485,7 +2099,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'PageMix', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1494,7 +2115,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'PageMix', 'startx,fya,fyc,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1503,7 +2131,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'PageMix', 'startx,txb,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1512,7 +2147,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'PageMix', 'fxa,txb,fxc,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1521,7 +2163,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'PageMixKey', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1530,7 +2179,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'PageMixKey', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1539,7 +2195,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'PageMixKey', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1548,7 +2211,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'PageMixKey', 'startx,fya,fyc,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1557,7 +2227,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'PageMixKey', 'startx,txb,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1566,7 +2243,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'PageMixKey', 'fxa,txb,fxc,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Doc Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1575,7 +2259,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'PageMixOut', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1584,7 +2275,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'PageMixOut', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1593,7 +2291,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'PageMixOut', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1602,7 +2307,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'PageMixOut', 'startx,fya,fyc,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1611,7 +2323,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'PageMixOut', 'startx,txb,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1620,7 +2339,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'PageMixOut', 'fxa,txb,fxc,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1629,7 +2355,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'PageMixOutKey', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1638,7 +2371,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'PageMixOutKey', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1647,7 +2387,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'PageMixOutKey', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1656,7 +2403,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'PageMixOutKey', 'startx,fya,fyc,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1665,7 +2419,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'PageMixOutKey', 'startx,txb,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1674,7 +2435,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'PageMixOutKey', 'fxa,txb,fxc,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[No.: 1, Date Filter: ''''..<WD>] g1=[] g2=[Kind: Order] g4=[] g6=[] count=1;'.Replace('<WD>', Format(WorkDate())));
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1683,7 +2451,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'KeyCode', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=2;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1692,7 +2467,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'KeyCode', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1701,7 +2483,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'KeyCode', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=2;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1710,7 +2499,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'KeyCode', 'startx,fya,fyc,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=2;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1719,7 +2515,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'KeyCode', 'startx,txb,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=2;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1728,7 +2531,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'KeyCode', 'fxa,txb,fxc,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=2;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1737,7 +2547,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'KeyEnum', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Doc Kind: Order] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Doc Kind: Order] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1746,7 +2563,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'KeyEnum', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[Doc Kind: Order] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1755,7 +2579,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'KeyEnum', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Doc Kind: Order] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[Doc Kind: Order] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1764,7 +2595,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'KeyEnum', 'startx,fya,fyc,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Doc Kind: Order] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Doc Kind: Order] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1773,7 +2611,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'KeyEnum', 'startx,txb,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Doc Kind: Order] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Doc Kind: Order] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1782,7 +2627,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'KeyEnum', 'fxa,txb,fxc,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Doc Kind: Order] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Doc Kind: Order] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1791,7 +2643,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'KeyBoth', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Doc Kind: Order, No.: 1] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Doc Kind: Order, No.: 1] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1800,7 +2659,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'KeyBoth', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[Doc Kind: Order, No.: 1] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1809,7 +2675,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'KeyBoth', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Doc Kind: Order, No.: 1] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[Doc Kind: Order, No.: 1] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1818,7 +2691,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'KeyBoth', 'startx,fya,fyc,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Doc Kind: Order, No.: 1] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Doc Kind: Order, No.: 1] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1827,7 +2707,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'KeyBoth', 'startx,txb,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Doc Kind: Order, No.: 1] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Doc Kind: Order, No.: 1] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1836,7 +2723,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'KeyBoth', 'fxa,txb,fxc,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Doc Kind: Order, No.: 1] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Doc Kind: Order, No.: 1] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1845,7 +2739,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'Three', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Name: caller, Doc Type: 1, Amount: 5] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Name: caller, Doc Type: 1, Amount: 5] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1854,7 +2755,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'Three', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[Name: caller, Doc Type: 1, Amount: 5] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1863,7 +2771,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'Three', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Name: caller, Doc Type: 1, Amount: 5] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[Name: caller, Doc Type: 1, Amount: 5] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1872,7 +2787,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'Three', 'startx,fya,fyc,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Name: caller, Doc Type: 1, Amount: 5] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Name: caller, Doc Type: 1, Amount: 5] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1881,7 +2803,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'Three', 'startx,txb,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Name: caller, Doc Type: 1, Amount: 5] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Name: caller, Doc Type: 1, Amount: 5] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1890,7 +2819,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'Three', 'fxa,txb,fxc,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Name: caller, Doc Type: 1, Amount: 5] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Name: caller, Doc Type: 1, Amount: 5] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1899,7 +2835,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'ThreeKey', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Doc Kind: Order, Name: caller, Doc Type: 1] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Doc Kind: Order, Name: caller, Doc Type: 1] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1908,7 +2851,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'ThreeKey', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[Doc Kind: Order, Name: caller, Doc Type: 1] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1917,7 +2867,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'ThreeKey', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Doc Kind: Order, Name: caller, Doc Type: 1] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRK X table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[Doc Kind: Order, Name: caller, Doc Type: 1] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1926,7 +2883,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'ThreeKey', 'startx,fya,fyc,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Doc Kind: Order, Name: caller, Doc Type: 1] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Doc Kind: Order, Name: caller, Doc Type: 1] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1935,7 +2899,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'ThreeKey', 'startx,txb,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Doc Kind: Order, Name: caller, Doc Type: 1] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Doc Kind: Order, Name: caller, Doc Type: 1] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1944,7 +2915,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x', 'ThreeKey', 'fxa,txb,fxc,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Doc Kind: Order, Name: caller, Doc Type: 1] g1=[] g2=[] g4=[] g6=[] count=1;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Doc Kind: Order, Name: caller, Doc Type: 1] g1=[] g2=[] g4=[] g6=[] count=1;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1953,7 +2931,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x3', 'NoFilter3', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=4;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=4;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1962,7 +2947,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x3', 'NoFilter3', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRK X3 table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=4;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1971,7 +2963,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x3', 'NoFilter3', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=4;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRK X3 table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=4;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1980,7 +2979,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x3', 'NoFilter3', 'startx,fya,fyc,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=4;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=4;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1989,7 +2995,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x3', 'NoFilter3', 'startx,txb,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=4;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=4;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1998,7 +3011,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x3', 'NoFilter3', 'fxa,txb,fxc,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=4;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[] g1=[] g2=[] g4=[] g6=[] count=4;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2007,7 +3027,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x3', 'KeyCode3', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=3;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=3;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2016,7 +3043,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x3', 'KeyCode3', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRK X3 table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=3;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2025,7 +3059,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x3', 'KeyCode3', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=3;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRK X3 table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=3;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2034,7 +3075,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x3', 'KeyCode3', 'startx,fya,fyc,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=3;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=3;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2043,7 +3091,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x3', 'KeyCode3', 'startx,txb,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=3;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=3;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2052,7 +3107,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x3', 'KeyCode3', 'fxa,txb,fxc,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=3;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[No.: 1] g1=[] g2=[] g4=[] g6=[] count=3;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2061,7 +3123,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x3', 'ThreeKey3', 'startx,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Activity Type: Put-away, Source Type: 39, Source No.: S1] g1=[] g2=[] g4=[] g6=[] count=2;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Activity Type: Put-away, Source Type: 39, Source No.: S1] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2070,7 +3139,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x3', 'ThreeKey3', 'startx,fya');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'The transaction cannot be completed because it will cause inconsistencies in the GRK X3 table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.');
+        Observer.Expect('run end|code', 'DB:TableInConsistent');
+        Observer.Expect('log', 'inner fg=0 g0=[Activity Type: Put-away, Source Type: 39, Source No.: S1] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2079,7 +3155,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x3', 'ThreeKey3', 'fxa,fya,commit');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Activity Type: Put-away, Source Type: 39, Source No.: S1] g1=[] g2=[] g4=[] g6=[] count=2;run=No;text=The transaction cannot be completed because it will cause inconsistencies in the GRK X3 table. Check where and how the CONSISTENT function is used in the transaction to find the reason for the error.\\Contact your system administrator.\\Tables can be marked as inconsistent during comprehensive tasks, such as posting. This prevents data from being updated incorrectly.;code=DB:TableInConsistent;arg=caller;argstate fg=0 g0=[Activity Type: Put-away, Source Type: 39, Source No.: S1] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2088,7 +3171,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x3', 'ThreeKey3', 'startx,fya,fyc,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Activity Type: Put-away, Source Type: 39, Source No.: S1] g1=[] g2=[] g4=[] g6=[] count=2;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Activity Type: Put-away, Source Type: 39, Source No.: S1] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2097,7 +3187,14 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x3', 'ThreeKey3', 'startx,txb,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Activity Type: Put-away, Source Type: 39, Source No.: S1] g1=[] g2=[] g4=[] g6=[] count=2;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Activity Type: Put-away, Source Type: 39, Source No.: S1] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2106,6 +3203,13 @@ codeunit 99546 "GRK Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RecCell(Observer, 'x3', 'ThreeKey3', 'fxa,txb,fxc,fya,err');
-        Observer.Finish();
+        Observer.Expect('run end|text', 'END');
+        Observer.Expect('run end|code', 'Dialog');
+        Observer.Expect('log', 'inner fg=0 g0=[Activity Type: Put-away, Source Type: 39, Source No.: S1] g1=[] g2=[] g4=[] g6=[] count=2;run=No;text=inner failed;code=Dialog;arg=caller;argstate fg=0 g0=[Activity Type: Put-away, Source Type: 39, Source No.: S1] g1=[] g2=[] g4=[] g6=[] count=2;');
+        Observer.Expect('commit|text', 'END');
+        Observer.Expect('commit|code', 'Dialog');
+        Observer.Expect('durable rows', 'x=[caller;twin;other;] y=[caller;other;] z=[caller;twin;other;] x3=[caller;line2;other;twin;] z3=[caller;line2;other;twin;]');
+        Observer.Expect('fresh record', 'x count=3 z count=3 x3 count=4 z3 count=4 z fg=0 g0=[] g1=[] g2=[] g3=[] g4=[] g5=[] g6=[]');
+        Observer.Verify();
     end;
 }
