@@ -5,7 +5,8 @@
 //   gives differently.
 // Facts: FieldRef.SetRange, FieldRef.SetFilter('%1', ...) and Record.SetRange on a Code[20], Text[50], Integer, BigInteger, Decimal,
 //   Boolean, Guid and Date field with a value of another type, and FieldRef.Value := of the same value for comparison.
-//   Sources into Code and Text: Integer 5 and 0, BigInteger 5, Decimal 1.5, 1000.5 and -1.25, Boolean true.
+//   Sources into Code and Text: Integer 5 and 0, BigInteger 5, Decimal 1.5, 1000.5 and -1.25, Boolean true and false
+//   (BoolFalse_Match: the rows the filter of false matches; asked by al-runner issue 9026).
 //   Into Integer, BigInteger and Decimal: Code '123', 'ABC' and '1,000', Text 'XY', '1.5' and '' (empty).
 //   Into Boolean: Code '123', '0' and 'ABC', Text 'Yes' and 'XY', Integer 1 and 0. Into Date: Code 'ABC', Text 'XY'.
 //   Into Guid: Code 'ABC' and '123', Text 'XY' and Text '{1F2E3D4C-5B6A-4978-8695-A4B3C2D1E0F9}'.
@@ -257,6 +258,55 @@ codeunit 57406 "SFK Probe"
     end;
 
     // All routes for one Boolean source on one field, in the order a, b, c, e, f, gr, v.
+    procedure Matches()
+    var
+        R: Record "SFK Row";
+    begin
+        R.DeleteAll();
+        AddRow(1, 'NO', 'NO');
+        AddRow(2, '', 'No');
+        AddRow(3, 'YES', 'YES');
+        AddRow(4, '', 'Yes');
+        AddRow(5, '', 'no');
+        MatchCell('a_Cod', 2, 'a');
+        MatchCell('e_Cod', 2, 'e');
+        MatchCell('a_Txt', 3, 'a');
+        MatchCell('e_Txt', 3, 'e');
+    end;
+
+    local procedure AddRow(Id: Integer; C: Code[20]; T: Text[50])
+    var
+        R: Record "SFK Row";
+    begin
+        R.Id := Id;
+        R.Cod := C;
+        R.Txt := T;
+        R.Insert();
+    end;
+
+    local procedure MatchCell(Name: Text; FieldNo: Integer; Route: Text)
+    var
+        RecRef: RecordRef;
+        F: FieldRef;
+        Ids: Text;
+        Ok: Boolean;
+    begin
+        RecRef.Open(Database::"SFK Row");
+        F := RecRef.Field(FieldNo);
+        Ok := TryBool(F, Route, false);
+        if Ok then begin
+            if RecRef.FindSet() then
+                repeat
+                    if Ids <> '' then
+                        Ids += ',';
+                    Ids += Format(RecRef.Field(1).Value);
+                until RecRef.Next() = 0;
+            Outcome(Name, true, F.GetFilter() + ' -> ' + Ids);
+        end else
+            Outcome(Name, false, '');
+        RecRef.Close();
+    end;
+
     procedure CellsBool(FieldNo: Integer; X: Boolean)
     var
         V: Variant;
@@ -571,6 +621,75 @@ codeunit 57407 "SFK Number To Text Tests"
         Probe.Expect('f', 'ok: YES');
         Probe.Expect('gr', 'ok: YES');
         Probe.Expect('v', 'ok: YES');
+        Probe.Verify();
+    end;
+
+    [Test]
+    procedure BoolFalse_Cod()
+    var
+        Probe: Codeunit "SFK Probe";
+        X: Boolean;
+    begin
+        X := false;
+        Probe.CellsBool(2, X);
+        Probe.Expect('a', 'ok: NO');
+        Probe.Expect('b', 'ok: NO');
+        Probe.Expect('c', 'ok: NO');
+        Probe.Expect('e', 'ok: NO');
+        Probe.Expect('f', 'ok: NO');
+        Probe.Expect('gr', 'ok: NO');
+        Probe.Expect('v', 'ok: NO');
+        Probe.Verify();
+    end;
+
+    [Test]
+    procedure BoolFalse_Txt()
+    var
+        Probe: Codeunit "SFK Probe";
+        X: Boolean;
+    begin
+        X := false;
+        Probe.CellsBool(3, X);
+        Probe.Expect('a', 'ok: No');
+        Probe.Expect('b', 'ok: No');
+        Probe.Expect('c', 'ok: No');
+        Probe.Expect('e', 'ok: No');
+        Probe.Expect('f', 'ok: No');
+        Probe.Expect('gr', 'ok: No');
+        Probe.Expect('v', 'ok: No');
+        Probe.Verify();
+    end;
+
+    [Test]
+    procedure BoolTrue_Txt()
+    var
+        Probe: Codeunit "SFK Probe";
+        X: Boolean;
+    begin
+        X := true;
+        Probe.CellsBool(3, X);
+        Probe.Expect('a', 'ok: Yes');
+        Probe.Expect('b', 'ok: Yes');
+        Probe.Expect('c', 'ok: Yes');
+        Probe.Expect('e', 'ok: Yes');
+        Probe.Expect('f', 'ok: Yes');
+        Probe.Expect('gr', 'ok: Yes');
+        Probe.Expect('v', 'ok: Yes');
+        Probe.Verify();
+    end;
+
+    // Which rows the filter of FieldRef.SetRange(false) and FieldRef.SetFilter('%1', false) matches. Code rows: 1 'NO', 3 'YES';
+    // Text rows: 1 'NO', 2 'No', 3 'YES', 4 'Yes', 5 'no'. Records the ids FindSet returns, in key order.
+    [Test]
+    procedure BoolFalse_Match()
+    var
+        Probe: Codeunit "SFK Probe";
+    begin
+        Probe.Matches();
+        Probe.Expect('a_Cod', 'ok: NO -> 1');
+        Probe.Expect('e_Cod', 'ok: NO -> 1');
+        Probe.Expect('a_Txt', 'ok: No -> 2');
+        Probe.Expect('e_Txt', 'ok: No -> 2');
         Probe.Verify();
     end;
 
