@@ -88,7 +88,7 @@ codeunit 78767 "BVE Describe"
             Res += ' f' + Format(G) + '={' + R.GetFilters() + '}';
         end;
         R.FilterGroup(StartGroup);
-        Res += ' key=' + R.CurrentKey() + ' asc=' + Format(R.Ascending()) + ' ascName=' + Format(R.GetAscending(R.Name));
+        Res += ' key=' + R.CurrentKey() + ' asc=' + Format(R.Ascending());
         Res += ' view=' + R.GetView();
         Res += ' n=' + Format(R.Count());
         Res += ' mark=' + Format(R.Mark()) + ' mo=' + Format(R.MarkedOnly());
