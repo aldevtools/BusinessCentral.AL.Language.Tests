@@ -29,6 +29,10 @@
 //   9264: every number (0, 1, 31, 32, typed or in a Variant, BigInteger 1, Decimal 1) into the Date field fails by Value(X), Value := X
 //   and Validate(X) with the date-format error for its text (Evaluate:Conversion); 1 into a Time or DateTime field fails with
 //   'The value "1" can't be evaluated into type <Time|DateTime>.' (Evaluate:Conversion).
+//   Pre-guarded without a measurement here: the Variant cells of 9264 by Value := V and Validate(V) (var0, var1, var31 _assign and
+//   _validate) keep the BC 29 text on BC 28 and later and take their BC 27.5 text, 'Unable to convert from
+//   Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime.' (Conversion), from Y67FieldRefValidateVariant.al:572, which pins it
+//   for a Variant holding an Integer assigned and validated into a Date field. The typed cells and FR.Value(V) are not guarded.
 // BC versions: 27, 28, 29 by CI
 table 73490 "LT FVR Row"
 {
@@ -846,11 +850,27 @@ codeunit 73493 "LT FVR Date Tests"
         V := 1;
         Probe.CellsVar(Observer, 5, 'var1', V);
         Observer.Expect('var0_value', 'E: The format of the Date ''0'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#if BC28PLUS
         Observer.Expect('var0_assign', 'E: The format of the Date ''0'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result; not measured here, taken from the pin Y67FieldRefValidateVariant.al:572 (a Variant holding an Integer, assign and validate, into a Date field)
+        Observer.Expect('var0_assign', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
         Observer.Expect('var0_validate', 'E: The format of the Date ''0'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result; not measured here, taken from the pin Y67FieldRefValidateVariant.al:572 (a Variant holding an Integer, assign and validate, into a Date field)
+        Observer.Expect('var0_validate', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
         Observer.Expect('var1_value', 'E: The format of the Date ''1'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#if BC28PLUS
         Observer.Expect('var1_assign', 'E: The format of the Date ''1'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result; not measured here, taken from the pin Y67FieldRefValidateVariant.al:572 (a Variant holding an Integer, assign and validate, into a Date field)
+        Observer.Expect('var1_assign', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
         Observer.Expect('var1_validate', 'E: The format of the Date ''1'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result; not measured here, taken from the pin Y67FieldRefValidateVariant.al:572 (a Variant holding an Integer, assign and validate, into a Date field)
+        Observer.Expect('var1_validate', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
         Observer.Verify();
     end;
 
@@ -865,8 +885,16 @@ codeunit 73493 "LT FVR Date Tests"
         V := 31;
         Probe.CellsVar(Observer, 5, 'var31', V);
         Observer.Expect('var31_value', 'E: The format of the Date ''31'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#if BC28PLUS
         Observer.Expect('var31_assign', 'E: The format of the Date ''31'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result; not measured here, taken from the pin Y67FieldRefValidateVariant.al:572 (a Variant holding an Integer, assign and validate, into a Date field)
+        Observer.Expect('var31_assign', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
         Observer.Expect('var31_validate', 'E: The format of the Date ''31'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result; not measured here, taken from the pin Y67FieldRefValidateVariant.al:572 (a Variant holding an Integer, assign and validate, into a Date field)
+        Observer.Expect('var31_validate', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
         Observer.Verify();
     end;
 
