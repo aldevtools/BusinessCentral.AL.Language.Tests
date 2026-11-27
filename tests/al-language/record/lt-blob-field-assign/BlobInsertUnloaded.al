@@ -18,7 +18,20 @@
 //   Readings per cell: own = the inserting record's own Blobs right after the Insert or Modify, without CalcFields
 //   ('hasValue=<Yes|No> text=[<text>]'); before = a fresh record's Get of the stored row, HasValue before CalcFields; stored = the
 //   same record after CalcFields (hasValue and text). Each Blob gets its own reading: body, raw, ext.
-//   Observe round: every test ends with Observer.Finish(), which fails the test with the readings (OBSERVE:...); nothing is asserted yet.
+//   Measured on BC 29.0 (Linux, W1, en-US session) with an invented app holding these objects, through the dev endpoint's
+//   TestRunnerHub; the values are that run's readings, turned into Expect and Verify by convert.py verbatim. This pull request's CI
+//   checks them on 27.5, 28.5 and 29.0; a version difference gets a version guard.
+//   Facts (BC 29.0), the same for the three Blob fields:
+//   - A Blob that was never loaded is not stored by Insert: every C cell (:=, the same variable, Copy, a by-value parameter, a
+//     Variant, a RecordRef, FindFirst, FindSet, SetLoadFields with or without the Blob) stores a row without Blob content. Right
+//     after the Insert the inserting record's own Blob answers HasValue Yes and reads empty. Delete and Insert of the same key
+//     (C03) leaves the row without its Blob.
+//   - Modify onto another stored row (C11) leaves that row's Blobs as they were ('other', 'other-raw', 'other-ext').
+//   - Insert(true) (C09): in OnInsert Body.HasValue is Yes before CalcFields and No after it; the inserted row has no Blob.
+//   - Temporary table (T12, T13): the new row answers HasValue Yes before CalcFields and No with an empty text after it; the
+//     inserting record reads empty.
+//   - Controls: CalcFields on the source before := (K1) or on the copy before the new key (K2) stores the content; an empty
+//     source (K3) and TransferFields (K4) store no Blob.
 // BC versions: 27, 28, 29 by CI
 table 73780 "LT BIU Row"
 {
@@ -201,7 +214,14 @@ codeunit 73781 "LT BIU Insert Tests"
         C.Insert();
         Probe.Own(Observer, C);
         Probe.Stored(Observer, 'NEW');
-        Observer.Finish();
+        Observer.Expect('own_body', 'hasValue=Yes text=[]');
+        Observer.Expect('own_raw', 'hasValue=Yes text=[]');
+        Observer.Expect('own_ext', 'hasValue=Yes text=[]');
+        Observer.Expect('before', 'body=No raw=No ext=No');
+        Observer.Expect('stored_body', 'hasValue=No text=[]');
+        Observer.Expect('stored_raw', 'hasValue=No text=[]');
+        Observer.Expect('stored_ext', 'hasValue=No text=[]');
+        Observer.Verify();
     end;
 
     // C02: the same variable under a new key.
@@ -218,7 +238,14 @@ codeunit 73781 "LT BIU Insert Tests"
         Src.Insert();
         Probe.Own(Observer, Src);
         Probe.Stored(Observer, 'NEW');
-        Observer.Finish();
+        Observer.Expect('own_body', 'hasValue=Yes text=[]');
+        Observer.Expect('own_raw', 'hasValue=Yes text=[]');
+        Observer.Expect('own_ext', 'hasValue=Yes text=[]');
+        Observer.Expect('before', 'body=No raw=No ext=No');
+        Observer.Expect('stored_body', 'hasValue=No text=[]');
+        Observer.Expect('stored_raw', 'hasValue=No text=[]');
+        Observer.Expect('stored_ext', 'hasValue=No text=[]');
+        Observer.Verify();
     end;
 
     // C03: Delete, then Insert of the same variable and key.
@@ -235,7 +262,14 @@ codeunit 73781 "LT BIU Insert Tests"
         Src.Insert();
         Probe.Own(Observer, Src);
         Probe.Stored(Observer, 'SRC');
-        Observer.Finish();
+        Observer.Expect('own_body', 'hasValue=Yes text=[]');
+        Observer.Expect('own_raw', 'hasValue=Yes text=[]');
+        Observer.Expect('own_ext', 'hasValue=Yes text=[]');
+        Observer.Expect('before', 'body=No raw=No ext=No');
+        Observer.Expect('stored_body', 'hasValue=No text=[]');
+        Observer.Expect('stored_raw', 'hasValue=No text=[]');
+        Observer.Expect('stored_ext', 'hasValue=No text=[]');
+        Observer.Verify();
     end;
 
     // C04: C.Copy(Src), new key, Insert.
@@ -254,7 +288,14 @@ codeunit 73781 "LT BIU Insert Tests"
         C.Insert();
         Probe.Own(Observer, C);
         Probe.Stored(Observer, 'NEW');
-        Observer.Finish();
+        Observer.Expect('own_body', 'hasValue=Yes text=[]');
+        Observer.Expect('own_raw', 'hasValue=Yes text=[]');
+        Observer.Expect('own_ext', 'hasValue=Yes text=[]');
+        Observer.Expect('before', 'body=No raw=No ext=No');
+        Observer.Expect('stored_body', 'hasValue=No text=[]');
+        Observer.Expect('stored_raw', 'hasValue=No text=[]');
+        Observer.Expect('stored_ext', 'hasValue=No text=[]');
+        Observer.Verify();
     end;
 
     // C05: a by-value parameter, new key and Insert in the callee.
@@ -269,7 +310,14 @@ codeunit 73781 "LT BIU Insert Tests"
         Src.Get('SRC');
         Probe.InsertByValue(Src, 'NEW', Observer);
         Probe.Stored(Observer, 'NEW');
-        Observer.Finish();
+        Observer.Expect('own_body', 'hasValue=Yes text=[]');
+        Observer.Expect('own_raw', 'hasValue=Yes text=[]');
+        Observer.Expect('own_ext', 'hasValue=Yes text=[]');
+        Observer.Expect('before', 'body=No raw=No ext=No');
+        Observer.Expect('stored_body', 'hasValue=No text=[]');
+        Observer.Expect('stored_raw', 'hasValue=No text=[]');
+        Observer.Expect('stored_ext', 'hasValue=No text=[]');
+        Observer.Verify();
     end;
 
     // C06: through a Variant (V := Src; C := V), new key, Insert.
@@ -290,7 +338,14 @@ codeunit 73781 "LT BIU Insert Tests"
         C.Insert();
         Probe.Own(Observer, C);
         Probe.Stored(Observer, 'NEW');
-        Observer.Finish();
+        Observer.Expect('own_body', 'hasValue=Yes text=[]');
+        Observer.Expect('own_raw', 'hasValue=Yes text=[]');
+        Observer.Expect('own_ext', 'hasValue=Yes text=[]');
+        Observer.Expect('before', 'body=No raw=No ext=No');
+        Observer.Expect('stored_body', 'hasValue=No text=[]');
+        Observer.Expect('stored_raw', 'hasValue=No text=[]');
+        Observer.Expect('stored_ext', 'hasValue=No text=[]');
+        Observer.Verify();
     end;
 
     // C07: RecordRef.GetTable(Src), field 1 set to the new key, RecordRef.Insert.
@@ -310,7 +365,11 @@ codeunit 73781 "LT BIU Insert Tests"
         FR.Value := 'NEW';
         RR.Insert();
         Probe.Stored(Observer, 'NEW');
-        Observer.Finish();
+        Observer.Expect('before', 'body=No raw=No ext=No');
+        Observer.Expect('stored_body', 'hasValue=No text=[]');
+        Observer.Expect('stored_raw', 'hasValue=No text=[]');
+        Observer.Expect('stored_ext', 'hasValue=No text=[]');
+        Observer.Verify();
     end;
 
     // C08a: the source read with FindFirst, C := Src, new key, Insert.
@@ -330,7 +389,14 @@ codeunit 73781 "LT BIU Insert Tests"
         C.Insert();
         Probe.Own(Observer, C);
         Probe.Stored(Observer, 'NEW');
-        Observer.Finish();
+        Observer.Expect('own_body', 'hasValue=Yes text=[]');
+        Observer.Expect('own_raw', 'hasValue=Yes text=[]');
+        Observer.Expect('own_ext', 'hasValue=Yes text=[]');
+        Observer.Expect('before', 'body=No raw=No ext=No');
+        Observer.Expect('stored_body', 'hasValue=No text=[]');
+        Observer.Expect('stored_raw', 'hasValue=No text=[]');
+        Observer.Expect('stored_ext', 'hasValue=No text=[]');
+        Observer.Verify();
     end;
 
     // C08b: the source read with FindFirst, the same variable under a new key.
@@ -348,7 +414,14 @@ codeunit 73781 "LT BIU Insert Tests"
         Src.Insert();
         Probe.Own(Observer, Src);
         Probe.Stored(Observer, 'NEW');
-        Observer.Finish();
+        Observer.Expect('own_body', 'hasValue=Yes text=[]');
+        Observer.Expect('own_raw', 'hasValue=Yes text=[]');
+        Observer.Expect('own_ext', 'hasValue=Yes text=[]');
+        Observer.Expect('before', 'body=No raw=No ext=No');
+        Observer.Expect('stored_body', 'hasValue=No text=[]');
+        Observer.Expect('stored_raw', 'hasValue=No text=[]');
+        Observer.Expect('stored_ext', 'hasValue=No text=[]');
+        Observer.Verify();
     end;
 
     // C08c: the source read with FindSet, C := Src, new key, Insert.
@@ -368,7 +441,14 @@ codeunit 73781 "LT BIU Insert Tests"
         C.Insert();
         Probe.Own(Observer, C);
         Probe.Stored(Observer, 'NEW');
-        Observer.Finish();
+        Observer.Expect('own_body', 'hasValue=Yes text=[]');
+        Observer.Expect('own_raw', 'hasValue=Yes text=[]');
+        Observer.Expect('own_ext', 'hasValue=Yes text=[]');
+        Observer.Expect('before', 'body=No raw=No ext=No');
+        Observer.Expect('stored_body', 'hasValue=No text=[]');
+        Observer.Expect('stored_raw', 'hasValue=No text=[]');
+        Observer.Expect('stored_ext', 'hasValue=No text=[]');
+        Observer.Verify();
     end;
 
     // C09: C := Src and Insert(true); OnInsert writes what it saw of Body into Note.
@@ -390,7 +470,15 @@ codeunit 73781 "LT BIU Insert Tests"
         Observer.Observe('note', R.Note);
         Probe.Own(Observer, C);
         Probe.Stored(Observer, 'NEW');
-        Observer.Finish();
+        Observer.Expect('note', 'trigger before=Yes after=No');
+        Observer.Expect('own_body', 'hasValue=No text=[]');
+        Observer.Expect('own_raw', 'hasValue=Yes text=[]');
+        Observer.Expect('own_ext', 'hasValue=Yes text=[]');
+        Observer.Expect('before', 'body=No raw=No ext=No');
+        Observer.Expect('stored_body', 'hasValue=No text=[]');
+        Observer.Expect('stored_raw', 'hasValue=No text=[]');
+        Observer.Expect('stored_ext', 'hasValue=No text=[]');
+        Observer.Verify();
     end;
 
     // C10a: the source read after SetLoadFields(Body), C := Src, new key, Insert.
@@ -410,7 +498,14 @@ codeunit 73781 "LT BIU Insert Tests"
         C.Insert();
         Probe.Own(Observer, C);
         Probe.Stored(Observer, 'NEW');
-        Observer.Finish();
+        Observer.Expect('own_body', 'hasValue=Yes text=[]');
+        Observer.Expect('own_raw', 'hasValue=Yes text=[]');
+        Observer.Expect('own_ext', 'hasValue=Yes text=[]');
+        Observer.Expect('before', 'body=No raw=No ext=No');
+        Observer.Expect('stored_body', 'hasValue=No text=[]');
+        Observer.Expect('stored_raw', 'hasValue=No text=[]');
+        Observer.Expect('stored_ext', 'hasValue=No text=[]');
+        Observer.Verify();
     end;
 
     // C10b: the source read after SetLoadFields(Note), which does not name a Blob.
@@ -430,7 +525,14 @@ codeunit 73781 "LT BIU Insert Tests"
         C.Insert();
         Probe.Own(Observer, C);
         Probe.Stored(Observer, 'NEW');
-        Observer.Finish();
+        Observer.Expect('own_body', 'hasValue=Yes text=[]');
+        Observer.Expect('own_raw', 'hasValue=Yes text=[]');
+        Observer.Expect('own_ext', 'hasValue=Yes text=[]');
+        Observer.Expect('before', 'body=No raw=No ext=No');
+        Observer.Expect('stored_body', 'hasValue=No text=[]');
+        Observer.Expect('stored_raw', 'hasValue=No text=[]');
+        Observer.Expect('stored_ext', 'hasValue=No text=[]');
+        Observer.Verify();
     end;
 
     // C11: C := Src under the key of the stored row OTHER, then Modify; what OTHER stores afterwards.
@@ -449,7 +551,14 @@ codeunit 73781 "LT BIU Insert Tests"
         C.Modify();
         Probe.Own(Observer, C);
         Probe.Stored(Observer, 'OTHER');
-        Observer.Finish();
+        Observer.Expect('own_body', 'hasValue=Yes text=[]');
+        Observer.Expect('own_raw', 'hasValue=Yes text=[]');
+        Observer.Expect('own_ext', 'hasValue=Yes text=[]');
+        Observer.Expect('before', 'body=Yes raw=Yes ext=Yes');
+        Observer.Expect('stored_body', 'hasValue=Yes text=[other]');
+        Observer.Expect('stored_raw', 'hasValue=Yes text=[other-raw]');
+        Observer.Expect('stored_ext', 'hasValue=Yes text=[other-ext]');
+        Observer.Verify();
     end;
 
     // T12: a temporary table, the same variable (read with Get) under a new key, Insert.
@@ -466,7 +575,14 @@ codeunit 73781 "LT BIU Insert Tests"
         T.Insert();
         Probe.Own(Observer, T);
         Probe.StoredTemp(Observer, T, 'NEW');
-        Observer.Finish();
+        Observer.Expect('own_body', 'hasValue=Yes text=[]');
+        Observer.Expect('own_raw', 'hasValue=Yes text=[]');
+        Observer.Expect('own_ext', 'hasValue=Yes text=[]');
+        Observer.Expect('before', 'body=Yes raw=Yes ext=Yes');
+        Observer.Expect('stored_body', 'hasValue=No text=[]');
+        Observer.Expect('stored_raw', 'hasValue=No text=[]');
+        Observer.Expect('stored_ext', 'hasValue=No text=[]');
+        Observer.Verify();
     end;
 
     // T13: T2.Copy(T, true) shares the temporary table; T2 under a new key, Insert.
@@ -485,7 +601,14 @@ codeunit 73781 "LT BIU Insert Tests"
         T2.Insert();
         Probe.Own(Observer, T2);
         Probe.StoredTemp(Observer, T, 'NEW');
-        Observer.Finish();
+        Observer.Expect('own_body', 'hasValue=Yes text=[]');
+        Observer.Expect('own_raw', 'hasValue=Yes text=[]');
+        Observer.Expect('own_ext', 'hasValue=Yes text=[]');
+        Observer.Expect('before', 'body=Yes raw=Yes ext=Yes');
+        Observer.Expect('stored_body', 'hasValue=No text=[]');
+        Observer.Expect('stored_raw', 'hasValue=No text=[]');
+        Observer.Expect('stored_ext', 'hasValue=No text=[]');
+        Observer.Verify();
     end;
 
     // K1: control, CalcFields on the source before C := Src.
@@ -505,7 +628,14 @@ codeunit 73781 "LT BIU Insert Tests"
         C.Insert();
         Probe.Own(Observer, C);
         Probe.Stored(Observer, 'NEW');
-        Observer.Finish();
+        Observer.Expect('own_body', 'hasValue=Yes text=[hello]');
+        Observer.Expect('own_raw', 'hasValue=Yes text=[hello-raw]');
+        Observer.Expect('own_ext', 'hasValue=Yes text=[hello-ext]');
+        Observer.Expect('before', 'body=Yes raw=Yes ext=Yes');
+        Observer.Expect('stored_body', 'hasValue=Yes text=[hello]');
+        Observer.Expect('stored_raw', 'hasValue=Yes text=[hello-raw]');
+        Observer.Expect('stored_ext', 'hasValue=Yes text=[hello-ext]');
+        Observer.Verify();
     end;
 
     // K2: control, C := Src, CalcFields on the copy while it still has the key SRC, then the new key and Insert.
@@ -525,7 +655,14 @@ codeunit 73781 "LT BIU Insert Tests"
         C.Insert();
         Probe.Own(Observer, C);
         Probe.Stored(Observer, 'NEW');
-        Observer.Finish();
+        Observer.Expect('own_body', 'hasValue=Yes text=[hello]');
+        Observer.Expect('own_raw', 'hasValue=Yes text=[hello-raw]');
+        Observer.Expect('own_ext', 'hasValue=Yes text=[hello-ext]');
+        Observer.Expect('before', 'body=Yes raw=Yes ext=Yes');
+        Observer.Expect('stored_body', 'hasValue=Yes text=[hello]');
+        Observer.Expect('stored_raw', 'hasValue=Yes text=[hello-raw]');
+        Observer.Expect('stored_ext', 'hasValue=Yes text=[hello-ext]');
+        Observer.Verify();
     end;
 
     // K3: control, a source with empty Blobs (EMPTY), C := Src, new key, Insert.
@@ -544,7 +681,14 @@ codeunit 73781 "LT BIU Insert Tests"
         C.Insert();
         Probe.Own(Observer, C);
         Probe.Stored(Observer, 'NEW');
-        Observer.Finish();
+        Observer.Expect('own_body', 'hasValue=No text=[]');
+        Observer.Expect('own_raw', 'hasValue=No text=[]');
+        Observer.Expect('own_ext', 'hasValue=No text=[]');
+        Observer.Expect('before', 'body=No raw=No ext=No');
+        Observer.Expect('stored_body', 'hasValue=No text=[]');
+        Observer.Expect('stored_raw', 'hasValue=No text=[]');
+        Observer.Expect('stored_ext', 'hasValue=No text=[]');
+        Observer.Verify();
     end;
 
     // K4: control, C.TransferFields(Src) from a source read with Get, new key, Insert.
@@ -564,6 +708,13 @@ codeunit 73781 "LT BIU Insert Tests"
         C.Insert();
         Probe.Own(Observer, C);
         Probe.Stored(Observer, 'NEW');
-        Observer.Finish();
+        Observer.Expect('own_body', 'hasValue=No text=[]');
+        Observer.Expect('own_raw', 'hasValue=No text=[]');
+        Observer.Expect('own_ext', 'hasValue=No text=[]');
+        Observer.Expect('before', 'body=No raw=No ext=No');
+        Observer.Expect('stored_body', 'hasValue=No text=[]');
+        Observer.Expect('stored_raw', 'hasValue=No text=[]');
+        Observer.Expect('stored_ext', 'hasValue=No text=[]');
+        Observer.Verify();
     end;
 }
