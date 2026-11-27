@@ -874,24 +874,24 @@ codeunit 73338 "LT SQH E1C Existing Next Late"
 }
 
 // Install code (issue 1614): makes the E cells' sequences when the app is installed, outside any test isolation, so a
-// test rollback cannot undo them. Same state as Prepare (Insert(Name, 1, 1), Next twice). Each one runs in a TryFunction
-// and only when missing, so the install cannot fail.
+// test rollback cannot undo them. Same state as Prepare (Insert(Name, 1, 1), Next twice). Each one runs only when
+// NumberSequence.Exists says it is missing, so Insert cannot meet an existing name. No TryFunction: the first local
+// observe of the TryFunction form hung at the app install on two backends.
 codeunit 73339 "LT SQH Install"
 {
     Subtype = Install;
 
     trigger OnInstallAppPerCompany()
     begin
-        if TryMake('LTSQHE1', false) then;
-        if TryMake('LTSQHE2', true) then;
-        if TryMake('LTSQHE3', false) then;
-        if TryMake('LTSQHE4', false) then;
-        if TryMake('LTSQHE5', false) then;
-        if TryMake('LTSQHE1C', false) then;
+        Make('LTSQHE1', false);
+        Make('LTSQHE2', true);
+        Make('LTSQHE3', false);
+        Make('LTSQHE4', false);
+        Make('LTSQHE5', false);
+        Make('LTSQHE1C', false);
     end;
 
-    [TryFunction]
-    local procedure TryMake(Name: Text; CompanyWide: Boolean)
+    local procedure Make(Name: Text; CompanyWide: Boolean)
     begin
         if NumberSequence.Exists(Name, CompanyWide) then
             exit;
