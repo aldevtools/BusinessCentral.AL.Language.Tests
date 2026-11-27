@@ -25,7 +25,7 @@
 //   value's formatted text (5, 5000000000, 1.5, the Enum's caption, the Option member, Yes, 01/15/26, 1 second 500 milliseconds),
 //   upper-cased for Code; a text longer than the Code fails with 'The length of the string is <n>, but it must be less than or
 //   equal to <m> characters. Value: <text>' (StringLengthExceeded). Asserted on BC 28 and later; on BC 27.5 (#else) these tests
-//   are an observe round of their own: they end with Finish() and assert nothing, red on purpose.
+//   assert the readings of this pull request's CI observe run 46059704991 (both 27.5 legs agree; the same as on BC 29).
 // BC versions: 27, 28, 29 by CI
 table 73498 "LT FTS Row"
 {
@@ -490,8 +490,17 @@ codeunit 73611 "LT FTX Exit Tests"
         Observer.Expect('decimal_text', 'ok: 1.5');
         Observer.Expect('decimal_code3', 'ok: 1.5');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46059704991 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('integer_code20', 'ok: 5');
+        Observer.Expect('integer_text', 'ok: 5');
+        Observer.Expect('integer_code3', 'ok: 5');
+        Observer.Expect('biginteger_code20', 'ok: 5000000000');
+        Observer.Expect('biginteger_text', 'ok: 5000000000');
+        Observer.Expect('biginteger_code3', 'E: The length of the string is 10, but it must be less than or equal to 3 characters. Value: 5000000000 | StringLengthExceeded');
+        Observer.Expect('decimal_code20', 'ok: 1.5');
+        Observer.Expect('decimal_text', 'ok: 1.5');
+        Observer.Expect('decimal_code3', 'ok: 1.5');
+        Observer.Verify();
 #endif
     end;
 
@@ -513,8 +522,14 @@ codeunit 73611 "LT FTX Exit Tests"
         Observer.Expect('option_text', 'ok: Beta');
         Observer.Expect('option_code3', 'E: The length of the string is 4, but it must be less than or equal to 3 characters. Value: Beta | StringLengthExceeded');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46059704991 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('enum_code20', 'ok: ONE CAPTION');
+        Observer.Expect('enum_text', 'ok: One Caption');
+        Observer.Expect('enum_code3', 'E: The length of the string is 11, but it must be less than or equal to 3 characters. Value: One Caption | StringLengthExceeded');
+        Observer.Expect('option_code20', 'ok: BETA');
+        Observer.Expect('option_text', 'ok: Beta');
+        Observer.Expect('option_code3', 'E: The length of the string is 4, but it must be less than or equal to 3 characters. Value: Beta | StringLengthExceeded');
+        Observer.Verify();
 #endif
     end;
 
@@ -540,8 +555,17 @@ codeunit 73611 "LT FTX Exit Tests"
         Observer.Expect('duration_text', 'ok: 1 second 500 milliseconds');
         Observer.Expect('duration_code3', 'E: The length of the string is 25, but it must be less than or equal to 3 characters. Value: 1 second 500 milliseconds | StringLengthExceeded');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46059704991 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('boolean_code20', 'ok: YES');
+        Observer.Expect('boolean_text', 'ok: Yes');
+        Observer.Expect('boolean_code3', 'ok: YES');
+        Observer.Expect('date_code20', 'ok: 01/15/26');
+        Observer.Expect('date_text', 'ok: 01/15/26');
+        Observer.Expect('date_code3', 'E: The length of the string is 8, but it must be less than or equal to 3 characters. Value: 01/15/26 | StringLengthExceeded');
+        Observer.Expect('duration_code20', 'E: The length of the string is 25, but it must be less than or equal to 20 characters. Value: 1 second 500 milliseconds | StringLengthExceeded');
+        Observer.Expect('duration_text', 'ok: 1 second 500 milliseconds');
+        Observer.Expect('duration_code3', 'E: The length of the string is 25, but it must be less than or equal to 3 characters. Value: 1 second 500 milliseconds | StringLengthExceeded');
+        Observer.Verify();
 #endif
     end;
 }
