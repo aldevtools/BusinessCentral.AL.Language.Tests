@@ -921,16 +921,48 @@ codeunit 86751 "CWT Test"
     end;
 
     [Test]
-    procedure Tree_OwnerClearAll()
+    procedure Tree_OwnerClearAll_Before()
     var
         Owner: Codeunit "CWT Owner";
     begin
         ResetSingleInstances();
         Owner.Prime(1);
         ObserveOwner('before.', Owner);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Tree_OwnerClearAll_After()
+    var
+        Owner: Codeunit "CWT Owner";
+    begin
+        ResetSingleInstances();
+        Owner.Prime(1);
         Owner.DoClearAll();
         ObserveOwner('after.', Owner);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Tree_OwnerClearAll_DirectSi()
+    var
+        Owner: Codeunit "CWT Owner";
+    begin
+        ResetSingleInstances();
+        Owner.Prime(1);
+        Owner.DoClearAll();
         ObserveDirect('direct.');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Tree_OwnerClearAll_Reprimed()
+    var
+        Owner: Codeunit "CWT Owner";
+    begin
+        ResetSingleInstances();
+        Owner.Prime(1);
+        Owner.DoClearAll();
         Owner.Prime(2);
         ObserveOwner('reprimed.', Owner);
         Observer.Finish();
