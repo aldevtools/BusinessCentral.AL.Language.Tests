@@ -62,7 +62,15 @@
 // starts from a committed sequence whatever ran before it; the isolation then undoes only test a's own changes.
 // Second fix (E4b flaked on 28.5 after the Commit above: b_start was 'missing'): every E cell also commits in Initialize, at the
 // start of test a, so the sequence is committed whichever way OnRun reached it (made or found). No expected value changed.
-// Object ids 73330-73338.
+// Third fix (issue 1614; runs 45977641511 and 45980581207, BC 28.5 only): E2b and O1b still read b_start 'missing' now and
+// then, although test a had read the sequence and E2 commits in Prepare and in Initialize. On the 28.5 hub, the rollback
+// at the end of test a sometimes also undoes the sequence made during the run (in OnRun), Commit or not; the cells before
+// the failing one passed in the same run, and no other file uses these names, so it is not the run order. So:
+//   - E cells: install code (73339) makes their sequences when the app is installed, outside any test isolation, so they
+//     exist when the tests begin and no test rollback can undo them. OnRun now finds them ('found') on every version.
+//   - O cells: their shape is a sequence created in OnRun, so install code cannot help. On 28 and later, b_start, b_taken
+//     and b_after are observed and not asserted (Observer.Ignore): the hub does not give one reading for them.
+// Object ids 73330-73339.
 // BC versions: 27.5, 28.5, 29.0
 
 // The sequence calls of the cells. The name is fixed per cell, so a sequence made by an earlier run is found again ('found').
