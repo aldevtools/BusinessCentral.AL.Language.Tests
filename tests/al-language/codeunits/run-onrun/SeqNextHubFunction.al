@@ -28,8 +28,8 @@
 //
 // The expected values are the readings this pull request's own CI printed in its observe round (test b ended with
 // Observer.Finish()), turned into Expect and Verify by convert.py per BC version, verbatim. 28.5 and 29.0 (the hub's Function
-// isolation) gave the same readings; 27.5 (130450, the Codeunit control) differs in every cell, so each asserted cell has a
-// BC28PLUS guard.
+// isolation) gave the same readings; 27.5 (130450, the Codeunit control) differs in every cell, so each asserted cell had a
+// BC28PLUS guard. Since the third fix below, E2, E3 and E1C read the same on every version and have no guard.
 // Measured on the CI legs 27.5, 28.5 and 29.0 (Linux):
 //   - Every cell: OnRun ran once on the instance (onrun_calls 1) and the codeunit's globals survived test a (initialized Yes),
 //     under both runners.
@@ -68,6 +68,9 @@
 // the failing one passed in the same run, and no other file uses these names, so it is not the run order. So:
 //   - E cells: install code (73339) makes their sequences when the app is installed, outside any test isolation, so they
 //     exist when the tests begin and no test rollback can undo them. OnRun now finds them ('found') on every version.
+//     Measured on a local BC 27.5 before this commit: every E cell read 'found' (that host's harness is not
+//     the Linux legs', so its b readings are not used).
+//     The onrun Expect is now 'found' without a version guard, and the CI legs check it.
 //   - O cells: their shape is a sequence created in OnRun, so install code cannot help. On 28 and later, b_start, b_taken
 //     and b_after are observed and not asserted (Observer.Ignore): the hub does not give one reading for them.
 // Object ids 73330-73339.
@@ -283,11 +286,7 @@ codeunit 73332 "LT SQH E2 Existing CompanyWide"
         Observer.Observe('b_start', Seq.Rel(Name(), CompanyWide(), Base));
         Observer.Observe('b_taken', Seq.RelNext(Name(), CompanyWide(), Base));
         Observer.Observe('b_after', Seq.Rel(Name(), CompanyWide(), Base));
-#if BC28PLUS
-        Observer.Expect('onrun', 'created');
-#else
         Observer.Expect('onrun', 'found');
-#endif
         Observer.Expect('onrun_calls', '1');
         Observer.Expect('initialized', 'Yes');
         Observer.Expect('a_start', 'cur=S');
@@ -296,7 +295,7 @@ codeunit 73332 "LT SQH E2 Existing CompanyWide"
         Observer.Expect('b_start', 'cur=S+1');
         Observer.Expect('b_taken', 'S+2');
         Observer.Expect('b_after', 'cur=S+2');
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     local procedure Name(): Text
@@ -372,11 +371,7 @@ codeunit 73333 "LT SQH E3 Existing Next Commit"
         Observer.Observe('b_start', Seq.Rel(Name(), CompanyWide(), Base));
         Observer.Observe('b_taken', Seq.RelNext(Name(), CompanyWide(), Base));
         Observer.Observe('b_after', Seq.Rel(Name(), CompanyWide(), Base));
-#if BC28PLUS
-        Observer.Expect('onrun', 'created');
-#else
         Observer.Expect('onrun', 'found');
-#endif
         Observer.Expect('onrun_calls', '1');
         Observer.Expect('initialized', 'Yes');
         Observer.Expect('a_start', 'cur=S');
@@ -385,7 +380,7 @@ codeunit 73333 "LT SQH E3 Existing Next Commit"
         Observer.Expect('b_start', 'cur=S+1');
         Observer.Expect('b_taken', 'S+2');
         Observer.Expect('b_after', 'cur=S+2');
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     local procedure Name(): Text
@@ -460,11 +455,7 @@ codeunit 73334 "LT SQH E4 Existing Restart"
         Observer.Observe('b_start', Seq.Rel(Name(), CompanyWide(), Base));
         Observer.Observe('b_taken', Seq.RelNext(Name(), CompanyWide(), Base));
         Observer.Observe('b_after', Seq.Rel(Name(), CompanyWide(), Base));
-#if BC28PLUS
-        Observer.Expect('onrun', 'created');
-#else
         Observer.Expect('onrun', 'found');
-#endif
         Observer.Expect('onrun_calls', '1');
         Observer.Expect('initialized', 'Yes');
         Observer.Expect('a_start', 'cur=S');
@@ -479,7 +470,7 @@ codeunit 73334 "LT SQH E4 Existing Restart"
         Observer.Expect('b_taken', 'S+1000');
         Observer.Expect('b_after', 'cur=S+1000');
 #endif
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     local procedure Name(): Text
@@ -554,11 +545,7 @@ codeunit 73335 "LT SQH E5 Existing Delete"
         Observer.Observe('b_start', Seq.Rel(Name(), CompanyWide(), Base));
         Observer.Observe('b_taken', Seq.RelNext(Name(), CompanyWide(), Base));
         Observer.Observe('b_after', Seq.Rel(Name(), CompanyWide(), Base));
-#if BC28PLUS
-        Observer.Expect('onrun', 'created');
-#else
         Observer.Expect('onrun', 'found');
-#endif
         Observer.Expect('onrun_calls', '1');
         Observer.Expect('initialized', 'Yes');
         Observer.Expect('a_start', 'cur=S');
@@ -573,7 +560,7 @@ codeunit 73335 "LT SQH E5 Existing Delete"
         Observer.Expect('b_taken', 'missing');
         Observer.Expect('b_after', 'missing');
 #endif
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     local procedure Name(): Text
@@ -835,11 +822,7 @@ codeunit 73338 "LT SQH E1C Existing Next Late"
         Observer.Observe('b_start', Seq.Rel(Name(), CompanyWide(), Base));
         Observer.Observe('b_taken', Seq.RelNext(Name(), CompanyWide(), Base));
         Observer.Observe('b_after', Seq.Rel(Name(), CompanyWide(), Base));
-#if BC28PLUS
-        Observer.Expect('onrun', 'created');
-#else
         Observer.Expect('onrun', 'found');
-#endif
         Observer.Expect('onrun_calls', '1');
         Observer.Expect('initialized', 'Yes');
         Observer.Expect('a_start', 'cur=S');
@@ -848,7 +831,7 @@ codeunit 73338 "LT SQH E1C Existing Next Late"
         Observer.Expect('b_start', 'cur=S+1');
         Observer.Expect('b_taken', 'S+2');
         Observer.Expect('b_after', 'cur=S+2');
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     local procedure Name(): Text
