@@ -7,7 +7,17 @@
 // register global (Rec exists only inside OnRun: AL0118 elsewhere), and the caller's Row variable. Also: a guarded run whose OnRun errors,
 // ClearAll inside the register, the static Codeunit.Run form, and a second Reg.Run(Row) after ClearAll. al-runner issue 9292.
 // BC versions: 27, 28, 29
-// What BC did: OBSERVING
+// What BC did (observed on BC 28.5; the pull request CI run asserts the same values on 27.5, 28.5 and 29.0): after a returned
+// Reg.Run(Row), ClearAll in the owner resets the register exactly as for a register that never ran: Integer, Text and the run
+// counter go to their defaults, the kept copy of Rec goes blank, the plain codeunit the register holds goes back to defaults, and
+// temporary records (in the register and in the held codeunit) keep their rows. The caller's Row keeps its field values, filter,
+// temporariness and rows, including a field OnRun changed in Rec (passed back through the var record). A guarded Reg.Run(Row)
+// whose OnRun errors returns false with the error text, keeps the global OnRun set before the error until ClearAll resets it.
+// ClearAll inside the register gives the same result as ClearAll in the owner. Codeunit.Run(Codeunit::"CSR Reg", Row) runs a
+// separate instance: the shared register's counter stays 0. A second Reg.Run(Row2) after ClearAll sees the reset globals (the
+// temporary rows stay), and the caller's first Row is unchanged.
+// Not measured: Reg.Run() without a record (does not compile for a TableNo codeunit: AL0135), and Rec read from a procedure other
+// than OnRun (Rec exists only inside OnRun: AL0118).
 codeunit 86807 "CSR Node"
 {
     var
@@ -175,7 +185,15 @@ codeunit 86810 "CSR Test"
     begin
         MakeRow(Row);
         RunAndClear(0, R, Owner, Row);
-        Observer.Finish();
+        Observer.Expect('run.seen', 'start[0,,0,0]node[0,,0]kept[0,,]rec[5,row,No.: 5,No,-]');
+        Observer.Expect('before.reg', 'reg[0,,0,0,1]node[0,,0]');
+        Observer.Expect('before.kept', 'kept[5,row,No.: 5]');
+        Observer.Expect('before.row', 'row[5,row,No.: 5,No,-]');
+        Observer.Expect('after.reg', 'reg[0,,0,0,0]node[0,,0]');
+        Observer.Expect('after.kept', 'kept[0,,]');
+        Observer.Expect('after.owner', 'reg[0,,0,0,0]node[0,,0]kept[0,,]');
+        Observer.Expect('after.row', 'row[5,row,No.: 5,No,-]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -187,7 +205,15 @@ codeunit 86810 "CSR Test"
     begin
         MakeRow(Row);
         RunAndClear(1, R, Owner, Row);
-        Observer.Finish();
+        Observer.Expect('run.seen', 'start[0,,0,1]node[0,,0]kept[0,,]rec[5,row,No.: 5,No,-]');
+        Observer.Expect('before.reg', 'reg[5,grow,1,1,1]node[6,n6,1]');
+        Observer.Expect('before.kept', 'kept[5,row,No.: 5]');
+        Observer.Expect('before.row', 'row[5,row,No.: 5,No,-]');
+        Observer.Expect('after.reg', 'reg[0,,1,0,0]node[0,,1]');
+        Observer.Expect('after.kept', 'kept[0,,]');
+        Observer.Expect('after.owner', 'reg[0,,1,0,0]node[0,,1]kept[0,,]');
+        Observer.Expect('after.row', 'row[5,row,No.: 5,No,-]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -199,7 +225,15 @@ codeunit 86810 "CSR Test"
     begin
         MakeRow(Row);
         RunAndClear(3, R, Owner, Row);
-        Observer.Finish();
+        Observer.Expect('run.seen', 'start[0,,0,3]node[0,,0]kept[0,,]rec[5,row,No.: 5,No,-]');
+        Observer.Expect('before.reg', 'reg[0,,0,3,1]node[0,,0]');
+        Observer.Expect('before.kept', 'kept[5,changed,No.: 5]');
+        Observer.Expect('before.row', 'row[5,changed,No.: 5,No,-]');
+        Observer.Expect('after.reg', 'reg[0,,0,0,0]node[0,,0]');
+        Observer.Expect('after.kept', 'kept[0,,]');
+        Observer.Expect('after.owner', 'reg[0,,0,0,0]node[0,,0]kept[0,,]');
+        Observer.Expect('after.row', 'row[5,changed,No.: 5,No,-]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -216,7 +250,15 @@ codeunit 86810 "CSR Test"
         Row.Insert();
         Row.SetRange("No.", 4, 5);
         RunAndClear(1, R, Owner, Row);
-        Observer.Finish();
+        Observer.Expect('run.seen', 'start[0,,0,1]node[0,,0]kept[0,,]rec[5,row,No.: 4..5,Yes,2]');
+        Observer.Expect('before.reg', 'reg[5,grow,1,1,1]node[6,n6,1]');
+        Observer.Expect('before.kept', 'kept[5,row,No.: 4..5]');
+        Observer.Expect('before.row', 'row[5,row,No.: 4..5,Yes,2]');
+        Observer.Expect('after.reg', 'reg[0,,1,0,0]node[0,,1]');
+        Observer.Expect('after.kept', 'kept[0,,]');
+        Observer.Expect('after.owner', 'reg[0,,1,0,0]node[0,,1]kept[0,,]');
+        Observer.Expect('after.row', 'row[5,row,No.: 4..5,Yes,2]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -235,7 +277,15 @@ codeunit 86810 "CSR Test"
         Observer.Observe('before.kept', R.KeptState());
         Owner.DoClearAll();
         ObserveAfter(R, Owner, Row);
-        Observer.Finish();
+        Observer.Expect('run.result', 'No');
+        Observer.Expect('run.error', 'run failed');
+        Observer.Expect('before.reg', 'reg[99,,0,2,1]node[0,,0]');
+        Observer.Expect('before.kept', 'kept[0,,]');
+        Observer.Expect('after.reg', 'reg[0,,0,0,0]node[0,,0]');
+        Observer.Expect('after.kept', 'kept[0,,]');
+        Observer.Expect('after.owner', 'reg[0,,0,0,0]node[0,,0]kept[0,,]');
+        Observer.Expect('after.row', 'row[5,row,No.: 5,No,-]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -251,7 +301,11 @@ codeunit 86810 "CSR Test"
         R.Run(Row);
         R.DoClearAll();
         ObserveAfter(R, Owner, Row);
-        Observer.Finish();
+        Observer.Expect('after.reg', 'reg[0,,1,0,0]node[0,,1]');
+        Observer.Expect('after.kept', 'kept[0,,]');
+        Observer.Expect('after.owner', 'reg[0,,1,0,0]node[0,,1]kept[0,,]');
+        Observer.Expect('after.row', 'row[5,row,No.: 5,No,-]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -269,7 +323,13 @@ codeunit 86810 "CSR Test"
         Observer.Observe('before.kept', R.KeptState());
         Owner.DoClearAll();
         ObserveAfter(R, Owner, Row);
-        Observer.Finish();
+        Observer.Expect('before.reg', 'reg[0,,0,1,0]node[0,,0]');
+        Observer.Expect('before.kept', 'kept[0,,]');
+        Observer.Expect('after.reg', 'reg[0,,0,0,0]node[0,,0]');
+        Observer.Expect('after.kept', 'kept[0,,]');
+        Observer.Expect('after.owner', 'reg[0,,0,0,0]node[0,,0]kept[0,,]');
+        Observer.Expect('after.row', 'row[5,row,No.: 5,No,-]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -294,6 +354,12 @@ codeunit 86810 "CSR Test"
         Observer.Observe('again.owner', Owner.State());
         Observer.Observe('again.row', RowState(Row));
         Observer.Observe('again.row2', RowState(Row2));
-        Observer.Finish();
+        Observer.Expect('again.seen', 'start[0,,1,0]node[0,,1]kept[0,,]rec[8,two,,No,-]');
+        Observer.Expect('again.reg', 'reg[0,,1,0,1]node[0,,1]');
+        Observer.Expect('again.kept', 'kept[8,two,]');
+        Observer.Expect('again.owner', 'reg[0,,1,0,1]node[0,,1]kept[8,two,]');
+        Observer.Expect('again.row', 'row[5,row,No.: 5,No,-]');
+        Observer.Expect('again.row2', 'row[8,two,,No,-]');
+        Observer.Verify();
     end;
 }

@@ -7,7 +7,13 @@
 // Every node holds a non-temporary record; depth 3 also holds a temporary record. al-runner issue 9292.
 // singleinstance-shared-on-purpose: the subject is a SingleInstance codeunit held below a register that ClearAll resets.
 // BC versions: 27, 28, 29
-// What BC did: OBSERVING
+// What BC did (observed on BC 28.5; the pull request CI run asserts the same values on 27.5, 28.5 and 29.0): ClearAll in the
+// owner resets every plain codeunit reached through plain codeunits, at depth 1, 2 and 3, and the register's own record:
+// assigned key and non-key field values go blank (No. 0, Txt empty) and filters go away, also after Init() plus assignment and
+// for a record that Get loaded a row into and then changed in memory. A temporary record at depth 3 keeps its rows (Count 1)
+// but its current field values go blank. The SingleInstance codeunit at depth 2 and the plain codeunit at depth 3 below it keep
+// field values and filters. After ClearAll, a field written through the caller's register variable is read back through the
+// owner: the register stays shared.
 codeunit 86800 "CSF D3"
 {
     var
@@ -286,21 +292,51 @@ codeunit 86806 "CSF Test"
     procedure DeepFields_OnlyDepth3_OwnerClearAll()
     begin
         Run(1, false);
-        Observer.Finish();
+        Observer.Expect('before.reg', 'dreg[5000,0,]');
+        Observer.Expect('before.d1', 'd1[5100,0,]');
+        Observer.Expect('before.si', 'd2si[5110,0,]d3[5111,5111,d5111,|tmp 0,0,]');
+        Observer.Expect('before.p', 'd2p[5120,0,]d3[5121,5121,d5121,|tmp 0,0,]');
+        Observer.Expect('after.reg', 'dreg[0,0,]');
+        Observer.Expect('after.d1', 'd1[0,0,]');
+        Observer.Expect('after.si', 'd2si[5110,0,]d3[5111,5111,d5111,|tmp 0,0,]');
+        Observer.Expect('after.p', 'd2p[0,0,]d3[0,0,,|tmp 0,0,]');
+        Observer.Expect('after.owner.p', 'd2p[0,0,]d3[0,0,,|tmp 0,0,]');
+        Observer.Expect('after.d3', 'd3[0,0,,|tmp 0,0,]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure DeepFields_OnlyDepth3Filter_OwnerClearAll()
     begin
         Run(2, false);
-        Observer.Finish();
+        Observer.Expect('before.reg', 'dreg[5000,0,]');
+        Observer.Expect('before.d1', 'd1[5100,0,]');
+        Observer.Expect('before.si', 'd2si[5110,0,]d3[5111,5111,d5111,No.: 5111|tmp 0,0,]');
+        Observer.Expect('before.p', 'd2p[5120,0,]d3[5121,5121,d5121,No.: 5121|tmp 0,0,]');
+        Observer.Expect('after.reg', 'dreg[0,0,]');
+        Observer.Expect('after.d1', 'd1[0,0,]');
+        Observer.Expect('after.si', 'd2si[5110,0,]d3[5111,5111,d5111,No.: 5111|tmp 0,0,]');
+        Observer.Expect('after.p', 'd2p[0,0,]d3[0,0,,|tmp 0,0,]');
+        Observer.Expect('after.owner.p', 'd2p[0,0,]d3[0,0,,|tmp 0,0,]');
+        Observer.Expect('after.d3', 'd3[0,0,,|tmp 0,0,]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure DeepFields_OnlyDepth3Init_OwnerClearAll()
     begin
         Run(3, false);
-        Observer.Finish();
+        Observer.Expect('before.reg', 'dreg[5000,0,]');
+        Observer.Expect('before.d1', 'd1[5100,0,]');
+        Observer.Expect('before.si', 'd2si[5110,0,]d3[5111,5111,d5111,|tmp 0,0,]');
+        Observer.Expect('before.p', 'd2p[5120,0,]d3[5121,5121,d5121,|tmp 0,0,]');
+        Observer.Expect('after.reg', 'dreg[0,0,]');
+        Observer.Expect('after.d1', 'd1[0,0,]');
+        Observer.Expect('after.si', 'd2si[5110,0,]d3[5111,5111,d5111,|tmp 0,0,]');
+        Observer.Expect('after.p', 'd2p[0,0,]d3[0,0,,|tmp 0,0,]');
+        Observer.Expect('after.owner.p', 'd2p[0,0,]d3[0,0,,|tmp 0,0,]');
+        Observer.Expect('after.d3', 'd3[0,0,,|tmp 0,0,]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -313,28 +349,68 @@ codeunit 86806 "CSF Test"
         Row.Txt := 'db';
         Row.Insert();
         Run(4, false);
-        Observer.Finish();
+        Observer.Expect('before.reg', 'dreg[5000,0,]');
+        Observer.Expect('before.d1', 'd1[5100,0,]');
+        Observer.Expect('before.si', 'd2si[5110,0,]d3[5111,1,g5111,|tmp 0,0,]');
+        Observer.Expect('before.p', 'd2p[5120,0,]d3[5121,1,g5121,|tmp 0,0,]');
+        Observer.Expect('after.reg', 'dreg[0,0,]');
+        Observer.Expect('after.d1', 'd1[0,0,]');
+        Observer.Expect('after.si', 'd2si[5110,0,]d3[5111,1,g5111,|tmp 0,0,]');
+        Observer.Expect('after.p', 'd2p[0,0,]d3[0,0,,|tmp 0,0,]');
+        Observer.Expect('after.owner.p', 'd2p[0,0,]d3[0,0,,|tmp 0,0,]');
+        Observer.Expect('after.d3', 'd3[0,0,,|tmp 0,0,]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure DeepFields_OnlyDepth3Temp_OwnerClearAll()
     begin
         Run(5, false);
-        Observer.Finish();
+        Observer.Expect('before.reg', 'dreg[5000,0,]');
+        Observer.Expect('before.d1', 'd1[5100,0,]');
+        Observer.Expect('before.si', 'd2si[5110,0,]d3[5111,0,,|tmp 1,5112,u5111]');
+        Observer.Expect('before.p', 'd2p[5120,0,]d3[5121,0,,|tmp 1,5122,u5121]');
+        Observer.Expect('after.reg', 'dreg[0,0,]');
+        Observer.Expect('after.d1', 'd1[0,0,]');
+        Observer.Expect('after.si', 'd2si[5110,0,]d3[5111,0,,|tmp 1,5112,u5111]');
+        Observer.Expect('after.p', 'd2p[0,0,]d3[0,0,,|tmp 1,0,]');
+        Observer.Expect('after.owner.p', 'd2p[0,0,]d3[0,0,,|tmp 1,0,]');
+        Observer.Expect('after.d3', 'd3[0,0,,|tmp 0,0,]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure DeepFields_EveryLevel_OwnerClearAll()
     begin
         Run(1, true);
-        Observer.Finish();
+        Observer.Expect('before.reg', 'dreg[5000,5000,r5000]');
+        Observer.Expect('before.d1', 'd1[5100,5100,o5100]');
+        Observer.Expect('before.si', 'd2si[5110,5110,s5110]d3[5111,5111,d5111,|tmp 0,0,]');
+        Observer.Expect('before.p', 'd2p[5120,5120,p5120]d3[5121,5121,d5121,|tmp 0,0,]');
+        Observer.Expect('after.reg', 'dreg[0,0,]');
+        Observer.Expect('after.d1', 'd1[0,0,]');
+        Observer.Expect('after.si', 'd2si[5110,5110,s5110]d3[5111,5111,d5111,|tmp 0,0,]');
+        Observer.Expect('after.p', 'd2p[0,0,]d3[0,0,,|tmp 0,0,]');
+        Observer.Expect('after.owner.p', 'd2p[0,0,]d3[0,0,,|tmp 0,0,]');
+        Observer.Expect('after.d3', 'd3[0,0,,|tmp 0,0,]');
+        Observer.Verify();
     end;
 
     [Test]
     procedure DeepFields_EveryLevelFilter_OwnerClearAll()
     begin
         Run(2, true);
-        Observer.Finish();
+        Observer.Expect('before.reg', 'dreg[5000,5000,r5000]');
+        Observer.Expect('before.d1', 'd1[5100,5100,o5100]');
+        Observer.Expect('before.si', 'd2si[5110,5110,s5110]d3[5111,5111,d5111,No.: 5111|tmp 0,0,]');
+        Observer.Expect('before.p', 'd2p[5120,5120,p5120]d3[5121,5121,d5121,No.: 5121|tmp 0,0,]');
+        Observer.Expect('after.reg', 'dreg[0,0,]');
+        Observer.Expect('after.d1', 'd1[0,0,]');
+        Observer.Expect('after.si', 'd2si[5110,5110,s5110]d3[5111,5111,d5111,No.: 5111|tmp 0,0,]');
+        Observer.Expect('after.p', 'd2p[0,0,]d3[0,0,,|tmp 0,0,]');
+        Observer.Expect('after.owner.p', 'd2p[0,0,]d3[0,0,,|tmp 0,0,]');
+        Observer.Expect('after.d3', 'd3[0,0,,|tmp 0,0,]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -350,6 +426,9 @@ codeunit 86806 "CSF Test"
         Observer.Observe('write.owner.p', Owner.StateP());
         Observer.Observe('write.owner.si', Owner.StateSi());
         Observer.Observe('write.r.p', R.StateP());
-        Observer.Finish();
+        Observer.Expect('write.owner.p', 'd2p[0,0,]d3[0,0,wp,|tmp 0,0,]');
+        Observer.Expect('write.owner.si', 'd2si[6110,6110,s6110]d3[6111,6111,ws,|tmp 0,0,]');
+        Observer.Expect('write.r.p', 'd2p[0,0,]d3[0,0,wp,|tmp 0,0,]');
+        Observer.Verify();
     end;
 }
