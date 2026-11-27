@@ -9,13 +9,14 @@
 // The extra read (LT WLI Subs.ReadWindowsLanguageExtra, the "Extra" field of the log; Stefan Maron's note on corpus PR 1609): a checksum over every field of every
 //   row (RecordRef, all FieldCount columns), a Get of 99999 and of 0 (no such row), Count() under a filter on Primary CodePage = '1' (the rows with no OEM
 //   code page) and on Language Tag = 'hy-AM'. The checksum value is not pinned (the Windows and the Linux row text differ, see AgWindowsLanguage.al): the
-//   claim is that it equals the test session's in every install step; the other parts are asserted. Values measured by corpus CI: see below.
+//   claim is that it equals the test session's in every install step; the other parts are asserted. Values measured by corpus CI: see "Measured on" below.
 // The read (LT WLI Subs.ReadWindowsLanguage): Count(); Get of 1033, 1031, 1049 and 1067 (Armenian, a language with no OEM code page) with
 //   Name, Primary CodePage and Language Tag; FindSet over SetRange("Globally Enabled", true) with the rows iterated and the sum of their Language ID.
 // Observer.Verify compares in order: the Expect calls follow the order of the Observe calls.
 // Install-session rows are the rows with the session id of the install per database row. The test session is the control.
 //   Companies are numbered C1, C2, ... in the order of their first row (no names: the company order differs between hosts).
-// Expected values: the rows of record/table-properties/Y39WindowsLanguageTable.al (248 rows, all Globally Enabled, Language ID sum 1091889);
+// Expected values: the rows of record/table-properties/Y39WindowsLanguageTable.al (248 rows, all Globally Enabled, Language ID sum 1091889; lines 4 to 10
+//   are also the source of the extra read's fields=16 and codepage 1 count=44);
 //   Primary CodePage of 1067 is '1' on every major (corpus PR 1607).
 // No Initialize() with DeleteAll: the tests read the rows the install session wrote; deleting them would remove what is measured.
 // Measured on: BC 27.5, 28.5 and 29.0 in corpus CI (fresh install of every app; SaaS shards, OnPrem, OnPrem DotNet, TestLibraries and TryWrites runs). All three tests
@@ -24,8 +25,13 @@
 //   850 de-DE, 1049 Russian (Russia) 866 ru-RU, 1067 Armenian (Armenia) with Primary CodePage 1 hy-AM, all 248 rows Globally Enabled (Language ID sum 1091889).
 //   The install session runs OnCompanyOpen, install per company for C1, then the same for C2, then install per database; it is a different session than
 //   the test session and left no rows in other sessions. The test session reads the same values in its own OnCompanyOpen subscriber and in the test procedure.
+//   The extra read gave the same on all three: rows 248, fields 16, a Get of 99999 and of 0 finds no row, Count 44 under Primary CodePage = '1', Count 1 under
+//   Language Tag = 'hy-AM'; the checksum over all fields of all rows was equal in every install step (OnInstallAppPerDatabase, OnInstallAppPerCompany of both
+//   companies, OnCompanyOpen of both companies) and the test session (corpus PR 1625).
 // Not measured: upgrade sessions (CI installs fresh, an upgrade trigger never runs here; the OnCompanyOpen subscriber also writes rows for an
-//   Upgrade context, so a later upgrade job reads them without a fixture change). A second company beyond the ones CI creates.
+//   Upgrade context, so a later upgrade job reads them without a fixture change). A second company beyond the ones CI creates. The checksum value
+//   itself (only its equality across the install steps and the test session is asserted). Filters other than an equality SetRange (ranges, wildcards,
+//   a SetFilter expression). FindLast and descending order (SetCurrentKey with Ascending(false)).
 // BC versions: 27 - 29
 codeunit 96003 "LT WLI Install Tests"
 {
