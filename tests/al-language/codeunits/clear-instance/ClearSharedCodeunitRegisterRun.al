@@ -14,10 +14,12 @@
 // temporariness and rows, including a field OnRun changed in Rec (passed back through the var record). A guarded Reg.Run(Row)
 // whose OnRun errors returns false with the error text, keeps the global OnRun set before the error until ClearAll resets it.
 // ClearAll inside the register gives the same result as ClearAll in the owner. Codeunit.Run(Codeunit::"CSR Reg", Row) runs a
-// separate instance: the shared register's counter stays 0. A second Reg.Run(Row2) after ClearAll sees the reset globals (the
-// temporary rows stay), and the caller's first Row is unchanged.
-// Not measured: Reg.Run() without a record (does not compile for a TableNo codeunit: AL0135), and Rec read from a procedure other
-// than OnRun (Rec exists only inside OnRun: AL0118).
+// separate instance: it returns true (the return value is read) and the shared register's counter stays 0. A second
+// Reg.Run(Row2) after ClearAll sees the reset globals (the temporary rows stay), and the caller's first Row is unchanged.
+// Not measured: Reg.Run() without a record (does not compile for a TableNo codeunit: AL0135), Rec read from a procedure other
+// than OnRun (Rec exists only inside OnRun: AL0118), a temporary record below the register that read a row into its buffer (Get or
+// Find) or modified one, and a database Modify or Delete below the register. A deep register tree after a returned Reg.Run(Row)
+// is in ClearSharedCodeunitDeepFields.al.
 codeunit 86807 "CSR Node"
 {
     var
@@ -323,7 +325,14 @@ codeunit 86810 "CSR Test"
         Observer.Observe('before.kept', R.KeptState());
         Owner.DoClearAll();
         ObserveAfter(R, Owner, Row);
-        Observer.Finish();
+        Observer.Expect('static.ok', 'Yes');
+        Observer.Expect('before.reg', 'reg[0,,0,1,0]node[0,,0]');
+        Observer.Expect('before.kept', 'kept[0,,]');
+        Observer.Expect('after.reg', 'reg[0,,0,0,0]node[0,,0]');
+        Observer.Expect('after.kept', 'kept[0,,]');
+        Observer.Expect('after.owner', 'reg[0,,0,0,0]node[0,,0]kept[0,,]');
+        Observer.Expect('after.row', 'row[5,row,No.: 5,No,-]');
+        Observer.Verify();
     end;
 
     [Test]

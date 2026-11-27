@@ -4,7 +4,8 @@
 // Probe: ClearAll in an owner codeunit whose TableNo register another variable shares, when the records below the register
 // hold assigned field values (not only filters, as ClearSharedCodeunitWhseStore.al measured). Same tree as "CSW DReg" there:
 // register -> plain depth 1 -> SingleInstance depth 2 -> plain depth 3, and plain depth 1 -> plain depth 2 -> plain depth 3.
-// Every node holds a non-temporary record; depth 3 also holds a temporary record. al-runner issue 9292.
+// Every node holds a non-temporary record; depth 3 also holds a temporary record. One cell runs the register with R.Run(Row)
+// before ClearAll. al-runner issue 9292.
 // singleinstance-shared-on-purpose: the subject is a SingleInstance codeunit held below a register that ClearAll resets.
 // BC versions: 27, 28, 29
 // What BC did (observed on BC 28.5; the pull request CI run asserts the same values on 27.5, 28.5 and 29.0): ClearAll in the
@@ -13,7 +14,12 @@
 // for a record that Get loaded a row into and then changed in memory. A temporary record at depth 3 keeps its rows (Count 1)
 // but its current field values go blank. The SingleInstance codeunit at depth 2 and the plain codeunit at depth 3 below it keep
 // field values and filters. After ClearAll, a field written through the caller's register variable is read back through the
-// owner: the register stays shared.
+// owner: the register stays shared. After a returned R.Run(Row) on the same deep tree (every level assigned, a filter at depth 3,
+// OnRun sets the register Integer from Rec), ClearAll gives the same result as for a register that never ran: the register
+// Integer that OnRun set goes to 0, the plain branch goes blank, the SingleInstance branch keeps its field values and filter, and
+// the caller's Row keeps its field values and filter.
+// Not measured: a temporary record below the register that read a row into its buffer (Get or Find) or modified one, and a
+// database Modify or Delete below the register.
 codeunit 86800 "CSF D3"
 {
     var
@@ -457,6 +463,18 @@ codeunit 86806 "CSF Test"
         Observer.Observe('after.owner.p', Owner.StateP());
         Observer.Observe('after.owner.si', Owner.StateSi());
         Observer.Observe('after.row', RowState(Row));
-        Observer.Finish();
+        Observer.Expect('before.reg', 'dreg[7,7000,r7000]');
+        Observer.Expect('before.d1', 'd1[7100,7100,o7100]');
+        Observer.Expect('before.si', 'd2si[7110,7110,s7110]d3[7111,7111,d7111,No.: 7111|tmp 0,0,]');
+        Observer.Expect('before.p', 'd2p[7120,7120,p7120]d3[7121,7121,d7121,No.: 7121|tmp 0,0,]');
+        Observer.Expect('before.row', 'row[7,row,No.: 7]');
+        Observer.Expect('after.reg', 'dreg[0,0,]');
+        Observer.Expect('after.d1', 'd1[0,0,]');
+        Observer.Expect('after.si', 'd2si[7110,7110,s7110]d3[7111,7111,d7111,No.: 7111|tmp 0,0,]');
+        Observer.Expect('after.p', 'd2p[0,0,]d3[0,0,,|tmp 0,0,]');
+        Observer.Expect('after.owner.p', 'd2p[0,0,]d3[0,0,,|tmp 0,0,]');
+        Observer.Expect('after.owner.si', 'd2si[7110,7110,s7110]d3[7111,7111,d7111,No.: 7111|tmp 0,0,]');
+        Observer.Expect('after.row', 'row[7,row,No.: 7]');
+        Observer.Verify();
     end;
 }
