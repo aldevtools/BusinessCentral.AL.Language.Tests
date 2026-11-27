@@ -41,6 +41,8 @@ codeunit 86741 "CWT S4"
         Tb: TextBuilder;
         G: Guid;
         RR: RecordRef;
+        FR: FieldRef;
+        KR: KeyRef;
         Lp: Label 'lp';
         Lc: Label 'lc', Comment = 'c';
         Ll: Label 'll', Locked = true;
@@ -88,6 +90,8 @@ codeunit 86741 "CWT S4"
         Tb.Append('t' + Format(Seed));
         G := CreateGuid();
         RR.Open(Database::"CKK Row");
+        FR := RR.Field(1);
+        KR := RR.KeyIndex(1);
     end;
 
     procedure AddStates(var Out: List of [Text])
@@ -98,8 +102,38 @@ codeunit 86741 "CWT S4"
         Out.Add('S4.time=' + Format(D, 0, 9) + '/' + Format(Dt <> 0DT));
         Out.Add('S4.enum=' + Format(Op) + '/' + Format(En));
         Out.Add('S4.coll=' + Format(L.Count()) + '/' + Format(Dict.Count()) + '/' + Tb.ToText());
-        Out.Add('S4.ref=' + Format(IsNullGuid(G)) + '/' + Format(RR.Number));
+        Out.Add('S4.ref=' + Format(IsNullGuid(G)) + '/' + Format(RR.Number) + '/' + FrState() + '/' + KrState());
         Out.Add('S4.labels=' + Lp + '/' + Lc + '/' + Ll + '/' + Lm);
+    end;
+
+    local procedure FrState(): Text
+    var
+        N: Integer;
+    begin
+        if TryFieldNo(N) then
+            exit(Format(N));
+        exit('error');
+    end;
+
+    local procedure KrState(): Text
+    var
+        N: Integer;
+    begin
+        if TryKeyFieldCount(N) then
+            exit(Format(N));
+        exit('error');
+    end;
+
+    [TryFunction]
+    local procedure TryFieldNo(var N: Integer)
+    begin
+        N := FR.Number;
+    end;
+
+    [TryFunction]
+    local procedure TryKeyFieldCount(var N: Integer)
+    begin
+        N := KR.FieldCount;
     end;
 
     procedure DoClearAll()
@@ -128,6 +162,8 @@ codeunit 86742 "CWT P4"
         Tb: TextBuilder;
         G: Guid;
         RR: RecordRef;
+        FR: FieldRef;
+        KR: KeyRef;
         Lp: Label 'lp';
         Lc: Label 'lc', Comment = 'c';
         Ll: Label 'll', Locked = true;
@@ -175,6 +211,8 @@ codeunit 86742 "CWT P4"
         Tb.Append('t' + Format(Seed));
         G := CreateGuid();
         RR.Open(Database::"CKK Row");
+        FR := RR.Field(1);
+        KR := RR.KeyIndex(1);
     end;
 
     procedure AddStates(var Out: List of [Text])
@@ -185,8 +223,38 @@ codeunit 86742 "CWT P4"
         Out.Add('P4.time=' + Format(D, 0, 9) + '/' + Format(Dt <> 0DT));
         Out.Add('P4.enum=' + Format(Op) + '/' + Format(En));
         Out.Add('P4.coll=' + Format(L.Count()) + '/' + Format(Dict.Count()) + '/' + Tb.ToText());
-        Out.Add('P4.ref=' + Format(IsNullGuid(G)) + '/' + Format(RR.Number));
+        Out.Add('P4.ref=' + Format(IsNullGuid(G)) + '/' + Format(RR.Number) + '/' + FrState() + '/' + KrState());
         Out.Add('P4.labels=' + Lp + '/' + Lc + '/' + Ll + '/' + Lm);
+    end;
+
+    local procedure FrState(): Text
+    var
+        N: Integer;
+    begin
+        if TryFieldNo(N) then
+            exit(Format(N));
+        exit('error');
+    end;
+
+    local procedure KrState(): Text
+    var
+        N: Integer;
+    begin
+        if TryKeyFieldCount(N) then
+            exit(Format(N));
+        exit('error');
+    end;
+
+    [TryFunction]
+    local procedure TryFieldNo(var N: Integer)
+    begin
+        N := FR.Number;
+    end;
+
+    [TryFunction]
+    local procedure TryKeyFieldCount(var N: Integer)
+    begin
+        N := KR.FieldCount;
     end;
 
     procedure DoClearAll()
@@ -217,6 +285,8 @@ codeunit 86743 "CWT S3"
         Tb: TextBuilder;
         G: Guid;
         RR: RecordRef;
+        FR: FieldRef;
+        KR: KeyRef;
         Lp: Label 'lp';
         Lc: Label 'lc', Comment = 'c';
         Ll: Label 'll', Locked = true;
@@ -264,6 +334,8 @@ codeunit 86743 "CWT S3"
         Tb.Append('t' + Format(Seed));
         G := CreateGuid();
         RR.Open(Database::"CKK Row");
+        FR := RR.Field(1);
+        KR := RR.KeyIndex(1);
     end;
 
     procedure AddStates(var Out: List of [Text])
@@ -274,8 +346,38 @@ codeunit 86743 "CWT S3"
         Out.Add('S3.time=' + Format(D, 0, 9) + '/' + Format(Dt <> 0DT));
         Out.Add('S3.enum=' + Format(Op) + '/' + Format(En));
         Out.Add('S3.coll=' + Format(L.Count()) + '/' + Format(Dict.Count()) + '/' + Tb.ToText());
-        Out.Add('S3.ref=' + Format(IsNullGuid(G)) + '/' + Format(RR.Number));
+        Out.Add('S3.ref=' + Format(IsNullGuid(G)) + '/' + Format(RR.Number) + '/' + FrState() + '/' + KrState());
         Out.Add('S3.labels=' + Lp + '/' + Lc + '/' + Ll + '/' + Lm);
+    end;
+
+    local procedure FrState(): Text
+    var
+        N: Integer;
+    begin
+        if TryFieldNo(N) then
+            exit(Format(N));
+        exit('error');
+    end;
+
+    local procedure KrState(): Text
+    var
+        N: Integer;
+    begin
+        if TryKeyFieldCount(N) then
+            exit(Format(N));
+        exit('error');
+    end;
+
+    [TryFunction]
+    local procedure TryFieldNo(var N: Integer)
+    begin
+        N := FR.Number;
+    end;
+
+    [TryFunction]
+    local procedure TryKeyFieldCount(var N: Integer)
+    begin
+        N := KR.FieldCount;
     end;
 
     procedure DoClearAll()
@@ -304,6 +406,8 @@ codeunit 86744 "CWT P3"
         Tb: TextBuilder;
         G: Guid;
         RR: RecordRef;
+        FR: FieldRef;
+        KR: KeyRef;
         Lp: Label 'lp';
         Lc: Label 'lc', Comment = 'c';
         Ll: Label 'll', Locked = true;
@@ -353,6 +457,8 @@ codeunit 86744 "CWT P3"
         Tb.Append('t' + Format(Seed));
         G := CreateGuid();
         RR.Open(Database::"CKK Row");
+        FR := RR.Field(1);
+        KR := RR.KeyIndex(1);
     end;
 
     procedure AddStates(var Out: List of [Text])
@@ -363,9 +469,39 @@ codeunit 86744 "CWT P3"
         Out.Add('P3.time=' + Format(D, 0, 9) + '/' + Format(Dt <> 0DT));
         Out.Add('P3.enum=' + Format(Op) + '/' + Format(En));
         Out.Add('P3.coll=' + Format(L.Count()) + '/' + Format(Dict.Count()) + '/' + Tb.ToText());
-        Out.Add('P3.ref=' + Format(IsNullGuid(G)) + '/' + Format(RR.Number));
+        Out.Add('P3.ref=' + Format(IsNullGuid(G)) + '/' + Format(RR.Number) + '/' + FrState() + '/' + KrState());
         Out.Add('P3.labels=' + Lp + '/' + Lc + '/' + Ll + '/' + Lm);
         P4.AddStates(Out);
+    end;
+
+    local procedure FrState(): Text
+    var
+        N: Integer;
+    begin
+        if TryFieldNo(N) then
+            exit(Format(N));
+        exit('error');
+    end;
+
+    local procedure KrState(): Text
+    var
+        N: Integer;
+    begin
+        if TryKeyFieldCount(N) then
+            exit(Format(N));
+        exit('error');
+    end;
+
+    [TryFunction]
+    local procedure TryFieldNo(var N: Integer)
+    begin
+        N := FR.Number;
+    end;
+
+    [TryFunction]
+    local procedure TryKeyFieldCount(var N: Integer)
+    begin
+        N := KR.FieldCount;
     end;
 
     procedure DoClearAll()
@@ -396,6 +532,8 @@ codeunit 86745 "CWT S2"
         Tb: TextBuilder;
         G: Guid;
         RR: RecordRef;
+        FR: FieldRef;
+        KR: KeyRef;
         Lp: Label 'lp';
         Lc: Label 'lc', Comment = 'c';
         Ll: Label 'll', Locked = true;
@@ -445,6 +583,8 @@ codeunit 86745 "CWT S2"
         Tb.Append('t' + Format(Seed));
         G := CreateGuid();
         RR.Open(Database::"CKK Row");
+        FR := RR.Field(1);
+        KR := RR.KeyIndex(1);
     end;
 
     procedure AddStates(var Out: List of [Text])
@@ -455,9 +595,39 @@ codeunit 86745 "CWT S2"
         Out.Add('S2.time=' + Format(D, 0, 9) + '/' + Format(Dt <> 0DT));
         Out.Add('S2.enum=' + Format(Op) + '/' + Format(En));
         Out.Add('S2.coll=' + Format(L.Count()) + '/' + Format(Dict.Count()) + '/' + Tb.ToText());
-        Out.Add('S2.ref=' + Format(IsNullGuid(G)) + '/' + Format(RR.Number));
+        Out.Add('S2.ref=' + Format(IsNullGuid(G)) + '/' + Format(RR.Number) + '/' + FrState() + '/' + KrState());
         Out.Add('S2.labels=' + Lp + '/' + Lc + '/' + Ll + '/' + Lm);
         S4.AddStates(Out);
+    end;
+
+    local procedure FrState(): Text
+    var
+        N: Integer;
+    begin
+        if TryFieldNo(N) then
+            exit(Format(N));
+        exit('error');
+    end;
+
+    local procedure KrState(): Text
+    var
+        N: Integer;
+    begin
+        if TryKeyFieldCount(N) then
+            exit(Format(N));
+        exit('error');
+    end;
+
+    [TryFunction]
+    local procedure TryFieldNo(var N: Integer)
+    begin
+        N := FR.Number;
+    end;
+
+    [TryFunction]
+    local procedure TryKeyFieldCount(var N: Integer)
+    begin
+        N := KR.FieldCount;
     end;
 
     procedure DoClearAll()
@@ -486,6 +656,8 @@ codeunit 86746 "CWT P2"
         Tb: TextBuilder;
         G: Guid;
         RR: RecordRef;
+        FR: FieldRef;
+        KR: KeyRef;
         Lp: Label 'lp';
         Lc: Label 'lc', Comment = 'c';
         Ll: Label 'll', Locked = true;
@@ -533,6 +705,8 @@ codeunit 86746 "CWT P2"
         Tb.Append('t' + Format(Seed));
         G := CreateGuid();
         RR.Open(Database::"CKK Row");
+        FR := RR.Field(1);
+        KR := RR.KeyIndex(1);
     end;
 
     procedure AddStates(var Out: List of [Text])
@@ -543,8 +717,38 @@ codeunit 86746 "CWT P2"
         Out.Add('P2.time=' + Format(D, 0, 9) + '/' + Format(Dt <> 0DT));
         Out.Add('P2.enum=' + Format(Op) + '/' + Format(En));
         Out.Add('P2.coll=' + Format(L.Count()) + '/' + Format(Dict.Count()) + '/' + Tb.ToText());
-        Out.Add('P2.ref=' + Format(IsNullGuid(G)) + '/' + Format(RR.Number));
+        Out.Add('P2.ref=' + Format(IsNullGuid(G)) + '/' + Format(RR.Number) + '/' + FrState() + '/' + KrState());
         Out.Add('P2.labels=' + Lp + '/' + Lc + '/' + Ll + '/' + Lm);
+    end;
+
+    local procedure FrState(): Text
+    var
+        N: Integer;
+    begin
+        if TryFieldNo(N) then
+            exit(Format(N));
+        exit('error');
+    end;
+
+    local procedure KrState(): Text
+    var
+        N: Integer;
+    begin
+        if TryKeyFieldCount(N) then
+            exit(Format(N));
+        exit('error');
+    end;
+
+    [TryFunction]
+    local procedure TryFieldNo(var N: Integer)
+    begin
+        N := FR.Number;
+    end;
+
+    [TryFunction]
+    local procedure TryKeyFieldCount(var N: Integer)
+    begin
+        N := KR.FieldCount;
     end;
 
     procedure DoClearAll()
@@ -573,6 +777,8 @@ codeunit 86747 "CWT P1"
         Tb: TextBuilder;
         G: Guid;
         RR: RecordRef;
+        FR: FieldRef;
+        KR: KeyRef;
         Lp: Label 'lp';
         Lc: Label 'lc', Comment = 'c';
         Ll: Label 'll', Locked = true;
@@ -624,6 +830,8 @@ codeunit 86747 "CWT P1"
         Tb.Append('t' + Format(Seed));
         G := CreateGuid();
         RR.Open(Database::"CKK Row");
+        FR := RR.Field(1);
+        KR := RR.KeyIndex(1);
     end;
 
     procedure AddStates(var Out: List of [Text])
@@ -634,10 +842,40 @@ codeunit 86747 "CWT P1"
         Out.Add('P1.time=' + Format(D, 0, 9) + '/' + Format(Dt <> 0DT));
         Out.Add('P1.enum=' + Format(Op) + '/' + Format(En));
         Out.Add('P1.coll=' + Format(L.Count()) + '/' + Format(Dict.Count()) + '/' + Tb.ToText());
-        Out.Add('P1.ref=' + Format(IsNullGuid(G)) + '/' + Format(RR.Number));
+        Out.Add('P1.ref=' + Format(IsNullGuid(G)) + '/' + Format(RR.Number) + '/' + FrState() + '/' + KrState());
         Out.Add('P1.labels=' + Lp + '/' + Lc + '/' + Ll + '/' + Lm);
         S2.AddStates(Out);
         P2.AddStates(Out);
+    end;
+
+    local procedure FrState(): Text
+    var
+        N: Integer;
+    begin
+        if TryFieldNo(N) then
+            exit(Format(N));
+        exit('error');
+    end;
+
+    local procedure KrState(): Text
+    var
+        N: Integer;
+    begin
+        if TryKeyFieldCount(N) then
+            exit(Format(N));
+        exit('error');
+    end;
+
+    [TryFunction]
+    local procedure TryFieldNo(var N: Integer)
+    begin
+        N := FR.Number;
+    end;
+
+    [TryFunction]
+    local procedure TryKeyFieldCount(var N: Integer)
+    begin
+        N := KR.FieldCount;
     end;
 
     procedure DoClearAll()
@@ -668,6 +906,8 @@ codeunit 86748 "CWT S1"
         Tb: TextBuilder;
         G: Guid;
         RR: RecordRef;
+        FR: FieldRef;
+        KR: KeyRef;
         Lp: Label 'lp';
         Lc: Label 'lc', Comment = 'c';
         Ll: Label 'll', Locked = true;
@@ -719,6 +959,8 @@ codeunit 86748 "CWT S1"
         Tb.Append('t' + Format(Seed));
         G := CreateGuid();
         RR.Open(Database::"CKK Row");
+        FR := RR.Field(1);
+        KR := RR.KeyIndex(1);
     end;
 
     procedure AddStates(var Out: List of [Text])
@@ -729,10 +971,40 @@ codeunit 86748 "CWT S1"
         Out.Add('S1.time=' + Format(D, 0, 9) + '/' + Format(Dt <> 0DT));
         Out.Add('S1.enum=' + Format(Op) + '/' + Format(En));
         Out.Add('S1.coll=' + Format(L.Count()) + '/' + Format(Dict.Count()) + '/' + Tb.ToText());
-        Out.Add('S1.ref=' + Format(IsNullGuid(G)) + '/' + Format(RR.Number));
+        Out.Add('S1.ref=' + Format(IsNullGuid(G)) + '/' + Format(RR.Number) + '/' + FrState() + '/' + KrState());
         Out.Add('S1.labels=' + Lp + '/' + Lc + '/' + Ll + '/' + Lm);
         S3.AddStates(Out);
         P3.AddStates(Out);
+    end;
+
+    local procedure FrState(): Text
+    var
+        N: Integer;
+    begin
+        if TryFieldNo(N) then
+            exit(Format(N));
+        exit('error');
+    end;
+
+    local procedure KrState(): Text
+    var
+        N: Integer;
+    begin
+        if TryKeyFieldCount(N) then
+            exit(Format(N));
+        exit('error');
+    end;
+
+    [TryFunction]
+    local procedure TryFieldNo(var N: Integer)
+    begin
+        N := FR.Number;
+    end;
+
+    [TryFunction]
+    local procedure TryKeyFieldCount(var N: Integer)
+    begin
+        N := KR.FieldCount;
     end;
 
     procedure DoClearAll()
@@ -767,6 +1039,8 @@ codeunit 86749 "CWT Reg"
         Tb: TextBuilder;
         G: Guid;
         RR: RecordRef;
+        FR: FieldRef;
+        KR: KeyRef;
         Lp: Label 'lp';
         Lc: Label 'lc', Comment = 'c';
         Ll: Label 'll', Locked = true;
@@ -818,9 +1092,17 @@ codeunit 86749 "CWT Reg"
         Tb.Append('t' + Format(Seed));
         G := CreateGuid();
         RR.Open(Database::"CKK Row");
+        FR := RR.Field(1);
+        KR := RR.KeyIndex(1);
     end;
 
     procedure AddStates(var Out: List of [Text])
+    begin
+        AddStatesP1(Out);
+        S1.AddStates(Out);
+    end;
+
+    procedure AddStatesP1(var Out: List of [Text])
     begin
         Out.Add('Reg.rec=' + R.GetFilters() + '/' + R.Txt);
         Out.Add('Reg.tmp=' + Format(T.Count()));
@@ -828,10 +1110,44 @@ codeunit 86749 "CWT Reg"
         Out.Add('Reg.time=' + Format(D, 0, 9) + '/' + Format(Dt <> 0DT));
         Out.Add('Reg.enum=' + Format(Op) + '/' + Format(En));
         Out.Add('Reg.coll=' + Format(L.Count()) + '/' + Format(Dict.Count()) + '/' + Tb.ToText());
-        Out.Add('Reg.ref=' + Format(IsNullGuid(G)) + '/' + Format(RR.Number));
+        Out.Add('Reg.ref=' + Format(IsNullGuid(G)) + '/' + Format(RR.Number) + '/' + FrState() + '/' + KrState());
         Out.Add('Reg.labels=' + Lp + '/' + Lc + '/' + Ll + '/' + Lm);
         P1.AddStates(Out);
+    end;
+
+    procedure AddStatesS1(var Out: List of [Text])
+    begin
         S1.AddStates(Out);
+    end;
+
+    local procedure FrState(): Text
+    var
+        N: Integer;
+    begin
+        if TryFieldNo(N) then
+            exit(Format(N));
+        exit('error');
+    end;
+
+    local procedure KrState(): Text
+    var
+        N: Integer;
+    begin
+        if TryKeyFieldCount(N) then
+            exit(Format(N));
+        exit('error');
+    end;
+
+    [TryFunction]
+    local procedure TryFieldNo(var N: Integer)
+    begin
+        N := FR.Number;
+    end;
+
+    [TryFunction]
+    local procedure TryKeyFieldCount(var N: Integer)
+    begin
+        N := KR.FieldCount;
     end;
 
     procedure DoClearAll()
@@ -874,6 +1190,16 @@ codeunit 86750 "CWT Owner"
     begin
         Reg.AddStates(Out);
     end;
+
+    procedure AddStatesP1(var Out: List of [Text])
+    begin
+        Reg.AddStatesP1(Out);
+    end;
+
+    procedure AddStatesS1(var Out: List of [Text])
+    begin
+        Reg.AddStatesS1(Out);
+    end;
 }
 
 codeunit 86751 "CWT Test"
@@ -909,6 +1235,17 @@ codeunit 86751 "CWT Test"
         ObserveList(Prefix, Out);
     end;
 
+    local procedure ObserveOwnerSubtree(Prefix: Text; var Owner: Codeunit "CWT Owner"; Subtree: Text)
+    var
+        Out: List of [Text];
+    begin
+        if Subtree = 'P1' then
+            Owner.AddStatesP1(Out)
+        else
+            Owner.AddStatesS1(Out);
+        ObserveList(Prefix, Out);
+    end;
+
     local procedure ObserveDirect(Prefix: Text)
     var
         S1: Codeunit "CWT S1";
@@ -921,84 +1258,25 @@ codeunit 86751 "CWT Test"
     end;
 
     [Test]
-    procedure Tree_OwnerClearAll_Before()
+    procedure Tree_OwnerClearAll_Before_P1()
     var
         Owner: Codeunit "CWT Owner";
     begin
         ResetSingleInstances();
         Owner.Prime(1);
-        ObserveOwner('before.', Owner);
-        Observer.Expect('before.Reg.rec', 'No.: 1/r1');
-        Observer.Expect('before.Reg.tmp', '1');
-        Observer.Expect('before.Reg.scalars', 'Yes/1/0.5/1000000000/1/C1');
-        Observer.Expect('before.Reg.time', '2001-01-01/Yes');
-        Observer.Expect('before.Reg.enum', 'C/B');
-        Observer.Expect('before.Reg.coll', '1/1/t1');
-        Observer.Expect('before.Reg.ref', 'No/86270');
-        Observer.Expect('before.Reg.labels', 'lp/lc/ll/lm');
-        Observer.Expect('before.P1.rec', 'No.: 1/r1');
-        Observer.Expect('before.P1.tmp', '1');
-        Observer.Expect('before.P1.scalars', 'Yes/1/0.5/1000000000/1/C1');
-        Observer.Expect('before.P1.time', '2001-01-01/Yes');
-        Observer.Expect('before.P1.enum', 'C/B');
-        Observer.Expect('before.P1.coll', '1/1/t1');
-        Observer.Expect('before.P1.ref', 'No/86270');
-        Observer.Expect('before.P1.labels', 'lp/lc/ll/lm');
-        Observer.Expect('before.S2.rec', 'No.: 1/r1');
-        Observer.Expect('before.S2.tmp', '1');
-        Observer.Expect('before.S2.scalars', 'Yes/1/0.5/1000000000/1/C1');
-        Observer.Expect('before.S2.time', '2001-01-01/Yes');
-        Observer.Expect('before.S2.enum', 'C/B');
-        Observer.Expect('before.S2.coll', '1/1/t1');
-        Observer.Expect('before.S2.ref', 'No/86270');
-        Observer.Expect('before.S2.labels', 'lp/lc/ll/lm');
-        Observer.Expect('before.S4.rec', 'No.: 1/r1');
-        Observer.Expect('before.S4.tmp', '1');
-        Observer.Expect('before.S4.scalars', 'Yes/1/0.5/1000000000/1/C1');
-        Observer.Expect('before.S4.time', '2001-01-01/Yes');
-        Observer.Expect('before.S4.enum', 'C/B');
-        Observer.Expect('before.S4.coll', '1/1/t1');
-        Observer.Expect('before.S4.ref', 'No/86270');
-        Observer.Expect('before.S4.labels', 'lp/lc/ll/lm');
-        Observer.Expect('before.P2.rec', 'No.: 1/r1');
-        Observer.Expect('before.P2.tmp', '1');
-        Observer.Expect('before.P2.scalars', 'Yes/1/0.5/1000000000/1/C1');
-        Observer.Expect('before.P2.time', '2001-01-01/Yes');
-        Observer.Expect('before.P2.enum', 'C/B');
-        Observer.Expect('before.P2.coll', '1/1/t1');
-        Observer.Expect('before.P2.ref', 'No/86270');
-        Observer.Expect('before.P2.labels', 'lp/lc/ll/lm');
-        Observer.Expect('before.S1.rec', 'No.: 1/r1');
-        Observer.Expect('before.S1.tmp', '1');
-        Observer.Expect('before.S1.scalars', 'Yes/1/0.5/1000000000/1/C1');
-        Observer.Expect('before.S1.time', '2001-01-01/Yes');
-        Observer.Expect('before.S1.enum', 'C/B');
-        Observer.Expect('before.S1.coll', '1/1/t1');
-        Observer.Expect('before.S1.ref', 'No/86270');
-        Observer.Expect('before.S1.labels', 'lp/lc/ll/lm');
-        Observer.Expect('before.S3.rec', 'No.: 1/r1');
-        Observer.Expect('before.S3.tmp', '1');
-        Observer.Expect('before.S3.scalars', 'Yes/1/0.5/1000000000/1/C1');
-        Observer.Expect('before.S3.time', '2001-01-01/Yes');
-        Observer.Expect('before.S3.enum', 'C/B');
-        Observer.Expect('before.S3.coll', '1/1/t1');
-        Observer.Expect('before.S3.ref', 'No/86270');
-        Observer.Expect('before.S3.labels', 'lp/lc/ll/lm');
-        Observer.Expect('before.P3.rec', 'No.: 1/r1');
-        Observer.Expect('before.P3.tmp', '1');
-        Observer.Expect('before.P3.scalars', 'Yes/1/0.5/1000000000/1/C1');
-        Observer.Expect('before.P3.time', '2001-01-01/Yes');
-        Observer.Expect('before.P3.enum', 'C/B');
-        Observer.Expect('before.P3.coll', '1/1/t1');
-        Observer.Expect('before.P3.ref', 'No/86270');
-        Observer.Expect('before.P3.labels', 'lp/lc/ll/lm');
-        Observer.Expect('before.P4.rec', 'No.: 1/r1');
-        Observer.Expect('before.P4.tmp', '1');
-        Observer.Expect('before.P4.scalars', 'Yes/1/0.5/1000000000/1/C1');
-        Observer.Expect('before.P4.time', '2001-01-01/Yes');
-        Observer.Expect('before.P4.enum', 'C/B');
-        Observer.Expect('bef', '');
-        Observer.Verify();
+        ObserveOwnerSubtree('before.', Owner, 'P1');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Tree_OwnerClearAll_Before_S1()
+    var
+        Owner: Codeunit "CWT Owner";
+    begin
+        ResetSingleInstances();
+        Owner.Prime(1);
+        ObserveOwnerSubtree('before.', Owner, 'S1');
+        Observer.Finish();
     end;
 
     [Test]
@@ -1010,79 +1288,7 @@ codeunit 86751 "CWT Test"
         Owner.Prime(1);
         Owner.DoClearAll();
         ObserveOwner('after.', Owner);
-        Observer.Expect('after.Reg.rec', '/');
-        Observer.Expect('after.Reg.tmp', '1');
-        Observer.Expect('after.Reg.scalars', 'No/0/0/0//');
-        Observer.Expect('after.Reg.time', '/No');
-        Observer.Expect('after.Reg.enum', 'A/A');
-        Observer.Expect('after.Reg.coll', '0/0/');
-        Observer.Expect('after.Reg.ref', 'Yes/0');
-        Observer.Expect('after.Reg.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.P1.rec', '/');
-        Observer.Expect('after.P1.tmp', '1');
-        Observer.Expect('after.P1.scalars', 'No/0/0/0//');
-        Observer.Expect('after.P1.time', '/No');
-        Observer.Expect('after.P1.enum', 'A/A');
-        Observer.Expect('after.P1.coll', '0/0/');
-        Observer.Expect('after.P1.ref', 'Yes/0');
-        Observer.Expect('after.P1.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.S2.rec', 'No.: 1/r1');
-        Observer.Expect('after.S2.tmp', '1');
-        Observer.Expect('after.S2.scalars', 'Yes/1/0.5/1000000000/1/C1');
-        Observer.Expect('after.S2.time', '2001-01-01/Yes');
-        Observer.Expect('after.S2.enum', 'C/B');
-        Observer.Expect('after.S2.coll', '1/1/t1');
-        Observer.Expect('after.S2.ref', 'No/86270');
-        Observer.Expect('after.S2.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.S4.rec', 'No.: 1/r1');
-        Observer.Expect('after.S4.tmp', '1');
-        Observer.Expect('after.S4.scalars', 'Yes/1/0.5/1000000000/1/C1');
-        Observer.Expect('after.S4.time', '2001-01-01/Yes');
-        Observer.Expect('after.S4.enum', 'C/B');
-        Observer.Expect('after.S4.coll', '1/1/t1');
-        Observer.Expect('after.S4.ref', 'No/86270');
-        Observer.Expect('after.S4.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.P2.rec', '/');
-        Observer.Expect('after.P2.tmp', '1');
-        Observer.Expect('after.P2.scalars', 'No/0/0/0//');
-        Observer.Expect('after.P2.time', '/No');
-        Observer.Expect('after.P2.enum', 'A/A');
-        Observer.Expect('after.P2.coll', '0/0/');
-        Observer.Expect('after.P2.ref', 'Yes/0');
-        Observer.Expect('after.P2.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.S1.rec', 'No.: 1/r1');
-        Observer.Expect('after.S1.tmp', '1');
-        Observer.Expect('after.S1.scalars', 'Yes/1/0.5/1000000000/1/C1');
-        Observer.Expect('after.S1.time', '2001-01-01/Yes');
-        Observer.Expect('after.S1.enum', 'C/B');
-        Observer.Expect('after.S1.coll', '1/1/t1');
-        Observer.Expect('after.S1.ref', 'No/86270');
-        Observer.Expect('after.S1.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.S3.rec', 'No.: 1/r1');
-        Observer.Expect('after.S3.tmp', '1');
-        Observer.Expect('after.S3.scalars', 'Yes/1/0.5/1000000000/1/C1');
-        Observer.Expect('after.S3.time', '2001-01-01/Yes');
-        Observer.Expect('after.S3.enum', 'C/B');
-        Observer.Expect('after.S3.coll', '1/1/t1');
-        Observer.Expect('after.S3.ref', 'No/86270');
-        Observer.Expect('after.S3.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.P3.rec', 'No.: 1/r1');
-        Observer.Expect('after.P3.tmp', '1');
-        Observer.Expect('after.P3.scalars', 'Yes/1/0.5/1000000000/1/C1');
-        Observer.Expect('after.P3.time', '2001-01-01/Yes');
-        Observer.Expect('after.P3.enum', 'C/B');
-        Observer.Expect('after.P3.coll', '1/1/t1');
-        Observer.Expect('after.P3.ref', 'No/86270');
-        Observer.Expect('after.P3.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.P4.rec', 'No.: 1/r1');
-        Observer.Expect('after.P4.tmp', '1');
-        Observer.Expect('after.P4.scalars', 'Yes/1/0.5/1000000000/1/C1');
-        Observer.Expect('after.P4.time', '2001-01-01/Yes');
-        Observer.Expect('after.P4.enum', 'C/B');
-        Observer.Expect('after.P4.coll', '1/1/t1');
-        Observer.Expect('after.P4.ref', 'No/86270');
-        Observer.Expect('after.P4.labels', 'lp/lc/ll/lm');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -1094,59 +1300,11 @@ codeunit 86751 "CWT Test"
         Owner.Prime(1);
         Owner.DoClearAll();
         ObserveDirect('direct.');
-        Observer.Expect('direct.S1.rec', 'No.: 1/r1');
-        Observer.Expect('direct.S1.tmp', '1');
-        Observer.Expect('direct.S1.scalars', 'Yes/1/0.5/1000000000/1/C1');
-        Observer.Expect('direct.S1.time', '2001-01-01/Yes');
-        Observer.Expect('direct.S1.enum', 'C/B');
-        Observer.Expect('direct.S1.coll', '1/1/t1');
-        Observer.Expect('direct.S1.ref', 'No/86270');
-        Observer.Expect('direct.S1.labels', 'lp/lc/ll/lm');
-        Observer.Expect('direct.S3.rec', 'No.: 1/r1');
-        Observer.Expect('direct.S3.tmp', '1');
-        Observer.Expect('direct.S3.scalars', 'Yes/1/0.5/1000000000/1/C1');
-        Observer.Expect('direct.S3.time', '2001-01-01/Yes');
-        Observer.Expect('direct.S3.enum', 'C/B');
-        Observer.Expect('direct.S3.coll', '1/1/t1');
-        Observer.Expect('direct.S3.ref', 'No/86270');
-        Observer.Expect('direct.S3.labels', 'lp/lc/ll/lm');
-        Observer.Expect('direct.P3.rec', 'No.: 1/r1');
-        Observer.Expect('direct.P3.tmp', '1');
-        Observer.Expect('direct.P3.scalars', 'Yes/1/0.5/1000000000/1/C1');
-        Observer.Expect('direct.P3.time', '2001-01-01/Yes');
-        Observer.Expect('direct.P3.enum', 'C/B');
-        Observer.Expect('direct.P3.coll', '1/1/t1');
-        Observer.Expect('direct.P3.ref', 'No/86270');
-        Observer.Expect('direct.P3.labels', 'lp/lc/ll/lm');
-        Observer.Expect('direct.P4.rec', 'No.: 1/r1');
-        Observer.Expect('direct.P4.tmp', '1');
-        Observer.Expect('direct.P4.scalars', 'Yes/1/0.5/1000000000/1/C1');
-        Observer.Expect('direct.P4.time', '2001-01-01/Yes');
-        Observer.Expect('direct.P4.enum', 'C/B');
-        Observer.Expect('direct.P4.coll', '1/1/t1');
-        Observer.Expect('direct.P4.ref', 'No/86270');
-        Observer.Expect('direct.P4.labels', 'lp/lc/ll/lm');
-        Observer.Expect('direct.S2.rec', 'No.: 1/r1');
-        Observer.Expect('direct.S2.tmp', '1');
-        Observer.Expect('direct.S2.scalars', 'Yes/1/0.5/1000000000/1/C1');
-        Observer.Expect('direct.S2.time', '2001-01-01/Yes');
-        Observer.Expect('direct.S2.enum', 'C/B');
-        Observer.Expect('direct.S2.coll', '1/1/t1');
-        Observer.Expect('direct.S2.ref', 'No/86270');
-        Observer.Expect('direct.S2.labels', 'lp/lc/ll/lm');
-        Observer.Expect('direct.S4.rec', 'No.: 1/r1');
-        Observer.Expect('direct.S4.tmp', '1');
-        Observer.Expect('direct.S4.scalars', 'Yes/1/0.5/1000000000/1/C1');
-        Observer.Expect('direct.S4.time', '2001-01-01/Yes');
-        Observer.Expect('direct.S4.enum', 'C/B');
-        Observer.Expect('direct.S4.coll', '1/1/t1');
-        Observer.Expect('direct.S4.ref', 'No/86270');
-        Observer.Expect('direct.S4.labels', 'lp/lc/ll/lm');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Tree_OwnerClearAll_Reprimed()
+    procedure Tree_OwnerClearAll_Reprimed_P1()
     var
         Owner: Codeunit "CWT Owner";
     begin
@@ -1154,73 +1312,21 @@ codeunit 86751 "CWT Test"
         Owner.Prime(1);
         Owner.DoClearAll();
         Owner.Prime(2);
-        ObserveOwner('reprimed.', Owner);
-        Observer.Expect('reprimed.Reg.rec', 'No.: 2/r2');
-        Observer.Expect('reprimed.Reg.tmp', '1');
-        Observer.Expect('reprimed.Reg.scalars', 'Yes/2/1/2000000000/2/C2');
-        Observer.Expect('reprimed.Reg.time', '2002-01-01/Yes');
-        Observer.Expect('reprimed.Reg.enum', 'C/B');
-        Observer.Expect('reprimed.Reg.coll', '1/1/t2');
-        Observer.Expect('reprimed.Reg.ref', 'No/86270');
-        Observer.Expect('reprimed.Reg.labels', 'lp/lc/ll/lm');
-        Observer.Expect('reprimed.P1.rec', 'No.: 2/r2');
-        Observer.Expect('reprimed.P1.tmp', '1');
-        Observer.Expect('reprimed.P1.scalars', 'Yes/2/1/2000000000/2/C2');
-        Observer.Expect('reprimed.P1.time', '2002-01-01/Yes');
-        Observer.Expect('reprimed.P1.enum', 'C/B');
-        Observer.Expect('reprimed.P1.coll', '1/1/t2');
-        Observer.Expect('reprimed.P1.ref', 'No/86270');
-        Observer.Expect('reprimed.P1.labels', 'lp/lc/ll/lm');
-        Observer.Expect('reprimed.S2.rec', 'No.: 2/r2');
-        Observer.Expect('reprimed.S2.tmp', '1');
-        Observer.Expect('reprimed.S2.scalars', 'Yes/2/1/2000000000/2/C2');
-        Observer.Expect('reprimed.S2.time', '2002-01-01/Yes');
-        Observer.Expect('reprimed.S2.enum', 'C/B');
-        Observer.Expect('reprimed.S2.coll', '1/1/t2');
-        Observer.Expect('reprimed.S2.ref', 'No/86270');
-        Observer.Expect('reprimed.S2.labels', 'lp/lc/ll/lm');
-        Observer.Expect('reprimed.S4.rec', 'No.: 2/r2');
-        Observer.Expect('reprimed.S4.tmp', '1');
-        Observer.Expect('reprimed.S4.scalars', 'Yes/2/1/2000000000/2/C2');
-        Observer.Expect('reprimed.S4.time', '2002-01-01/Yes');
-        Observer.Expect('reprimed.S4.enum', 'C/B');
-        Observer.Expect('reprimed.S4.coll', '1/1/t2');
-        Observer.Expect('reprimed.S4.ref', 'No/86270');
-        Observer.Expect('reprimed.S4.labels', 'lp/lc/ll/lm');
-        Observer.Expect('reprimed.P2.rec', 'No.: 2/r2');
-        Observer.Expect('reprimed.P2.tmp', '1');
-        Observer.Expect('reprimed.P2.scalars', 'Yes/2/1/2000000000/2/C2');
-        Observer.Expect('reprimed.P2.time', '2002-01-01/Yes');
-        Observer.Expect('reprimed.P2.enum', 'C/B');
-        Observer.Expect('reprimed.P2.coll', '1/1/t2');
-        Observer.Expect('reprimed.P2.ref', 'No/86270');
-        Observer.Expect('reprimed.P2.labels', 'lp/lc/ll/lm');
-        Observer.Expect('reprimed.S1.rec', 'No.: 2/r2');
-        Observer.Expect('reprimed.S1.tmp', '1');
-        Observer.Expect('reprimed.S1.scalars', 'Yes/2/1/2000000000/2/C2');
-        Observer.Expect('reprimed.S1.time', '2002-01-01/Yes');
-        Observer.Expect('reprimed.S1.enum', 'C/B');
-        Observer.Expect('reprimed.S1.coll', '1/1/t2');
-        Observer.Expect('reprimed.S1.ref', 'No/86270');
-        Observer.Expect('reprimed.S1.labels', 'lp/lc/ll/lm');
-        Observer.Expect('reprimed.S3.rec', 'No.: 2/r2');
-        Observer.Expect('reprimed.S3.tmp', '1');
-        Observer.Expect('reprimed.S3.scalars', 'Yes/2/1/2000000000/2/C2');
-        Observer.Expect('reprimed.S3.time', '2002-01-01/Yes');
-        Observer.Expect('reprimed.S3.enum', 'C/B');
-        Observer.Expect('reprimed.S3.coll', '1/1/t2');
-        Observer.Expect('reprimed.S3.ref', 'No/86270');
-        Observer.Expect('reprimed.S3.labels', 'lp/lc/ll/lm');
-        Observer.Expect('reprimed.P3.rec', 'No.: 2/r2');
-        Observer.Expect('reprimed.P3.tmp', '1');
-        Observer.Expect('reprimed.P3.scalars', 'Yes/2/1/2000000000/2/C2');
-        Observer.Expect('reprimed.P3.time', '2002-01-01/Yes');
-        Observer.Expect('reprimed.P3.enum', 'C/B');
-        Observer.Expect('reprimed.P3.coll', '1/1/t2');
-        Observer.Expect('reprimed.P3.ref', 'No/86270');
-        Observer.Expect('reprimed.P3.labels', 'lp/lc/ll/lm');
-        Observer.Expect('reprimed.P4.rec', 'No.: 2/r');
-        Observer.Verify();
+        ObserveOwnerSubtree('reprimed.', Owner, 'P1');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Tree_OwnerClearAll_Reprimed_S1()
+    var
+        Owner: Codeunit "CWT Owner";
+    begin
+        ResetSingleInstances();
+        Owner.Prime(1);
+        Owner.DoClearAll();
+        Owner.Prime(2);
+        ObserveOwnerSubtree('reprimed.', Owner, 'S1');
+        Observer.Finish();
     end;
 
     [Test]
@@ -1236,79 +1342,7 @@ codeunit 86751 "CWT Test"
         S2.SetAll(4);
         Owner.DoClearAll();
         ObserveOwner('after.', Owner);
-        Observer.Expect('after.Reg.rec', '/');
-        Observer.Expect('after.Reg.tmp', '1');
-        Observer.Expect('after.Reg.scalars', 'No/0/0/0//');
-        Observer.Expect('after.Reg.time', '/No');
-        Observer.Expect('after.Reg.enum', 'A/A');
-        Observer.Expect('after.Reg.coll', '0/0/');
-        Observer.Expect('after.Reg.ref', 'Yes/0');
-        Observer.Expect('after.Reg.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.P1.rec', '/');
-        Observer.Expect('after.P1.tmp', '1');
-        Observer.Expect('after.P1.scalars', 'No/0/0/0//');
-        Observer.Expect('after.P1.time', '/No');
-        Observer.Expect('after.P1.enum', 'A/A');
-        Observer.Expect('after.P1.coll', '0/0/');
-        Observer.Expect('after.P1.ref', 'Yes/0');
-        Observer.Expect('after.P1.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.S2.rec', 'No.: 4/r4');
-        Observer.Expect('after.S2.tmp', '1');
-        Observer.Expect('after.S2.scalars', 'Yes/4/2/4000000000/4/C4');
-        Observer.Expect('after.S2.time', '2004-01-01/Yes');
-        Observer.Expect('after.S2.enum', 'C/B');
-        Observer.Expect('after.S2.coll', '1/1/t4');
-        Observer.Expect('after.S2.ref', 'No/86270');
-        Observer.Expect('after.S2.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.S4.rec', 'No.: 4/r4');
-        Observer.Expect('after.S4.tmp', '1');
-        Observer.Expect('after.S4.scalars', 'Yes/4/2/4000000000/4/C4');
-        Observer.Expect('after.S4.time', '2004-01-01/Yes');
-        Observer.Expect('after.S4.enum', 'C/B');
-        Observer.Expect('after.S4.coll', '1/1/t4');
-        Observer.Expect('after.S4.ref', 'No/86270');
-        Observer.Expect('after.S4.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.P2.rec', '/');
-        Observer.Expect('after.P2.tmp', '1');
-        Observer.Expect('after.P2.scalars', 'No/0/0/0//');
-        Observer.Expect('after.P2.time', '/No');
-        Observer.Expect('after.P2.enum', 'A/A');
-        Observer.Expect('after.P2.coll', '0/0/');
-        Observer.Expect('after.P2.ref', 'Yes/0');
-        Observer.Expect('after.P2.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.S1.rec', 'No.: 3/r3');
-        Observer.Expect('after.S1.tmp', '1');
-        Observer.Expect('after.S1.scalars', 'Yes/3/1.5/3000000000/3/C3');
-        Observer.Expect('after.S1.time', '2003-01-01/Yes');
-        Observer.Expect('after.S1.enum', 'C/B');
-        Observer.Expect('after.S1.coll', '1/1/t3');
-        Observer.Expect('after.S1.ref', 'No/86270');
-        Observer.Expect('after.S1.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.S3.rec', 'No.: 3/r3');
-        Observer.Expect('after.S3.tmp', '1');
-        Observer.Expect('after.S3.scalars', 'Yes/3/1.5/3000000000/3/C3');
-        Observer.Expect('after.S3.time', '2003-01-01/Yes');
-        Observer.Expect('after.S3.enum', 'C/B');
-        Observer.Expect('after.S3.coll', '1/1/t3');
-        Observer.Expect('after.S3.ref', 'No/86270');
-        Observer.Expect('after.S3.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.P3.rec', 'No.: 3/r3');
-        Observer.Expect('after.P3.tmp', '1');
-        Observer.Expect('after.P3.scalars', 'Yes/3/1.5/3000000000/3/C3');
-        Observer.Expect('after.P3.time', '2003-01-01/Yes');
-        Observer.Expect('after.P3.enum', 'C/B');
-        Observer.Expect('after.P3.coll', '1/1/t3');
-        Observer.Expect('after.P3.ref', 'No/86270');
-        Observer.Expect('after.P3.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.P4.rec', 'No.: 3/r3');
-        Observer.Expect('after.P4.tmp', '1');
-        Observer.Expect('after.P4.scalars', 'Yes/3/1.5/3000000000/3/C3');
-        Observer.Expect('after.P4.time', '2003-01-01/Yes');
-        Observer.Expect('after.P4.enum', 'C/B');
-        Observer.Expect('after.P4.coll', '1/1/t3');
-        Observer.Expect('after.P4.ref', 'No/86270');
-        Observer.Expect('after.P4.labels', 'lp/lc/ll/lm');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -1324,79 +1358,7 @@ codeunit 86751 "CWT Test"
         S1.SetAll(5);
         S2.SetAll(6);
         ObserveOwner('after.', Owner);
-        Observer.Expect('after.Reg.rec', '/');
-        Observer.Expect('after.Reg.tmp', '1');
-        Observer.Expect('after.Reg.scalars', 'No/0/0/0//');
-        Observer.Expect('after.Reg.time', '/No');
-        Observer.Expect('after.Reg.enum', 'A/A');
-        Observer.Expect('after.Reg.coll', '0/0/');
-        Observer.Expect('after.Reg.ref', 'Yes/0');
-        Observer.Expect('after.Reg.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.P1.rec', '/');
-        Observer.Expect('after.P1.tmp', '1');
-        Observer.Expect('after.P1.scalars', 'No/0/0/0//');
-        Observer.Expect('after.P1.time', '/No');
-        Observer.Expect('after.P1.enum', 'A/A');
-        Observer.Expect('after.P1.coll', '0/0/');
-        Observer.Expect('after.P1.ref', 'Yes/0');
-        Observer.Expect('after.P1.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.S2.rec', 'No.: 6/r6');
-        Observer.Expect('after.S2.tmp', '1');
-        Observer.Expect('after.S2.scalars', 'Yes/6/3/6000000000/6/C6');
-        Observer.Expect('after.S2.time', '2006-01-01/Yes');
-        Observer.Expect('after.S2.enum', 'C/B');
-        Observer.Expect('after.S2.coll', '1/1/t6');
-        Observer.Expect('after.S2.ref', 'No/86270');
-        Observer.Expect('after.S2.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.S4.rec', 'No.: 6/r6');
-        Observer.Expect('after.S4.tmp', '1');
-        Observer.Expect('after.S4.scalars', 'Yes/6/3/6000000000/6/C6');
-        Observer.Expect('after.S4.time', '2006-01-01/Yes');
-        Observer.Expect('after.S4.enum', 'C/B');
-        Observer.Expect('after.S4.coll', '1/1/t6');
-        Observer.Expect('after.S4.ref', 'No/86270');
-        Observer.Expect('after.S4.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.P2.rec', '/');
-        Observer.Expect('after.P2.tmp', '1');
-        Observer.Expect('after.P2.scalars', 'No/0/0/0//');
-        Observer.Expect('after.P2.time', '/No');
-        Observer.Expect('after.P2.enum', 'A/A');
-        Observer.Expect('after.P2.coll', '0/0/');
-        Observer.Expect('after.P2.ref', 'Yes/0');
-        Observer.Expect('after.P2.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.S1.rec', 'No.: 5/r5');
-        Observer.Expect('after.S1.tmp', '1');
-        Observer.Expect('after.S1.scalars', 'Yes/5/2.5/5000000000/5/C5');
-        Observer.Expect('after.S1.time', '2005-01-01/Yes');
-        Observer.Expect('after.S1.enum', 'C/B');
-        Observer.Expect('after.S1.coll', '1/1/t5');
-        Observer.Expect('after.S1.ref', 'No/86270');
-        Observer.Expect('after.S1.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.S3.rec', 'No.: 5/r5');
-        Observer.Expect('after.S3.tmp', '1');
-        Observer.Expect('after.S3.scalars', 'Yes/5/2.5/5000000000/5/C5');
-        Observer.Expect('after.S3.time', '2005-01-01/Yes');
-        Observer.Expect('after.S3.enum', 'C/B');
-        Observer.Expect('after.S3.coll', '1/1/t5');
-        Observer.Expect('after.S3.ref', 'No/86270');
-        Observer.Expect('after.S3.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.P3.rec', 'No.: 5/r5');
-        Observer.Expect('after.P3.tmp', '1');
-        Observer.Expect('after.P3.scalars', 'Yes/5/2.5/5000000000/5/C5');
-        Observer.Expect('after.P3.time', '2005-01-01/Yes');
-        Observer.Expect('after.P3.enum', 'C/B');
-        Observer.Expect('after.P3.coll', '1/1/t5');
-        Observer.Expect('after.P3.ref', 'No/86270');
-        Observer.Expect('after.P3.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.P4.rec', 'No.: 5/r5');
-        Observer.Expect('after.P4.tmp', '1');
-        Observer.Expect('after.P4.scalars', 'Yes/5/2.5/5000000000/5/C5');
-        Observer.Expect('after.P4.time', '2005-01-01/Yes');
-        Observer.Expect('after.P4.enum', 'C/B');
-        Observer.Expect('after.P4.coll', '1/1/t5');
-        Observer.Expect('after.P4.ref', 'No/86270');
-        Observer.Expect('after.P4.labels', 'lp/lc/ll/lm');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -1408,79 +1370,7 @@ codeunit 86751 "CWT Test"
         Owner.Prime(1);
         Owner.ClearInReg();
         ObserveOwner('after.', Owner);
-        Observer.Expect('after.Reg.rec', '/');
-        Observer.Expect('after.Reg.tmp', '1');
-        Observer.Expect('after.Reg.scalars', 'No/0/0/0//');
-        Observer.Expect('after.Reg.time', '/No');
-        Observer.Expect('after.Reg.enum', 'A/A');
-        Observer.Expect('after.Reg.coll', '0/0/');
-        Observer.Expect('after.Reg.ref', 'Yes/0');
-        Observer.Expect('after.Reg.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.P1.rec', '/');
-        Observer.Expect('after.P1.tmp', '1');
-        Observer.Expect('after.P1.scalars', 'No/0/0/0//');
-        Observer.Expect('after.P1.time', '/No');
-        Observer.Expect('after.P1.enum', 'A/A');
-        Observer.Expect('after.P1.coll', '0/0/');
-        Observer.Expect('after.P1.ref', 'Yes/0');
-        Observer.Expect('after.P1.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.S2.rec', 'No.: 1/r1');
-        Observer.Expect('after.S2.tmp', '1');
-        Observer.Expect('after.S2.scalars', 'Yes/1/0.5/1000000000/1/C1');
-        Observer.Expect('after.S2.time', '2001-01-01/Yes');
-        Observer.Expect('after.S2.enum', 'C/B');
-        Observer.Expect('after.S2.coll', '1/1/t1');
-        Observer.Expect('after.S2.ref', 'No/86270');
-        Observer.Expect('after.S2.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.S4.rec', 'No.: 1/r1');
-        Observer.Expect('after.S4.tmp', '1');
-        Observer.Expect('after.S4.scalars', 'Yes/1/0.5/1000000000/1/C1');
-        Observer.Expect('after.S4.time', '2001-01-01/Yes');
-        Observer.Expect('after.S4.enum', 'C/B');
-        Observer.Expect('after.S4.coll', '1/1/t1');
-        Observer.Expect('after.S4.ref', 'No/86270');
-        Observer.Expect('after.S4.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.P2.rec', '/');
-        Observer.Expect('after.P2.tmp', '1');
-        Observer.Expect('after.P2.scalars', 'No/0/0/0//');
-        Observer.Expect('after.P2.time', '/No');
-        Observer.Expect('after.P2.enum', 'A/A');
-        Observer.Expect('after.P2.coll', '0/0/');
-        Observer.Expect('after.P2.ref', 'Yes/0');
-        Observer.Expect('after.P2.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.S1.rec', 'No.: 1/r1');
-        Observer.Expect('after.S1.tmp', '1');
-        Observer.Expect('after.S1.scalars', 'Yes/1/0.5/1000000000/1/C1');
-        Observer.Expect('after.S1.time', '2001-01-01/Yes');
-        Observer.Expect('after.S1.enum', 'C/B');
-        Observer.Expect('after.S1.coll', '1/1/t1');
-        Observer.Expect('after.S1.ref', 'No/86270');
-        Observer.Expect('after.S1.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.S3.rec', 'No.: 1/r1');
-        Observer.Expect('after.S3.tmp', '1');
-        Observer.Expect('after.S3.scalars', 'Yes/1/0.5/1000000000/1/C1');
-        Observer.Expect('after.S3.time', '2001-01-01/Yes');
-        Observer.Expect('after.S3.enum', 'C/B');
-        Observer.Expect('after.S3.coll', '1/1/t1');
-        Observer.Expect('after.S3.ref', 'No/86270');
-        Observer.Expect('after.S3.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.P3.rec', 'No.: 1/r1');
-        Observer.Expect('after.P3.tmp', '1');
-        Observer.Expect('after.P3.scalars', 'Yes/1/0.5/1000000000/1/C1');
-        Observer.Expect('after.P3.time', '2001-01-01/Yes');
-        Observer.Expect('after.P3.enum', 'C/B');
-        Observer.Expect('after.P3.coll', '1/1/t1');
-        Observer.Expect('after.P3.ref', 'No/86270');
-        Observer.Expect('after.P3.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.P4.rec', 'No.: 1/r1');
-        Observer.Expect('after.P4.tmp', '1');
-        Observer.Expect('after.P4.scalars', 'Yes/1/0.5/1000000000/1/C1');
-        Observer.Expect('after.P4.time', '2001-01-01/Yes');
-        Observer.Expect('after.P4.enum', 'C/B');
-        Observer.Expect('after.P4.coll', '1/1/t1');
-        Observer.Expect('after.P4.ref', 'No/86270');
-        Observer.Expect('after.P4.labels', 'lp/lc/ll/lm');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -1492,78 +1382,6 @@ codeunit 86751 "CWT Test"
         Owner.Prime(1);
         Owner.ClearInP1();
         ObserveOwner('after.', Owner);
-        Observer.Expect('after.Reg.rec', 'No.: 1/r1');
-        Observer.Expect('after.Reg.tmp', '1');
-        Observer.Expect('after.Reg.scalars', 'Yes/1/0.5/1000000000/1/C1');
-        Observer.Expect('after.Reg.time', '2001-01-01/Yes');
-        Observer.Expect('after.Reg.enum', 'C/B');
-        Observer.Expect('after.Reg.coll', '1/1/t1');
-        Observer.Expect('after.Reg.ref', 'No/86270');
-        Observer.Expect('after.Reg.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.P1.rec', '/');
-        Observer.Expect('after.P1.tmp', '1');
-        Observer.Expect('after.P1.scalars', 'No/0/0/0//');
-        Observer.Expect('after.P1.time', '/No');
-        Observer.Expect('after.P1.enum', 'A/A');
-        Observer.Expect('after.P1.coll', '0/0/');
-        Observer.Expect('after.P1.ref', 'Yes/0');
-        Observer.Expect('after.P1.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.S2.rec', 'No.: 1/r1');
-        Observer.Expect('after.S2.tmp', '1');
-        Observer.Expect('after.S2.scalars', 'Yes/1/0.5/1000000000/1/C1');
-        Observer.Expect('after.S2.time', '2001-01-01/Yes');
-        Observer.Expect('after.S2.enum', 'C/B');
-        Observer.Expect('after.S2.coll', '1/1/t1');
-        Observer.Expect('after.S2.ref', 'No/86270');
-        Observer.Expect('after.S2.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.S4.rec', 'No.: 1/r1');
-        Observer.Expect('after.S4.tmp', '1');
-        Observer.Expect('after.S4.scalars', 'Yes/1/0.5/1000000000/1/C1');
-        Observer.Expect('after.S4.time', '2001-01-01/Yes');
-        Observer.Expect('after.S4.enum', 'C/B');
-        Observer.Expect('after.S4.coll', '1/1/t1');
-        Observer.Expect('after.S4.ref', 'No/86270');
-        Observer.Expect('after.S4.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.P2.rec', '/');
-        Observer.Expect('after.P2.tmp', '1');
-        Observer.Expect('after.P2.scalars', 'No/0/0/0//');
-        Observer.Expect('after.P2.time', '/No');
-        Observer.Expect('after.P2.enum', 'A/A');
-        Observer.Expect('after.P2.coll', '0/0/');
-        Observer.Expect('after.P2.ref', 'Yes/0');
-        Observer.Expect('after.P2.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.S1.rec', 'No.: 1/r1');
-        Observer.Expect('after.S1.tmp', '1');
-        Observer.Expect('after.S1.scalars', 'Yes/1/0.5/1000000000/1/C1');
-        Observer.Expect('after.S1.time', '2001-01-01/Yes');
-        Observer.Expect('after.S1.enum', 'C/B');
-        Observer.Expect('after.S1.coll', '1/1/t1');
-        Observer.Expect('after.S1.ref', 'No/86270');
-        Observer.Expect('after.S1.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.S3.rec', 'No.: 1/r1');
-        Observer.Expect('after.S3.tmp', '1');
-        Observer.Expect('after.S3.scalars', 'Yes/1/0.5/1000000000/1/C1');
-        Observer.Expect('after.S3.time', '2001-01-01/Yes');
-        Observer.Expect('after.S3.enum', 'C/B');
-        Observer.Expect('after.S3.coll', '1/1/t1');
-        Observer.Expect('after.S3.ref', 'No/86270');
-        Observer.Expect('after.S3.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.P3.rec', 'No.: 1/r1');
-        Observer.Expect('after.P3.tmp', '1');
-        Observer.Expect('after.P3.scalars', 'Yes/1/0.5/1000000000/1/C1');
-        Observer.Expect('after.P3.time', '2001-01-01/Yes');
-        Observer.Expect('after.P3.enum', 'C/B');
-        Observer.Expect('after.P3.coll', '1/1/t1');
-        Observer.Expect('after.P3.ref', 'No/86270');
-        Observer.Expect('after.P3.labels', 'lp/lc/ll/lm');
-        Observer.Expect('after.P4.rec', 'No.: 1/r1');
-        Observer.Expect('after.P4.tmp', '1');
-        Observer.Expect('after.P4.scalars', 'Yes/1/0.5/1000000000/1/C1');
-        Observer.Expect('after.P4.time', '2001-01-01/Yes');
-        Observer.Expect('after.P4.enum', 'C/B');
-        Observer.Expect('after.P4.coll', '1/1/t1');
-        Observer.Expect('after.P4.ref', 'No/86270');
-        Observer.Expect('after.P4.labels', 'lp/lc/ll/lm');
-        Observer.Verify();
+        Observer.Finish();
     end;
 }
