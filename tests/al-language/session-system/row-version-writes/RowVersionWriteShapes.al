@@ -22,6 +22,9 @@
 // greater than the inserted row's version; after ModifyAll the last modified row equals the value and the first is below it. In two tables, the
 // second table's inserted row is below the first table's row version. MinimumActiveRowVersion() stays at its start value and below
 // LastUsedRowVersion() + 1 in every shape. After every shape the next Insert gets LastUsedRowVersion() + 1.
+// LastUsedRowVersion() is database wide, and corpus CI runs the whole app, so other sessions can write between two reads. Such a write only
+// raises the value. The next-Insert check and the ModifyAll row-against-value check therefore retry (up to five times) until one try lands
+// on "same"; a "same" can only come from BC itself. Truncate after Insert is observed but not asserted against the row: BC on Linux differs.
 // BC versions: 27+
 
 table 76640 "RVS Row"
@@ -401,7 +404,7 @@ codeunit 76643 "RVS Write Shapes"
         Steps.Snap(Observer, 'truncate', Ins);
         Steps.Next(Observer, 'after');
         // 'truncate last/row' is observed, not asserted: BC on Windows (27.5, 29.0) gives greater, BC on Linux in corpus CI gives same on
-        // 27.5, 28.5 and 29.0. Open question: ISSUE_LINK
+        // 27.5, 28.5 and 29.0. Linux suspect, see https://github.com/aldevtools/MsDyn365Bc.On.Linux/issues/243
         Observer.Ignore('truncate last/row');
         Observer.Expect('truncate last/prev', 'greater');
         Observer.Expect('truncate min/min0', 'same');
@@ -497,13 +500,13 @@ codeunit 76643 "RVS Write Shapes"
         Observer.Observe('modifyall row1/last', Steps.Rel(Row.SystemRowVersion, Last));
         Observer.Observe('modifyall row1/row2', Steps.Rel(Row.SystemRowVersion, Version2));
         Steps.Next(Observer, 'after');
-        Observer.Finish();
         Observer.Expect('modifyall last/prev', 'greater');
         Observer.Expect('modifyall last/row', 'greater');
         Observer.Expect('modifyall min/min0', 'same');
         Observer.Expect('modifyall min/last1', 'less');
         Observer.Expect('modifyall row2/last', 'same');
         Observer.Expect('modifyall row1/last', 'less');
+        Observer.Expect('modifyall row1/row2', 'less');
         Observer.Expect('after next/last1', 'same');
         Observer.Verify();
     end;
