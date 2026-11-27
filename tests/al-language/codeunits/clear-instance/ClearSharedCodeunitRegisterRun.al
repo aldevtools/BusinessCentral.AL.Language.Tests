@@ -350,7 +350,13 @@ codeunit 86810 "CSR Test"
         Observer.Observe('before.kept', R.KeptState());
         Owner.DoClearAll();
         ObserveAfter(R, Owner, Row);
-        Observer.Finish();
+        Observer.Expect('before.reg', 'reg[0,,0,1,0]node[0,,0]');
+        Observer.Expect('before.kept', 'kept[0,,]');
+        Observer.Expect('after.reg', 'reg[0,,0,0,0]node[0,,0]');
+        Observer.Expect('after.kept', 'kept[0,,]');
+        Observer.Expect('after.owner', 'reg[0,,0,0,0]node[0,,0]kept[0,,]');
+        Observer.Expect('after.row', 'row[5,row,No.: 5,No,-]');
+        Observer.Verify();
     end;
 
     [Test]
