@@ -16,7 +16,10 @@
 //   Companion of SrcFilterConvertKinds.al and SrcSetRangeConvert.al.
 //   Measured on BC 29.0 (Linux, W1, en-US session) with an invented app holding these objects, each test codeunit run once; the
 //   values are the readings of that run, turned into Expect and Verify by convert.py verbatim. This pull request's CI checks them on
-//   27.5, 28.5 and 29.0; a version difference gets a version guard.
+//   27.5, 28.5 and 29.0; a version difference gets a version guard. Pre-guarded without a measurement here: SetRange and SetFilter of
+//   Integer 5 and BigInteger 5 into the Date field (Int5_D, Big5_D) take their BC 27.5 text from SrcSetRangeConvert.al (IntVar_D_Typed
+//   and Big_D_Typed, routes a and e), which pins 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger (NavBigInteger) to
+//   System.DateTime.' on 27.5 for the same calls with 20240101.
 //   Facts (BC 29.0):
 //   - Boolean false into BigInteger, Integer or Decimal: 0 by every method. Into Option: A by SetRange and SetFilter, 0 by Value and
 //     Validate. Into Guid: 'The value "No" can't be evaluated into type GUID.' (Evaluate:Argument). Into Date: the date-format error
@@ -591,8 +594,16 @@ codeunit 73472 "LT FRC Number Tests"
     begin
         X := 5;
         Probe.CellsInt(7, X);
+#if BC28PLUS
         Probe.Expect('r', 'E: The format of the Date ''5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result; not measured here, taken from the pin SrcSetRangeConvert.al:997
+        Probe.Expect('r', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
         Probe.Expect('f', 'E: The format of the Date ''5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result; not measured here, taken from the pin SrcSetRangeConvert.al:1007
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+#endif
         Probe.Expect('v', 'E: The format of the Date ''5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
         Probe.Expect('d', 'E: The format of the Date ''5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
         Probe.Verify();
@@ -639,8 +650,16 @@ codeunit 73472 "LT FRC Number Tests"
     begin
         X := 5;
         Probe.CellsBig(7, X);
+#if BC28PLUS
         Probe.Expect('r', 'E: The format of the Date ''5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result; not measured here, taken from the pin SrcSetRangeConvert.al:1672
+        Probe.Expect('r', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime. | Conversion');
+#endif
+#if BC28PLUS
         Probe.Expect('f', 'E: The format of the Date ''5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+#else // BC 27.5 gives another result; not measured here, taken from the pin SrcSetRangeConvert.al:1682
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime. | Conversion');
+#endif
         Probe.Expect('v', 'E: The format of the Date ''5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
         Probe.Expect('d', 'E: The format of the Date ''5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
         Probe.Verify();
