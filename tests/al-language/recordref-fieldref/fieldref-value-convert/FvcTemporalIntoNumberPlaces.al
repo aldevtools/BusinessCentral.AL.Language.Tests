@@ -14,7 +14,21 @@
 //   "E: <GetLastErrorText> | <GetLastErrorCode>". A 9265 test is <Source>_Targets or <Source>_Places; a 9264 test is named for its group.
 //   Already pinned (FvcTemporalFields.al, var parameter shape, set values): Date, Time and DateTime into Integer and Decimal and
 //   DateTime into BigInteger, Boolean and Duration; kept here as part of each source's row.
-//   Observe round: every test ends with Observer.Finish(), which fails the test with the readings (OBSERVE:...); nothing is asserted yet.
+//   Measured on BC 29.0 (Linux, W1, en-US session, UTC) with an invented app holding these objects, through the dev endpoint's
+//   TestRunnerHub; the values are that run's readings, turned into Expect and Verify by convert.py verbatim. This pull request's CI
+//   checks them on 27.5, 28.5 and 29.0; a version difference gets a version guard.
+//   Facts (BC 29.0), 9265: a Date, Time or DateTime field value, blank or set, into Integer, BigInteger, Decimal, Byte or Char fails
+//   with 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.Nav<Date|Time|DateTime> to <System.Int32|System.Int64|
+//   Microsoft.Dynamics.Nav.Runtime.Decimal18|System.Byte|System.Char>.' (Conversion), in every place: a var parameter, an argument,
+//   a named return value, exit, a global, a record field, an array element, List.Add (the list's element type) and Abs (Decimal18).
+//   Into Duration it converts (0D, 0T, 0DT: P0DT0H0M0.0S; 2026-01-15: P0DT0H24M39.993S; 12:00:00: P0DT12H0M0.001S; the DateTime:
+//   P739996DT12H0M0.001S). Into Option and Boolean a Date or Time converts to its number (0 / false; 1479993 / true; 43200001 /
+//   true); a DateTime into Option fails with 'The value "<the DateTime formatted>" can't be evaluated into type Option.'
+//   (Evaluate:Conversion) and into Boolean with the Int32 conversion error. The control, a Variant in between, gives 0 and 1479993
+//   for the Dates, 0 and 43200001 for the Times, and the Int32 conversion error for both DateTimes.
+//   9264: every number (0, 1, 31, 32, typed or in a Variant, BigInteger 1, Decimal 1) into the Date field fails by Value(X), Value := X
+//   and Validate(X) with the date-format error for its text (Evaluate:Conversion); 1 into a Time or DateTime field fails with
+//   'The value "1" can't be evaluated into type <Time|DateTime>.' (Evaluate:Conversion).
 // BC versions: 27, 28, 29 by CI
 table 73490 "LT FVR Row"
 {
@@ -286,7 +300,15 @@ codeunit 73491 "LT FVR Value Tests"
         Probe.TargetCell(Observer, 'Date0', 'Boolean');
         Probe.TargetCell(Observer, 'Date0', 'Byte');
         Probe.TargetCell(Observer, 'Date0', 'Char');
-        Observer.Finish();
+        Observer.Expect('Integer', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Int32. | Conversion');
+        Observer.Expect('BigInteger', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Int64. | Conversion');
+        Observer.Expect('Decimal', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to Microsoft.Dynamics.Nav.Runtime.Decimal18. | Conversion');
+        Observer.Expect('Duration', 'ok: P0DT0H0M0.0S');
+        Observer.Expect('Option', 'ok: 0');
+        Observer.Expect('Boolean', 'ok: false');
+        Observer.Expect('Byte', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Byte. | Conversion');
+        Observer.Expect('Char', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Char. | Conversion');
+        Observer.Verify();
     end;
 
     // A blank Date (0D) into an Integer in each place.
@@ -308,7 +330,19 @@ codeunit 73491 "LT FVR Value Tests"
         Probe.PlaceCell(Observer, 'Date0', 'list_biginteger');
         Probe.PlaceCell(Observer, 'Date0', 'abs');
         Probe.PlaceCell(Observer, 'Date0', 'variant');
-        Observer.Finish();
+        Observer.Expect('var', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Int32. | Conversion');
+        Observer.Expect('argument', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Int32. | Conversion');
+        Observer.Expect('named_return', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Int32. | Conversion');
+        Observer.Expect('exit', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Int32. | Conversion');
+        Observer.Expect('global', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Int32. | Conversion');
+        Observer.Expect('record_field', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Int32. | Conversion');
+        Observer.Expect('array', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Int32. | Conversion');
+        Observer.Expect('list_integer', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Int32. | Conversion');
+        Observer.Expect('list_decimal', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to Microsoft.Dynamics.Nav.Runtime.Decimal18. | Conversion');
+        Observer.Expect('list_biginteger', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Int64. | Conversion');
+        Observer.Expect('abs', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to Microsoft.Dynamics.Nav.Runtime.Decimal18. | Conversion');
+        Observer.Expect('variant', 'ok: 0');
+        Observer.Verify();
     end;
 
     // The Date 2026-01-15 into each target, in a plain local.
@@ -326,7 +360,15 @@ codeunit 73491 "LT FVR Value Tests"
         Probe.TargetCell(Observer, 'Date1', 'Boolean');
         Probe.TargetCell(Observer, 'Date1', 'Byte');
         Probe.TargetCell(Observer, 'Date1', 'Char');
-        Observer.Finish();
+        Observer.Expect('Integer', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Int32. | Conversion');
+        Observer.Expect('BigInteger', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Int64. | Conversion');
+        Observer.Expect('Decimal', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to Microsoft.Dynamics.Nav.Runtime.Decimal18. | Conversion');
+        Observer.Expect('Duration', 'ok: P0DT0H24M39.993S');
+        Observer.Expect('Option', 'ok: 1479993');
+        Observer.Expect('Boolean', 'ok: true');
+        Observer.Expect('Byte', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Byte. | Conversion');
+        Observer.Expect('Char', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Char. | Conversion');
+        Observer.Verify();
     end;
 
     // The Date 2026-01-15 into an Integer in each place.
@@ -348,7 +390,19 @@ codeunit 73491 "LT FVR Value Tests"
         Probe.PlaceCell(Observer, 'Date1', 'list_biginteger');
         Probe.PlaceCell(Observer, 'Date1', 'abs');
         Probe.PlaceCell(Observer, 'Date1', 'variant');
-        Observer.Finish();
+        Observer.Expect('var', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Int32. | Conversion');
+        Observer.Expect('argument', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Int32. | Conversion');
+        Observer.Expect('named_return', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Int32. | Conversion');
+        Observer.Expect('exit', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Int32. | Conversion');
+        Observer.Expect('global', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Int32. | Conversion');
+        Observer.Expect('record_field', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Int32. | Conversion');
+        Observer.Expect('array', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Int32. | Conversion');
+        Observer.Expect('list_integer', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Int32. | Conversion');
+        Observer.Expect('list_decimal', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to Microsoft.Dynamics.Nav.Runtime.Decimal18. | Conversion');
+        Observer.Expect('list_biginteger', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Int64. | Conversion');
+        Observer.Expect('abs', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to Microsoft.Dynamics.Nav.Runtime.Decimal18. | Conversion');
+        Observer.Expect('variant', 'ok: 1479993');
+        Observer.Verify();
     end;
 
     // A blank Time (0T) into each target, in a plain local.
@@ -366,7 +420,15 @@ codeunit 73491 "LT FVR Value Tests"
         Probe.TargetCell(Observer, 'Time0', 'Boolean');
         Probe.TargetCell(Observer, 'Time0', 'Byte');
         Probe.TargetCell(Observer, 'Time0', 'Char');
-        Observer.Finish();
+        Observer.Expect('Integer', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to System.Int32. | Conversion');
+        Observer.Expect('BigInteger', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to System.Int64. | Conversion');
+        Observer.Expect('Decimal', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to Microsoft.Dynamics.Nav.Runtime.Decimal18. | Conversion');
+        Observer.Expect('Duration', 'ok: P0DT0H0M0.0S');
+        Observer.Expect('Option', 'ok: 0');
+        Observer.Expect('Boolean', 'ok: false');
+        Observer.Expect('Byte', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to System.Byte. | Conversion');
+        Observer.Expect('Char', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to System.Char. | Conversion');
+        Observer.Verify();
     end;
 
     // A blank Time (0T) into an Integer in each place.
@@ -388,7 +450,19 @@ codeunit 73491 "LT FVR Value Tests"
         Probe.PlaceCell(Observer, 'Time0', 'list_biginteger');
         Probe.PlaceCell(Observer, 'Time0', 'abs');
         Probe.PlaceCell(Observer, 'Time0', 'variant');
-        Observer.Finish();
+        Observer.Expect('var', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to System.Int32. | Conversion');
+        Observer.Expect('argument', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to System.Int32. | Conversion');
+        Observer.Expect('named_return', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to System.Int32. | Conversion');
+        Observer.Expect('exit', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to System.Int32. | Conversion');
+        Observer.Expect('global', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to System.Int32. | Conversion');
+        Observer.Expect('record_field', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to System.Int32. | Conversion');
+        Observer.Expect('array', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to System.Int32. | Conversion');
+        Observer.Expect('list_integer', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to System.Int32. | Conversion');
+        Observer.Expect('list_decimal', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to Microsoft.Dynamics.Nav.Runtime.Decimal18. | Conversion');
+        Observer.Expect('list_biginteger', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to System.Int64. | Conversion');
+        Observer.Expect('abs', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to Microsoft.Dynamics.Nav.Runtime.Decimal18. | Conversion');
+        Observer.Expect('variant', 'ok: 0');
+        Observer.Verify();
     end;
 
     // The Time 12:00:00 into each target, in a plain local.
@@ -406,7 +480,15 @@ codeunit 73491 "LT FVR Value Tests"
         Probe.TargetCell(Observer, 'Time1', 'Boolean');
         Probe.TargetCell(Observer, 'Time1', 'Byte');
         Probe.TargetCell(Observer, 'Time1', 'Char');
-        Observer.Finish();
+        Observer.Expect('Integer', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to System.Int32. | Conversion');
+        Observer.Expect('BigInteger', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to System.Int64. | Conversion');
+        Observer.Expect('Decimal', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to Microsoft.Dynamics.Nav.Runtime.Decimal18. | Conversion');
+        Observer.Expect('Duration', 'ok: P0DT12H0M0.001S');
+        Observer.Expect('Option', 'ok: 43200001');
+        Observer.Expect('Boolean', 'ok: true');
+        Observer.Expect('Byte', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to System.Byte. | Conversion');
+        Observer.Expect('Char', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to System.Char. | Conversion');
+        Observer.Verify();
     end;
 
     // The Time 12:00:00 into an Integer in each place.
@@ -428,7 +510,19 @@ codeunit 73491 "LT FVR Value Tests"
         Probe.PlaceCell(Observer, 'Time1', 'list_biginteger');
         Probe.PlaceCell(Observer, 'Time1', 'abs');
         Probe.PlaceCell(Observer, 'Time1', 'variant');
-        Observer.Finish();
+        Observer.Expect('var', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to System.Int32. | Conversion');
+        Observer.Expect('argument', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to System.Int32. | Conversion');
+        Observer.Expect('named_return', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to System.Int32. | Conversion');
+        Observer.Expect('exit', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to System.Int32. | Conversion');
+        Observer.Expect('global', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to System.Int32. | Conversion');
+        Observer.Expect('record_field', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to System.Int32. | Conversion');
+        Observer.Expect('array', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to System.Int32. | Conversion');
+        Observer.Expect('list_integer', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to System.Int32. | Conversion');
+        Observer.Expect('list_decimal', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to Microsoft.Dynamics.Nav.Runtime.Decimal18. | Conversion');
+        Observer.Expect('list_biginteger', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to System.Int64. | Conversion');
+        Observer.Expect('abs', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to Microsoft.Dynamics.Nav.Runtime.Decimal18. | Conversion');
+        Observer.Expect('variant', 'ok: 43200001');
+        Observer.Verify();
     end;
 
     // A blank DateTime (0DT) into each target, in a plain local.
@@ -446,7 +540,15 @@ codeunit 73491 "LT FVR Value Tests"
         Probe.TargetCell(Observer, 'DateTime0', 'Boolean');
         Probe.TargetCell(Observer, 'DateTime0', 'Byte');
         Probe.TargetCell(Observer, 'DateTime0', 'Char');
-        Observer.Finish();
+        Observer.Expect('Integer', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32. | Conversion');
+        Observer.Expect('BigInteger', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int64. | Conversion');
+        Observer.Expect('Decimal', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to Microsoft.Dynamics.Nav.Runtime.Decimal18. | Conversion');
+        Observer.Expect('Duration', 'ok: P0DT0H0M0.0S');
+        Observer.Expect('Option', 'E: The value "" can''t be evaluated into type Option. | Evaluate:Conversion');
+        Observer.Expect('Boolean', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32. | Conversion');
+        Observer.Expect('Byte', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Byte. | Conversion');
+        Observer.Expect('Char', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Char. | Conversion');
+        Observer.Verify();
     end;
 
     // A blank DateTime (0DT) into an Integer in each place.
@@ -468,7 +570,19 @@ codeunit 73491 "LT FVR Value Tests"
         Probe.PlaceCell(Observer, 'DateTime0', 'list_biginteger');
         Probe.PlaceCell(Observer, 'DateTime0', 'abs');
         Probe.PlaceCell(Observer, 'DateTime0', 'variant');
-        Observer.Finish();
+        Observer.Expect('var', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32. | Conversion');
+        Observer.Expect('argument', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32. | Conversion');
+        Observer.Expect('named_return', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32. | Conversion');
+        Observer.Expect('exit', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32. | Conversion');
+        Observer.Expect('global', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32. | Conversion');
+        Observer.Expect('record_field', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32. | Conversion');
+        Observer.Expect('array', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32. | Conversion');
+        Observer.Expect('list_integer', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32. | Conversion');
+        Observer.Expect('list_decimal', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to Microsoft.Dynamics.Nav.Runtime.Decimal18. | Conversion');
+        Observer.Expect('list_biginteger', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int64. | Conversion');
+        Observer.Expect('abs', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to Microsoft.Dynamics.Nav.Runtime.Decimal18. | Conversion');
+        Observer.Expect('variant', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32. | Conversion');
+        Observer.Verify();
     end;
 
     // The DateTime 2026-01-15 12:00:00 into each target, in a plain local.
@@ -486,7 +600,15 @@ codeunit 73491 "LT FVR Value Tests"
         Probe.TargetCell(Observer, 'DateTime1', 'Boolean');
         Probe.TargetCell(Observer, 'DateTime1', 'Byte');
         Probe.TargetCell(Observer, 'DateTime1', 'Char');
-        Observer.Finish();
+        Observer.Expect('Integer', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32. | Conversion');
+        Observer.Expect('BigInteger', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int64. | Conversion');
+        Observer.Expect('Decimal', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to Microsoft.Dynamics.Nav.Runtime.Decimal18. | Conversion');
+        Observer.Expect('Duration', 'ok: P739996DT12H0M0.001S');
+        Observer.Expect('Option', 'E: The value "01/15/26 12:00 PM" can''t be evaluated into type Option. | Evaluate:Conversion');
+        Observer.Expect('Boolean', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32. | Conversion');
+        Observer.Expect('Byte', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Byte. | Conversion');
+        Observer.Expect('Char', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Char. | Conversion');
+        Observer.Verify();
     end;
 
     // The DateTime 2026-01-15 12:00:00 into an Integer in each place.
@@ -508,7 +630,19 @@ codeunit 73491 "LT FVR Value Tests"
         Probe.PlaceCell(Observer, 'DateTime1', 'list_biginteger');
         Probe.PlaceCell(Observer, 'DateTime1', 'abs');
         Probe.PlaceCell(Observer, 'DateTime1', 'variant');
-        Observer.Finish();
+        Observer.Expect('var', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32. | Conversion');
+        Observer.Expect('argument', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32. | Conversion');
+        Observer.Expect('named_return', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32. | Conversion');
+        Observer.Expect('exit', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32. | Conversion');
+        Observer.Expect('global', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32. | Conversion');
+        Observer.Expect('record_field', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32. | Conversion');
+        Observer.Expect('array', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32. | Conversion');
+        Observer.Expect('list_integer', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32. | Conversion');
+        Observer.Expect('list_decimal', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to Microsoft.Dynamics.Nav.Runtime.Decimal18. | Conversion');
+        Observer.Expect('list_biginteger', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int64. | Conversion');
+        Observer.Expect('abs', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to Microsoft.Dynamics.Nav.Runtime.Decimal18. | Conversion');
+        Observer.Expect('variant', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32. | Conversion');
+        Observer.Verify();
     end;
 }
 
@@ -663,7 +797,7 @@ codeunit 73493 "LT FVR Date Tests"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    // An Integer of 0, 1, 31 and 32 into the Date field.
+    // An Integer of 0 and 1 into the Date field.
     [Test]
     procedure DateField_TypedInteger()
     var
@@ -672,12 +806,34 @@ codeunit 73493 "LT FVR Date Tests"
     begin
         Probe.CellsInt(Observer, 5, 'int0', 0);
         Probe.CellsInt(Observer, 5, 'int1', 1);
-        Probe.CellsInt(Observer, 5, 'int31', 31);
-        Probe.CellsInt(Observer, 5, 'int32', 32);
-        Observer.Finish();
+        Observer.Expect('int0_value', 'E: The format of the Date ''0'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Observer.Expect('int0_assign', 'E: The format of the Date ''0'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Observer.Expect('int0_validate', 'E: The format of the Date ''0'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Observer.Expect('int1_value', 'E: The format of the Date ''1'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Observer.Expect('int1_assign', 'E: The format of the Date ''1'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Observer.Expect('int1_validate', 'E: The format of the Date ''1'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Observer.Verify();
     end;
 
-    // A Variant holding the Integer 0, 1 and 31 into the Date field.
+    // An Integer of 31 and 32 into the Date field.
+    [Test]
+    procedure DateField_TypedInteger3132()
+    var
+        Observer: Codeunit "Probe Observer";
+        Probe: Codeunit "LT FVR Date Probe";
+    begin
+        Probe.CellsInt(Observer, 5, 'int31', 31);
+        Probe.CellsInt(Observer, 5, 'int32', 32);
+        Observer.Expect('int31_value', 'E: The format of the Date ''31'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Observer.Expect('int31_assign', 'E: The format of the Date ''31'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Observer.Expect('int31_validate', 'E: The format of the Date ''31'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Observer.Expect('int32_value', 'E: The format of the Date ''32'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Observer.Expect('int32_assign', 'E: The format of the Date ''32'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Observer.Expect('int32_validate', 'E: The format of the Date ''32'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Observer.Verify();
+    end;
+
+    // A Variant holding the Integer 0 and 1 into the Date field.
     [Test]
     procedure DateField_VariantInteger()
     var
@@ -689,9 +845,29 @@ codeunit 73493 "LT FVR Date Tests"
         Probe.CellsVar(Observer, 5, 'var0', V);
         V := 1;
         Probe.CellsVar(Observer, 5, 'var1', V);
+        Observer.Expect('var0_value', 'E: The format of the Date ''0'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Observer.Expect('var0_assign', 'E: The format of the Date ''0'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Observer.Expect('var0_validate', 'E: The format of the Date ''0'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Observer.Expect('var1_value', 'E: The format of the Date ''1'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Observer.Expect('var1_assign', 'E: The format of the Date ''1'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Observer.Expect('var1_validate', 'E: The format of the Date ''1'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Observer.Verify();
+    end;
+
+    // A Variant holding the Integer 31 into the Date field.
+    [Test]
+    procedure DateField_VariantInteger31()
+    var
+        Observer: Codeunit "Probe Observer";
+        Probe: Codeunit "LT FVR Date Probe";
+        V: Variant;
+    begin
         V := 31;
         Probe.CellsVar(Observer, 5, 'var31', V);
-        Observer.Finish();
+        Observer.Expect('var31_value', 'E: The format of the Date ''31'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Observer.Expect('var31_assign', 'E: The format of the Date ''31'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Observer.Expect('var31_validate', 'E: The format of the Date ''31'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Observer.Verify();
     end;
 
     // A BigInteger 1 and a Decimal 1 into the Date field.
@@ -707,7 +883,13 @@ codeunit 73493 "LT FVR Date Tests"
         D := 1;
         Probe.CellsBig(Observer, 5, 'big1', B);
         Probe.CellsDec(Observer, 5, 'dec1', D);
-        Observer.Finish();
+        Observer.Expect('big1_value', 'E: The format of the Date ''1'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Observer.Expect('big1_assign', 'E: The format of the Date ''1'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Observer.Expect('big1_validate', 'E: The format of the Date ''1'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Observer.Expect('dec1_value', 'E: The format of the Date ''1'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Observer.Expect('dec1_assign', 'E: The format of the Date ''1'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Observer.Expect('dec1_validate', 'E: The format of the Date ''1'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Observer.Verify();
     end;
 
     // An Integer 1 into the Time and the DateTime field.
@@ -719,6 +901,12 @@ codeunit 73493 "LT FVR Date Tests"
     begin
         Probe.CellsInt(Observer, 6, 'time_int1', 1);
         Probe.CellsInt(Observer, 4, 'datetime_int1', 1);
-        Observer.Finish();
+        Observer.Expect('time_int1_value', 'E: The value "1" can''t be evaluated into type Time. | Evaluate:Conversion');
+        Observer.Expect('time_int1_assign', 'E: The value "1" can''t be evaluated into type Time. | Evaluate:Conversion');
+        Observer.Expect('time_int1_validate', 'E: The value "1" can''t be evaluated into type Time. | Evaluate:Conversion');
+        Observer.Expect('datetime_int1_value', 'E: The value "1" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+        Observer.Expect('datetime_int1_assign', 'E: The value "1" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+        Observer.Expect('datetime_int1_validate', 'E: The value "1" can''t be evaluated into type DateTime. | Evaluate:Conversion');
+        Observer.Verify();
     end;
 }

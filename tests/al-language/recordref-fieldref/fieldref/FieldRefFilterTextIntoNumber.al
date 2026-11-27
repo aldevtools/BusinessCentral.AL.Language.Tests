@@ -8,7 +8,12 @@
 //   Each cell runs in a TryFunction on a fresh RecordRef (or Record) and records "ok: <GetFilter>" or "E: <GetLastErrorText> |
 //   <GetLastErrorCode>". A test is <Field>_<Kind><Text>.
 //   Already pinned: SetFilter('%1', X) with 'ABC' and 'XY' (SrcFilterConvertKinds.al), kept here as part of each row.
-//   Observe round: every test ends with Observer.Finish(), which fails the test with the readings (OBSERVE:...); nothing is asserted yet.
+//   Measured on BC 29.0 (Linux, W1, en-US session, UTC) with an invented app holding these objects, through the dev endpoint's
+//   TestRunnerHub; the values are that run's readings, turned into Expect and Verify by convert.py verbatim. This pull request's CI
+//   checks them on 27.5, 28.5 and 29.0; a version difference gets a version guard.
+//   Facts (BC 29.0): every cell fails with 'The value "<text>" can't be evaluated into type <Integer|BigInteger|Decimal>.'
+//   (Evaluate:Format): every text, as Code or Text, typed or in a Variant, by every SetRange and SetFilter form and by
+//   Record.SetFilter(<field>, '<>%1', V).
 // BC versions: 27, 28, 29 by CI
 table 73495 "LT FTN Row"
 {
@@ -231,7 +236,16 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'AB00000000';
         Probe.CellsCode(Observer, 2, X);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // Code[20] 'A1' into the Integer field.
@@ -244,7 +258,16 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'A1';
         Probe.CellsCode(Observer, 2, X);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "A1" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "A1" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "A1" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "A1" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "A1" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "A1" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "A1" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "A1" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "A1" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // Code[20] '1A' into the Integer field.
@@ -257,7 +280,16 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := '1A';
         Probe.CellsCode(Observer, 2, X);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "1A" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "1A" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "1A" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "1A" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "1A" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "1A" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "1A" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "1A" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "1A" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // Code[20] 'ABC' into the Integer field.
@@ -270,7 +302,16 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'ABC';
         Probe.CellsCode(Observer, 2, X);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // Code[20] 'XY' into the Integer field.
@@ -283,7 +324,16 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'XY';
         Probe.CellsCode(Observer, 2, X);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // Code[20] 'ABCDEFGHI' into the Integer field.
@@ -296,7 +346,16 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'ABCDEFGHI';
         Probe.CellsCode(Observer, 2, X);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "ABCDEFGHI" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "ABCDEFGHI" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "ABCDEFGHI" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "ABCDEFGHI" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "ABCDEFGHI" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "ABCDEFGHI" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "ABCDEFGHI" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "ABCDEFGHI" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "ABCDEFGHI" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // Text 'AB00000000' into the Integer field.
@@ -309,7 +368,16 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'AB00000000';
         Probe.CellsTxt(Observer, 2, X);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // Text 'A1' into the Integer field.
@@ -322,7 +390,16 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'A1';
         Probe.CellsTxt(Observer, 2, X);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "A1" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "A1" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "A1" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "A1" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "A1" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "A1" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "A1" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "A1" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "A1" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // Text '1A' into the Integer field.
@@ -335,7 +412,16 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := '1A';
         Probe.CellsTxt(Observer, 2, X);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "1A" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "1A" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "1A" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "1A" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "1A" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "1A" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "1A" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "1A" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "1A" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // Text 'ABC' into the Integer field.
@@ -348,7 +434,16 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'ABC';
         Probe.CellsTxt(Observer, 2, X);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // Text 'XY' into the Integer field.
@@ -361,7 +456,16 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'XY';
         Probe.CellsTxt(Observer, 2, X);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // Text 'ABCDEFGHI' into the Integer field.
@@ -374,7 +478,16 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'ABCDEFGHI';
         Probe.CellsTxt(Observer, 2, X);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "ABCDEFGHI" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "ABCDEFGHI" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "ABCDEFGHI" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "ABCDEFGHI" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "ABCDEFGHI" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "ABCDEFGHI" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "ABCDEFGHI" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "ABCDEFGHI" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "ABCDEFGHI" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // Code[20] 'AB00000000' into the BigInteger field.
@@ -387,7 +500,16 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'AB00000000';
         Probe.CellsCode(Observer, 3, X);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // Code[20] 'A1' into the BigInteger field.
@@ -400,7 +522,16 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'A1';
         Probe.CellsCode(Observer, 3, X);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "A1" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "A1" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "A1" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "A1" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "A1" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "A1" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "A1" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "A1" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "A1" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // Code[20] '1A' into the BigInteger field.
@@ -413,7 +544,16 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := '1A';
         Probe.CellsCode(Observer, 3, X);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "1A" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "1A" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "1A" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "1A" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "1A" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "1A" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "1A" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "1A" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "1A" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // Code[20] 'ABC' into the BigInteger field.
@@ -426,7 +566,16 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'ABC';
         Probe.CellsCode(Observer, 3, X);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // Code[20] 'XY' into the BigInteger field.
@@ -439,7 +588,16 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'XY';
         Probe.CellsCode(Observer, 3, X);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // Code[20] 'ABCDEFGHI' into the BigInteger field.
@@ -452,7 +610,16 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'ABCDEFGHI';
         Probe.CellsCode(Observer, 3, X);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "ABCDEFGHI" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "ABCDEFGHI" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "ABCDEFGHI" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "ABCDEFGHI" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "ABCDEFGHI" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "ABCDEFGHI" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "ABCDEFGHI" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "ABCDEFGHI" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "ABCDEFGHI" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // Text 'AB00000000' into the BigInteger field.
@@ -465,7 +632,16 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'AB00000000';
         Probe.CellsTxt(Observer, 3, X);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // Text 'A1' into the BigInteger field.
@@ -478,7 +654,16 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'A1';
         Probe.CellsTxt(Observer, 3, X);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "A1" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "A1" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "A1" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "A1" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "A1" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "A1" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "A1" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "A1" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "A1" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // Text '1A' into the BigInteger field.
@@ -491,7 +676,16 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := '1A';
         Probe.CellsTxt(Observer, 3, X);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "1A" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "1A" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "1A" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "1A" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "1A" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "1A" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "1A" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "1A" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "1A" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // Text 'ABC' into the BigInteger field.
@@ -504,7 +698,16 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'ABC';
         Probe.CellsTxt(Observer, 3, X);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // Text 'XY' into the BigInteger field.
@@ -517,7 +720,16 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'XY';
         Probe.CellsTxt(Observer, 3, X);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // Text 'ABCDEFGHI' into the BigInteger field.
@@ -530,7 +742,16 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'ABCDEFGHI';
         Probe.CellsTxt(Observer, 3, X);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "ABCDEFGHI" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "ABCDEFGHI" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "ABCDEFGHI" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "ABCDEFGHI" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "ABCDEFGHI" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "ABCDEFGHI" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "ABCDEFGHI" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "ABCDEFGHI" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "ABCDEFGHI" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // Code[20] 'AB00000000' into the Decimal field.
@@ -543,7 +764,16 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'AB00000000';
         Probe.CellsCode(Observer, 4, X);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // Code[20] 'A1' into the Decimal field.
@@ -556,7 +786,16 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'A1';
         Probe.CellsCode(Observer, 4, X);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "A1" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "A1" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "A1" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "A1" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "A1" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "A1" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "A1" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "A1" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "A1" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // Code[20] '1A' into the Decimal field.
@@ -569,7 +808,16 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := '1A';
         Probe.CellsCode(Observer, 4, X);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "1A" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "1A" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "1A" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "1A" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "1A" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "1A" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "1A" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "1A" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "1A" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // Code[20] 'ABC' into the Decimal field.
@@ -582,7 +830,16 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'ABC';
         Probe.CellsCode(Observer, 4, X);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // Code[20] 'XY' into the Decimal field.
@@ -595,7 +852,16 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'XY';
         Probe.CellsCode(Observer, 4, X);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // Code[20] 'ABCDEFGHI' into the Decimal field.
@@ -608,7 +874,16 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'ABCDEFGHI';
         Probe.CellsCode(Observer, 4, X);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "ABCDEFGHI" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "ABCDEFGHI" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "ABCDEFGHI" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "ABCDEFGHI" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "ABCDEFGHI" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "ABCDEFGHI" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "ABCDEFGHI" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "ABCDEFGHI" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "ABCDEFGHI" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // Text 'AB00000000' into the Decimal field.
@@ -621,7 +896,16 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'AB00000000';
         Probe.CellsTxt(Observer, 4, X);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // Text 'A1' into the Decimal field.
@@ -634,7 +918,16 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'A1';
         Probe.CellsTxt(Observer, 4, X);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "A1" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "A1" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "A1" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "A1" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "A1" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "A1" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "A1" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "A1" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "A1" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // Text '1A' into the Decimal field.
@@ -647,7 +940,16 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := '1A';
         Probe.CellsTxt(Observer, 4, X);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "1A" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "1A" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "1A" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "1A" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "1A" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "1A" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "1A" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "1A" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "1A" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // Text 'ABC' into the Decimal field.
@@ -660,7 +962,16 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'ABC';
         Probe.CellsTxt(Observer, 4, X);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // Text 'XY' into the Decimal field.
@@ -673,7 +984,16 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'XY';
         Probe.CellsTxt(Observer, 4, X);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // Text 'ABCDEFGHI' into the Decimal field.
@@ -686,7 +1006,16 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'ABCDEFGHI';
         Probe.CellsTxt(Observer, 4, X);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "ABCDEFGHI" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "ABCDEFGHI" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "ABCDEFGHI" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "ABCDEFGHI" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "ABCDEFGHI" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "ABCDEFGHI" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "ABCDEFGHI" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "ABCDEFGHI" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "ABCDEFGHI" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Verify();
     end;
 }
 
@@ -707,7 +1036,16 @@ codeunit 73497 "LT FTN Variant Tests"
         X := 'AB00000000';
         V := X;
         Probe.CellsVar(Observer, 2, V);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // A Variant holding the Text 'XY' into the Integer field.
@@ -722,7 +1060,16 @@ codeunit 73497 "LT FTN Variant Tests"
         X := 'XY';
         V := X;
         Probe.CellsVar(Observer, 2, V);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // A Variant holding the Code[20] 'AB00000000' into the BigInteger field.
@@ -737,7 +1084,16 @@ codeunit 73497 "LT FTN Variant Tests"
         X := 'AB00000000';
         V := X;
         Probe.CellsVar(Observer, 3, V);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // A Variant holding the Text 'XY' into the BigInteger field.
@@ -752,7 +1108,16 @@ codeunit 73497 "LT FTN Variant Tests"
         X := 'XY';
         V := X;
         Probe.CellsVar(Observer, 3, V);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // A Variant holding the Code[20] 'AB00000000' into the Decimal field.
@@ -767,7 +1132,16 @@ codeunit 73497 "LT FTN Variant Tests"
         X := 'AB00000000';
         V := X;
         Probe.CellsVar(Observer, 4, V);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // A Variant holding the Text 'XY' into the Decimal field.
@@ -782,7 +1156,16 @@ codeunit 73497 "LT FTN Variant Tests"
         X := 'XY';
         V := X;
         Probe.CellsVar(Observer, 4, V);
-        Observer.Finish();
+        Observer.Expect('range', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('range2', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('f1', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('ne', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('gt', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('lt', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('from', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('upto', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('or', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Verify();
     end;
 
     // Record.SetFilter(<field>, '<>%1', V), V a Variant holding Code 'AB00000000' or Text 'XY', on each field.
@@ -809,6 +1192,12 @@ codeunit 73497 "LT FTN Variant Tests"
         Probe.RecordCell(Observer, 'Dec_code', 4, V);
         V := T;
         Probe.RecordCell(Observer, 'Dec_text', 4, V);
-        Observer.Finish();
+        Observer.Expect('Int_code', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('Int_text', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
+        Observer.Expect('Big_code', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('Big_text', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
+        Observer.Expect('Dec_code', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Expect('Dec_text', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
+        Observer.Verify();
     end;
 }
