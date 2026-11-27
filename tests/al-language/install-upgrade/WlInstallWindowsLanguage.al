@@ -10,6 +10,9 @@
 //   read and the session id, so the test can tell the install session's rows from rows of other sessions.
 // The read: Count(); Get of 1033, 1031, 1049 and 1067 (a language with no OEM code page) with Name, Primary CodePage and Language Tag;
 //   FindSet over SetRange("Globally Enabled", true) with the number of rows iterated and the sum of their Language ID.
+// The extra read (ReadWindowsLanguageExtra, the "Extra" field): a checksum over every field of every row (RecordRef, FieldIndex 1 to FieldCount, so all
+//   columns, not the ones the fixed read names), a Get of language id 99999 and a Get of 0 (no such row), and Count() under a filter on another field
+//   ("Primary CodePage" = '1' and "Language Tag" = 'hy-AM'). It follows Stefan Maron's note on corpus PR 1609 (the first read covers four rows and four columns).
 // Every write is `if Insert() then;` into a DataPerCompany = false table; Get is used as `if Get() then`, so nothing here can raise.
 // BC versions: 27 - 29
 
@@ -26,6 +29,7 @@ table 96000 "LT WLI Log"
         field(4; "Session Id"; Integer) { }
         field(5; Context; Text[30]) { }
         field(6; "Read"; Text[1000]) { }
+        field(7; Extra; Text[500]) { }
     }
 
     keys { key(PK; Id) { Clustered = true; } }
@@ -62,19 +66,19 @@ codeunit 96002 "LT WLI Subs"
         Read := ReadWindowsLanguage();
         State.Add('OnCompanyOpen|' + Read);
         if Session.GetExecutionContext() in [ExecutionContext::Install, ExecutionContext::Upgrade] then
-            Write('OnCompanyOpen', Read);
+            Write('OnCompanyOpen', Read, ReadWindowsLanguageExtra());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Extension Triggers", 'OnInstallAppPerCompany', '', false, false)]
     local procedure InstallPerCompany()
     begin
-        Write('install per company', ReadWindowsLanguage());
+        Write('install per company', ReadWindowsLanguage(), ReadWindowsLanguageExtra());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Extension Triggers", 'OnInstallAppPerDatabase', '', false, false)]
     local procedure InstallPerDatabase()
     begin
-        Write('install per database', ReadWindowsLanguage());
+        Write('install per database', ReadWindowsLanguage(), ReadWindowsLanguageExtra());
     end;
 
     procedure ReadWindowsLanguage(): Text
@@ -96,6 +100,52 @@ codeunit 96002 "LT WLI Subs"
         exit(Result);
     end;
 
+    procedure ReadWindowsLanguageExtra(): Text
+    var
+        WindowsLanguage: Record "Windows Language";
+        RecRef: RecordRef;
+        FieldRef: FieldRef;
+        I: Integer;
+        Rows: Integer;
+        Checksum: BigInteger;
+        FieldCountOfTable: Integer;
+        CodePageOne: Integer;
+        TagOne: Integer;
+    begin
+        RecRef.Open(Database::"Windows Language");
+        FieldCountOfTable := RecRef.FieldCount();
+        if RecRef.FindSet() then
+            repeat
+                Rows += 1;
+                for I := 1 to FieldCountOfTable do begin
+                    FieldRef := RecRef.FieldIndex(I);
+                    Hash(Format(FieldRef.Value) + '|', Checksum);
+                end;
+                Hash(';', Checksum);
+            until RecRef.Next() = 0;
+        RecRef.Close();
+        WindowsLanguage.SetRange("Primary CodePage", '1');
+        CodePageOne := WindowsLanguage.Count();
+        WindowsLanguage.Reset();
+        WindowsLanguage.SetRange("Language Tag", 'hy-AM');
+        TagOne := WindowsLanguage.Count();
+        exit('rows=' + Format(Rows) + ',fields=' + Format(FieldCountOfTable) + ',checksum=' + Format(Checksum) + ',' +
+            GetRow(99999) + GetRow(0) + 'codepage 1 count=' + Format(CodePageOne) + ',tag hy-AM count=' + Format(TagOne));
+    end;
+
+    local procedure Hash(Value: Text; var State: BigInteger)
+    var
+        Ch: Char;
+        I: Integer;
+        Code: Integer;
+    begin
+        for I := 1 to StrLen(Value) do begin
+            Ch := Value[I];
+            Code := Ch;
+            State := (State * 31 + Code) mod 2147483629;
+        end;
+    end;
+
     local procedure GetRow(LanguageId: Integer): Text
     var
         WindowsLanguage: Record "Windows Language";
@@ -105,7 +155,7 @@ codeunit 96002 "LT WLI Subs"
         exit(Format(LanguageId) + '=Yes|' + WindowsLanguage.Name + '|' + WindowsLanguage."Primary CodePage" + '|' + WindowsLanguage."Language Tag" + ',');
     end;
 
-    local procedure Write(Kind: Text; Read: Text)
+    local procedure Write(Kind: Text; Read: Text; Extra: Text)
     var
         Log: Record "LT WLI Log";
     begin
@@ -115,6 +165,7 @@ codeunit 96002 "LT WLI Subs"
         Log."Session Id" := SessionId();
         Log.Context := CopyStr(Format(Session.GetExecutionContext()), 1, MaxStrLen(Log.Context));
         Log."Read" := CopyStr(Read, 1, MaxStrLen(Log."Read"));
+        Log.Extra := CopyStr(Extra, 1, MaxStrLen(Log.Extra));
         if Log.Insert() then;
     end;
 }
