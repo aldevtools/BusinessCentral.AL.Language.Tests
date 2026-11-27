@@ -1,0 +1,355 @@
+// BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/system/system-clearall-method
+// Scope: in-scope
+// Fixtures used: Probe Observer (codeunit 69160); "CKK Row" (table 86270) of ClearSharedCodeunitGlobalKinds.al; self-contained objects 86800 to 86806
+// Probe: ClearAll in an owner codeunit whose TableNo register another variable shares, when the records below the register
+// hold assigned field values (not only filters, as ClearSharedCodeunitWhseStore.al measured). Same tree as "CSW DReg" there:
+// register -> plain depth 1 -> SingleInstance depth 2 -> plain depth 3, and plain depth 1 -> plain depth 2 -> plain depth 3.
+// Every node holds a non-temporary record; depth 3 also holds a temporary record. al-runner issue 9292.
+// singleinstance-shared-on-purpose: the subject is a SingleInstance codeunit held below a register that ClearAll resets.
+// BC versions: 27, 28, 29
+// What BC did: OBSERVING
+codeunit 86800 "CSF D3"
+{
+    var
+        Rows: Record "CKK Row";
+        Tmp: Record "CKK Row" temporary;
+        N: Integer;
+
+    procedure Prime(V: Integer; Mode: Integer)
+    begin
+        Clear(Rows);
+        Tmp.Reset();
+        Tmp.DeleteAll();
+        Clear(Tmp);
+        N := V;
+        case Mode of
+            1:
+                begin
+                    Rows."No." := V;
+                    Rows.Txt := 'd' + Format(V);
+                end;
+            2:
+                begin
+                    Rows."No." := V;
+                    Rows.Txt := 'd' + Format(V);
+                    Rows.SetRange("No.", V);
+                end;
+            3:
+                begin
+                    Rows.Init();
+                    Rows."No." := V;
+                    Rows.Txt := 'd' + Format(V);
+                end;
+            4:
+                begin
+                    Rows.Get(1);
+                    Rows.Txt := 'g' + Format(V);
+                end;
+            5:
+                begin
+                    Tmp."No." := V;
+                    Tmp.Txt := 't' + Format(V);
+                    Tmp.Insert();
+                    Tmp."No." := V + 1;
+                    Tmp.Txt := 'u' + Format(V);
+                end;
+        end;
+    end;
+
+    procedure SetTxt(T: Text[30])
+    begin
+        Rows.Txt := T;
+    end;
+
+    procedure State(): Text
+    begin
+        exit(StrSubstNo('d3[%1,%2,%3,%4|tmp %5,%6,%7]', N, Rows."No.", Rows.Txt, Rows.GetFilters(), Tmp.Count(), Tmp."No.", Tmp.Txt));
+    end;
+}
+
+codeunit 86801 "CSF D2Si"
+{
+    SingleInstance = true;
+
+    var
+        Rows: Record "CKK Row";
+        D3: Codeunit "CSF D3";
+        N: Integer;
+
+    procedure Prime(V: Integer; Mode: Integer; AllLevels: Boolean)
+    begin
+        Clear(Rows);
+        N := V;
+        if AllLevels then begin
+            Rows."No." := V;
+            Rows.Txt := 's' + Format(V);
+        end;
+        D3.Prime(V + 1, Mode);
+    end;
+
+    procedure SetTxt(T: Text[30])
+    begin
+        D3.SetTxt(T);
+    end;
+
+    procedure State(): Text
+    begin
+        exit(StrSubstNo('d2si[%1,%2,%3]', N, Rows."No.", Rows.Txt) + D3.State());
+    end;
+}
+
+codeunit 86802 "CSF D2P"
+{
+    var
+        Rows: Record "CKK Row";
+        D3: Codeunit "CSF D3";
+        N: Integer;
+
+    procedure Prime(V: Integer; Mode: Integer; AllLevels: Boolean)
+    begin
+        Clear(Rows);
+        N := V;
+        if AllLevels then begin
+            Rows."No." := V;
+            Rows.Txt := 'p' + Format(V);
+        end;
+        D3.Prime(V + 1, Mode);
+    end;
+
+    procedure SetTxt(T: Text[30])
+    begin
+        D3.SetTxt(T);
+    end;
+
+    procedure State(): Text
+    begin
+        exit(StrSubstNo('d2p[%1,%2,%3]', N, Rows."No.", Rows.Txt) + D3.State());
+    end;
+}
+
+codeunit 86803 "CSF D1"
+{
+    var
+        Rows: Record "CKK Row";
+        Si: Codeunit "CSF D2Si";
+        P: Codeunit "CSF D2P";
+        N: Integer;
+
+    procedure Prime(V: Integer; Mode: Integer; AllLevels: Boolean)
+    begin
+        Clear(Rows);
+        N := V;
+        if AllLevels then begin
+            Rows."No." := V;
+            Rows.Txt := 'o' + Format(V);
+        end;
+        Si.Prime(V + 10, Mode, AllLevels);
+        P.Prime(V + 20, Mode, AllLevels);
+    end;
+
+    procedure SetTxt(T: Text[30])
+    begin
+        Si.SetTxt(T + 's');
+        P.SetTxt(T + 'p');
+    end;
+
+    procedure StateSi(): Text
+    begin
+        exit(Si.State());
+    end;
+
+    procedure StateP(): Text
+    begin
+        exit(P.State());
+    end;
+
+    procedure State(): Text
+    begin
+        exit(StrSubstNo('d1[%1,%2,%3]', N, Rows."No.", Rows.Txt));
+    end;
+}
+
+codeunit 86804 "CSF DReg"
+{
+    TableNo = "CKK Row";
+
+    var
+        Loc: Record "CKK Row";
+        D1: Codeunit "CSF D1";
+        N: Integer;
+
+    trigger OnRun()
+    begin
+        N := Rec."No.";
+    end;
+
+    procedure Prime(V: Integer; Mode: Integer; AllLevels: Boolean)
+    begin
+        Clear(Loc);
+        N := V;
+        if AllLevels then begin
+            Loc."No." := V;
+            Loc.Txt := 'r' + Format(V);
+        end;
+        D1.Prime(V + 100, Mode, AllLevels);
+    end;
+
+    procedure SetTxt(T: Text[30])
+    begin
+        D1.SetTxt(T);
+    end;
+
+    procedure StateReg(): Text
+    begin
+        exit(StrSubstNo('dreg[%1,%2,%3]', N, Loc."No.", Loc.Txt));
+    end;
+
+    procedure StateD1(): Text
+    begin
+        exit(D1.State());
+    end;
+
+    procedure StateSi(): Text
+    begin
+        exit(D1.StateSi());
+    end;
+
+    procedure StateP(): Text
+    begin
+        exit(D1.StateP());
+    end;
+}
+
+codeunit 86805 "CSF DOwner"
+{
+    TableNo = "CKK Row";
+
+    var
+        Reg: Codeunit "CSF DReg";
+
+    trigger OnRun()
+    begin
+    end;
+
+    procedure SetReg(var R: Codeunit "CSF DReg")
+    begin
+        Reg := R;
+    end;
+
+    procedure DoClearAll()
+    begin
+        ClearAll();
+    end;
+
+    procedure StateP(): Text
+    begin
+        exit(Reg.StateP());
+    end;
+
+    procedure StateSi(): Text
+    begin
+        exit(Reg.StateSi());
+    end;
+}
+
+codeunit 86806 "CSF Test"
+{
+    Subtype = Test;
+
+    var
+        Observer: Codeunit "Probe Observer";
+
+    local procedure ObserveTree(Prefix: Text; var R: Codeunit "CSF DReg")
+    begin
+        Observer.Observe(Prefix + 'reg', R.StateReg());
+        Observer.Observe(Prefix + 'd1', R.StateD1());
+        Observer.Observe(Prefix + 'si', R.StateSi());
+        Observer.Observe(Prefix + 'p', R.StateP());
+    end;
+
+    local procedure Run(Mode: Integer; AllLevels: Boolean)
+    var
+        R: Codeunit "CSF DReg";
+        Owner: Codeunit "CSF DOwner";
+        D3: Codeunit "CSF D3";
+    begin
+        R.Prime(5000, Mode, AllLevels);
+        Owner.SetReg(R);
+        ObserveTree('before.', R);
+        Owner.DoClearAll();
+        ObserveTree('after.', R);
+        Observer.Observe('after.owner.p', Owner.StateP());
+        Observer.Observe('after.d3', D3.State());
+    end;
+
+    [Test]
+    procedure DeepFields_OnlyDepth3_OwnerClearAll()
+    begin
+        Run(1, false);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure DeepFields_OnlyDepth3Filter_OwnerClearAll()
+    begin
+        Run(2, false);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure DeepFields_OnlyDepth3Init_OwnerClearAll()
+    begin
+        Run(3, false);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure DeepFields_OnlyDepth3Get_OwnerClearAll()
+    var
+        Row: Record "CKK Row";
+    begin
+        Row.DeleteAll();
+        Row."No." := 1;
+        Row.Txt := 'db';
+        Row.Insert();
+        Run(4, false);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure DeepFields_OnlyDepth3Temp_OwnerClearAll()
+    begin
+        Run(5, false);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure DeepFields_EveryLevel_OwnerClearAll()
+    begin
+        Run(1, true);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure DeepFields_EveryLevelFilter_OwnerClearAll()
+    begin
+        Run(2, true);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure DeepFields_WriteAfter_OwnerClearAll()
+    var
+        R: Codeunit "CSF DReg";
+        Owner: Codeunit "CSF DOwner";
+    begin
+        R.Prime(6000, 1, true);
+        Owner.SetReg(R);
+        Owner.DoClearAll();
+        R.SetTxt('w');
+        Observer.Observe('write.owner.p', Owner.StateP());
+        Observer.Observe('write.owner.si', Owner.StateSi());
+        Observer.Observe('write.r.p', R.StateP());
+        Observer.Finish();
+    end;
+}
