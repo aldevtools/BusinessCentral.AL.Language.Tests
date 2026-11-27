@@ -236,6 +236,7 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'AB00000000';
         Probe.CellsCode(Observer, 2, X);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
@@ -246,6 +247,9 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavInteger is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // Code[20] 'A1' into the Integer field.
@@ -258,6 +262,7 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'A1';
         Probe.CellsCode(Observer, 2, X);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "A1" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "A1" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "A1" can''t be evaluated into type Integer. | Evaluate:Format');
@@ -268,6 +273,9 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "A1" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "A1" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavInteger is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // Code[20] '1A' into the Integer field.
@@ -280,6 +288,7 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := '1A';
         Probe.CellsCode(Observer, 2, X);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "1A" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "1A" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "1A" can''t be evaluated into type Integer. | Evaluate:Format');
@@ -290,6 +299,9 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "1A" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "1A" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavInteger is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // Code[20] 'ABC' into the Integer field.
@@ -302,6 +314,7 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'ABC';
         Probe.CellsCode(Observer, 2, X);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
@@ -312,6 +325,9 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavInteger is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // Code[20] 'XY' into the Integer field.
@@ -324,6 +340,7 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'XY';
         Probe.CellsCode(Observer, 2, X);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
@@ -334,6 +351,9 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavInteger is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // Code[20] 'ABCDEFGHI' into the Integer field.
@@ -346,6 +366,7 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'ABCDEFGHI';
         Probe.CellsCode(Observer, 2, X);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "ABCDEFGHI" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "ABCDEFGHI" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "ABCDEFGHI" can''t be evaluated into type Integer. | Evaluate:Format');
@@ -356,6 +377,9 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "ABCDEFGHI" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "ABCDEFGHI" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavInteger is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // Text 'AB00000000' into the Integer field.
@@ -368,6 +392,7 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'AB00000000';
         Probe.CellsTxt(Observer, 2, X);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
@@ -378,6 +403,9 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavInteger is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // Text 'A1' into the Integer field.
@@ -390,6 +418,7 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'A1';
         Probe.CellsTxt(Observer, 2, X);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "A1" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "A1" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "A1" can''t be evaluated into type Integer. | Evaluate:Format');
@@ -400,6 +429,9 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "A1" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "A1" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavInteger is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // Text '1A' into the Integer field.
@@ -412,6 +444,7 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := '1A';
         Probe.CellsTxt(Observer, 2, X);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "1A" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "1A" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "1A" can''t be evaluated into type Integer. | Evaluate:Format');
@@ -422,6 +455,9 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "1A" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "1A" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavInteger is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // Text 'ABC' into the Integer field.
@@ -434,6 +470,7 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'ABC';
         Probe.CellsTxt(Observer, 2, X);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
@@ -444,6 +481,9 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavInteger is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // Text 'XY' into the Integer field.
@@ -456,6 +496,7 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'XY';
         Probe.CellsTxt(Observer, 2, X);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
@@ -466,6 +507,9 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavInteger is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // Text 'ABCDEFGHI' into the Integer field.
@@ -478,6 +522,7 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'ABCDEFGHI';
         Probe.CellsTxt(Observer, 2, X);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "ABCDEFGHI" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "ABCDEFGHI" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "ABCDEFGHI" can''t be evaluated into type Integer. | Evaluate:Format');
@@ -488,6 +533,9 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "ABCDEFGHI" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "ABCDEFGHI" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavInteger is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // Code[20] 'AB00000000' into the BigInteger field.
@@ -500,6 +548,7 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'AB00000000';
         Probe.CellsCode(Observer, 3, X);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
@@ -510,6 +559,9 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavBigInteger is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // Code[20] 'A1' into the BigInteger field.
@@ -522,6 +574,7 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'A1';
         Probe.CellsCode(Observer, 3, X);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "A1" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "A1" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "A1" can''t be evaluated into type BigInteger. | Evaluate:Format');
@@ -532,6 +585,9 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "A1" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "A1" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavBigInteger is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // Code[20] '1A' into the BigInteger field.
@@ -544,6 +600,7 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := '1A';
         Probe.CellsCode(Observer, 3, X);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "1A" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "1A" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "1A" can''t be evaluated into type BigInteger. | Evaluate:Format');
@@ -554,6 +611,9 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "1A" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "1A" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavBigInteger is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // Code[20] 'ABC' into the BigInteger field.
@@ -566,6 +626,7 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'ABC';
         Probe.CellsCode(Observer, 3, X);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
@@ -576,6 +637,9 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavBigInteger is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // Code[20] 'XY' into the BigInteger field.
@@ -588,6 +652,7 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'XY';
         Probe.CellsCode(Observer, 3, X);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
@@ -598,6 +663,9 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavBigInteger is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // Code[20] 'ABCDEFGHI' into the BigInteger field.
@@ -610,6 +678,7 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'ABCDEFGHI';
         Probe.CellsCode(Observer, 3, X);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "ABCDEFGHI" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "ABCDEFGHI" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "ABCDEFGHI" can''t be evaluated into type BigInteger. | Evaluate:Format');
@@ -620,6 +689,9 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "ABCDEFGHI" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "ABCDEFGHI" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavBigInteger is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // Text 'AB00000000' into the BigInteger field.
@@ -632,6 +704,7 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'AB00000000';
         Probe.CellsTxt(Observer, 3, X);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
@@ -642,6 +715,9 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavBigInteger is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // Text 'A1' into the BigInteger field.
@@ -654,6 +730,7 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'A1';
         Probe.CellsTxt(Observer, 3, X);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "A1" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "A1" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "A1" can''t be evaluated into type BigInteger. | Evaluate:Format');
@@ -664,6 +741,9 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "A1" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "A1" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavBigInteger is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // Text '1A' into the BigInteger field.
@@ -676,6 +756,7 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := '1A';
         Probe.CellsTxt(Observer, 3, X);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "1A" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "1A" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "1A" can''t be evaluated into type BigInteger. | Evaluate:Format');
@@ -686,6 +767,9 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "1A" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "1A" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavBigInteger is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // Text 'ABC' into the BigInteger field.
@@ -698,6 +782,7 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'ABC';
         Probe.CellsTxt(Observer, 3, X);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
@@ -708,6 +793,9 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavBigInteger is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // Text 'XY' into the BigInteger field.
@@ -720,6 +808,7 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'XY';
         Probe.CellsTxt(Observer, 3, X);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
@@ -730,6 +819,9 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavBigInteger is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // Text 'ABCDEFGHI' into the BigInteger field.
@@ -742,6 +834,7 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'ABCDEFGHI';
         Probe.CellsTxt(Observer, 3, X);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "ABCDEFGHI" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "ABCDEFGHI" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "ABCDEFGHI" can''t be evaluated into type BigInteger. | Evaluate:Format');
@@ -752,6 +845,9 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "ABCDEFGHI" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "ABCDEFGHI" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavBigInteger is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // Code[20] 'AB00000000' into the Decimal field.
@@ -764,6 +860,7 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'AB00000000';
         Probe.CellsCode(Observer, 4, X);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
@@ -774,6 +871,9 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavDecimal is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // Code[20] 'A1' into the Decimal field.
@@ -786,6 +886,7 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'A1';
         Probe.CellsCode(Observer, 4, X);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "A1" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "A1" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "A1" can''t be evaluated into type Decimal. | Evaluate:Format');
@@ -796,6 +897,9 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "A1" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "A1" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavDecimal is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // Code[20] '1A' into the Decimal field.
@@ -808,6 +912,7 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := '1A';
         Probe.CellsCode(Observer, 4, X);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "1A" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "1A" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "1A" can''t be evaluated into type Decimal. | Evaluate:Format');
@@ -818,6 +923,9 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "1A" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "1A" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavDecimal is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // Code[20] 'ABC' into the Decimal field.
@@ -830,6 +938,7 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'ABC';
         Probe.CellsCode(Observer, 4, X);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
@@ -840,6 +949,9 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavDecimal is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // Code[20] 'XY' into the Decimal field.
@@ -852,6 +964,7 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'XY';
         Probe.CellsCode(Observer, 4, X);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
@@ -862,6 +975,9 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavDecimal is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // Code[20] 'ABCDEFGHI' into the Decimal field.
@@ -874,6 +990,7 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'ABCDEFGHI';
         Probe.CellsCode(Observer, 4, X);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "ABCDEFGHI" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "ABCDEFGHI" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "ABCDEFGHI" can''t be evaluated into type Decimal. | Evaluate:Format');
@@ -884,6 +1001,9 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "ABCDEFGHI" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "ABCDEFGHI" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavDecimal is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // Text 'AB00000000' into the Decimal field.
@@ -896,6 +1016,7 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'AB00000000';
         Probe.CellsTxt(Observer, 4, X);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
@@ -906,6 +1027,9 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavDecimal is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // Text 'A1' into the Decimal field.
@@ -918,6 +1042,7 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'A1';
         Probe.CellsTxt(Observer, 4, X);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "A1" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "A1" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "A1" can''t be evaluated into type Decimal. | Evaluate:Format');
@@ -928,6 +1053,9 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "A1" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "A1" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavDecimal is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // Text '1A' into the Decimal field.
@@ -940,6 +1068,7 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := '1A';
         Probe.CellsTxt(Observer, 4, X);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "1A" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "1A" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "1A" can''t be evaluated into type Decimal. | Evaluate:Format');
@@ -950,6 +1079,9 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "1A" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "1A" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavDecimal is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // Text 'ABC' into the Decimal field.
@@ -962,6 +1094,7 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'ABC';
         Probe.CellsTxt(Observer, 4, X);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
@@ -972,6 +1105,9 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavDecimal is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // Text 'XY' into the Decimal field.
@@ -984,6 +1120,7 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'XY';
         Probe.CellsTxt(Observer, 4, X);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
@@ -994,6 +1131,9 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavDecimal is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // Text 'ABCDEFGHI' into the Decimal field.
@@ -1006,6 +1146,7 @@ codeunit 73496 "LT FTN Typed Tests"
     begin
         X := 'ABCDEFGHI';
         Probe.CellsTxt(Observer, 4, X);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "ABCDEFGHI" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "ABCDEFGHI" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "ABCDEFGHI" can''t be evaluated into type Decimal. | Evaluate:Format');
@@ -1016,6 +1157,9 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "ABCDEFGHI" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "ABCDEFGHI" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavDecimal is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 }
 
@@ -1036,6 +1180,7 @@ codeunit 73497 "LT FTN Variant Tests"
         X := 'AB00000000';
         V := X;
         Probe.CellsVar(Observer, 2, V);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
@@ -1046,6 +1191,9 @@ codeunit 73497 "LT FTN Variant Tests"
         Observer.Expect('upto', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavInteger is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // A Variant holding the Text 'XY' into the Integer field.
@@ -1060,6 +1208,7 @@ codeunit 73497 "LT FTN Variant Tests"
         X := 'XY';
         V := X;
         Probe.CellsVar(Observer, 2, V);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
@@ -1070,6 +1219,9 @@ codeunit 73497 "LT FTN Variant Tests"
         Observer.Expect('upto', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavInteger is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // A Variant holding the Code[20] 'AB00000000' into the BigInteger field.
@@ -1084,6 +1236,7 @@ codeunit 73497 "LT FTN Variant Tests"
         X := 'AB00000000';
         V := X;
         Probe.CellsVar(Observer, 3, V);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
@@ -1094,6 +1247,9 @@ codeunit 73497 "LT FTN Variant Tests"
         Observer.Expect('upto', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavBigInteger is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // A Variant holding the Text 'XY' into the BigInteger field.
@@ -1108,6 +1264,7 @@ codeunit 73497 "LT FTN Variant Tests"
         X := 'XY';
         V := X;
         Probe.CellsVar(Observer, 3, V);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
@@ -1118,6 +1275,9 @@ codeunit 73497 "LT FTN Variant Tests"
         Observer.Expect('upto', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavBigInteger is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // A Variant holding the Code[20] 'AB00000000' into the Decimal field.
@@ -1132,6 +1292,7 @@ codeunit 73497 "LT FTN Variant Tests"
         X := 'AB00000000';
         V := X;
         Probe.CellsVar(Observer, 4, V);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
@@ -1142,6 +1303,9 @@ codeunit 73497 "LT FTN Variant Tests"
         Observer.Expect('upto', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavDecimal is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // A Variant holding the Text 'XY' into the Decimal field.
@@ -1156,6 +1320,7 @@ codeunit 73497 "LT FTN Variant Tests"
         X := 'XY';
         V := X;
         Probe.CellsVar(Observer, 4, V);
+#if BC28PLUS
         Observer.Expect('range', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('range2', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('f1', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
@@ -1166,6 +1331,9 @@ codeunit 73497 "LT FTN Variant Tests"
         Observer.Expect('upto', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavDecimal is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 
     // Record.SetFilter(<field>, '<>%1', V), V a Variant holding Code 'AB00000000' or Text 'XY', on each field.
@@ -1192,6 +1360,7 @@ codeunit 73497 "LT FTN Variant Tests"
         Probe.RecordCell(Observer, 'Dec_code', 4, V);
         V := T;
         Probe.RecordCell(Observer, 'Dec_text', 4, V);
+#if BC28PLUS
         Observer.Expect('Int_code', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('Int_text', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('Big_code', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
@@ -1199,5 +1368,8 @@ codeunit 73497 "LT FTN Variant Tests"
         Observer.Expect('Dec_code', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('Dec_text', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured Int_code = E: The type NavInteger is unknown. | NotSupportedType
+        Observer.Finish();
+#endif
     end;
 }
