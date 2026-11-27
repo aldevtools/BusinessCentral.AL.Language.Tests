@@ -108,15 +108,22 @@ codeunit 76642 "RVS Steps"
         Prev := Last;
     end;
 
+    // LastUsedRowVersion() is database wide: a write of another session between the read and the Insert gives the row a greater version.
+    // Such a write can only raise the row's version, never make it equal to the value + 1, so up to five Inserts are tried and the first
+    // one that lands on the value + 1 ends the loop; the observation is the relation of the last try.
     procedure Next(var Observer: Codeunit "Probe Observer"; Tag: Text)
     var
         Other: Record "RVS Other";
         Last: BigInteger;
+        Attempt: Integer;
     begin
-        Last := LastUsedRowVersion();
-        NextId += 1;
-        Other.Id := NextId;
-        Other.Insert();
+        repeat
+            Attempt += 1;
+            Last := LastUsedRowVersion();
+            NextId += 1;
+            Other.Id := NextId;
+            Other.Insert();
+        until (Other.SystemRowVersion = Last + 1) or (Attempt = 5);
         Observer.Observe(Tag + ' next/last1', Rel(Other.SystemRowVersion, Last + 1));
         Prev := LastUsedRowVersion();
     end;
@@ -393,8 +400,10 @@ codeunit 76643 "RVS Write Shapes"
         Row.Truncate();
         Steps.Snap(Observer, 'truncate', Ins);
         Steps.Next(Observer, 'after');
+        // 'truncate last/row' is observed, not asserted: BC on Windows (27.5, 29.0) gives greater, BC on Linux in corpus CI gives same on
+        // 27.5, 28.5 and 29.0. Open question: ISSUE_LINK
+        Observer.Ignore('truncate last/row');
         Observer.Expect('truncate last/prev', 'greater');
-        Observer.Expect('truncate last/row', 'greater');
         Observer.Expect('truncate min/min0', 'same');
         Observer.Expect('truncate min/last1', 'less');
         Observer.Expect('after next/last1', 'same');
@@ -457,18 +466,38 @@ codeunit 76643 "RVS Write Shapes"
         Row: Record "RVS Row";
         Ins: BigInteger;
         Last: BigInteger;
+        Version2: BigInteger;
+        Row2: Integer;
+        Attempt: Integer;
     begin
         Steps.Start(0);
         Steps.InsertRow(1);
         Ins := Steps.InsertRow(2);
         Row.ModifyAll(Name, 'x');
         Steps.Snap(Observer, 'modifyall', Ins);
-        Last := LastUsedRowVersion();
-        Row.Get(2);
-        Observer.Observe('modifyall row2/last', Steps.Rel(Row.SystemRowVersion, Last));
-        Row.Get(1);
+        // LastUsedRowVersion() is database wide: a write of another session after the ModifyAll raises it above the last modified row.
+        // Such a write can never make the two equal, so the shape (DeleteAll, two Inserts, ModifyAll) is repeated up to four more times
+        // until one try has the last modified row equal to the value; the row observations are those of the last try.
+        Row2 := 2;
+        repeat
+            Attempt += 1;
+            if Attempt > 1 then begin
+                Row.DeleteAll();
+                Steps.InsertRow(Row2 + 1);
+                Steps.InsertRow(Row2 + 2);
+                Row2 += 2;
+                Row.ModifyAll(Name, 'x');
+            end;
+            Last := LastUsedRowVersion();
+            Row.Get(Row2);
+            Version2 := Row.SystemRowVersion;
+        until (Version2 = Last) or (Attempt = 5);
+        Observer.Observe('modifyall row2/last', Steps.Rel(Version2, Last));
+        Row.Get(Row2 - 1);
         Observer.Observe('modifyall row1/last', Steps.Rel(Row.SystemRowVersion, Last));
+        Observer.Observe('modifyall row1/row2', Steps.Rel(Row.SystemRowVersion, Version2));
         Steps.Next(Observer, 'after');
+        Observer.Finish();
         Observer.Expect('modifyall last/prev', 'greater');
         Observer.Expect('modifyall last/row', 'greater');
         Observer.Expect('modifyall min/min0', 'same');
