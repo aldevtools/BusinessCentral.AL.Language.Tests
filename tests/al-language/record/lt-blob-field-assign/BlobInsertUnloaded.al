@@ -1,6 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/record/record-calcfields-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160); own table 73780, table extension 73780, helper codeunit 73780, test codeunits 73781 and 73782
+// Fixtures used: Probe Observer (69160); own table 73780, table extension 73780, helper codeunit 73780, test codeunits 73781 and 73782;
+//   table "LT BFA Rec" (95950, BfaRec.Table.al) for R2
 // Probe (AL Runner issue 9286): what Insert and Modify store from a record whose Blob fields were never loaded (read with Get,
 //   FindFirst or FindSet, no CalcFields). The table has three Blob fields: Body (Compressed, the default), Raw (Compressed = false)
 //   and, from a table extension, Ext. The seed row SRC holds 'hello' in Body, 'hello-raw' in Raw and 'hello-ext' in Ext; the row
@@ -18,10 +19,14 @@
 //   Readings per cell: own = the inserting record's own Blobs right after the Insert or Modify, without CalcFields
 //   ('hasValue=<Yes|No> text=[<text>]'); before = a fresh record's Get of the stored row, HasValue before CalcFields; stored = the
 //   same record after CalcFields (hasValue and text). Each Blob gets its own reading: body, raw, ext.
-//   Measured on BC 29.0 (Linux, W1, en-US session) with an invented app holding these objects, through the dev endpoint's
-//   TestRunnerHub; the values are that run's readings, turned into Expect and Verify by convert.py verbatim. This pull request's CI
-//   checks them on 27.5, 28.5 and 29.0; a version difference gets a version guard.
-//   Facts (BC 29.0), the same for the three Blob fields:
+//   First measured on a local BC 29.0.54011.57673 service tier (Linux, W1, en-US session) with an invented app holding these
+//   objects, through the dev endpoint's TestRunnerHub; the values are those readings, turned into Expect and Verify by convert.py
+//   verbatim. This pull request's CI run 46076954371 then passed every test of codeunits 73781 and 73782 on BC 27.5.54899.59044,
+//   28.5.54976.59048 and 29.0.54011.55816 (the 27.5 readings of 73782 had been measured by the observe run 46075012030), so the
+//   facts below hold on all three builds with no version guard. The tests R1, R2 and R3 at the end of codeunit 73782 were measured
+//   on the local 29.0.54011.57673 only: asserted on BC 28 and later; on BC 27.5 they are an observe round, red on purpose (#else
+//   ends with Finish()).
+//   Facts (BC 27.5.54899.59044, 28.5.54976.59048, 29.0.54011.55816), the same for the three Blob fields:
 //   - A Blob that was never loaded is not stored by Insert: every C cell (:=, the same variable, Copy, a by-value parameter, a
 //     Variant, a RecordRef, FindFirst, FindSet, SetLoadFields with or without the Blob) stores a row without Blob content. Right
 //     after the Insert the inserting record's own Blob answers HasValue Yes and reads empty. Delete and Insert of the same key
@@ -42,6 +47,13 @@
 //   - CalcFields on the inserting record right after its Insert (I4): HasValue Yes, empty text.
 //   - A source read in another company (G1), inserted into this one, stores no Blob; the reverse (a source of this company inserted
 //     into the other company) stores none either.
+//   R1-R3 (local BC 29.0.54011.57673 only):
+//   - R1: a second variable clears Body and modifies the row after the first variable's Get; the first variable's Modify (Note
+//     changed) keeps the row as the second left it: Body empty, Raw and Ext unchanged.
+//   - R2: B.Body := Src.Body into another table ("LT BFA Rec", 95950) with Body not loaded stores no Blob; after
+//     Src.CalcFields(Body) it stores 'hello'.
+//   - R3: C := Other (Other in the other company) does not carry the company: C.Insert of NEW2 lands in this company, with no
+//     Blob, and not in the other company.
 // BC versions: 27, 28, 29 by CI
 table 73780 "LT BIU Row"
 {
@@ -971,5 +983,149 @@ codeunit 73782 "LT BIU More Tests"
         Observer.Expect('other_company_raw', 'hasValue=No text=[]');
         Observer.Expect('other_company_ext', 'hasValue=No text=[]');
         Observer.Verify();
+    end;
+
+    // R1: a cleared row, then Modify of the unloaded buffer: a second variable clears Body and modifies the row after the first
+    // variable's Get; the first variable then changes Note and modifies the same key.
+    [Test]
+    procedure R1_ModifyAfterSecondCleared()
+    var
+        Observer: Codeunit "Probe Observer";
+        Probe: Codeunit "LT BIU Probe";
+        Src: Record "LT BIU Row";
+        Second: Record "LT BIU Row";
+    begin
+        Probe.Seed();
+        Src.Get('SRC');
+        Second.Get('SRC');
+        Clear(Second.Body);
+        Second.Modify();
+        Src.Note := 'modified';
+        Src.Modify();
+        Probe.Stored(Observer, 'SRC');
+#if BC28PLUS
+        Observer.Expect('before', 'body=No raw=Yes ext=Yes');
+        Observer.Expect('stored_body', 'hasValue=No text=[]');
+        Observer.Expect('stored_raw', 'hasValue=Yes text=[hello-raw]');
+        Observer.Expect('stored_ext', 'hasValue=Yes text=[hello-ext]');
+        Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
+        Observer.Finish();
+#endif
+    end;
+
+    // R2: a Blob field assignment into another table: B.Body := Src.Body (Src read with Get, Body not loaded), B.Insert on
+    // "LT BFA Rec" (95950); and the control with Src.CalcFields(Body) first.
+    [Test]
+    procedure R2_FieldAssignIntoOtherTable()
+    var
+        Observer: Codeunit "Probe Observer";
+        Probe: Codeunit "LT BIU Probe";
+        Src: Record "LT BIU Row";
+        B: Record "LT BFA Rec";
+    begin
+        Probe.Seed();
+        if B.Get(73780) then
+            B.Delete();
+        if B.Get(73781) then
+            B.Delete();
+        Src.Get('SRC');
+        B.Init();
+        B."Key" := 73780;
+        B.Body := Src.Body;
+        B.Insert();
+        Observer.Observe('unloaded', OtherTableBody(73780));
+        Src.CalcFields(Body);
+        B.Init();
+        B."Key" := 73781;
+        B.Body := Src.Body;
+        B.Insert();
+        Observer.Observe('calcfields_first', OtherTableBody(73781));
+        B.Get(73780);
+        B.Delete();
+        B.Get(73781);
+        B.Delete();
+#if BC28PLUS
+        Observer.Expect('unloaded', 'before=No hasValue=No text=[]');
+        Observer.Expect('calcfields_first', 'before=Yes hasValue=Yes text=[hello]');
+        Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
+        Observer.Finish();
+#endif
+    end;
+
+    local procedure OtherTableBody(K: Integer): Text
+    var
+        B: Record "LT BFA Rec";
+        InS: InStream;
+        Txt: Text;
+        Before: Boolean;
+    begin
+        B.Get(K);
+        Before := B.Body.HasValue();
+        B.CalcFields(Body);
+        if B.Body.HasValue() then begin
+            B.Body.CreateInStream(InS);
+            InS.ReadText(Txt);
+        end;
+        exit(StrSubstNo('before=%1 hasValue=%2 text=[%3]', Before, B.Body.HasValue(), Txt));
+    end;
+
+    // R3: a source read in the other company (ChangeCompany, Get, no CalcFields), C := Other, new key NEW2, C.Insert without
+    // switching C back: where NEW2 lands (this company or the other) and what its Blobs hold.
+    [Test]
+    procedure R3_OtherCompanySourceNoSwitchBack()
+    var
+        Observer: Codeunit "Probe Observer";
+        Probe: Codeunit "LT BIU Probe";
+        Company: Record Company;
+        Other: Record "LT BIU Row";
+        C: Record "LT BIU Row";
+        Here: Record "LT BIU Row";
+        OtherName: Text;
+    begin
+        Probe.Seed();
+        Company.SetFilter(Name, '<>%1', CompanyName());
+        if Company.FindFirst() then
+            OtherName := Company.Name;
+        Observer.Observe('other_company_found', Format(OtherName <> ''));
+        if OtherName <> '' then begin
+            Other.ChangeCompany(OtherName);
+            Other.DeleteAll();
+            Other.Init();
+            Other."No." := 'SRC';
+            Probe.Write(Other, 'there', 'there-raw', 'there-ext');
+            Other.Insert();
+            Clear(Other);
+            Other.ChangeCompany(OtherName);
+            Other.Get('SRC');
+            C := Other;
+            C."No." := 'NEW2';
+            C.Insert();
+            Observer.Observe('in_this_company', Format(Here.Get('NEW2')));
+            Probe.Stored(Observer, 'NEW2');
+            Clear(Other);
+            Other.ChangeCompany(OtherName);
+            Observer.Observe('in_other_company', Format(Other.Get('NEW2')));
+            if Other.Get('NEW2') then begin
+                Other.CalcFields(Body, Raw, Ext);
+                Observer.Observe('other_company_body', Probe.ShowBody(Other));
+                Observer.Observe('other_company_raw', Probe.ShowRaw(Other));
+                Observer.Observe('other_company_ext', Probe.ShowExt(Other));
+            end;
+            Other.DeleteAll();
+        end;
+#if BC28PLUS
+        Observer.Expect('other_company_found', 'Yes');
+        Observer.Expect('in_this_company', 'Yes');
+        Observer.Expect('before', 'body=No raw=No ext=No');
+        Observer.Expect('stored_body', 'hasValue=No text=[]');
+        Observer.Expect('stored_raw', 'hasValue=No text=[]');
+        Observer.Expect('stored_ext', 'hasValue=No text=[]');
+        Observer.Expect('in_other_company', 'No');
+        Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
+        Observer.Finish();
+#endif
     end;
 }
