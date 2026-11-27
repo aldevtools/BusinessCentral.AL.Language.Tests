@@ -33,9 +33,12 @@
 //   _validate) keep the BC 29 text on BC 28 and later and take their BC 27.5 text, 'Unable to convert from
 //   Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime.' (Conversion), from Y67FieldRefValidateVariant.al:572, which pins it
 //   for a Variant holding an Integer assigned and validated into a Date field. The typed cells and FR.Value(V) are not guarded.
-//   BC 27.5: CI run 46051422345 failed 8 tests of this file on 27.5 (both 27.5 legs alike). In those tests the BC 27.5 branch (#else)
-//   is an observe round: it ends with Finish() and asserts nothing; the guard comment names the cell that run measured as
-//   different and its 27.5 text. BC 28 and later (#if BC28PLUS) keep the BC 29 assertions.
+//   BC 27.5 (#else, measured by this pull request's CI: run 46051422345 found the 8 tests that differ, the observe run 46057619272
+//   measured every reading of them, the same on both 27.5 legs): a DateTime into Option and Boolean gives the Int32 conversion error
+//   ('Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32.', Conversion) like the other number
+//   targets; every number into the Date field, and 1 into the Time and DateTime fields, by Value(X), Value := X and Validate(X),
+//   typed or in a Variant, gives 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.Nav<Integer|BigInteger|Decimal> to
+//   System.DateTime.' (Conversion). The other tests give the BC 29 values on 27.5. BC 28 and later keep the BC 29 assertions.
 // BC versions: 27, 28, 29 by CI
 table 73490 "LT FVR Row"
 {
@@ -557,8 +560,16 @@ codeunit 73491 "LT FVR Value Tests"
         Observer.Expect('Byte', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Byte. | Conversion');
         Observer.Expect('Char', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Char. | Conversion');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured Option = E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32. | Conversion
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('Integer', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32. | Conversion');
+        Observer.Expect('BigInteger', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int64. | Conversion');
+        Observer.Expect('Decimal', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to Microsoft.Dynamics.Nav.Runtime.Decimal18. | Conversion');
+        Observer.Expect('Duration', 'ok: P0DT0H0M0.0S');
+        Observer.Expect('Option', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32. | Conversion');
+        Observer.Expect('Boolean', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32. | Conversion');
+        Observer.Expect('Byte', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Byte. | Conversion');
+        Observer.Expect('Char', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Char. | Conversion');
+        Observer.Verify();
 #endif
     end;
 
@@ -621,8 +632,16 @@ codeunit 73491 "LT FVR Value Tests"
         Observer.Expect('Byte', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Byte. | Conversion');
         Observer.Expect('Char', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Char. | Conversion');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured Option = E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32. | Conversion
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('Integer', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32. | Conversion');
+        Observer.Expect('BigInteger', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int64. | Conversion');
+        Observer.Expect('Decimal', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to Microsoft.Dynamics.Nav.Runtime.Decimal18. | Conversion');
+        Observer.Expect('Duration', 'ok: P739996DT12H0M0.001S');
+        Observer.Expect('Option', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32. | Conversion');
+        Observer.Expect('Boolean', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32. | Conversion');
+        Observer.Expect('Byte', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Byte. | Conversion');
+        Observer.Expect('Char', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Char. | Conversion');
+        Observer.Verify();
 #endif
     end;
 
@@ -829,8 +848,14 @@ codeunit 73493 "LT FVR Date Tests"
         Observer.Expect('int1_assign', 'E: The format of the Date ''1'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
         Observer.Expect('int1_validate', 'E: The format of the Date ''1'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured int0_value = E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('int0_value', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+        Observer.Expect('int0_assign', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+        Observer.Expect('int0_validate', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+        Observer.Expect('int1_value', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+        Observer.Expect('int1_assign', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+        Observer.Expect('int1_validate', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+        Observer.Verify();
 #endif
     end;
 
@@ -851,8 +876,14 @@ codeunit 73493 "LT FVR Date Tests"
         Observer.Expect('int32_assign', 'E: The format of the Date ''32'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
         Observer.Expect('int32_validate', 'E: The format of the Date ''32'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured int31_value = E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('int31_value', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+        Observer.Expect('int31_assign', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+        Observer.Expect('int31_validate', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+        Observer.Expect('int32_value', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+        Observer.Expect('int32_assign', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+        Observer.Expect('int32_validate', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+        Observer.Verify();
 #endif
     end;
 
@@ -876,8 +907,14 @@ codeunit 73493 "LT FVR Date Tests"
         Observer.Expect('var1_assign', 'E: The format of the Date ''1'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
         Observer.Expect('var1_validate', 'E: The format of the Date ''1'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured var0_value = E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('var0_value', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+        Observer.Expect('var0_assign', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+        Observer.Expect('var0_validate', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+        Observer.Expect('var1_value', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+        Observer.Expect('var1_assign', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+        Observer.Expect('var1_validate', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+        Observer.Verify();
 #endif
     end;
 
@@ -896,8 +933,11 @@ codeunit 73493 "LT FVR Date Tests"
         Observer.Expect('var31_assign', 'E: The format of the Date ''31'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
         Observer.Expect('var31_validate', 'E: The format of the Date ''31'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured var31_value = E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('var31_value', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+        Observer.Expect('var31_assign', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+        Observer.Expect('var31_validate', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+        Observer.Verify();
 #endif
     end;
 
@@ -922,8 +962,14 @@ codeunit 73493 "LT FVR Date Tests"
         Observer.Expect('dec1_assign', 'E: The format of the Date ''1'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
         Observer.Expect('dec1_validate', 'E: The format of the Date ''1'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured big1_value = E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime. | Conversion
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('big1_value', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime. | Conversion');
+        Observer.Expect('big1_assign', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime. | Conversion');
+        Observer.Expect('big1_validate', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime. | Conversion');
+        Observer.Expect('dec1_value', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDecimal to System.DateTime. | Conversion');
+        Observer.Expect('dec1_assign', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDecimal to System.DateTime. | Conversion');
+        Observer.Expect('dec1_validate', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDecimal to System.DateTime. | Conversion');
+        Observer.Verify();
 #endif
     end;
 
@@ -944,8 +990,14 @@ codeunit 73493 "LT FVR Date Tests"
         Observer.Expect('datetime_int1_assign', 'E: The value "1" can''t be evaluated into type DateTime. | Evaluate:Conversion');
         Observer.Expect('datetime_int1_validate', 'E: The value "1" can''t be evaluated into type DateTime. | Evaluate:Conversion');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured time_int1_value = E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('time_int1_value', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+        Observer.Expect('time_int1_assign', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+        Observer.Expect('time_int1_validate', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+        Observer.Expect('datetime_int1_value', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+        Observer.Expect('datetime_int1_assign', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+        Observer.Expect('datetime_int1_validate', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
+        Observer.Verify();
 #endif
     end;
 }

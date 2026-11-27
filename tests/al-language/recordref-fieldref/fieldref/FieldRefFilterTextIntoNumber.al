@@ -14,9 +14,9 @@
 //   Facts (BC 29.0): every cell fails with 'The value "<text>" can't be evaluated into type <Integer|BigInteger|Decimal>.'
 //   (Evaluate:Format): every text, as Code or Text, typed or in a Variant, by every SetRange and SetFilter form and by
 //   Record.SetFilter(<field>, '<>%1', V).
-//   BC 27.5: CI run 46051422345 failed 43 tests of this file on 27.5 (both 27.5 legs alike). In those tests the BC 27.5 branch (#else)
-//   is an observe round: it ends with Finish() and asserts nothing; the guard comment names the cell that run measured as
-//   different and its 27.5 text. BC 28 and later (#if BC28PLUS) keep the BC 29 assertions.
+//   BC 27.5 (#else, measured by this pull request's CI: run 46051422345 found that all 43 tests differ, the observe run 46057619272
+//   measured every reading, the same on both 27.5 legs): every cell gives 'The type Nav<Integer|BigInteger|Decimal> is unknown.'
+//   (NotSupportedType). BC 28 and later keep the BC 29 assertions.
 // BC versions: 27, 28, 29 by CI
 table 73495 "LT FTN Row"
 {
@@ -250,8 +250,17 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavInteger is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -276,8 +285,17 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "A1" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "A1" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavInteger is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -302,8 +320,17 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "1A" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "1A" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavInteger is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -328,8 +355,17 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavInteger is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -354,8 +390,17 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavInteger is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -380,8 +425,17 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "ABCDEFGHI" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "ABCDEFGHI" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavInteger is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -406,8 +460,17 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavInteger is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -432,8 +495,17 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "A1" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "A1" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavInteger is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -458,8 +530,17 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "1A" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "1A" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavInteger is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -484,8 +565,17 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "ABC" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavInteger is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -510,8 +600,17 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavInteger is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -536,8 +635,17 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "ABCDEFGHI" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "ABCDEFGHI" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavInteger is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -562,8 +670,17 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavBigInteger is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -588,8 +705,17 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "A1" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "A1" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavBigInteger is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -614,8 +740,17 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "1A" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "1A" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavBigInteger is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -640,8 +775,17 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavBigInteger is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -666,8 +810,17 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavBigInteger is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -692,8 +845,17 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "ABCDEFGHI" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "ABCDEFGHI" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavBigInteger is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -718,8 +880,17 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavBigInteger is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -744,8 +915,17 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "A1" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "A1" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavBigInteger is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -770,8 +950,17 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "1A" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "1A" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavBigInteger is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -796,8 +985,17 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "ABC" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavBigInteger is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -822,8 +1020,17 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavBigInteger is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -848,8 +1055,17 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "ABCDEFGHI" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "ABCDEFGHI" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavBigInteger is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -874,8 +1090,17 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavDecimal is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -900,8 +1125,17 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "A1" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "A1" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavDecimal is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -926,8 +1160,17 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "1A" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "1A" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavDecimal is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -952,8 +1195,17 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavDecimal is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -978,8 +1230,17 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavDecimal is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -1004,8 +1265,17 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "ABCDEFGHI" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "ABCDEFGHI" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavDecimal is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -1030,8 +1300,17 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavDecimal is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -1056,8 +1335,17 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "A1" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "A1" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavDecimal is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -1082,8 +1370,17 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "1A" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "1A" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavDecimal is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -1108,8 +1405,17 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "ABC" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavDecimal is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -1134,8 +1440,17 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavDecimal is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -1160,8 +1475,17 @@ codeunit 73496 "LT FTN Typed Tests"
         Observer.Expect('upto', 'E: The value "ABCDEFGHI" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "ABCDEFGHI" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavDecimal is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 }
@@ -1194,8 +1518,17 @@ codeunit 73497 "LT FTN Variant Tests"
         Observer.Expect('upto', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "AB00000000" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavInteger is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -1222,8 +1555,17 @@ codeunit 73497 "LT FTN Variant Tests"
         Observer.Expect('upto', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "XY" can''t be evaluated into type Integer. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavInteger is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -1250,8 +1592,17 @@ codeunit 73497 "LT FTN Variant Tests"
         Observer.Expect('upto', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "AB00000000" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavBigInteger is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -1278,8 +1629,17 @@ codeunit 73497 "LT FTN Variant Tests"
         Observer.Expect('upto', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "XY" can''t be evaluated into type BigInteger. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavBigInteger is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -1306,8 +1666,17 @@ codeunit 73497 "LT FTN Variant Tests"
         Observer.Expect('upto', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavDecimal is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -1334,8 +1703,17 @@ codeunit 73497 "LT FTN Variant Tests"
         Observer.Expect('upto', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('or', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured range = E: The type NavDecimal is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('range', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('range2', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('f1', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('ne', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('gt', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('lt', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('from', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('upto', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('or', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 
@@ -1371,8 +1749,14 @@ codeunit 73497 "LT FTN Variant Tests"
         Observer.Expect('Dec_code', 'E: The value "AB00000000" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Expect('Dec_text', 'E: The value "XY" can''t be evaluated into type Decimal. | Evaluate:Format');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; CI run 46051422345 measured Int_code = E: The type NavInteger is unknown. | NotSupportedType
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('Int_code', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('Int_text', 'E: The type NavInteger is unknown. | NotSupportedType');
+        Observer.Expect('Big_code', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('Big_text', 'E: The type NavBigInteger is unknown. | NotSupportedType');
+        Observer.Expect('Dec_code', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Expect('Dec_text', 'E: The type NavDecimal is unknown. | NotSupportedType');
+        Observer.Verify();
 #endif
     end;
 }

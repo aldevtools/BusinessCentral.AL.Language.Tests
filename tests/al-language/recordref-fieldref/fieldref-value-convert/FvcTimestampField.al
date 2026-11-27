@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/recordref/recordref-field-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160); own table 73498, helper codeunit 73498, test codeunit 73499
+// Fixtures used: Probe Observer (69160); own tables 73498 and 73610, enum 73610, helper codeunits 73498 and 73610, test codeunits 73499 and 73611
 // Probe (AL Runner issue 9285): the value of RecordRef.Field(0), the record's timestamp field, converted into a Code and a Text
 //   (exit from a Code[20] or Text procedure, and a direct assignment), into a BigInteger and through a Variant, and Format of it; the
 //   FieldRef's Number, Name, Type and Class; the value of a row that is not inserted, of a temporary row, and before and after a
@@ -11,13 +11,21 @@
 //   Each cell runs in a TryFunction and records "ok: <reading>" or "E: <GetLastErrorText> | <GetLastErrorCode>".
 //   Measured on BC 29.0 (Linux, W1, en-US session) with an invented app holding these objects, through the dev endpoint's
 //   TestRunnerHub; the values are that run's readings, turned into Expect and Verify by convert.py verbatim, and asserted on
-//   BC 28 and later (#if BC28PLUS). On BC 27.5 (#else) every test is an observe round: it ends with Finish() and asserts nothing.
+//   BC 28 and later (#if BC28PLUS). On BC 27.5 (#else) the field 0 tests (codeunit 73499) assert the readings of this pull
+//   request's CI observe run 46057619272 (both 27.5 legs agree; they are the same as on BC 29).
 //   Facts (BC 29.0): field 0 of an inserted row is a whole number in every reading: exit from a Code[20] and a Text procedure,
 //   assignment to a Code[20], a Text and a BigInteger, Format and Format(.., 0, 9), and all of them give the same text. Through
 //   a Variant (V := FR.Value) the Variant holds a BigInteger, and assigning that Variant to a Code[20] fails with 'The expression
 //   Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.'
 //   (TypeConversion). The FieldRef: Number 0, Name timestamp, Type BigInteger, Class Normal. A row that is not inserted and a
 //   temporary row read 0. Rows differ from each other, and a Modify gives the row a greater value.
+//   Neighbours (enum 73610, table 73610, helper 73610, test codeunit 73611): exit(FR.Value()) from a procedure that returns
+//   Code[20], Text or Code[3], for an Integer (5), a BigInteger that is not field 0 (5000000000), a Decimal (1.5), an Enum (One,
+//   caption 'One Caption'), an Option (Beta), a Boolean (true), a Date (2026-01-15) and a Duration (1500 ms) field. BC 29.0: the
+//   value's formatted text (5, 5000000000, 1.5, the Enum's caption, the Option member, Yes, 01/15/26, 1 second 500 milliseconds),
+//   upper-cased for Code; a text longer than the Code fails with 'The length of the string is <n>, but it must be less than or
+//   equal to <m> characters. Value: <text>' (StringLengthExceeded). Asserted on BC 28 and later; on BC 27.5 (#else) these tests
+//   are an observe round of their own: they end with Finish() and assert nothing, red on purpose.
 // BC versions: 27, 28, 29 by CI
 table 73498 "LT FTS Row"
 {
@@ -241,8 +249,25 @@ codeunit 73499 "LT FTS Timestamp Tests"
         Observer.Expect('class', 'ok: Normal');
         Observer.Expect('code_field1', 'ok: PZ-A');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('code_exit', 'ok: number');
+        Observer.Expect('text_exit', 'ok: number');
+        Observer.Expect('code_assign', 'ok: number');
+        Observer.Expect('text_assign', 'ok: number');
+        Observer.Expect('biginteger_assign', 'ok: number');
+        Observer.Expect('format', 'ok: number');
+        Observer.Expect('format_9', 'ok: number');
+        Observer.Expect('variant_kind', 'ok: IsBigInteger Yes IsInteger No IsCode No IsText No');
+        Observer.Expect('variant_to_code', 'E: The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value. | TypeConversion');
+        Observer.Expect('code_equals_text', 'ok: Yes');
+        Observer.Expect('code_equals_format_biginteger', 'ok: Yes');
+        Observer.Expect('code_equals_format', 'ok: Yes');
+        Observer.Expect('number', 'ok: 0');
+        Observer.Expect('name', 'ok: timestamp');
+        Observer.Expect('type', 'ok: BigInteger');
+        Observer.Expect('class', 'ok: Normal');
+        Observer.Expect('code_field1', 'ok: PZ-A');
+        Observer.Verify();
 #endif
     end;
 
@@ -276,8 +301,13 @@ codeunit 73499 "LT FTS Timestamp Tests"
         Observer.Expect('temporary_text_assign', 'ok: zero');
         Observer.Expect('temporary_biginteger_assign', 'ok: zero');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('not_inserted_code_exit', 'ok: zero');
+        Observer.Expect('not_inserted_text_assign', 'ok: zero');
+        Observer.Expect('temporary_code_exit', 'ok: zero');
+        Observer.Expect('temporary_text_assign', 'ok: zero');
+        Observer.Expect('temporary_biginteger_assign', 'ok: zero');
+        Observer.Verify();
 #endif
     end;
 
@@ -315,6 +345,200 @@ codeunit 73499 "LT FTS Timestamp Tests"
         Observer.Expect('after_differs', 'Yes');
         Observer.Expect('after_greater', 'Yes');
         Observer.Expect('after_greater_than_other', 'Yes');
+        Observer.Verify();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('before_positive', 'Yes');
+        Observer.Expect('other_differs', 'Yes');
+        Observer.Expect('after_differs', 'Yes');
+        Observer.Expect('after_greater', 'Yes');
+        Observer.Expect('after_greater_than_other', 'Yes');
+        Observer.Verify();
+#endif
+    end;
+}
+
+// AL Runner issue 9285, neighbours: exit(FR.Value()) from a procedure that returns Code[20], Text or Code[3], for a FieldRef on a
+// field of another type than the return type.
+enum 73610 "LT FTX Kind"
+{
+    Extensible = false;
+    value(0; Zero) { }
+    value(1; One) { Caption = 'One Caption'; }
+}
+
+table 73610 "LT FTX Row"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; IntF; Integer) { }
+        field(3; BigF; BigInteger) { }
+        field(4; DecF; Decimal) { }
+        field(5; EnumF; Enum "LT FTX Kind") { }
+        field(6; OptF; Option) { OptionMembers = Alpha,Beta,Gamma; }
+        field(7; BoolF; Boolean) { }
+        field(8; DateF; Date) { }
+        field(9; DurF; Duration) { }
+    }
+
+    keys { key(PK; Id) { Clustered = true; } }
+}
+
+codeunit 73610 "LT FTX Probe"
+{
+    local procedure ExitCode20(var FR: FieldRef): Code[20]
+    begin
+        exit(FR.Value());
+    end;
+
+    local procedure ExitText(var FR: FieldRef): Text
+    begin
+        exit(FR.Value());
+    end;
+
+    local procedure ExitCode3(var FR: FieldRef): Code[3]
+    begin
+        exit(FR.Value());
+    end;
+
+    [TryFunction]
+    local procedure TryExit(var FR: FieldRef; Target: Text; var Result: Text)
+    begin
+        case Target of
+            'code20':
+                Result := ExitCode20(FR);
+            'text':
+                Result := ExitText(FR);
+            'code3':
+                Result := ExitCode3(FR);
+        end;
+    end;
+
+    // A row with a value in every field: 5, 5000000000, 1.5, One, Beta, true, 2026-01-15 and 1500 milliseconds; inserted.
+    procedure Seed()
+    var
+        Row: Record "LT FTX Row";
+    begin
+        Row.DeleteAll();
+        Row.Id := 1;
+        Row.IntF := 5;
+        Row.BigF := 5000000000L;
+        Row.DecF := 1.5;
+        Row.EnumF := Row.EnumF::One;
+        Row.OptF := Row.OptF::Beta;
+        Row.BoolF := true;
+        Row.DateF := 20260115D;
+        Row.DurF := 1500;
+        Row.Insert();
+    end;
+
+    // exit(FR.Value()) of field FieldNo into Code[20], Text and Code[3]; names <Name>_code20, _text, _code3.
+    procedure Cells(var Observer: Codeunit "Probe Observer"; FieldNo: Integer; Name: Text)
+    var
+        RecRef: RecordRef;
+        FR: FieldRef;
+        Targets: List of [Text];
+        Target: Text;
+        Result: Text;
+        T: Text;
+    begin
+        Targets.Add('code20');
+        Targets.Add('text');
+        Targets.Add('code3');
+        RecRef.Open(Database::"LT FTX Row");
+        RecRef.FindFirst();
+        FR := RecRef.Field(FieldNo);
+        foreach Target in Targets do begin
+            ClearLastError();
+            Result := '';
+            if TryExit(FR, Target, Result) then
+                T := 'ok: ' + Result
+            else
+                T := 'E: ' + GetLastErrorText() + ' | ' + GetLastErrorCode();
+            ClearLastError();
+            Observer.Observe(Name + '_' + Target, T);
+        end;
+    end;
+}
+
+codeunit 73611 "LT FTX Exit Tests"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    // exit(FR.Value()) of an Integer, a BigInteger (not field 0) and a Decimal field.
+    [Test]
+    procedure ExitValue_NumberFields()
+    var
+        Observer: Codeunit "Probe Observer";
+        Probe: Codeunit "LT FTX Probe";
+    begin
+        Probe.Seed();
+        Probe.Cells(Observer, 2, 'integer');
+        Probe.Cells(Observer, 3, 'biginteger');
+        Probe.Cells(Observer, 4, 'decimal');
+#if BC28PLUS
+        Observer.Expect('integer_code20', 'ok: 5');
+        Observer.Expect('integer_text', 'ok: 5');
+        Observer.Expect('integer_code3', 'ok: 5');
+        Observer.Expect('biginteger_code20', 'ok: 5000000000');
+        Observer.Expect('biginteger_text', 'ok: 5000000000');
+        Observer.Expect('biginteger_code3', 'E: The length of the string is 10, but it must be less than or equal to 3 characters. Value: 5000000000 | StringLengthExceeded');
+        Observer.Expect('decimal_code20', 'ok: 1.5');
+        Observer.Expect('decimal_text', 'ok: 1.5');
+        Observer.Expect('decimal_code3', 'ok: 1.5');
+        Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
+        Observer.Finish();
+#endif
+    end;
+
+    // exit(FR.Value()) of an Enum and an Option field.
+    [Test]
+    procedure ExitValue_EnumOptionFields()
+    var
+        Observer: Codeunit "Probe Observer";
+        Probe: Codeunit "LT FTX Probe";
+    begin
+        Probe.Seed();
+        Probe.Cells(Observer, 5, 'enum');
+        Probe.Cells(Observer, 6, 'option');
+#if BC28PLUS
+        Observer.Expect('enum_code20', 'ok: ONE CAPTION');
+        Observer.Expect('enum_text', 'ok: One Caption');
+        Observer.Expect('enum_code3', 'E: The length of the string is 11, but it must be less than or equal to 3 characters. Value: One Caption | StringLengthExceeded');
+        Observer.Expect('option_code20', 'ok: BETA');
+        Observer.Expect('option_text', 'ok: Beta');
+        Observer.Expect('option_code3', 'E: The length of the string is 4, but it must be less than or equal to 3 characters. Value: Beta | StringLengthExceeded');
+        Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
+        Observer.Finish();
+#endif
+    end;
+
+    // exit(FR.Value()) of a Boolean, a Date and a Duration field.
+    [Test]
+    procedure ExitValue_OtherFields()
+    var
+        Observer: Codeunit "Probe Observer";
+        Probe: Codeunit "LT FTX Probe";
+    begin
+        Probe.Seed();
+        Probe.Cells(Observer, 7, 'boolean');
+        Probe.Cells(Observer, 8, 'date');
+        Probe.Cells(Observer, 9, 'duration');
+#if BC28PLUS
+        Observer.Expect('boolean_code20', 'ok: YES');
+        Observer.Expect('boolean_text', 'ok: Yes');
+        Observer.Expect('boolean_code3', 'ok: YES');
+        Observer.Expect('date_code20', 'ok: 01/15/26');
+        Observer.Expect('date_text', 'ok: 01/15/26');
+        Observer.Expect('date_code3', 'E: The length of the string is 8, but it must be less than or equal to 3 characters. Value: 01/15/26 | StringLengthExceeded');
+        Observer.Expect('duration_code20', 'E: The length of the string is 25, but it must be less than or equal to 20 characters. Value: 1 second 500 milliseconds | StringLengthExceeded');
+        Observer.Expect('duration_text', 'ok: 1 second 500 milliseconds');
+        Observer.Expect('duration_code3', 'E: The length of the string is 25, but it must be less than or equal to 3 characters. Value: 1 second 500 milliseconds | StringLengthExceeded');
         Observer.Verify();
 #else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
         Observer.Finish();
