@@ -9,7 +9,15 @@
 //   relations (whether a text is a whole number, whether two readings are equal, whether the value grows after a Modify) and the
 //   texts that do not depend on the row (errors, the Variant's kind, the FieldRef metadata).
 //   Each cell runs in a TryFunction and records "ok: <reading>" or "E: <GetLastErrorText> | <GetLastErrorCode>".
-//   Observe round: every test ends with Observer.Finish(), which fails the test with the readings (OBSERVE:...); nothing is asserted yet.
+//   Measured on BC 29.0 (Linux, W1, en-US session) with an invented app holding these objects, through the dev endpoint's
+//   TestRunnerHub; the values are that run's readings, turned into Expect and Verify by convert.py verbatim, and asserted on
+//   BC 28 and later (#if BC28PLUS). On BC 27.5 (#else) every test is an observe round: it ends with Finish() and asserts nothing.
+//   Facts (BC 29.0): field 0 of an inserted row is a whole number in every reading: exit from a Code[20] and a Text procedure,
+//   assignment to a Code[20], a Text and a BigInteger, Format and Format(.., 0, 9), and all of them give the same text. Through
+//   a Variant (V := FR.Value) the Variant holds a BigInteger, and assigning that Variant to a Code[20] fails with 'The expression
+//   Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.'
+//   (TypeConversion). The FieldRef: Number 0, Name timestamp, Type BigInteger, Class Normal. A row that is not inserted and a
+//   temporary row read 0. Rows differ from each other, and a Modify gives the row a greater value.
 // BC versions: 27, 28, 29 by CI
 table 73498 "LT FTS Row"
 {
@@ -214,7 +222,28 @@ codeunit 73499 "LT FTS Timestamp Tests"
         Probe.Cell(Observer, RecRef, 'type');
         Probe.Cell(Observer, RecRef, 'class');
         Probe.Cell(Observer, RecRef, 'code_field1');
+#if BC28PLUS
+        Observer.Expect('code_exit', 'ok: number');
+        Observer.Expect('text_exit', 'ok: number');
+        Observer.Expect('code_assign', 'ok: number');
+        Observer.Expect('text_assign', 'ok: number');
+        Observer.Expect('biginteger_assign', 'ok: number');
+        Observer.Expect('format', 'ok: number');
+        Observer.Expect('format_9', 'ok: number');
+        Observer.Expect('variant_kind', 'ok: IsBigInteger Yes IsInteger No IsCode No IsText No');
+        Observer.Expect('variant_to_code', 'E: The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value. | TypeConversion');
+        Observer.Expect('code_equals_text', 'ok: Yes');
+        Observer.Expect('code_equals_format_biginteger', 'ok: Yes');
+        Observer.Expect('code_equals_format', 'ok: Yes');
+        Observer.Expect('number', 'ok: 0');
+        Observer.Expect('name', 'ok: timestamp');
+        Observer.Expect('type', 'ok: BigInteger');
+        Observer.Expect('class', 'ok: Normal');
+        Observer.Expect('code_field1', 'ok: PZ-A');
+        Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
         Observer.Finish();
+#endif
     end;
 
     // Field 0 of a row that is not inserted (RecordRef.Init), and of a row inserted into a temporary RecordRef.
@@ -240,7 +269,16 @@ codeunit 73499 "LT FTS Timestamp Tests"
         Probe.CellAs(Observer, TempRef, 'code_exit', 'temporary_code_exit');
         Probe.CellAs(Observer, TempRef, 'text_assign', 'temporary_text_assign');
         Probe.CellAs(Observer, TempRef, 'biginteger_assign', 'temporary_biginteger_assign');
+#if BC28PLUS
+        Observer.Expect('not_inserted_code_exit', 'ok: zero');
+        Observer.Expect('not_inserted_text_assign', 'ok: zero');
+        Observer.Expect('temporary_code_exit', 'ok: zero');
+        Observer.Expect('temporary_text_assign', 'ok: zero');
+        Observer.Expect('temporary_biginteger_assign', 'ok: zero');
+        Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
         Observer.Finish();
+#endif
     end;
 
     // The timestamp before and after a Modify of the row, and of another row.
@@ -271,6 +309,15 @@ codeunit 73499 "LT FTS Timestamp Tests"
         Observer.Observe('after_differs', Format(After <> Before));
         Observer.Observe('after_greater', Format(After > Before));
         Observer.Observe('after_greater_than_other', Format(After > Other));
+#if BC28PLUS
+        Observer.Expect('before_positive', 'Yes');
+        Observer.Expect('other_differs', 'Yes');
+        Observer.Expect('after_differs', 'Yes');
+        Observer.Expect('after_greater', 'Yes');
+        Observer.Expect('after_greater_than_other', 'Yes');
+        Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
         Observer.Finish();
+#endif
     end;
 }
