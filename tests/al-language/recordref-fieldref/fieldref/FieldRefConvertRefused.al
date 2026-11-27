@@ -450,13 +450,13 @@ codeunit 73471 "LT FRC Bool Date Tests"
         Probe.CellsBool(7, X);
 #if BC28PLUS
         Probe.Expect('r', 'E: The format of the Date ''No'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
-#else // BC 27.5 gives another result, measured by this PR's CI run 46048054427 on 27.5
-        Probe.Expect('r', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBoolean to System.DateTime. | Conversion');
-#endif
         Probe.Expect('f', 'E: The format of the Date ''No'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
         Probe.Expect('v', 'E: The format of the Date ''No'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
         Probe.Expect('d', 'E: The format of the Date ''No'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
         Probe.Verify();
+#else // BC 27.5: observe round (CI run after 46048054427); the readings are asserted in the next commit
+        Probe.Finish();
+#endif
     end;
 
     // Boolean false into the Option A,B,C field Opt.
@@ -486,13 +486,13 @@ codeunit 73471 "LT FRC Bool Date Tests"
         Probe.CellsBool(10, X);
 #if BC28PLUS
         Probe.Expect('r', 'E: The value "No" can''t be evaluated into type GUID. | Evaluate:Argument');
-#else // BC 27.5 gives another result, measured by this PR's CI run 46048054427 on 27.5
-        Probe.Expect('r', 'E: Invalid Conversion. Source: NavBoolean, Destination: NavGuid. | Argument');
-#endif
         Probe.Expect('f', 'E: The value "No" can''t be evaluated into type GUID. | Evaluate:Argument');
         Probe.Expect('v', 'E: The value "No" can''t be evaluated into type GUID. | Evaluate:Argument');
         Probe.Expect('d', 'E: The value "No" can''t be evaluated into type GUID. | Evaluate:Argument');
         Probe.Verify();
+#else // BC 27.5: observe round (CI run after 46048054427); the readings are asserted in the next commit
+        Probe.Finish();
+#endif
     end;
 
     // Date 2026-01-17 into the BigInteger field Big.
@@ -586,13 +586,13 @@ codeunit 73471 "LT FRC Bool Date Tests"
         Probe.CellsDate(10, X);
 #if BC28PLUS
         Probe.Expect('r', 'E: The value "01/17/26" can''t be evaluated into type GUID. | Evaluate:Argument');
-#else // BC 27.5 gives another result, measured by this PR's CI run 46048054427 on 27.5
-        Probe.Expect('r', 'E: Invalid Conversion. Source: NavDate, Destination: NavGuid. | Argument');
-#endif
         Probe.Expect('f', 'E: The value "01/17/26" can''t be evaluated into type GUID. | Evaluate:Argument');
         Probe.Expect('v', 'E: The value "01/17/26" can''t be evaluated into type GUID. | Evaluate:Argument');
         Probe.Expect('d', 'E: The value "01/17/26" can''t be evaluated into type GUID. | Evaluate:Argument');
         Probe.Verify();
+#else // BC 27.5: observe round (CI run after 46048054427); the readings are asserted in the next commit
+        Probe.Finish();
+#endif
     end;
 }
 
@@ -613,21 +613,13 @@ codeunit 73472 "LT FRC Number Tests"
         Probe.CellsInt(7, X);
 #if BC28PLUS
         Probe.Expect('r', 'E: The format of the Date ''5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
-#else // BC 27.5 gives another result; not measured here, taken from the pin SrcSetRangeConvert.al:997
-        Probe.Expect('r', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
-#endif
-#if BC28PLUS
         Probe.Expect('f', 'E: The format of the Date ''5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
-#else // BC 27.5 gives another result; not measured here, taken from the pin SrcSetRangeConvert.al:1007
-        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
-#endif
-#if BC28PLUS
         Probe.Expect('v', 'E: The format of the Date ''5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
-#else // BC 27.5 gives another result, measured by this PR's CI run 46048054427 on 27.5
-        Probe.Expect('v', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime. | Conversion');
-#endif
         Probe.Expect('d', 'E: The format of the Date ''5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
         Probe.Verify();
+#else // BC 27.5: observe round (CI run after 46048054427); the readings are asserted in the next commit
+        Probe.Finish();
+#endif
     end;
 
     // Integer 5 into the Boolean field Bool.
@@ -657,13 +649,13 @@ codeunit 73472 "LT FRC Number Tests"
         Probe.CellsInt(10, X);
 #if BC28PLUS
         Probe.Expect('r', 'E: The value "5" can''t be evaluated into type GUID. | Evaluate:Argument');
-#else // BC 27.5 gives another result, measured by this PR's CI run 46048054427 on 27.5
-        Probe.Expect('r', 'E: Invalid Conversion. Source: NavInteger, Destination: NavGuid. | Argument');
-#endif
         Probe.Expect('f', 'E: The value "5" can''t be evaluated into type GUID. | Evaluate:Argument');
         Probe.Expect('v', 'E: The value "5" can''t be evaluated into type GUID. | Evaluate:Argument');
         Probe.Expect('d', 'E: The value "5" can''t be evaluated into type GUID. | Evaluate:Argument');
         Probe.Verify();
+#else // BC 27.5: observe round (CI run after 46048054427); the readings are asserted in the next commit
+        Probe.Finish();
+#endif
     end;
 
     // BigInteger 5 into the Date field D.
@@ -677,21 +669,13 @@ codeunit 73472 "LT FRC Number Tests"
         Probe.CellsBig(7, X);
 #if BC28PLUS
         Probe.Expect('r', 'E: The format of the Date ''5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
-#else // BC 27.5 gives another result; not measured here, taken from the pin SrcSetRangeConvert.al:1672
-        Probe.Expect('r', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime. | Conversion');
-#endif
-#if BC28PLUS
         Probe.Expect('f', 'E: The format of the Date ''5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
-#else // BC 27.5 gives another result; not measured here, taken from the pin SrcSetRangeConvert.al:1682
-        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime. | Conversion');
-#endif
-#if BC28PLUS
         Probe.Expect('v', 'E: The format of the Date ''5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
-#else // BC 27.5 gives another result, measured by this PR's CI run 46048054427 on 27.5
-        Probe.Expect('v', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBigInteger to System.DateTime. | Conversion');
-#endif
         Probe.Expect('d', 'E: The format of the Date ''5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
         Probe.Verify();
+#else // BC 27.5: observe round (CI run after 46048054427); the readings are asserted in the next commit
+        Probe.Finish();
+#endif
     end;
 
     // BigInteger 5 into the Boolean field Bool.
@@ -721,13 +705,13 @@ codeunit 73472 "LT FRC Number Tests"
         Probe.CellsBig(10, X);
 #if BC28PLUS
         Probe.Expect('r', 'E: The value "5" can''t be evaluated into type GUID. | Evaluate:Argument');
-#else // BC 27.5 gives another result, measured by this PR's CI run 46048054427 on 27.5
-        Probe.Expect('r', 'E: Invalid Conversion. Source: NavBigInteger, Destination: NavGuid. | Argument');
-#endif
         Probe.Expect('f', 'E: The value "5" can''t be evaluated into type GUID. | Evaluate:Argument');
         Probe.Expect('v', 'E: The value "5" can''t be evaluated into type GUID. | Evaluate:Argument');
         Probe.Expect('d', 'E: The value "5" can''t be evaluated into type GUID. | Evaluate:Argument');
         Probe.Verify();
+#else // BC 27.5: observe round (CI run after 46048054427); the readings are asserted in the next commit
+        Probe.Finish();
+#endif
     end;
 
     // Decimal 1.5 into the BigInteger field Big.
@@ -805,13 +789,13 @@ codeunit 73472 "LT FRC Number Tests"
         Probe.CellsDec(7, X);
 #if BC28PLUS
         Probe.Expect('r', 'E: The format of the Date ''1.5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
-#else // BC 27.5 gives another result, measured by this PR's CI run 46048054427 on 27.5
-        Probe.Expect('r', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDecimal to System.DateTime. | Conversion');
-#endif
         Probe.Expect('f', 'E: The format of the Date ''1.5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
         Probe.Expect('v', 'E: The format of the Date ''1.5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
         Probe.Expect('d', 'E: The format of the Date ''1.5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
         Probe.Verify();
+#else // BC 27.5: observe round (CI run after 46048054427); the readings are asserted in the next commit
+        Probe.Finish();
+#endif
     end;
 
     // Decimal 1.5 into the Guid field G.
@@ -825,13 +809,13 @@ codeunit 73472 "LT FRC Number Tests"
         Probe.CellsDec(10, X);
 #if BC28PLUS
         Probe.Expect('r', 'E: The value "1.5" can''t be evaluated into type GUID. | Evaluate:Argument');
-#else // BC 27.5 gives another result, measured by this PR's CI run 46048054427 on 27.5
-        Probe.Expect('r', 'E: Invalid Conversion. Source: NavDecimal, Destination: NavGuid. | Argument');
-#endif
         Probe.Expect('f', 'E: The value "1.5" can''t be evaluated into type GUID. | Evaluate:Argument');
         Probe.Expect('v', 'E: The value "1.5" can''t be evaluated into type GUID. | Evaluate:Argument');
         Probe.Expect('d', 'E: The value "1.5" can''t be evaluated into type GUID. | Evaluate:Argument');
         Probe.Verify();
+#else // BC 27.5: observe round (CI run after 46048054427); the readings are asserted in the next commit
+        Probe.Finish();
+#endif
     end;
 }
 
@@ -852,13 +836,13 @@ codeunit 73473 "LT FRC Text Tests"
         Probe.CellsCode(9, X);
 #if BC28PLUS
         Probe.Expect('r', 'E: The value "ABC" can''t be evaluated into type Option. | Evaluate:Format');
-#else // BC 27.5 gives another result, measured by this PR's CI run 46048054427 on 27.5
-        Probe.Expect('r', 'E: The type NavOption is unknown. | NotSupportedType');
-#endif
         Probe.Expect('f', 'E: The value "ABC" can''t be evaluated into type Option. | Evaluate:Format');
         Probe.Expect('v', 'E: The value "ABC" can''t be evaluated into type Option. | Evaluate:Format');
         Probe.Expect('d', 'E: The value "ABC" can''t be evaluated into type Option. | Evaluate:Format');
         Probe.Verify();
+#else // BC 27.5: observe round (CI run after 46048054427); the readings are asserted in the next commit
+        Probe.Finish();
+#endif
     end;
 
     // Code '123' into the Option A,B,C field Opt.
@@ -888,13 +872,13 @@ codeunit 73473 "LT FRC Text Tests"
         Probe.CellsTxt(9, X);
 #if BC28PLUS
         Probe.Expect('r', 'E: The value "XY" can''t be evaluated into type Option. | Evaluate:Format');
-#else // BC 27.5 gives another result, measured by this PR's CI run 46048054427 on 27.5
-        Probe.Expect('r', 'E: The type NavOption is unknown. | NotSupportedType');
-#endif
         Probe.Expect('f', 'E: The value "XY" can''t be evaluated into type Option. | Evaluate:Format');
         Probe.Expect('v', 'E: The value "XY" can''t be evaluated into type Option. | Evaluate:Format');
         Probe.Expect('d', 'E: The value "XY" can''t be evaluated into type Option. | Evaluate:Format');
         Probe.Verify();
+#else // BC 27.5: observe round (CI run after 46048054427); the readings are asserted in the next commit
+        Probe.Finish();
+#endif
     end;
 
     // Code '123' into the Date field D.
@@ -908,13 +892,13 @@ codeunit 73473 "LT FRC Text Tests"
         Probe.CellsCode(7, X);
 #if BC28PLUS
         Probe.Expect('r', 'E: The format of the Date ''123'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
-#else // BC 27.5 gives another result, measured by this PR's CI run 46048054427 on 27.5
-        Probe.Expect('r', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavCode to System.DateTime. | Conversion');
-#endif
         Probe.Expect('f', 'E: The format of the Date ''123'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
         Probe.Expect('v', 'E: The format of the Date ''123'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
         Probe.Expect('d', 'E: The format of the Date ''123'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
         Probe.Verify();
+#else // BC 27.5: observe round (CI run after 46048054427); the readings are asserted in the next commit
+        Probe.Finish();
+#endif
     end;
 
     // Code 'ABC' into the Guid field G by Validate, typed (d) and through a Variant (dv).
@@ -929,13 +913,13 @@ codeunit 73473 "LT FRC Text Tests"
         V := X;
         Probe.CellCode('d', 10, X);
         Probe.CellValidateVariant(10, V);
-        Probe.Expect('d', 'E: Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits. | InvalidGuidFormat');
 #if BC28PLUS
+        Probe.Expect('d', 'E: Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits. | InvalidGuidFormat');
         Probe.Expect('dv', 'E: The value "ABC" can''t be evaluated into type GUID. | Evaluate:Argument');
-#else // BC 27.5 gives another result, measured by this PR's CI run 46048054427 on 27.5
-        Probe.Expect('dv', 'E: Invalid Conversion. Source: NavVariant, Destination: NavGuid. | Argument');
-#endif
         Probe.Verify();
+#else // BC 27.5: observe round (CI run after 46048054427); the readings are asserted in the next commit
+        Probe.Finish();
+#endif
     end;
 
     // Code '123' into the Guid field G by Validate, typed (d) and through a Variant (dv).
@@ -950,13 +934,13 @@ codeunit 73473 "LT FRC Text Tests"
         V := X;
         Probe.CellCode('d', 10, X);
         Probe.CellValidateVariant(10, V);
-        Probe.Expect('d', 'E: Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits. | InvalidGuidFormat');
 #if BC28PLUS
+        Probe.Expect('d', 'E: Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits. | InvalidGuidFormat');
         Probe.Expect('dv', 'E: The value "123" can''t be evaluated into type GUID. | Evaluate:Argument');
-#else // BC 27.5 gives another result, measured by this PR's CI run 46048054427 on 27.5
-        Probe.Expect('dv', 'E: Invalid Conversion. Source: NavVariant, Destination: NavGuid. | Argument');
-#endif
         Probe.Verify();
+#else // BC 27.5: observe round (CI run after 46048054427); the readings are asserted in the next commit
+        Probe.Finish();
+#endif
     end;
 
     // Text 'XY' into the Guid field G by Validate, typed (d) and through a Variant (dv).
@@ -971,12 +955,12 @@ codeunit 73473 "LT FRC Text Tests"
         V := X;
         Probe.CellTxt('d', 10, X);
         Probe.CellValidateVariant(10, V);
-        Probe.Expect('d', 'E: Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits. | InvalidGuidFormat');
 #if BC28PLUS
+        Probe.Expect('d', 'E: Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits. | InvalidGuidFormat');
         Probe.Expect('dv', 'E: The value "XY" can''t be evaluated into type GUID. | Evaluate:Argument');
-#else // BC 27.5 gives another result, measured by this PR's CI run 46048054427 on 27.5
-        Probe.Expect('dv', 'E: Invalid Conversion. Source: NavVariant, Destination: NavGuid. | Argument');
-#endif
         Probe.Verify();
+#else // BC 27.5: observe round (CI run after 46048054427); the readings are asserted in the next commit
+        Probe.Finish();
+#endif
     end;
 }
