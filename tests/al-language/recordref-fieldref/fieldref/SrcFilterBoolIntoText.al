@@ -1,15 +1,20 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/fieldref/fieldref-setrange-method
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); own table 57981, helper codeunit 57981, test codeunit 57982
-// Probe: observe form. CI records every cell on BC 27.5, 28.5 and 29.0; the next commit turns them into assertions.
 // Facts: FieldRef.SetRange, FieldRef.SetFilter('%1', ...) and Record.SetRange on a Code or Text field with a Boolean value, and
-//   FieldRef.Value := of the same value for comparison. Values: false and true. Fields: Code[20], Text[50], Code[2], Code[1] and
-//   Text[1]. Routes: a FieldRef.SetRange(X) typed; b FieldRef.SetRange(V), V a Variant holding X; c FieldRef.SetRange(X, X);
-//   e FieldRef.SetFilter('%1', X); f FieldRef.SetFilter('%1', V); gr Record.SetRange(Rec.<field>, V); v FieldRef.Value := X.
+//   FieldRef.Value := of the same value for comparison. Values: false and true. Fields: Code[1], Code[2], Code[3], Code[10],
+//   Code[20], Code[50], Code[250], Text[1], Text[2], Text[3], Text[50], Text[100] and Text[2048]. Routes: a FieldRef.SetRange(X)
+//   typed; b FieldRef.SetRange(V), V a Variant holding X; c FieldRef.SetRange(X, X); e FieldRef.SetFilter('%1', X);
+//   f FieldRef.SetFilter('%1', V); gr Record.SetRange(Rec.<field>, V); v FieldRef.Value := X. Literal routes on Code[20]:
+//   la FieldRef.SetRange(false|true); le FieldRef.SetFilter('%1', false|true) (Record.SetFilter(Cod, '%1', <Boolean>) does
+//   not compile: AL0193).
 //   Each cell runs in a TryFunction on a fresh RecordRef or Record and records "ok: <GetFilter of the field>" (route v:
-//   "ok: " + Format(F.Value, 0, 9)) or "E: <GetLastErrorText> | <GetLastErrorCode>". A test is Bool<Value>_<Field>.
+//   "ok: " + Format(F.Value, 0, 9)) or "E: <GetLastErrorText> | <GetLastErrorCode>". A test is Bool<Value>_<Field> or
+//   Literal<Value>_Cod.
+//   Results: every route gives the same result for a cell. Code fields hold NO / YES, Text fields No / Yes. A field shorter
+//   than the text (2 for No, 3 for Yes) fails every route with StringLengthExceeded.
 //   Companion of SrcFilterConvertKinds.al (Boolean true into Code[20] and Text[50] there).
-//   Asked by al-runner issue 9026.
+//   Asked by al-runner issues 9026 and 9205.
 // BC versions: 27, 28, 29 by CI
 table 57981 "SBT Row"
 {
@@ -386,7 +391,14 @@ codeunit 57982 "SBT Bool Into Text Tests"
         Probe: Codeunit "SBT Probe";
     begin
         Probe.CellsBool(7, false);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: NO');
+        Probe.Expect('b', 'ok: NO');
+        Probe.Expect('c', 'ok: NO');
+        Probe.Expect('e', 'ok: NO');
+        Probe.Expect('f', 'ok: NO');
+        Probe.Expect('gr', 'ok: NO');
+        Probe.Expect('v', 'ok: NO');
+        Probe.Verify();
     end;
 
     [Test]
@@ -395,7 +407,14 @@ codeunit 57982 "SBT Bool Into Text Tests"
         Probe: Codeunit "SBT Probe";
     begin
         Probe.CellsBool(7, true);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: YES');
+        Probe.Expect('b', 'ok: YES');
+        Probe.Expect('c', 'ok: YES');
+        Probe.Expect('e', 'ok: YES');
+        Probe.Expect('f', 'ok: YES');
+        Probe.Expect('gr', 'ok: YES');
+        Probe.Expect('v', 'ok: YES');
+        Probe.Verify();
     end;
 
     [Test]
@@ -404,7 +423,14 @@ codeunit 57982 "SBT Bool Into Text Tests"
         Probe: Codeunit "SBT Probe";
     begin
         Probe.CellsBool(8, false);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: NO');
+        Probe.Expect('b', 'ok: NO');
+        Probe.Expect('c', 'ok: NO');
+        Probe.Expect('e', 'ok: NO');
+        Probe.Expect('f', 'ok: NO');
+        Probe.Expect('gr', 'ok: NO');
+        Probe.Expect('v', 'ok: NO');
+        Probe.Verify();
     end;
 
     [Test]
@@ -413,7 +439,14 @@ codeunit 57982 "SBT Bool Into Text Tests"
         Probe: Codeunit "SBT Probe";
     begin
         Probe.CellsBool(8, true);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: YES');
+        Probe.Expect('b', 'ok: YES');
+        Probe.Expect('c', 'ok: YES');
+        Probe.Expect('e', 'ok: YES');
+        Probe.Expect('f', 'ok: YES');
+        Probe.Expect('gr', 'ok: YES');
+        Probe.Expect('v', 'ok: YES');
+        Probe.Verify();
     end;
 
     [Test]
@@ -422,7 +455,14 @@ codeunit 57982 "SBT Bool Into Text Tests"
         Probe: Codeunit "SBT Probe";
     begin
         Probe.CellsBool(9, false);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: NO');
+        Probe.Expect('b', 'ok: NO');
+        Probe.Expect('c', 'ok: NO');
+        Probe.Expect('e', 'ok: NO');
+        Probe.Expect('f', 'ok: NO');
+        Probe.Expect('gr', 'ok: NO');
+        Probe.Expect('v', 'ok: NO');
+        Probe.Verify();
     end;
 
     [Test]
@@ -431,7 +471,14 @@ codeunit 57982 "SBT Bool Into Text Tests"
         Probe: Codeunit "SBT Probe";
     begin
         Probe.CellsBool(9, true);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: YES');
+        Probe.Expect('b', 'ok: YES');
+        Probe.Expect('c', 'ok: YES');
+        Probe.Expect('e', 'ok: YES');
+        Probe.Expect('f', 'ok: YES');
+        Probe.Expect('gr', 'ok: YES');
+        Probe.Expect('v', 'ok: YES');
+        Probe.Verify();
     end;
 
     [Test]
@@ -440,7 +487,14 @@ codeunit 57982 "SBT Bool Into Text Tests"
         Probe: Codeunit "SBT Probe";
     begin
         Probe.CellsBool(10, false);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: NO');
+        Probe.Expect('b', 'ok: NO');
+        Probe.Expect('c', 'ok: NO');
+        Probe.Expect('e', 'ok: NO');
+        Probe.Expect('f', 'ok: NO');
+        Probe.Expect('gr', 'ok: NO');
+        Probe.Expect('v', 'ok: NO');
+        Probe.Verify();
     end;
 
     [Test]
@@ -449,7 +503,14 @@ codeunit 57982 "SBT Bool Into Text Tests"
         Probe: Codeunit "SBT Probe";
     begin
         Probe.CellsBool(10, true);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: YES');
+        Probe.Expect('b', 'ok: YES');
+        Probe.Expect('c', 'ok: YES');
+        Probe.Expect('e', 'ok: YES');
+        Probe.Expect('f', 'ok: YES');
+        Probe.Expect('gr', 'ok: YES');
+        Probe.Expect('v', 'ok: YES');
+        Probe.Verify();
     end;
 
     [Test]
@@ -458,7 +519,14 @@ codeunit 57982 "SBT Bool Into Text Tests"
         Probe: Codeunit "SBT Probe";
     begin
         Probe.CellsBool(11, false);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: No');
+        Probe.Expect('b', 'ok: No');
+        Probe.Expect('c', 'ok: No');
+        Probe.Expect('e', 'ok: No');
+        Probe.Expect('f', 'ok: No');
+        Probe.Expect('gr', 'ok: No');
+        Probe.Expect('v', 'ok: No');
+        Probe.Verify();
     end;
 
     [Test]
@@ -467,7 +535,14 @@ codeunit 57982 "SBT Bool Into Text Tests"
         Probe: Codeunit "SBT Probe";
     begin
         Probe.CellsBool(11, true);
-        Probe.Finish();
+        Probe.Expect('a', 'E: The length of the string is 3, but it must be less than or equal to 2 characters. Value: Yes | StringLengthExceeded');
+        Probe.Expect('b', 'E: The length of the string is 3, but it must be less than or equal to 2 characters. Value: Yes | StringLengthExceeded');
+        Probe.Expect('c', 'E: The length of the string is 3, but it must be less than or equal to 2 characters. Value: Yes | StringLengthExceeded');
+        Probe.Expect('e', 'E: The length of the string is 3, but it must be less than or equal to 2 characters. Value: Yes | StringLengthExceeded');
+        Probe.Expect('f', 'E: The length of the string is 3, but it must be less than or equal to 2 characters. Value: Yes | StringLengthExceeded');
+        Probe.Expect('gr', 'E: The length of the string is 3, but it must be less than or equal to 2 characters. Value: Yes | StringLengthExceeded');
+        Probe.Expect('v', 'E: The length of the string is 3, but it must be less than or equal to 2 characters. Value: Yes | StringLengthExceeded');
+        Probe.Verify();
     end;
 
     [Test]
@@ -476,7 +551,14 @@ codeunit 57982 "SBT Bool Into Text Tests"
         Probe: Codeunit "SBT Probe";
     begin
         Probe.CellsBool(12, false);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: No');
+        Probe.Expect('b', 'ok: No');
+        Probe.Expect('c', 'ok: No');
+        Probe.Expect('e', 'ok: No');
+        Probe.Expect('f', 'ok: No');
+        Probe.Expect('gr', 'ok: No');
+        Probe.Expect('v', 'ok: No');
+        Probe.Verify();
     end;
 
     [Test]
@@ -485,7 +567,14 @@ codeunit 57982 "SBT Bool Into Text Tests"
         Probe: Codeunit "SBT Probe";
     begin
         Probe.CellsBool(12, true);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: Yes');
+        Probe.Expect('b', 'ok: Yes');
+        Probe.Expect('c', 'ok: Yes');
+        Probe.Expect('e', 'ok: Yes');
+        Probe.Expect('f', 'ok: Yes');
+        Probe.Expect('gr', 'ok: Yes');
+        Probe.Expect('v', 'ok: Yes');
+        Probe.Verify();
     end;
 
     [Test]
@@ -494,7 +583,14 @@ codeunit 57982 "SBT Bool Into Text Tests"
         Probe: Codeunit "SBT Probe";
     begin
         Probe.CellsBool(13, false);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: No');
+        Probe.Expect('b', 'ok: No');
+        Probe.Expect('c', 'ok: No');
+        Probe.Expect('e', 'ok: No');
+        Probe.Expect('f', 'ok: No');
+        Probe.Expect('gr', 'ok: No');
+        Probe.Expect('v', 'ok: No');
+        Probe.Verify();
     end;
 
     [Test]
@@ -503,7 +599,14 @@ codeunit 57982 "SBT Bool Into Text Tests"
         Probe: Codeunit "SBT Probe";
     begin
         Probe.CellsBool(13, true);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: Yes');
+        Probe.Expect('b', 'ok: Yes');
+        Probe.Expect('c', 'ok: Yes');
+        Probe.Expect('e', 'ok: Yes');
+        Probe.Expect('f', 'ok: Yes');
+        Probe.Expect('gr', 'ok: Yes');
+        Probe.Expect('v', 'ok: Yes');
+        Probe.Verify();
     end;
 
     [Test]
@@ -512,7 +615,14 @@ codeunit 57982 "SBT Bool Into Text Tests"
         Probe: Codeunit "SBT Probe";
     begin
         Probe.CellsBool(14, false);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: No');
+        Probe.Expect('b', 'ok: No');
+        Probe.Expect('c', 'ok: No');
+        Probe.Expect('e', 'ok: No');
+        Probe.Expect('f', 'ok: No');
+        Probe.Expect('gr', 'ok: No');
+        Probe.Expect('v', 'ok: No');
+        Probe.Verify();
     end;
 
     [Test]
@@ -521,7 +631,14 @@ codeunit 57982 "SBT Bool Into Text Tests"
         Probe: Codeunit "SBT Probe";
     begin
         Probe.CellsBool(14, true);
-        Probe.Finish();
+        Probe.Expect('a', 'ok: Yes');
+        Probe.Expect('b', 'ok: Yes');
+        Probe.Expect('c', 'ok: Yes');
+        Probe.Expect('e', 'ok: Yes');
+        Probe.Expect('f', 'ok: Yes');
+        Probe.Expect('gr', 'ok: Yes');
+        Probe.Expect('v', 'ok: Yes');
+        Probe.Verify();
     end;
 
     [Test]
@@ -530,7 +647,9 @@ codeunit 57982 "SBT Bool Into Text Tests"
         Probe: Codeunit "SBT Probe";
     begin
         Probe.CellsLiteral(false);
-        Probe.Finish();
+        Probe.Expect('la', 'ok: NO');
+        Probe.Expect('le', 'ok: NO');
+        Probe.Verify();
     end;
 
     [Test]
@@ -539,6 +658,8 @@ codeunit 57982 "SBT Bool Into Text Tests"
         Probe: Codeunit "SBT Probe";
     begin
         Probe.CellsLiteral(true);
-        Probe.Finish();
+        Probe.Expect('la', 'ok: YES');
+        Probe.Expect('le', 'ok: YES');
+        Probe.Verify();
     end;
 }
