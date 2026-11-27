@@ -21,7 +21,22 @@
 //   Already pinned elsewhere, kept here only as part of a state's row: the Fresh and Closed answers of FindFirst, SetLoadFields,
 //   SetRecFilter, Count, FieldCount, ReadPermission and Number (UhUnopenedRecordRef.al), and Number, FieldCount and Count after
 //   Open(0) (RfTOpen.al).
-//   Observe round: every test ends with Observer.Finish(), which fails the test with the readings (OBSERVE:...); nothing is asserted yet.
+//   Measured on BC 29.0 (Linux, W1, en-US session) with an invented app holding these objects, through the dev endpoint's
+//   TestRunnerHub (the member tests also through a codeunit run request: the same readings); the values are that run's readings,
+//   turned into Expect and Verify by convert.py verbatim. This pull request's CI checks them on 27.5, 28.5 and 29.0; a version
+//   difference gets a version guard.
+//   Facts (BC 29.0):
+//   - Every member above but Number fails with 'The record is not open.' (RecordNotOpened) in every state that is not open: Fresh,
+//     OpenZero, GetEmpty, GetMissing and Closed, Duplicate and ClearMarks included. Number is 0 in all of them.
+//   - Open(0) raises nothing. Get of an empty RecordId and of a RecordId whose row does not exist both return No and leave the
+//     RecordRef not open (Number 0): Get does not open the table of the RecordId when the row is missing.
+//   - GetFound (control): every member works; Duplicate gives a RecordRef on the same table.
+//   - Page.Run(Id, V) with V holding an open RecordRef opens the page on the RecordRef's current row (B after FindLast; the first
+//     row A when not positioned; an empty card on an empty table). The list page and Page.Run(0, V) (the LookupPageId list) do the
+//     same; Page.RunModal returns LookupOK. The same as a Variant holding a Record.
+//   - V holding a RecordRef never opened or after Open(0): 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavRecordRef to
+//     Microsoft.Dynamics.Nav.Runtime.INavRecordHandle.' (Conversion); open on another table: 'The table IDs do not match.'
+//     (TableIdMismatch). The page does not open.
 // BC versions: 27, 28, 29 by CI
 table 73480 "LT RUO Row"
 {
@@ -269,7 +284,25 @@ codeunit 73481 "LT RUO Not Open Tests"
         Probe: Codeunit "LT RUO Probe";
     begin
         Probe.Row(Observer, 'Fresh');
-        Observer.Finish();
+        Observer.Expect('state', 'ok');
+        Observer.Expect('number', 'ok: 0');
+        Observer.Expect('Duplicate', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('ClearMarks', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('FindFirst', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('SetLoadFields', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('AddLoadFields', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('SetRecFilter', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('FilterGroupGet', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('FilterGroupSet', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('MarkedOnly', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('Mark', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('HasFilter', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('GetView', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('Count', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('FieldCount', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('ReadPermission', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('Number', 'ok: 0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -279,7 +312,25 @@ codeunit 73481 "LT RUO Not Open Tests"
         Probe: Codeunit "LT RUO Probe";
     begin
         Probe.Row(Observer, 'OpenZero');
-        Observer.Finish();
+        Observer.Expect('state', 'ok');
+        Observer.Expect('number', 'ok: 0');
+        Observer.Expect('Duplicate', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('ClearMarks', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('FindFirst', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('SetLoadFields', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('AddLoadFields', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('SetRecFilter', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('FilterGroupGet', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('FilterGroupSet', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('MarkedOnly', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('Mark', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('HasFilter', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('GetView', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('Count', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('FieldCount', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('ReadPermission', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('Number', 'ok: 0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -289,7 +340,25 @@ codeunit 73481 "LT RUO Not Open Tests"
         Probe: Codeunit "LT RUO Probe";
     begin
         Probe.Row(Observer, 'GetEmpty');
-        Observer.Finish();
+        Observer.Expect('state', 'No');
+        Observer.Expect('number', 'ok: 0');
+        Observer.Expect('Duplicate', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('ClearMarks', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('FindFirst', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('SetLoadFields', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('AddLoadFields', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('SetRecFilter', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('FilterGroupGet', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('FilterGroupSet', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('MarkedOnly', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('Mark', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('HasFilter', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('GetView', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('Count', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('FieldCount', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('ReadPermission', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('Number', 'ok: 0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -299,7 +368,25 @@ codeunit 73481 "LT RUO Not Open Tests"
         Probe: Codeunit "LT RUO Probe";
     begin
         Probe.Row(Observer, 'GetMissing');
-        Observer.Finish();
+        Observer.Expect('state', 'No');
+        Observer.Expect('number', 'ok: 0');
+        Observer.Expect('Duplicate', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('ClearMarks', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('FindFirst', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('SetLoadFields', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('AddLoadFields', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('SetRecFilter', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('FilterGroupGet', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('FilterGroupSet', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('MarkedOnly', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('Mark', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('HasFilter', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('GetView', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('Count', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('FieldCount', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('ReadPermission', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('Number', 'ok: 0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -309,7 +396,25 @@ codeunit 73481 "LT RUO Not Open Tests"
         Probe: Codeunit "LT RUO Probe";
     begin
         Probe.Row(Observer, 'Closed');
-        Observer.Finish();
+        Observer.Expect('state', 'ok');
+        Observer.Expect('number', 'ok: 0');
+        Observer.Expect('Duplicate', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('ClearMarks', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('FindFirst', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('SetLoadFields', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('AddLoadFields', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('SetRecFilter', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('FilterGroupGet', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('FilterGroupSet', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('MarkedOnly', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('Mark', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('HasFilter', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('GetView', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('Count', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('FieldCount', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('ReadPermission', 'E: The record is not open. | RecordNotOpened');
+        Observer.Expect('Number', 'ok: 0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -319,7 +424,25 @@ codeunit 73481 "LT RUO Not Open Tests"
         Probe: Codeunit "LT RUO Probe";
     begin
         Probe.Row(Observer, 'GetFound');
-        Observer.Finish();
+        Observer.Expect('state', 'Yes');
+        Observer.Expect('number', 'ok: 73480');
+        Observer.Expect('Duplicate', 'ok: 73480');
+        Observer.Expect('ClearMarks', 'ok');
+        Observer.Expect('FindFirst', 'ok: Yes');
+        Observer.Expect('SetLoadFields', 'ok');
+        Observer.Expect('AddLoadFields', 'ok');
+        Observer.Expect('SetRecFilter', 'ok');
+        Observer.Expect('FilterGroupGet', 'ok: 0');
+        Observer.Expect('FilterGroupSet', 'ok');
+        Observer.Expect('MarkedOnly', 'ok: No');
+        Observer.Expect('Mark', 'ok: No');
+        Observer.Expect('HasFilter', 'ok: No');
+        Observer.Expect('GetView', 'ok: VERSION(1) SORTING(No.)');
+        Observer.Expect('Count', 'ok: 2');
+        Observer.Expect('FieldCount', 'ok: 2');
+        Observer.Expect('ReadPermission', 'ok: Yes');
+        Observer.Expect('Number', 'ok: 73480');
+        Observer.Verify();
     end;
 }
 
@@ -390,7 +513,9 @@ codeunit 73482 "LT RUO Page Run Tests"
         R.Open(Database::"LT RUO Row");
         R.FindLast();
         RunCell(Observer, Page::"LT RUO Card", R);
-        Observer.Finish();
+        Observer.Expect('run', 'ok');
+        Observer.Expect('seen', 'card:B;');
+        Observer.Verify();
     end;
 
     // Open on the row table, no Find: the card page.
@@ -405,7 +530,9 @@ codeunit 73482 "LT RUO Page Run Tests"
         Probe.Seed();
         R.Open(Database::"LT RUO Row");
         RunCell(Observer, Page::"LT RUO Card", R);
-        Observer.Finish();
+        Observer.Expect('run', 'ok');
+        Observer.Expect('seen', 'card:A;');
+        Observer.Verify();
     end;
 
     // Open on the row table with no rows: the card page.
@@ -422,7 +549,9 @@ codeunit 73482 "LT RUO Page Run Tests"
         Row.DeleteAll();
         R.Open(Database::"LT RUO Row");
         RunCell(Observer, Page::"LT RUO Card", R);
-        Observer.Finish();
+        Observer.Expect('run', 'ok');
+        Observer.Expect('seen', 'card:;');
+        Observer.Verify();
     end;
 
     // Open on the row table and positioned on row B: the list page.
@@ -438,7 +567,9 @@ codeunit 73482 "LT RUO Page Run Tests"
         R.Open(Database::"LT RUO Row");
         R.FindLast();
         RunCell(Observer, Page::"LT RUO List", R);
-        Observer.Finish();
+        Observer.Expect('run', 'ok');
+        Observer.Expect('seen', 'list:B;');
+        Observer.Verify();
     end;
 
     // Page.Run(0, RecRef): the table's LookupPageId is the list page.
@@ -454,7 +585,9 @@ codeunit 73482 "LT RUO Page Run Tests"
         R.Open(Database::"LT RUO Row");
         R.FindLast();
         RunCell(Observer, 0, R);
-        Observer.Finish();
+        Observer.Expect('run', 'ok');
+        Observer.Expect('seen', 'list:B;');
+        Observer.Verify();
     end;
 
     // Page.RunModal with a RecordRef positioned on row B: the card page; also the action it returns.
@@ -476,7 +609,9 @@ codeunit 73482 "LT RUO Page Run Tests"
         Result := Page.RunModal(Page::"LT RUO Card", V);
         Observer.Observe('action', Format(Result));
         Observer.Observe('seen', Seen);
-        Observer.Finish();
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('seen', 'modal card:B;');
+        Observer.Verify();
     end;
 
     // Control: a Variant holding a Record positioned on row B, the card page.
@@ -493,7 +628,9 @@ codeunit 73482 "LT RUO Page Run Tests"
         Row.FindLast();
         V := Row;
         RunVariantCell(Observer, Page::"LT RUO Card", V);
-        Observer.Finish();
+        Observer.Expect('run', 'ok');
+        Observer.Expect('seen', 'card:B;');
+        Observer.Verify();
     end;
 
     // A RecordRef never opened: the card page (no handler: the page is not expected to open).
@@ -506,7 +643,9 @@ codeunit 73482 "LT RUO Page Run Tests"
     begin
         Probe.Seed();
         RunCell(Observer, Page::"LT RUO Card", R);
-        Observer.Finish();
+        Observer.Expect('run', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavRecordRef to Microsoft.Dynamics.Nav.Runtime.INavRecordHandle. | Conversion');
+        Observer.Expect('seen', '');
+        Observer.Verify();
     end;
 
     // A RecordRef after Open(0): the card page (no handler).
@@ -520,7 +659,9 @@ codeunit 73482 "LT RUO Page Run Tests"
         Probe.Seed();
         R.Open(0);
         RunCell(Observer, Page::"LT RUO Card", R);
-        Observer.Finish();
+        Observer.Expect('run', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavRecordRef to Microsoft.Dynamics.Nav.Runtime.INavRecordHandle. | Conversion');
+        Observer.Expect('seen', '');
+        Observer.Verify();
     end;
 
     // A RecordRef open on another table than the page's: the card page (no handler).
@@ -534,6 +675,8 @@ codeunit 73482 "LT RUO Page Run Tests"
         Probe.Seed();
         R.Open(Database::"LT RUO Other");
         RunCell(Observer, Page::"LT RUO Card", R);
-        Observer.Finish();
+        Observer.Expect('run', 'E: The table IDs do not match. | TableIdMismatch');
+        Observer.Expect('seen', '');
+        Observer.Verify();
     end;
 }
