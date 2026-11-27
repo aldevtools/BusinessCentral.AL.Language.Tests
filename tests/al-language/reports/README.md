@@ -11,7 +11,7 @@ The report object: running, dataset and data items, request pages, layouts and S
 - `extensions/`: extension objects of this object type (10 AL files).
 - `html-email-body/`: the Html of a report saved as an email body, and Email Message's rgba replace on it (2 AL files).
 - `layouts-html-text/`: the Html of a Word layout read back as Text, moved and compared; a temporary layout selection before SaveAs (2 AL files).
-- `layouts-saveas/`: layouts, rendering and Report.SaveAs* (34 AL files).
+- `layouts-saveas/`: layouts, rendering and Report.SaveAs* (35 AL files).
 - `layouts-word-render/`: what Report.SaveAs writes for hand-made Word layouts (merge rules, parts, values; 2 AL files).
 - `reporthandler/`: ReportHandler and processing-only request pages (6 AL files).
 - `request-page/`: request pages (71 AL files).
@@ -21,7 +21,7 @@ A new topic gets a line here in the same pull request (standing rule 8 in CONTRI
 
 ## Shared fixtures used here
 
-- codeunit 69160 "Probe Observer": 171 files
+- codeunit 69160 "Probe Observer": 172 files
 - table 67698 "W3 Row": 15 files
 - codeunit 67703 "W3 Dataset": 8 files
 - codeunit 67702 "W3 Runner": 8 files
