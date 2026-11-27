@@ -1,8 +1,9 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-report-extension-object
 //   and https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-system-tables
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); layout files LtRle*.rdl, .docx, .xlsx and .rlblayout in this folder (copies of the Y67 and report merger layout files)
-// local object: the own report, the three report extensions and the test codeunit are the definition under test (the layouts, their properties, their names and their
+// Fixtures used: Probe Observer (codeunit 69160); layout 'Y67StdExt.docx' that reportextension 93543 of Y67LayoutExtExport.al adds to report 1306 "Standard Sales - Invoice" (read only; a second extension
+//   of report 1306 would change the row count of that report, which W5_TenantReportLayout_MicrosoftReport_WordLayout asserts); layout files LtRle*.rdl, .docx, .xlsx and .rlblayout in this folder (copies of the Y67 and report merger layout files)
+// local object: the own report, its two report extensions and the test codeunit are the definition under test (the layouts, their properties, their names and their
 //   captions are what the Report Layout List rows are read for); no shared fixture has an extension with a Custom layout, an obsolete layout or layout parts, and an
 //   extra layout in a shared report would change the row counts other tests assert (report 69083 and its extension 69084 in TestEventSubscriptionColumnsReportLayoutListContracts.al).
 // Probe (a partner suite reads the platform table "Report Layout List" (2000000234) in an install codeunit to set the default layout of a layout a report extension adds;
@@ -17,7 +18,7 @@
 //   declaring object   | RDLC           | Word           | Excel               | Excel, obsolete | Custom           | layout parts (BC 29)
 //   own report         | (UgReport...)  | (UgReport...)  | (AwTests.al)        | (AwTests.al)    | BaseCustom       | BasePHf, BasePTheme
 //   extension of it    | ExtRdl         | ExtWord        | ExtXls              | ExtXlsOld       | ExtCustom        | ExtPBody, ExtPHf, ExtPTheme
-//   extension of 1306  | -              | LtRleStdLay    | -                   | -               | -                | -
+//   extension of 1306  | -              | Y67StdExt.docx | -                   | -               | -                | -
 //   control, 1306 own  | -              | StandardSalesInvoice.docx (a layout of the Base Application report itself)
 //   Also: a filter on Layout Status (BC 28), User Defined and Application ID over the rows of the report with its extension, and the number of rows.
 // Skipped on purpose: Excel, obsolete, Word and RDLC rows of a report (pinned in the files above); a layout with a CaptionML (the property syntax is not used anywhere in the corpus
@@ -29,7 +30,7 @@
 //   The row of a layout a report extension declares (RDLC, Word, Excel, obsolete Excel, Custom, and the three layout parts) has the same columns as the row of the same layout in the
 //   report itself: Report ID of the extended report, Name the layout's name, Runtime Package ID a guid other than this app's (the same as for the report's own layouts in UgReportLayoutList.al), Caption the
 //   Caption or the name, Description the Summary or the name, Application ID this app (the app that declares the extension), Report Name the extended report's Caption (report 97784:
-//   'LT RLE Caption Differs'; for the extension of report 1306 'Sales - Invoice'), Layout Publisher '<app name> by <publisher>' of the app that declares the extension (for the extension of report 1306 this app, not
+//   'LT RLE Caption Differs'; for the Y67 extension of report 1306 'Sales - Invoice'), Layout Publisher '<app name> by <publisher>' of the app that declares the extension (for the extension of report 1306 this app, not
 //   Base Application), User Defined No, ReportIsInstalled Yes, IsObsolete Yes only for the obsolete layout, ExcelLayoutMultipleDataSheets Default, Layout Status Approved (also for the Custom
 //   layout and the layout parts), Layout Subtype Default (Body for the layout that names parts, Header/Footer and Theme for the parts), HeaderFooterPart and ThemePart blank except
 //   for the Body layout, which holds '<app id>::<layout name>' of the parts. A Custom layout reads Layout Format External (the Custom member of the option), MIME Type the layout's
@@ -159,19 +160,6 @@ reportextension 97786 "LT RLE Parts Ext" extends "LT RLE Base"
     }
 }
 #endif
-
-reportextension 97787 "LT RLE Std Ext" extends "Standard Sales - Invoice"
-{
-    rendering
-    {
-        layout(LtRleStdLay)
-        {
-            Type = Word;
-            LayoutFile = './reports/layouts-saveas/LtRleStdLay.docx';
-            Caption = 'RLE std ext word';
-        }
-    }
-}
 
 codeunit 97788 "LT RLE Layout List Tests"
 {
@@ -451,17 +439,17 @@ codeunit 97788 "LT RLE Layout List Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Dump(Observer, 'std ext', Report::"Standard Sales - Invoice", 'LtRleStdLay');
+        Dump(Observer, 'std ext', Report::"Standard Sales - Invoice", 'Y67StdExt.docx');
         Observer.Expect('std ext 1 Report ID', 'Integer [1306]');
-        Observer.Expect('std ext 2 Name', 'Text [LtRleStdLay]');
+        Observer.Expect('std ext 2 Name', 'Text [Y67StdExt.docx]');
         Observer.Expect('std ext 5 Runtime Package ID', 'GUID other guid');
-        Observer.Expect('std ext 3 Caption', 'Text [RLE std ext word]');
+        Observer.Expect('std ext 3 Caption', 'Text [Y67 std ext word]');
         Observer.Expect('std ext 4 CaptionML', 'Text []');
         Observer.Expect('std ext 6 Layout', 'Media not shown');
         Observer.Expect('std ext 7 Layout Format', 'Option [Word]');
         Observer.Expect('std ext 8 Custom Type', 'GUID null guid');
         Observer.Expect('std ext 9 MIME Type', 'Text []');
-        Observer.Expect('std ext 10 Description', 'Text [LtRleStdLay]');
+        Observer.Expect('std ext 10 Description', 'Text [Y67StdExt.docx]');
         Observer.Expect('std ext 11 Application ID', 'GUID this app');
         Observer.Expect('std ext 12 Report Name', 'Text [Sales - Invoice]');
         Observer.Expect('std ext 13 Layout Publisher', 'Text [AL Language Coverage Tests by AL Language]');
