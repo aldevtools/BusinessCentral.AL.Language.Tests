@@ -1014,7 +1014,13 @@ jobs:
             # each cell codeunit asserts its own readings in its test c; test b fails on purpose.
             @{ runner = '130450'; range = '76440..76499'; out = 'xunit-sequence-scm-shapes-130450.xml' },
             @{ runner = '61301'; range = '76440..76499'; out = 'xunit-sequence-scm-shapes-codeunit.xml' },
-            @{ runner = '61300'; range = '76440..76499'; out = 'xunit-sequence-scm-shapes-function.xml' }
+            @{ runner = '61300'; range = '76440..76499'; out = 'xunit-sequence-scm-shapes-function.xml' },
+            # Sequence cells with mixed access kinds between two transaction ends, a posting preview rollback and two
+            # failed tests in one codeunit (79520..79569, SqMixedAccess.al): each cell codeunit asserts its own readings in
+            # its test c; tests b and b2 fail on purpose, except in the controls PN and XP.
+            @{ runner = '130450'; range = '79520..79569'; out = 'xunit-sequence-mixed-130450.xml' },
+            @{ runner = '61301'; range = '79520..79569'; out = 'xunit-sequence-mixed-codeunit.xml' },
+            @{ runner = '61300'; range = '79520..79569'; out = 'xunit-sequence-mixed-function.xml' }
           )
           foreach ($r in $runs) {
             Write-Host "::group::isolation probe under runner $($r.runner), test codeunits $($r.range)"
