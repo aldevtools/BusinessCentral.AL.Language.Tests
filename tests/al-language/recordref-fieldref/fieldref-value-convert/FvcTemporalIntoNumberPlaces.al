@@ -29,10 +29,6 @@
 //   9264: every number (0, 1, 31, 32, typed or in a Variant, BigInteger 1, Decimal 1) into the Date field fails by Value(X), Value := X
 //   and Validate(X) with the date-format error for its text (Evaluate:Conversion); 1 into a Time or DateTime field fails with
 //   'The value "1" can't be evaluated into type <Time|DateTime>.' (Evaluate:Conversion).
-//   Pre-guarded without a measurement here: the Variant cells of 9264 by Value := V and Validate(V) (var0, var1, var31 _assign and
-//   _validate) keep the BC 29 text on BC 28 and later and take their BC 27.5 text, 'Unable to convert from
-//   Microsoft.Dynamics.Nav.Runtime.NavInteger to System.DateTime.' (Conversion), from Y67FieldRefValidateVariant.al:572, which pins it
-//   for a Variant holding an Integer assigned and validated into a Date field. The typed cells and FR.Value(V) are not guarded.
 //   BC 27.5 (#else, measured by this pull request's CI: run 46051422345 found the 8 tests that differ, the observe run 46057619272
 //   measured every reading of them, the same on both 27.5 legs): a DateTime into Option and Boolean gives the Int32 conversion error
 //   ('Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32.', Conversion) like the other number

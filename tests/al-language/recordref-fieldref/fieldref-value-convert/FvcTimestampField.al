@@ -9,23 +9,25 @@
 //   relations (whether a text is a whole number, whether two readings are equal, whether the value grows after a Modify) and the
 //   texts that do not depend on the row (errors, the Variant's kind, the FieldRef metadata).
 //   Each cell runs in a TryFunction and records "ok: <reading>" or "E: <GetLastErrorText> | <GetLastErrorCode>".
-//   Measured on BC 29.0 (Linux, W1, en-US session) with an invented app holding these objects, through the dev endpoint's
-//   TestRunnerHub; the values are that run's readings, turned into Expect and Verify by convert.py verbatim, and asserted on
-//   BC 28 and later (#if BC28PLUS). On BC 27.5 (#else) the field 0 tests (codeunit 73499) assert the readings of this pull
-//   request's CI observe run 46057619272 (both 27.5 legs agree; they are the same as on BC 29).
+//   Measured on a local BC 29.0.54011.57673 service tier (Linux, W1, en-US session) on 2026-11-27, with an invented app holding
+//   these objects compiled by AL 18.0.43.1464 and run through the dev endpoint's TestRunnerHub (al runtests, AL tool
+//   18.1.43.24897); the values are those runs' readings, turned into Expect and Verify by convert.py verbatim. That holds for
+//   both test codeunits, 73499 and 73611. BC 27.5 gave the same readings in this pull request's CI observe runs 46057619272
+//   (codeunit 73499) and 46059704991 (codeunit 73611), the same on both 27.5 legs, so one set of assertions holds on every
+//   version.
 //   Facts (BC 29.0): field 0 of an inserted row is a whole number in every reading: exit from a Code[20] and a Text procedure,
 //   assignment to a Code[20], a Text and a BigInteger, Format and Format(.., 0, 9), and all of them give the same text. Through
 //   a Variant (V := FR.Value) the Variant holds a BigInteger, and assigning that Variant to a Code[20] fails with 'The expression
 //   Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.'
-//   (TypeConversion). The FieldRef: Number 0, Name timestamp, Type BigInteger, Class Normal. A row that is not inserted and a
+//   (TypeConversion). The value is greater than 999 (greater_than_999), so the whole-number readings are not the reading of
+//   a small number. The FieldRef: Number 0, Name timestamp, Type BigInteger, Class Normal. A row that is not inserted and a
 //   temporary row read 0. Rows differ from each other, and a Modify gives the row a greater value.
 //   Neighbours (enum 73610, table 73610, helper 73610, test codeunit 73611): exit(FR.Value()) from a procedure that returns
 //   Code[20], Text or Code[3], for an Integer (5), a BigInteger that is not field 0 (5000000000), a Decimal (1.5), an Enum (One,
 //   caption 'One Caption'), an Option (Beta), a Boolean (true), a Date (2026-01-15) and a Duration (1500 ms) field. BC 29.0: the
 //   value's formatted text (5, 5000000000, 1.5, the Enum's caption, the Option member, Yes, 01/15/26, 1 second 500 milliseconds),
 //   upper-cased for Code; a text longer than the Code fails with 'The length of the string is <n>, but it must be less than or
-//   equal to <m> characters. Value: <text>' (StringLengthExceeded). Asserted on BC 28 and later; on BC 27.5 (#else) these tests
-//   assert the readings of this pull request's CI observe run 46059704991 (both 27.5 legs agree; the same as on BC 29).
+//   equal to <m> characters. Value: <text>' (StringLengthExceeded).
 // BC versions: 27, 28, 29 by CI
 table 73498 "LT FTS Row"
 {
@@ -145,6 +147,11 @@ codeunit 73498 "LT FTS Probe"
                 Result := Format(FR.Class());
             'code_field1':
                 Result := CodeOfField(RecRef, 1);
+            'greater_than_999':
+                begin
+                    B := FR.Value();
+                    Result := Format(B > 999);
+                end;
         end;
     end;
 
@@ -230,7 +237,7 @@ codeunit 73499 "LT FTS Timestamp Tests"
         Probe.Cell(Observer, RecRef, 'type');
         Probe.Cell(Observer, RecRef, 'class');
         Probe.Cell(Observer, RecRef, 'code_field1');
-#if BC28PLUS
+        Probe.Cell(Observer, RecRef, 'greater_than_999');
         Observer.Expect('code_exit', 'ok: number');
         Observer.Expect('text_exit', 'ok: number');
         Observer.Expect('code_assign', 'ok: number');
@@ -248,27 +255,8 @@ codeunit 73499 "LT FTS Timestamp Tests"
         Observer.Expect('type', 'ok: BigInteger');
         Observer.Expect('class', 'ok: Normal');
         Observer.Expect('code_field1', 'ok: PZ-A');
+        Observer.Expect('greater_than_999', 'ok: Yes');
         Observer.Verify();
-#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
-        Observer.Expect('code_exit', 'ok: number');
-        Observer.Expect('text_exit', 'ok: number');
-        Observer.Expect('code_assign', 'ok: number');
-        Observer.Expect('text_assign', 'ok: number');
-        Observer.Expect('biginteger_assign', 'ok: number');
-        Observer.Expect('format', 'ok: number');
-        Observer.Expect('format_9', 'ok: number');
-        Observer.Expect('variant_kind', 'ok: IsBigInteger Yes IsInteger No IsCode No IsText No');
-        Observer.Expect('variant_to_code', 'E: The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value. | TypeConversion');
-        Observer.Expect('code_equals_text', 'ok: Yes');
-        Observer.Expect('code_equals_format_biginteger', 'ok: Yes');
-        Observer.Expect('code_equals_format', 'ok: Yes');
-        Observer.Expect('number', 'ok: 0');
-        Observer.Expect('name', 'ok: timestamp');
-        Observer.Expect('type', 'ok: BigInteger');
-        Observer.Expect('class', 'ok: Normal');
-        Observer.Expect('code_field1', 'ok: PZ-A');
-        Observer.Verify();
-#endif
     end;
 
     // Field 0 of a row that is not inserted (RecordRef.Init), and of a row inserted into a temporary RecordRef.
@@ -294,21 +282,12 @@ codeunit 73499 "LT FTS Timestamp Tests"
         Probe.CellAs(Observer, TempRef, 'code_exit', 'temporary_code_exit');
         Probe.CellAs(Observer, TempRef, 'text_assign', 'temporary_text_assign');
         Probe.CellAs(Observer, TempRef, 'biginteger_assign', 'temporary_biginteger_assign');
-#if BC28PLUS
         Observer.Expect('not_inserted_code_exit', 'ok: zero');
         Observer.Expect('not_inserted_text_assign', 'ok: zero');
         Observer.Expect('temporary_code_exit', 'ok: zero');
         Observer.Expect('temporary_text_assign', 'ok: zero');
         Observer.Expect('temporary_biginteger_assign', 'ok: zero');
         Observer.Verify();
-#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
-        Observer.Expect('not_inserted_code_exit', 'ok: zero');
-        Observer.Expect('not_inserted_text_assign', 'ok: zero');
-        Observer.Expect('temporary_code_exit', 'ok: zero');
-        Observer.Expect('temporary_text_assign', 'ok: zero');
-        Observer.Expect('temporary_biginteger_assign', 'ok: zero');
-        Observer.Verify();
-#endif
     end;
 
     // The timestamp before and after a Modify of the row, and of another row.
@@ -339,21 +318,12 @@ codeunit 73499 "LT FTS Timestamp Tests"
         Observer.Observe('after_differs', Format(After <> Before));
         Observer.Observe('after_greater', Format(After > Before));
         Observer.Observe('after_greater_than_other', Format(After > Other));
-#if BC28PLUS
         Observer.Expect('before_positive', 'Yes');
         Observer.Expect('other_differs', 'Yes');
         Observer.Expect('after_differs', 'Yes');
         Observer.Expect('after_greater', 'Yes');
         Observer.Expect('after_greater_than_other', 'Yes');
         Observer.Verify();
-#else // BC 27.5 gives another result, measured by this PR's CI run 46057619272 on 27.5 (both 27.5 legs agree)
-        Observer.Expect('before_positive', 'Yes');
-        Observer.Expect('other_differs', 'Yes');
-        Observer.Expect('after_differs', 'Yes');
-        Observer.Expect('after_greater', 'Yes');
-        Observer.Expect('after_greater_than_other', 'Yes');
-        Observer.Verify();
-#endif
     end;
 }
 
@@ -479,7 +449,6 @@ codeunit 73611 "LT FTX Exit Tests"
         Probe.Cells(Observer, 2, 'integer');
         Probe.Cells(Observer, 3, 'biginteger');
         Probe.Cells(Observer, 4, 'decimal');
-#if BC28PLUS
         Observer.Expect('integer_code20', 'ok: 5');
         Observer.Expect('integer_text', 'ok: 5');
         Observer.Expect('integer_code3', 'ok: 5');
@@ -490,18 +459,6 @@ codeunit 73611 "LT FTX Exit Tests"
         Observer.Expect('decimal_text', 'ok: 1.5');
         Observer.Expect('decimal_code3', 'ok: 1.5');
         Observer.Verify();
-#else // BC 27.5 gives another result, measured by this PR's CI run 46059704991 on 27.5 (both 27.5 legs agree)
-        Observer.Expect('integer_code20', 'ok: 5');
-        Observer.Expect('integer_text', 'ok: 5');
-        Observer.Expect('integer_code3', 'ok: 5');
-        Observer.Expect('biginteger_code20', 'ok: 5000000000');
-        Observer.Expect('biginteger_text', 'ok: 5000000000');
-        Observer.Expect('biginteger_code3', 'E: The length of the string is 10, but it must be less than or equal to 3 characters. Value: 5000000000 | StringLengthExceeded');
-        Observer.Expect('decimal_code20', 'ok: 1.5');
-        Observer.Expect('decimal_text', 'ok: 1.5');
-        Observer.Expect('decimal_code3', 'ok: 1.5');
-        Observer.Verify();
-#endif
     end;
 
     // exit(FR.Value()) of an Enum and an Option field.
@@ -514,7 +471,6 @@ codeunit 73611 "LT FTX Exit Tests"
         Probe.Seed();
         Probe.Cells(Observer, 5, 'enum');
         Probe.Cells(Observer, 6, 'option');
-#if BC28PLUS
         Observer.Expect('enum_code20', 'ok: ONE CAPTION');
         Observer.Expect('enum_text', 'ok: One Caption');
         Observer.Expect('enum_code3', 'E: The length of the string is 11, but it must be less than or equal to 3 characters. Value: One Caption | StringLengthExceeded');
@@ -522,15 +478,6 @@ codeunit 73611 "LT FTX Exit Tests"
         Observer.Expect('option_text', 'ok: Beta');
         Observer.Expect('option_code3', 'E: The length of the string is 4, but it must be less than or equal to 3 characters. Value: Beta | StringLengthExceeded');
         Observer.Verify();
-#else // BC 27.5 gives another result, measured by this PR's CI run 46059704991 on 27.5 (both 27.5 legs agree)
-        Observer.Expect('enum_code20', 'ok: ONE CAPTION');
-        Observer.Expect('enum_text', 'ok: One Caption');
-        Observer.Expect('enum_code3', 'E: The length of the string is 11, but it must be less than or equal to 3 characters. Value: One Caption | StringLengthExceeded');
-        Observer.Expect('option_code20', 'ok: BETA');
-        Observer.Expect('option_text', 'ok: Beta');
-        Observer.Expect('option_code3', 'E: The length of the string is 4, but it must be less than or equal to 3 characters. Value: Beta | StringLengthExceeded');
-        Observer.Verify();
-#endif
     end;
 
     // exit(FR.Value()) of a Boolean, a Date and a Duration field.
@@ -544,7 +491,6 @@ codeunit 73611 "LT FTX Exit Tests"
         Probe.Cells(Observer, 7, 'boolean');
         Probe.Cells(Observer, 8, 'date');
         Probe.Cells(Observer, 9, 'duration');
-#if BC28PLUS
         Observer.Expect('boolean_code20', 'ok: YES');
         Observer.Expect('boolean_text', 'ok: Yes');
         Observer.Expect('boolean_code3', 'ok: YES');
@@ -555,17 +501,5 @@ codeunit 73611 "LT FTX Exit Tests"
         Observer.Expect('duration_text', 'ok: 1 second 500 milliseconds');
         Observer.Expect('duration_code3', 'E: The length of the string is 25, but it must be less than or equal to 3 characters. Value: 1 second 500 milliseconds | StringLengthExceeded');
         Observer.Verify();
-#else // BC 27.5 gives another result, measured by this PR's CI run 46059704991 on 27.5 (both 27.5 legs agree)
-        Observer.Expect('boolean_code20', 'ok: YES');
-        Observer.Expect('boolean_text', 'ok: Yes');
-        Observer.Expect('boolean_code3', 'ok: YES');
-        Observer.Expect('date_code20', 'ok: 01/15/26');
-        Observer.Expect('date_text', 'ok: 01/15/26');
-        Observer.Expect('date_code3', 'E: The length of the string is 8, but it must be less than or equal to 3 characters. Value: 01/15/26 | StringLengthExceeded');
-        Observer.Expect('duration_code20', 'E: The length of the string is 25, but it must be less than or equal to 20 characters. Value: 1 second 500 milliseconds | StringLengthExceeded');
-        Observer.Expect('duration_text', 'ok: 1 second 500 milliseconds');
-        Observer.Expect('duration_code3', 'E: The length of the string is 25, but it must be less than or equal to 3 characters. Value: 1 second 500 milliseconds | StringLengthExceeded');
-        Observer.Verify();
-#endif
     end;
 }
