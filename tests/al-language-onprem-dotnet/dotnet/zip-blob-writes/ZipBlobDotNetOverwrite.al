@@ -4,6 +4,10 @@
 // Probe: written against al-runner issue 7947. System.IO.StreamWriter over a Blob OutStream writes 48 characters 'A'
 //        and flushes; then .NET moves BaseStream.Position back or calls BaseStream.SetLength, and writes again.
 //        Temporary table, and a stored table with Insert before and Modify + Get + CalcFields after.
+// Facts (same on BC 27.5, 28.5, 29.0; local BC on Linux): the Blob OutStream as a .NET stream can seek. After 48
+//        'A', Position 48 and Length 48. Position := 0 and 48 'B' gives 48 x 'B' (Length 48); 10 'B' gives 10 x 'B' and
+//        38 x 'A' (Length 48, no truncation). BaseStream.SetLength(10) gives 10 x 'A'. A stored record after Modify, Get
+//        and CalcFields keeps 48 x 'B'.
 // BC versions: 27, 28, 29
 codeunit 99025 "LT ZB DotNet Overwrite"
 {
@@ -38,7 +42,12 @@ codeunit 99025 "LT ZB DotNet Overwrite"
         Writer.Flush();
         Observer.Observe('length', Format(Buffer.Content.Length));
         Observer.Observe('text', Helper.BlobText(Buffer));
-        Observer.Finish();
+        Observer.Expect('can seek', 'Yes');
+        Observer.Expect('position after write', '48');
+        Observer.Expect('length after write', '48');
+        Observer.Expect('length', '48');
+        Observer.Expect('text', 'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB');
+        Observer.Verify();
     end;
 
     [Test]
@@ -55,7 +64,9 @@ codeunit 99025 "LT ZB DotNet Overwrite"
         Writer.BaseStream.SetLength(10);
         Observer.Observe('length', Format(Buffer.Content.Length));
         Observer.Observe('text', Helper.BlobText(Buffer));
-        Observer.Finish();
+        Observer.Expect('length', '10');
+        Observer.Expect('text', 'AAAAAAAAAA');
+        Observer.Verify();
     end;
 
     [Test]
@@ -76,7 +87,9 @@ codeunit 99025 "LT ZB DotNet Overwrite"
         Writer.Flush();
         Observer.Observe('length', Format(Buffer.Content.Length));
         Observer.Observe('text', Helper.BlobText(Buffer));
-        Observer.Finish();
+        Observer.Expect('length', '48');
+        Observer.Expect('text', 'BBBBBBBBBBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+        Observer.Verify();
     end;
 
     [Test]
@@ -104,6 +117,8 @@ codeunit 99025 "LT ZB DotNet Overwrite"
         Stored.CalcFields(Content);
         Observer.Observe('stored length', Format(Stored.Content.Length));
         Observer.Observe('stored text', Helper.StoredText(Stored));
-        Observer.Finish();
+        Observer.Expect('stored length', '48');
+        Observer.Expect('stored text', 'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB');
+        Observer.Verify();
     end;
 }

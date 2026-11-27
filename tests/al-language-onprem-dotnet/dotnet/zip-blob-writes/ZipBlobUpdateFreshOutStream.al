@@ -5,6 +5,12 @@
 //        and opens System.IO.Compression.ZipArchive in Update mode over that fresh OutStream, adds an entry and disposes.
 //        Stored table (with and without CalcFields before CreateOutStream, with and without Modify), temporary table,
 //        the 2-, 3- and 4-argument constructors, and an empty Blob as the control.
+// Facts (same on BC 27.5, 28.5, 29.0; local BC on Linux): a fresh CreateOutStream does not truncate the Blob for
+//        .NET. Update mode reads the existing zip (1 entry) when the Blob value is loaded (CalcFields on a stored record,
+//        or a temporary record); Dispose then writes the whole archive back (108 -> 194 bytes, 2 entries). Without
+//        CalcFields the archive sees 0 entries and the stored zip ends with only the new entry (the seed entry is lost).
+//        Without Modify the variable has the new zip and the database keeps the old one. The 2-, 3- and 4-argument
+//        constructors behave the same. No cell raises an error.
 // BC versions: 27, 28, 29
 codeunit 99023 "LT ZB Update Fresh Out"
 {
@@ -66,7 +72,13 @@ codeunit 99023 "LT ZB Update Fresh Out"
         Stored.CalcFields(Content);
         Observer.Observe('stored length', Format(Stored.Content.Length));
         Observer.Observe('stored entries', Helper.StoredEntries(Stored));
-        Observer.Finish();
+        Observer.Expect('seed length', '108');
+        Observer.Expect('length after CreateOutStream', '108');
+        Observer.Expect('entries in archive', '1');
+        Observer.Expect('length after Dispose', '194');
+        Observer.Expect('stored length', '194');
+        Observer.Expect('stored entries', '2:a.txt;b.txt;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -93,7 +105,11 @@ codeunit 99023 "LT ZB Update Fresh Out"
         Stored.CalcFields(Content);
         Observer.Observe('stored length', Format(Stored.Content.Length));
         Observer.Observe('stored entries', Helper.StoredEntries(Stored));
-        Observer.Finish();
+        Observer.Expect('entries in archive', '0');
+        Observer.Expect('length after Dispose', '108');
+        Observer.Expect('stored length', '108');
+        Observer.Expect('stored entries', '1:b.txt;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -120,7 +136,10 @@ codeunit 99023 "LT ZB Update Fresh Out"
         Again.Get(1);
         Again.CalcFields(Content);
         Observer.Observe('length in the database', Format(Again.Content.Length));
-        Observer.Finish();
+        Observer.Expect('length after Dispose', '194');
+        Observer.Expect('entries of the variable', '2:a.txt;b.txt;');
+        Observer.Expect('length in the database', '108');
+        Observer.Verify();
     end;
 
     [Test]
@@ -144,7 +163,12 @@ codeunit 99023 "LT ZB Update Fresh Out"
         ZipArchive.Dispose();
         Observer.Observe('length', Format(Buffer.Content.Length));
         Observer.Observe('entries', Helper.BufferEntries(Buffer));
-        Observer.Finish();
+        Observer.Expect('seed length', '108');
+        Observer.Expect('length after CreateOutStream', '108');
+        Observer.Expect('entries in archive', '1');
+        Observer.Expect('length', '194');
+        Observer.Expect('entries', '2:a.txt;b.txt;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -165,7 +189,10 @@ codeunit 99023 "LT ZB Update Fresh Out"
         ZipArchive.Dispose();
         Observer.Observe('length', Format(Buffer.Content.Length));
         Observer.Observe('entries', Helper.BufferEntries(Buffer));
-        Observer.Finish();
+        Observer.Expect('entries in archive', '1');
+        Observer.Expect('length', '194');
+        Observer.Expect('entries', '2:a.txt;b.txt;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -186,7 +213,10 @@ codeunit 99023 "LT ZB Update Fresh Out"
         ZipArchive.Dispose();
         Observer.Observe('length', Format(Buffer.Content.Length));
         Observer.Observe('entries', Helper.BufferEntries(Buffer));
-        Observer.Finish();
+        Observer.Expect('entries in archive', '1');
+        Observer.Expect('length', '194');
+        Observer.Expect('entries', '2:a.txt;b.txt;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -207,6 +237,9 @@ codeunit 99023 "LT ZB Update Fresh Out"
         ZipArchive.Dispose();
         Observer.Observe('length', Format(Buffer.Content.Length));
         Observer.Observe('entries', Helper.BufferEntries(Buffer));
-        Observer.Finish();
+        Observer.Expect('entries in archive', '0');
+        Observer.Expect('length', '108');
+        Observer.Expect('entries', '1:b.txt;');
+        Observer.Verify();
     end;
 }

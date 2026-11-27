@@ -5,6 +5,11 @@
 //        ZipArchive(OutStream, Update, false, UTF8) is opened over that same OutStream with one added entry. Before
 //        Dispose, AL changes the Blob (Clear and a rewrite with another zip, Clear only), .NET appends through the
 //        original OutStream, a second Update archive works on the same OutStream; and Dispose without parentheses.
+// Facts (same on BC 27.5, 28.5, 29.0; local BC on Linux): Dispose of an Update archive overwrites the Blob with the
+//        archive it read at open time plus the new entry (194 bytes, a.txt and b.txt). A Clear or an AL rewrite before
+//        Dispose is lost; after Clear only, HasValue is Yes again. Bytes appended through the original OutStream (111
+//        bytes) are overwritten; the Blob ends with the zip trailer again (last bytes 0,0,0). `Dispose;` and `Dispose()` are the
+//        same. Two Update archives on one OutStream: the second Dispose wins (a.txt and c.txt, 194 bytes).
 // BC versions: 27, 28, 29
 codeunit 99024 "LT ZB Update Blob Changed"
 {
@@ -54,7 +59,10 @@ codeunit 99024 "LT ZB Update Blob Changed"
         ZipArchive.Dispose();
         Observer.Observe('length', Format(Buffer.Content.Length));
         Observer.Observe('entries', Helper.BufferEntries(Buffer));
-        Observer.Finish();
+        Observer.Expect('length before Dispose', '108');
+        Observer.Expect('length', '194');
+        Observer.Expect('entries', '2:a.txt;b.txt;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -78,7 +86,12 @@ codeunit 99024 "LT ZB Update Blob Changed"
         Observer.Observe('length', Format(Buffer.Content.Length));
         Observer.Observe('last bytes', Helper.LastBytes(Buffer));
         Observer.Observe('entries', Helper.BufferEntries(Buffer));
-        Observer.Finish();
+        Observer.Expect('length after append', '111');
+        Observer.Expect('last bytes after append', '120,121,122');
+        Observer.Expect('length', '194');
+        Observer.Expect('last bytes', '0,0,0');
+        Observer.Expect('entries', '2:a.txt;b.txt;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -94,7 +107,9 @@ codeunit 99024 "LT ZB Update Blob Changed"
         ZipArchive.Dispose();
         Observer.Observe('has value', Format(Buffer.Content.HasValue()));
         Observer.Observe('length', Format(Buffer.Content.Length));
-        Observer.Finish();
+        Observer.Expect('has value', 'Yes');
+        Observer.Expect('length', '194');
+        Observer.Verify();
     end;
 
     [Test]
@@ -110,7 +125,9 @@ codeunit 99024 "LT ZB Update Blob Changed"
         ZipArchive.Dispose;
         Observer.Observe('length', Format(Buffer.Content.Length));
         Observer.Observe('entries', Helper.BufferEntries(Buffer));
-        Observer.Finish();
+        Observer.Expect('length', '194');
+        Observer.Expect('entries', '2:a.txt;b.txt;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -126,7 +143,9 @@ codeunit 99024 "LT ZB Update Blob Changed"
         ZipArchive.Dispose();
         Observer.Observe('length', Format(Buffer.Content.Length));
         Observer.Observe('entries', Helper.BufferEntries(Buffer));
-        Observer.Finish();
+        Observer.Expect('length', '194');
+        Observer.Expect('entries', '2:a.txt;b.txt;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -155,6 +174,9 @@ codeunit 99024 "LT ZB Update Blob Changed"
         Second.Dispose();
         Observer.Observe('length', Format(Buffer.Content.Length));
         Observer.Observe('entries', Helper.BufferEntries(Buffer));
-        Observer.Finish();
+        Observer.Expect('length after first Dispose', '194');
+        Observer.Expect('length', '194');
+        Observer.Expect('entries', '2:a.txt;c.txt;');
+        Observer.Verify();
     end;
 }
