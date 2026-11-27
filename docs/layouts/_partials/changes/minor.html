@@ -1,0 +1,3 @@
+{{- /* The major.minor of a version+build string: "29.1.57326.58076" -> "29.1". */ -}}
+{{- $parts := split (string .) "." -}}
+{{- return (delimit (first 2 $parts) ".") -}}

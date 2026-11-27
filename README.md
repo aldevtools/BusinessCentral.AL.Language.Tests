@@ -16,6 +16,8 @@ This repo is useful in two ways:
 
 **As a cross-version compatibility map** — the CI matrix runs against BC 27.5, 28.5 and 29.0. Version-gated tests (`#if BC28PLUS`, `#if BC29PLUS`) document which features changed between versions and exactly how. This is the kind of precision that release notes rarely provide.
 
+The changes found this way are listed on the [version changes site](https://aldevtools.github.io/BusinessCentral.AL.Language.Tests/) (source in `docs/`): one page per change, with the versions, the probes and whether Microsoft documented it.
+
 The primary goal is BC Cloud compatibility. Every in-scope AL feature gets at least one positive test proving it works and one negative test proving it fails predictably at the boundary. Cloud-restricted features (file I/O, .NET interop, `HttpClient`) get exactly one negative test confirming the expected error.
 
 **al-runtime-rs:** [StefanMaron/al-runtime-rs](https://github.com/StefanMaron/al-runtime-rs), a runtime for AL written in Rust, uses this repository as its oracle. It pins a commit of `master` and compares its own results with the JUnit files of this repository's CI.

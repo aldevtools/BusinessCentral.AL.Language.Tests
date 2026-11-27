@@ -1,0 +1,29 @@
+{{- /* The fact table at the top of each change page (content/changes/<id>.md). Field meanings: content/contribute.md. */ -}}
+{{- if and .IsPage (eq .Section "changes") -}}
+{{- $p := .Params -}}
+{{- $doc := partial "changes/documented.html" $p.microsoft_documented -}}
+<table class="version-change-facts">
+  <tbody>
+    <tr><th>Change id</th><td><code>{{ $p.id }}</code></td></tr>
+    <tr><th>Area</th><td>{{ $p.area }}</td></tr>
+    <tr><th>Class</th><td>{{ $p.class }}</td></tr>
+    <tr><th>First seen</th><td>{{ $p.first_seen }}</td></tr>
+    <tr><th>Last seen before</th><td>{{ $p.last_seen_before }}</td></tr>
+    {{- with $p.only_in }}
+    <tr><th>Old behavior only in</th><td>{{ . }} (the later version went back to the behavior of the versions before {{ . }})</td></tr>
+    {{- end }}
+    <tr><th>Also differs from</th><td>{{ with $p.also_differs_from }}{{ delimit . ", " }}{{ else }}none{{ end }}</td></tr>
+    <tr><th>Documented by Microsoft</th><td>{{ $doc }}{{ with $p.microsoft_link }} (<a href="{{ . }}">source</a>){{ end }}</td></tr>
+    <tr><th>Probes</th><td>
+      {{- range $p.probes }}
+      {{- $parts := split . ":" -}}
+      {{- $path := index $parts 0 -}}
+      {{- $href := printf "%s%s" site.Params.repoBlob $path -}}
+      {{- if gt (len $parts) 1 }}{{ $href = printf "%s#L%s" $href (index $parts 1) }}{{ end -}}
+      <a href="{{ $href }}"><code>{{ . }}</code></a><br>
+      {{- end }}
+    </td></tr>
+  </tbody>
+</table>
+<p><strong>Summary.</strong> {{ $p.summary }}</p>
+{{- end -}}

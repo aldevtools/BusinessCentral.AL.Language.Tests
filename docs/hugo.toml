@@ -1,0 +1,61 @@
+# Hugo site that documents Business Central version changes (CONTRIBUTING.md, "Version changes site").
+# Build: cd docs && hugo. Theme: Hextra (MIT), pinned in go.mod and go.sum. Published by .github/workflows/pages.yml.
+baseURL = "https://aldevtools.github.io/BusinessCentral.AL.Language.Tests/"
+title = "BC Version Changes"
+enableGitInfo = false
+disableKinds = ["taxonomy", "term", "rss"]
+# The Markdown files in this folder (plans, notes) are not part of the site: Hugo reads content/ only.
+
+[module]
+  [module.hugoVersion]
+    min = "0.146.0"
+  [[module.imports]]
+    path = "github.com/imfing/hextra"
+
+[markup.goldmark.renderer]
+  unsafe = false
+
+[outputs]
+  home = ["html"]
+  page = ["html"]
+  section = ["html"]
+
+[menu]
+  [[menu.main]]
+    name = "Changes"
+    pageRef = "/changes"
+    weight = 1
+  [[menu.main]]
+    name = "Versions"
+    pageRef = "/versions"
+    weight = 2
+  [[menu.main]]
+    name = "Contribute"
+    pageRef = "/contribute"
+    weight = 3
+  [[menu.main]]
+    name = "Search"
+    weight = 4
+    [menu.main.params]
+      type = "search"
+  [[menu.main]]
+    name = "GitHub"
+    weight = 5
+    url = "https://github.com/aldevtools/BusinessCentral.AL.Language.Tests"
+    [menu.main.params]
+      icon = "github"
+
+[params]
+  # Repository paths of probe files link here (layouts/_partials/custom/content-begin.html).
+  repoBlob = "https://github.com/aldevtools/BusinessCentral.AL.Language.Tests/blob/master/"
+  [params.navbar]
+    displayTitle = true
+    displayLogo = false
+  [params.footer]
+    displayCopyright = false
+    displayPoweredBy = false
+  [params.search]
+    enable = true
+    type = "flexsearch"
+  [params.page]
+    width = "wide"
