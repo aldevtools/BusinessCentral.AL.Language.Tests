@@ -452,6 +452,28 @@ codeunit 99402 "LT QX DotNet Demo Shapes"
         exit(Format(TenantWebService.Count()) + '|' + Format(Columns.Count()) + '|' + Format(OData.Count()) + '|' + Format(Filters.Count()));
     end;
 
+    // The change of each count of Now against the counts Base read at the start of the test ('0|8|0|0' = eight more column rows).
+    // The test asserts these deltas, not the counts: the catalog size is data of the BC build (Tenant Web Service has 64 rows on 29.0
+    // and 65 on 29.1, version change: 29.1-mdm-web-service-row).
+    local procedure RjCountDelta(Base: Text; Now: Text) Result: Text
+    var
+        BaseParts: List of [Text];
+        NowParts: List of [Text];
+        BaseCount: Integer;
+        NowCount: Integer;
+        Index: Integer;
+    begin
+        BaseParts := Base.Split('|');
+        NowParts := Now.Split('|');
+        for Index := 1 to NowParts.Count() do begin
+            Evaluate(BaseCount, BaseParts.Get(Index));
+            Evaluate(NowCount, NowParts.Get(Index));
+            if Index > 1 then
+                Result += '|';
+            Result += Format(NowCount - BaseCount);
+        end;
+    end;
+
     local procedure RjFindOData(var OData: Record "Tenant Web Service OData"; Id: RecordId): Boolean
     begin
         OData.Reset();
@@ -495,13 +517,14 @@ codeunit 99402 "LT QX DotNet Demo Shapes"
         Existed: Boolean;
         Ok: Boolean;
         MaxEntry: Integer;
+        BaseCounts: Text;
     begin
         Columns.SetCurrentKey("Entry ID");
         if Columns.FindLast() then
             MaxEntry := Columns."Entry ID";
         Existed := TenantWebService.Get(TenantWebService."Object Type"::Query, 'SegmentLines');
         Observer.Observe('row before', Format(Existed));
-        Observer.Observe('counts before', RjCounts());
+        BaseCounts := RjCounts();
         WebServiceManagement.CreateTenantWebService(
           TenantWebService."Object Type"::Query, QUERY::"Segment Lines", 'SegmentLines', true);
 
@@ -544,7 +567,7 @@ codeunit 99402 "LT QX DotNet Demo Shapes"
         Observer.Observe('clauses read back', '[' + WebServiceManagement.GetODataSelectClause(TenantWebServiceOData) + '][' +
           WebServiceManagement.GetODataFilterClause(TenantWebServiceOData) + '][' + WebServiceManagement.GetODataV4FilterClause(TenantWebServiceOData) + ']');
         Observer.Observe('rows after', RjRowsOf(TenantWebService.RecordId, MaxEntry));
-        Observer.Observe('counts after', RjCounts());
+        Observer.Observe('counts after', RjCountDelta(BaseCounts, RjCounts()));
 
         Columns.Reset();
         Columns.SetRange(TenantWebServiceID, TenantWebService.RecordId);
@@ -557,12 +580,11 @@ codeunit 99402 "LT QX DotNet Demo Shapes"
             Filters.DeleteAll();
             TenantWebService.Delete();
         end;
-        Observer.Observe('counts restored', RjCounts());
+        Observer.Observe('counts restored', RjCountDelta(BaseCounts, RjCounts()));
         // The fresh tenant already has 'SegmentLines' (16 columns: the eight fields twice, an OData row, no filter rows): the calls add eight
         // columns named by the query metadata, the OData Insert fails, and both filter texts of a query service without filter rows are empty;
         // the three TryFunctions return true.
         Observer.Expect('row before', 'Yes');
-        Observer.Expect('counts before', '64|402|29|0');
         Observer.Expect('row', 'Query|SegmentLines|106|Yes');
         Observer.Expect('rows before columns', 'columns 16 new 0: odata 1 filters 0');
         Observer.Expect('metadata is null', 'No');
@@ -575,8 +597,8 @@ codeunit 99402 "LT QX DotNet Demo Shapes"
         Observer.Expect('v4 text', '[]');
         Observer.Expect('clauses read back', '[$select=Segment_No,Contact_No,Salesperson_Code,Correspondence_Type,Contact_Name,Contact_Company_Name,Language_Code,Contact_Company_No,Segment_No,Contact_No,Salesperson_Code,Correspondence_Type,Contact_Name,Contact_Company_Name,Language_Code,Contact_Company_No,Segment_No,Contact_No,Salesperson_Code,Correspondence_Type,Contact_Name,Contact_Company_Name,Language_Code,Contact_Company_No][][]');
         Observer.Expect('rows after', 'columns 24 new 8:[5077|1|Segment_No|Yes][5077|3|Contact_No|Yes][5077|5|Salesperson_Code|Yes][5077|6|Correspondence_Type|Yes][5077|12|Contact_Name|Yes][5077|18|Contact_Company_Name|Yes][5077|19|Language_Code|Yes][5077|27|Contact_Company_No|Yes] odata 1 filters 0');
-        Observer.Expect('counts after', '64|410|29|0');
-        Observer.Expect('counts restored', '64|402|29|0');
+        Observer.Expect('counts after', '0|8|0|0');
+        Observer.Expect('counts restored', '0|0|0|0');
         Observer.Verify();
     end;
 

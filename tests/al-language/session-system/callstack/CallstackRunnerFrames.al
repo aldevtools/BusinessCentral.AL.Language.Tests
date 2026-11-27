@@ -10,7 +10,7 @@
 //   frames, each frame, the separator and trailing separator, StrLen of the whole text and of the tail, and whether the runner codeunits
 //   130451 and 99903 are in the tail. The tail is the text after the version of the last frame of this app.
 // The runner version is a build number of the CI artifact (27.5.46862.57885, 28.5.54151.57916, 29.0.54011.55816 when measured): the frame texts are
-//   asserted with the version replaced by <RunnerVersion>, and the major and minor part of the version is asserted apart per BC version. The line numbers
+//   asserted with the version replaced by <RunnerVersion>, and the major part of the version is asserted apart per BC version (not the minor: the leg's minor changes with the BC build). The line numbers
 //   (RunTests line 26, ...) are lines of Microsoft's test runner source and are asserted as they are; they are the same on 27.5, 28.5 and 29.0.
 // New file with a reason: CallstackFullText.al is line sensitive (its expected lengths) and its objects are reused here, not copied.
 // BC versions: 27, 28, 29
@@ -685,16 +685,17 @@ codeunit 69952 "LT RF Callstack Helper"
         Observer.Observe(KeyName + '.tail.runner-version-prefix', Format(VersionOk));
     end;
 
-    // The build number of the runner is specific to the CI artifact: only its major and minor part is asserted (the BC 27.5 build is 27.5.x).
+    // The build number of the runner is specific to the CI artifact: only its major part is asserted (the BC 27.5 build is 27.x).
+    // The minor part is the minor of the BC build the leg runs (29.0 and 29.1 both run), so it is not asserted.
     local procedure RunnerVersionPrefix(): Text
     begin
 #if BC29PLUS
-        exit('Test Runner by Microsoft version 29.0.');
+        exit('Test Runner by Microsoft version 29.');
 #else
 #if BC28PLUS
-        exit('Test Runner by Microsoft version 28.5.');
+        exit('Test Runner by Microsoft version 28.');
 #else
-        exit('Test Runner by Microsoft version 27.5.');
+        exit('Test Runner by Microsoft version 27.');
 #endif
 #endif
     end;

@@ -23,6 +23,9 @@
 //      codeunits of one company. The install session raised OnCompanyOpen and OnCompanyOpenCompleted in each company (2 calls), none in the per-database part.
 // Not pinned: P2 (session company first, or the key order of the Company table): in this CI the session company also sorts first. A per-company table
 //   insert from the per-database part: an error there cannot be caught (a write in a TryFunction), so the app would not install.
+// 29.1 (version changes 29.1-contoso-spend-request-series, 29.1-my-company-job-queue-entry): the session company has one more No. Series row and
+//   "My Company" one more Job Queue Entry. Since then the demo data counts of the session company and the job queue count of "My Company" are not
+//   asserted (only that they have rows), and the install rows compare their counts with the counts read in the test.
 // BC versions: 27 - 29
 codeunit 81257 "LT BF Install Tests"
 {
@@ -71,6 +74,22 @@ codeunit 81257 "LT BF Install Tests"
         exit(Format(RecRef.Count()));
     end;
 
+    // The counts in the form the install code wrote them (BfInstallFixtures.al, BaseCounts), read now from the test.
+    local procedure CountsNow(Company: Text): Text
+    begin
+        exit('79=' + CountIn(79, Company) + ';98=' + CountIn(98, Company) + ';242=' + CountIn(242, Company) + ';77=' + CountIn(77, Company) + ';308=' + CountIn(308, Company));
+    end;
+
+    // The rows a company holds. In the session company the Report Selections (77) and No. Series (308) rows are demo data of the BC build
+    // (No. Series has 119 rows on 29.0 and 120 on 29.1, version change: 29.1-contoso-spend-request-series): only whether it has rows is
+    // asserted there. The other company holds no demo data; its counts are asserted.
+    local procedure RowsText(Company: Text): Text
+    begin
+        if Company = CompanyName() then
+            exit('79=' + CountIn(79, Company) + ';98=' + CountIn(98, Company) + ';242=' + CountIn(242, Company) + ';77 has rows=' + Format(CountIn(77, Company) <> '0') + ';308 has rows=' + Format(CountIn(308, Company) <> '0'));
+        exit(CountsNow(Company));
+    end;
+
     [Test]
     procedure Companies_BaseTableRows_ReadFromATest()
     var
@@ -79,19 +98,27 @@ codeunit 81257 "LT BF Install Tests"
     begin
         if Company.FindSet() then
             repeat
-                Observer.Observe(Tag(Company.Name) + ' rows', '79=' + CountIn(79, Company.Name) + ';98=' + CountIn(98, Company.Name) + ';242=' + CountIn(242, Company.Name) + ';77=' + CountIn(77, Company.Name) + ';308=' + CountIn(308, Company.Name));
+                Observer.Observe(Tag(Company.Name) + ' rows', RowsText(Company.Name));
             until Company.Next() = 0;
-#if BC28PLUS
-        Observer.Expect('session company rows', '79=1;98=1;242=1;77=71;308=119');
-#else
-        Observer.Expect('session company rows', '79=1;98=1;242=1;77=70;308=118');
-#endif
+        Observer.Expect('session company rows', '79=1;98=1;242=1;77 has rows=Yes;308 has rows=Yes');
 #if BC28PLUS
         Observer.Expect('other company rows', '79=0;98=0;242=0;77=2;308=1');
 #else
         Observer.Expect('other company rows', '79=0;98=0;242=0;77=2;308=0');
 #endif
         Observer.Verify();
+    end;
+
+    // P3: the counts the install code wrote (Info of the per-company rows) are compared with the counts the test reads now in the same
+    // company, so the demo data size of the BC build is not asserted here (Companies_BaseTableRows_ReadFromATest asserts the rows).
+    local procedure InfoText(Row: Record "LT BF Install Log"): Text
+    begin
+        if (Row."Company" <> '') and Row.Info.StartsWith('79=') then
+            if Row.Info = CountsNow(Row."Company") then
+                exit('counts as read in the test')
+            else
+                exit('counts at install ' + Row.Info + ' read in the test ' + CountsNow(Row."Company"));
+        exit(Row.Info);
     end;
 
     [Test]
@@ -107,7 +134,7 @@ codeunit 81257 "LT BF Install Tests"
         if Row.FindSet() then
             repeat
                 Observer.Observe('row #' + Format(Row.Id), Row."Source" + '|' + Row."Event Name" + '|' + Tag(Row."Company") + '|context=' + Row."Context" + '|counter=' + Format(Row."Counter")
-                    + '|fixture counter=' + Format(Row."Fixture Counter") + '|company open calls=' + Format(Row."Company Open Calls") + '|' + Row.Info);
+                    + '|fixture counter=' + Format(Row."Fixture Counter") + '|company open calls=' + Format(Row."Company Open Calls") + '|' + InfoText(Row));
                 if not Sessions.Contains(Row."Session Id") then
                     Sessions.Add(Row."Session Id");
             until Row.Next() = 0;
@@ -121,18 +148,10 @@ codeunit 81257 "LT BF Install Tests"
             until FixtureRow.Next() = 0;
         if (Sessions.Count() = 1) and (FixtureSessions.Count() = 1) then
             Observer.Observe('fixture install ran in the same session', Format(Sessions.Get(1) = FixtureSessions.Get(1)));
-#if BC28PLUS
-        Observer.Expect('row #1', 'Z Subs|OnInstallAppPerCompany|session company|context=Install|counter=1|fixture counter=0|company open calls=2|79=1;98=1;242=1;77=71;308=119');
-#else
-        Observer.Expect('row #1', 'Z Subs|OnInstallAppPerCompany|session company|context=Install|counter=1|fixture counter=0|company open calls=2|79=1;98=1;242=1;77=70;308=118');
-#endif
+        Observer.Expect('row #1', 'Z Subs|OnInstallAppPerCompany|session company|context=Install|counter=1|fixture counter=0|company open calls=2|counts as read in the test');
         Observer.Expect('row #2', 'Install Late|OnInstallAppPerCompany|session company|context=Install|counter=2|fixture counter=0|company open calls=2|');
         Observer.Expect('row #3', 'A Subs|OnInstallAppPerCompany|session company|context=Install|counter=3|fixture counter=0|company open calls=2|');
-#if BC28PLUS
-        Observer.Expect('row #4', 'Z Subs|OnInstallAppPerCompany|other company|context=Install|counter=1|fixture counter=0|company open calls=2|79=0;98=0;242=0;77=2;308=1');
-#else
-        Observer.Expect('row #4', 'Z Subs|OnInstallAppPerCompany|other company|context=Install|counter=1|fixture counter=0|company open calls=2|79=0;98=0;242=0;77=2;308=0');
-#endif
+        Observer.Expect('row #4', 'Z Subs|OnInstallAppPerCompany|other company|context=Install|counter=1|fixture counter=0|company open calls=2|counts as read in the test');
         Observer.Expect('row #5', 'Install Late|OnInstallAppPerCompany|other company|context=Install|counter=2|fixture counter=0|company open calls=2|');
         Observer.Expect('row #6', 'A Subs|OnInstallAppPerCompany|other company|context=Install|counter=3|fixture counter=0|company open calls=2|');
         Observer.Expect('row #7', 'Z Subs|OnInstallAppPerDatabase|blank|context=Install|counter=1|fixture counter=0|company open calls=0|isempty=error|You must choose a company before you can access the "LT BF Per Company Row" table.|DB:Ok;findfirst=error|You must choose a company before you can access the "LT BF Per Company Row" table.|DB:Ok');
@@ -282,7 +301,7 @@ codeunit 81257 "LT BF Install Tests"
         Result += ';gl setup get=' + Format(GLSetup.Get()) + ';gl setup=' + Format(GLSetup.Count());
         Result += ';sales setup get=' + Format(SalesSetup.Get()) + ';sales setup=' + Format(SalesSetup.Count());
         if WithJobQueue then
-            Result += ';job queue entries=' + Format(JobQueueEntry.Count());
+            Result += ';has job queue entries=' + Format(not JobQueueEntry.IsEmpty());
         Result += ';company information get=' + Format(CompanyInfo.Get()) + ';company information=' + Format(CompanyInfo.Count());
         if CompanyInfo.Get() then
             Result += ';company information name=' + Plain(CompanyInfo.Name);
@@ -324,12 +343,12 @@ codeunit 81257 "LT BF Install Tests"
     begin
         // Measured on 27.5, 28.5 and 29.0 (the same on all three): the session company has one row in each setup table and Company Information Name
         // CRONUS International Ltd.; "My Company" has one Application Area Setup row, no General Ledger Setup, Sales & Receivables Setup or Company
-        // Information row (Get fails) and one Job Queue Entry. The job queue count of the session company (6 in the measured runs) is not asserted: other
-        // test codeunits can change it.
+        // Information row (Get fails) and one Job Queue Entry (two on 29.1, version change: 29.1-my-company-job-queue-entry; only that it has entries is
+        // asserted). The job queue count of the session company (6 in the measured runs) is not asserted: other test codeunits can change it.
         Observer.Observe('session company setup', SetupText(CompanyName(), false));
         Observer.Observe('My Company setup', SetupText('My Company', true));
         Observer.Expect('session company setup', 'app area setup=1;gl setup get=Yes;gl setup=1;sales setup get=Yes;sales setup=1;company information get=Yes;company information=1;company information name=CRONUS_International_Ltd.');
-        Observer.Expect('My Company setup', 'app area setup=1;gl setup get=No;gl setup=0;sales setup get=No;sales setup=0;job queue entries=1;company information get=No;company information=0');
+        Observer.Expect('My Company setup', 'app area setup=1;gl setup get=No;gl setup=0;sales setup get=No;sales setup=0;has job queue entries=Yes;company information get=No;company information=0');
         Observer.Verify();
     end;
 }

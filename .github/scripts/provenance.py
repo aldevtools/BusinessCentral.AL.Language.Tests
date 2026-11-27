@@ -25,7 +25,10 @@ attempt of the same run) keeps them; a suite whose bc_build differs is an error,
 suite's timestamp is not changed.
 
 manifest: writes the run's results manifest (artifact results-manifest) from the leg files of the run, DIR/<bc
-version>/<artifact folder>/<junit file>; per JUnit file name the last artifact folder in name order wins. Exit 1 when a
+version>/<artifact folder>/<junit file>; per JUnit file name the last artifact folder in name order wins. It records
+the list of released minors (released_minors, ci-legs.py) and each version's preprocessor symbols as the matrix gave
+them to the legs (versions.<v>.preprocessor_symbols, a list): al-runtime-rs derives the same symbols from the list and
+refuses a bump when they differ (its ADR-078, point 3). Exit 1 when a
 test job of ci.yml has no file or no codeunit for a version, or a suite lacks this run's provenance (run, commit, app
 full) or names another build. The manifest of a nightly run (event schedule) is written the same way; the job
 "Nightly comparison" then adds versions.<v>.comparison (set_comparison, called by compare-results.py).
@@ -57,7 +60,7 @@ BC_COUNTRY = 'w1'
 # That build reports debugger protocol 9.0, and no published al tool supports it yet: 18.0.37.11445-beta and
 # 18.0.43.1464 stop at 7.0, 30.0.42.60748-beta at 8.0, so every codeunit ended "al runtests exited 1 with no results"
 # (corpus #561). Remove the entry once an al tool lists debugger 9.0. (Moved here from the five test jobs of ci.yml.)
-PINNED = {'29.': RELEASED + '/sandbox/29.0.54011.55816/w1'}
+PINNED = {'29.0': RELEASED + '/sandbox/29.0.54011.55816/w1'}
 
 PROPS = ('source_run', 'source_attempt', 'source_commit', 'bc_build', 'app')
 SCHEMA = 1
@@ -206,11 +209,20 @@ def leg_files(version_dir):
     return out
 
 
-def manifest(versions, jobs, run, attempt, commit, event, root):
+def released_minors():
+    """The list of released minors (ci-legs.py), as version strings."""
+    spec = importlib.util.spec_from_file_location('ci_legs', os.path.join(HERE, 'ci-legs.py'))
+    legs = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(legs)
+    return [legs.name(v) for v in legs.released()]
+
+
+def manifest(versions, jobs, run, attempt, commit, event, root, released=None):
     errors = []
     expected = {junit_name(j['test_app_dirs'][0]): j['test_app_dirs'][0] for j in jobs}
     out = {'schema': SCHEMA, 'run_id': int(run), 'run_attempt': int(attempt), 'commit': commit, 'event': event,
            'base_run': None, 'base_commit': None,
+           'released_minors': released_minors() if released is None else list(released),
            'created': datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'), 'versions': {}}
     for entry in versions.get('include', []):
         v, build = entry['bc_version'], entry.get('bc_build', '')
@@ -232,8 +244,11 @@ def manifest(versions, jobs, run, attempt, commit, event, root):
                 errors.append('BC %s, %s: no codeunit of this run' % (v, name))
             legs[name] = {'test_app_dir': expected.get(name), 'fresh': fresh, 'reused': 0, 'dropped': 0,
                           'oldest_source_run': int(run)}
+        symbols = [x for x in entry.get('preprocessor_symbols', '').split(',') if x]
+        if not symbols:
+            errors.append('BC %s: the matrix entry has no preprocessor_symbols' % v)
         out['versions'][v] = {'bc_build': build, 'bc_artifact_url': entry.get('bc_artifact_url', ''), 'mode': 'full',
-                              'chain': 0, 'app': 'full', 'legs': legs}
+                              'chain': 0, 'app': 'full', 'preprocessor_symbols': symbols, 'legs': legs}
     return out, errors
 
 

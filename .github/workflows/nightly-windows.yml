@@ -711,10 +711,9 @@ jobs:
           $c = $env:CONTAINER_NAME
           $cred = Import-Clixml (Join-Path $env:RUNNER_TEMP 'bccred.xml')
 
-          # Same symbols ci.yml computes, from the same rule.
-          $major = [int]($env:BC_VERSION -split '\.')[0]
-          $symbols = @()
-          foreach ($v in 27, 28, 29) { if ($v -le $major) { $symbols += "BC${v}PLUS" } }
+          # Same symbols ci.yml defines, from the same list of released minors (.github/scripts/ci-legs.py).
+          $symbols = @((& python .github/scripts/ci-legs.py symbols $env:BC_VERSION) -split ',')
+          if ($LASTEXITCODE -ne 0 -or -not $symbols[0]) { throw "ci-legs.py symbols $env:BC_VERSION failed" }
           Write-Host ("preprocessor symbols: {0}" -f ($symbols -join ','))
 
           # Order matters: the fixture and the cross-app fixtures A, B and C (CONTRIBUTING.md, "Multi-app fixtures") are
@@ -963,9 +962,9 @@ jobs:
 
           $folder = 'tests/al-language-isolation-probe'
           # The probe's expected readings differ between majors in a few places (#if BC29PLUS): define the
-          # same symbols ci.yml defines per leg (27 -> BC27PLUS, 28 -> +BC28PLUS, 29 -> +BC29PLUS).
-          $major = [int]($env:BC_VERSION -split '\.')[0]
-          $symbols = @(); if ($major -ge 27) { $symbols += 'BC27PLUS' }; if ($major -ge 28) { $symbols += 'BC28PLUS' }; if ($major -ge 29) { $symbols += 'BC29PLUS' }
+          # same symbols ci.yml defines per leg (.github/scripts/ci-legs.py).
+          $symbols = @((& python .github/scripts/ci-legs.py symbols $env:BC_VERSION) -split ',')
+          if ($LASTEXITCODE -ne 0 -or -not $symbols[0]) { throw "ci-legs.py symbols $env:BC_VERSION failed" }
           $probeJson = Join-Path $env:GITHUB_WORKSPACE "$folder/app.json"
           $probeApp = Get-Content $probeJson -Raw | ConvertFrom-Json
           $probeApp | Add-Member -NotePropertyName preprocessorSymbols -NotePropertyValue $symbols -Force

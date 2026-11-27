@@ -1,0 +1,18 @@
+# Every released BC minor from 27.0 on, one per line (CONTRIBUTING.md, "Version-gated tests (preprocessor directives)").
+# The only list of minors: .github/scripts/ci-legs.py derives the CI legs (the newest minor of each major) and the
+# preprocessor symbols of every version from it. The pull request that moves a leg to a new minor adds the minor here.
+# "Released": Microsoft publishes it as a sandbox artifact for production use; never a release candidate or insider build.
+27.0
+27.1
+27.2
+27.3
+27.4
+27.5
+28.0
+28.1
+28.2
+28.3
+28.4
+28.5
+29.0
+29.1

@@ -9,7 +9,7 @@
 //   same two methods from the artifact. A hash equal to the runner's own render on each major is the gate of that amendment.
 //   Also the hash of Email Message.GetBody after Create(.., Body, true), where System Application runs its rgba replace.
 // Observed on the CI builds BC 27.5.46862.58057, 28.5.54151.58194 and 29.0.54011.55816: the 27 and 28 values are equal (the converter is
-//   Aspose.Words 26.10.0 there), 29 differs (Aspose.Words 26.8.0). The converter writes its version into the Html as a generator meta
+//   Aspose.Words 26.10.0 there), 29.0 differs (Aspose.Words 26.8.0). The converter writes its version into the Html as a generator meta
 //   tag, so the hash and the char count include the converter version string: a different BC build can give a different hash.
 // Facts observed per cell: completed, returned, error text and code, byte count, SHA-256 of the saved bytes, SHA-256 of GetBody,
 //   and for the tenant cells whether the hash equals the hash of the same report's own layout (no rewrite of a Tenant Report Layout
@@ -17,6 +17,7 @@
 // Bound cells: RX Hash Bound (report 80031) with the hand-built RxHashBound.docx binds Text, Integer, Decimal and Date columns in a repeating row section.
 // Linux suspect: none of these layouts has a picture (a picture cell is queued separately; it needs the Windows nightly).
 // local object: the reports' own layouts and their dataset table are what the tests check.
+// BC 29.1 (version change 29.1-aspose-words-version, guard BC29_1PLUS): Aspose.Words 26.10.0 again, so 29.1 takes the 27 and 28 values.
 // BC versions: 27 - 29
 
 report 80030 "RX Hash Values"
@@ -153,7 +154,13 @@ codeunit 80029 "RX Html Hash Tests"
         Observer.Expect('returned', 'Yes');
         Observer.Expect('err|text', '');
         Observer.Expect('err|code', '');
-#if BC29PLUS
+#if BC29_1PLUS
+        // version change: 29.1-aspose-words-version (29.1 renders with Aspose.Words 26.10.0 like 27.5 and 28.5; 29.0 had 26.8.0)
+        Observer.Expect('chars', '429');
+        Observer.Expect('sha256', '08A98ED74F8ED6422E0F47C6C79DE89A54CD73DCB8A7A5CD1541E107FB99DE5D');
+        Observer.Expect('getbody chars', '429');
+        Observer.Expect('getbody sha256', '08A98ED74F8ED6422E0F47C6C79DE89A54CD73DCB8A7A5CD1541E107FB99DE5D');
+#elif BC29PLUS
         Observer.Expect('chars', '428');
         Observer.Expect('sha256', 'F17FE0E0CF4E23671E7C3221256F3F46F58505B479EB209E39C9C25AF872AE20');
         Observer.Expect('getbody chars', '428');
@@ -178,7 +185,11 @@ codeunit 80029 "RX Html Hash Tests"
         Observer.Expect('returned', 'Yes');
         Observer.Expect('err|text', '');
         Observer.Expect('err|code', '');
-#if BC29PLUS
+#if BC29_1PLUS
+        // version change: 29.1-aspose-words-version (29.1 renders with Aspose.Words 26.10.0 like 27.5 and 28.5; 29.0 had 26.8.0)
+        Observer.Expect('chars', '429');
+        Observer.Expect('sha256', '08A98ED74F8ED6422E0F47C6C79DE89A54CD73DCB8A7A5CD1541E107FB99DE5D');
+#elif BC29PLUS
         Observer.Expect('chars', '428');
         Observer.Expect('sha256', 'F17FE0E0CF4E23671E7C3221256F3F46F58505B479EB209E39C9C25AF872AE20');
 #else
@@ -200,7 +211,13 @@ codeunit 80029 "RX Html Hash Tests"
         Observer.Expect('returned', 'Yes');
         Observer.Expect('err|text', '');
         Observer.Expect('err|code', '');
-#if BC29PLUS
+#if BC29_1PLUS
+        // version change: 29.1-aspose-words-version (29.1 renders with Aspose.Words 26.10.0 like 27.5 and 28.5; 29.0 had 26.8.0)
+        Observer.Expect('chars', '1748');
+        Observer.Expect('sha256', 'B9A3BCDDC928B21D9A7371CBE7A841BEF74C17FC4364A7D73DDDD9C5EBB4387B');
+        Observer.Expect('getbody chars', '1748');
+        Observer.Expect('getbody sha256', 'B9A3BCDDC928B21D9A7371CBE7A841BEF74C17FC4364A7D73DDDD9C5EBB4387B');
+#elif BC29PLUS
         Observer.Expect('chars', '1747');
         Observer.Expect('sha256', '096C6CDFFA8D335E84FE37FABAA8A070C77F03103898FAE81DDE30BC2D69BB30');
         Observer.Expect('getbody chars', '1747');
@@ -227,7 +244,13 @@ codeunit 80029 "RX Html Hash Tests"
         Observer.Expect('returned', 'Yes');
         Observer.Expect('err|text', '');
         Observer.Expect('err|code', '');
-#if BC29PLUS
+#if BC29_1PLUS
+        // version change: 29.1-aspose-words-version (29.1 renders with Aspose.Words 26.10.0 like 27.5 and 28.5; 29.0 had 26.8.0)
+        Observer.Expect('chars', '1337');
+        Observer.Expect('sha256', '66C10E37E1C9D3B4EAF515472E216CDEC0041F471855636C88A5DF1AD91E6D1F');
+        Observer.Expect('getbody chars', '1330');
+        Observer.Expect('getbody sha256', '2FBCF34F41BF065F463724DD4422B0891D253AA2CF2B3A6CAA124A607864C55E');
+#elif BC29PLUS
         Observer.Expect('chars', '1336');
         Observer.Expect('sha256', '2F6A43A8F0CE15CFED0C90D266F2F9CE2B1FA62A9052A2B025BFA1854AC84C29');
         Observer.Expect('getbody chars', '1329');
@@ -263,7 +286,11 @@ codeunit 80029 "RX Html Hash Tests"
         Observer.Expect('returned', 'Yes');
         Observer.Expect('err|text', '');
         Observer.Expect('err|code', '');
-#if BC29PLUS
+#if BC29_1PLUS
+        // version change: 29.1-aspose-words-version (29.1 renders with Aspose.Words 26.10.0 like 27.5 and 28.5; 29.0 had 26.8.0)
+        Observer.Expect('chars', '1337');
+        Observer.Expect('sha256', '66C10E37E1C9D3B4EAF515472E216CDEC0041F471855636C88A5DF1AD91E6D1F');
+#elif BC29PLUS
         Observer.Expect('chars', '1336');
         Observer.Expect('sha256', '2F6A43A8F0CE15CFED0C90D266F2F9CE2B1FA62A9052A2B025BFA1854AC84C29');
 #else
@@ -274,7 +301,11 @@ codeunit 80029 "RX Html Hash Tests"
         Observer.Expect('returned', 'Yes');
         Observer.Expect('err|text', '');
         Observer.Expect('err|code', '');
-#if BC29PLUS
+#if BC29_1PLUS
+        // version change: 29.1-aspose-words-version (29.1 renders with Aspose.Words 26.10.0 like 27.5 and 28.5; 29.0 had 26.8.0)
+        Observer.Expect('chars', '1337');
+        Observer.Expect('sha256', '66C10E37E1C9D3B4EAF515472E216CDEC0041F471855636C88A5DF1AD91E6D1F');
+#elif BC29PLUS
         Observer.Expect('chars', '1336');
         Observer.Expect('sha256', '2F6A43A8F0CE15CFED0C90D266F2F9CE2B1FA62A9052A2B025BFA1854AC84C29');
 #else
@@ -282,7 +313,11 @@ codeunit 80029 "RX Html Hash Tests"
         Observer.Expect('sha256', '66C10E37E1C9D3B4EAF515472E216CDEC0041F471855636C88A5DF1AD91E6D1F');
 #endif
         Observer.Expect('tenant sha256 = own sha256', 'Yes');
-#if BC29PLUS
+#if BC29_1PLUS
+        // version change: 29.1-aspose-words-version (29.1 renders with Aspose.Words 26.10.0 like 27.5 and 28.5; 29.0 had 26.8.0)
+        Observer.Expect('getbody chars', '1330');
+        Observer.Expect('getbody sha256', '2FBCF34F41BF065F463724DD4422B0891D253AA2CF2B3A6CAA124A607864C55E');
+#elif BC29PLUS
         Observer.Expect('getbody chars', '1329');
         Observer.Expect('getbody sha256', 'CA6543A38BA5626FE3A2C0082923C6FA62D7B4D663523CD01BA2114B471BA50E');
 #else
@@ -303,7 +338,11 @@ codeunit 80029 "RX Html Hash Tests"
         Observer.Expect('returned', 'Yes');
         Observer.Expect('err|text', '');
         Observer.Expect('err|code', '');
-#if BC29PLUS
+#if BC29_1PLUS
+        // version change: 29.1-aspose-words-version (29.1 renders with Aspose.Words 26.10.0 like 27.5 and 28.5; 29.0 had 26.8.0)
+        Observer.Expect('chars', '426');
+        Observer.Expect('sha256', 'D019C73543B39C0383ABADADF021884226F954F6C98737BFC40C270E8CA89A81');
+#elif BC29PLUS
         Observer.Expect('chars', '425');
         Observer.Expect('sha256', '210B3BD7FE0076834F035CBF470223568A35CB3C06328A835EFD87FC431AC5DB');
 #else
@@ -324,7 +363,11 @@ codeunit 80029 "RX Html Hash Tests"
         Observer.Expect('returned', 'Yes');
         Observer.Expect('err|text', '');
         Observer.Expect('err|code', '');
-#if BC29PLUS
+#if BC29_1PLUS
+        // version change: 29.1-aspose-words-version (29.1 renders with Aspose.Words 26.10.0 like 27.5 and 28.5; 29.0 had 26.8.0)
+        Observer.Expect('chars', '425');
+        Observer.Expect('sha256', '509E377892CD7B011484D4AFDD04ADC261BB7901240EA03EC8DFE9D5D8DEA044');
+#elif BC29PLUS
         Observer.Expect('chars', '424');
         Observer.Expect('sha256', '290F1C18D4D8623D231D944466A499DB960DC83D33D2FC0471688DCF0C5D9F73');
 #else
@@ -345,7 +388,11 @@ codeunit 80029 "RX Html Hash Tests"
         Observer.Expect('returned', 'Yes');
         Observer.Expect('err|text', '');
         Observer.Expect('err|code', '');
-#if BC29PLUS
+#if BC29_1PLUS
+        // version change: 29.1-aspose-words-version (29.1 renders with Aspose.Words 26.10.0 like 27.5 and 28.5; 29.0 had 26.8.0)
+        Observer.Expect('chars', '428');
+        Observer.Expect('sha256', '929BBA7B63A62913DFB5B26CE8110F33434412034A9FB18068198C97AF91B307');
+#elif BC29PLUS
         Observer.Expect('chars', '427');
         Observer.Expect('sha256', '7ADB40FAB2163897CACE9EE3F231B99C69C72B46DF32BEA860563DD2E1CEAF60');
 #else
@@ -367,7 +414,11 @@ codeunit 80029 "RX Html Hash Tests"
         Observer.Expect('returned', 'Yes');
         Observer.Expect('err|text', '');
         Observer.Expect('err|code', '');
-#if BC29PLUS
+#if BC29_1PLUS
+        // version change: 29.1-aspose-words-version (29.1 renders with Aspose.Words 26.10.0 like 27.5 and 28.5; 29.0 had 26.8.0)
+        Observer.Expect('chars', '428');
+        Observer.Expect('sha256', '1F295BA297A97A8DCA8DB1FEE05269DE5B2F6844E9BED71B7F2F8CD98AD2AC7F');
+#elif BC29PLUS
         Observer.Expect('chars', '427');
         Observer.Expect('sha256', 'AFCF8B6262AAF294A49A4F0D0F25601B7B87CC7A5D4B1B179A99996C7E968664');
 #else
@@ -404,7 +455,11 @@ codeunit 80029 "RX Html Hash Tests"
         Observer.Expect('returned', 'Yes');
         Observer.Expect('err|text', '');
         Observer.Expect('err|code', '');
-#if BC29PLUS
+#if BC29_1PLUS
+        // version change: 29.1-aspose-words-version (29.1 renders with Aspose.Words 26.10.0 like 27.5 and 28.5; 29.0 had 26.8.0)
+        Observer.Expect('chars', '1443');
+        Observer.Expect('sha256', 'BFDED14D7DA92062A2DED3074D0984C9ABF692092D1663A3B1836833A73E94A8');
+#elif BC29PLUS
         Observer.Expect('chars', '1442');
         Observer.Expect('sha256', '98179F947EC44226830B77796ADC753B270CA3993AE9811F1DBC65BDA4436286');
 #else
@@ -419,7 +474,11 @@ codeunit 80029 "RX Html Hash Tests"
         Observer.Expect('has 1/2/2026', 'No');
         Observer.Expect('has 01/02/2026', 'No');
         Observer.Expect('has 2026-02-01', 'No');
-#if BC29PLUS
+#if BC29_1PLUS
+        // version change: 29.1-aspose-words-version (29.1 renders with Aspose.Words 26.10.0 like 27.5 and 28.5; 29.0 had 26.8.0)
+        Observer.Expect('getbody chars', '1442');
+        Observer.Expect('getbody sha256', '2E3211DB325BDC8A4857A0CAF9620BA304657FF2BACD6CC5A110808994D860FC');
+#elif BC29PLUS
         Observer.Expect('getbody chars', '1441');
         Observer.Expect('getbody sha256', '97A845E022309E20DA87091ABDB2AF03F91A8133240A506E10614D367DC01AA2');
 #else
@@ -442,7 +501,11 @@ codeunit 80029 "RX Html Hash Tests"
         Observer.Expect('returned', 'Yes');
         Observer.Expect('err|text', '');
         Observer.Expect('err|code', '');
-#if BC29PLUS
+#if BC29_1PLUS
+        // version change: 29.1-aspose-words-version (29.1 renders with Aspose.Words 26.10.0 like 27.5 and 28.5; 29.0 had 26.8.0)
+        Observer.Expect('chars', '2987');
+        Observer.Expect('sha256', 'AB8185113763729DE655C022C6B4EF8974FC7CD6B11E233D03C5F7BD6D8FCB43');
+#elif BC29PLUS
         Observer.Expect('chars', '2986');
         Observer.Expect('sha256', 'B10772A6C995FD0BC067AE49DE2A07703AC15A7A771FDA537FB5D0805766DB0E');
 #else
@@ -457,7 +520,11 @@ codeunit 80029 "RX Html Hash Tests"
         Observer.Expect('has 1/2/2026', 'No');
         Observer.Expect('has 01/02/2026', 'No');
         Observer.Expect('has 2026-02-01', 'No');
-#if BC29PLUS
+#if BC29_1PLUS
+        // version change: 29.1-aspose-words-version (29.1 renders with Aspose.Words 26.10.0 like 27.5 and 28.5; 29.0 had 26.8.0)
+        Observer.Expect('getbody chars', '2986');
+        Observer.Expect('getbody sha256', 'D0EB55D4A677E35FB7D038AEDB32D9D9F88500821B318D42B3E4E0076D028B2A');
+#elif BC29PLUS
         Observer.Expect('getbody chars', '2985');
         Observer.Expect('getbody sha256', '5F5B84CDD171A541F97F0B315295D1A952BEC717469E112C87D9977ABEDF76F2');
 #else
@@ -481,7 +548,11 @@ codeunit 80029 "RX Html Hash Tests"
         Observer.Expect('returned', 'Yes');
         Observer.Expect('err|text', '');
         Observer.Expect('err|code', '');
-#if BC29PLUS
+#if BC29_1PLUS
+        // version change: 29.1-aspose-words-version (29.1 renders with Aspose.Words 26.10.0 like 27.5 and 28.5; 29.0 had 26.8.0)
+        Observer.Expect('chars', '1443');
+        Observer.Expect('sha256', 'BFDED14D7DA92062A2DED3074D0984C9ABF692092D1663A3B1836833A73E94A8');
+#elif BC29PLUS
         Observer.Expect('chars', '1442');
         Observer.Expect('sha256', '98179F947EC44226830B77796ADC753B270CA3993AE9811F1DBC65BDA4436286');
 #else
@@ -492,7 +563,11 @@ codeunit 80029 "RX Html Hash Tests"
         Observer.Expect('returned', 'Yes');
         Observer.Expect('err|text', '');
         Observer.Expect('err|code', '');
-#if BC29PLUS
+#if BC29_1PLUS
+        // version change: 29.1-aspose-words-version (29.1 renders with Aspose.Words 26.10.0 like 27.5 and 28.5; 29.0 had 26.8.0)
+        Observer.Expect('chars', '2987');
+        Observer.Expect('sha256', 'AB8185113763729DE655C022C6B4EF8974FC7CD6B11E233D03C5F7BD6D8FCB43');
+#elif BC29PLUS
         Observer.Expect('chars', '2986');
         Observer.Expect('sha256', 'B10772A6C995FD0BC067AE49DE2A07703AC15A7A771FDA537FB5D0805766DB0E');
 #else

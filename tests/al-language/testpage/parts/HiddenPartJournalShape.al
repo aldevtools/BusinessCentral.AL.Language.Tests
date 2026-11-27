@@ -20,6 +20,8 @@
 // BC 29 differs (CI and local runs): after the action the part reads its rows a third time ('st-agr(1) st-agr(1) st-agcr(1)' at the
 //   end of 'send'), and after Next the part runs OnAfterGetCurrRecord on its empty rows ('st-agcr(0)' at the end of 'next'), for the
 //   temporary part; the stored part (SetRange) gives the BC 27/28 log on 29 too. Guarded with #if BC29PLUS.
+// BC 29.1 (version change 29.1-page-part-refresh, guard BC29_1PLUS): the 27/28 log again; the extra read and the OnAfterGetCurrRecord
+//   of 29.0 are gone (CI run of the 29.1 leg). Not documented by Microsoft (KB 5135161 and the 29.1 what's new page say nothing about it).
 // BC versions: 27, 28, 29
 
 table 75310 "PG6 HJ Doc"
@@ -554,7 +556,14 @@ codeunit 75320 "PG6 HJ Journal Shape"
         Say('next', P.Status.Visible());
         P.Close();
         Say('closed');
-#if BC29PLUS
+#if BC29_1PLUS
+        // version change: 29.1-page-part-refresh (29.1 gives the 27/28 log again: no third read of the part after the action, no OnAfterGetCurrRecord of the empty part after Next)
+        Observer.Expect('open', '0 No [host-open st-fill(,0) st-open host-agcr(H1) st-fill(H1,0) st-agcr(0)]');
+        Observer.Expect('gotorecord', '0 No []');
+        Observer.Expect('send', '1 Yes [act-send cu-send(H1) st-fill(H1,1) st-agr(1) st-agr(1) st-agcr(1) host-agcr(H1) st-fill(H1,1) st-agr(1) st-agr(1) st-agcr(1)]');
+        Observer.Expect('next', '1 No [host-agcr(H2) st-fill(H2,0)]');
+        Observer.Expect('closed', '1 [st-close host-close]');
+#elif BC29PLUS
         Observer.Expect('open', '0 No [host-open st-fill(,0) st-open host-agcr(H1) st-fill(H1,0) st-agcr(0)]');
         Observer.Expect('gotorecord', '0 No []');
         Observer.Expect('send', '1 Yes [act-send cu-send(H1) st-fill(H1,1) st-agr(1) st-agr(1) st-agcr(1) host-agcr(H1) st-fill(H1,1) st-agr(1) st-agr(1) st-agcr(1) st-agr(1) st-agr(1) st-agcr(1)]');
@@ -588,7 +597,14 @@ codeunit 75320 "PG6 HJ Journal Shape"
         Say('next', P.Status.Visible());
         P.Close();
         Say('closed');
-#if BC29PLUS
+#if BC29_1PLUS
+        // version change: 29.1-page-part-refresh (29.1 gives the 27/28 log again: no third read of the part after the action, no OnAfterGetCurrRecord of the empty part after Next)
+        Observer.Expect('open', '0 No [host-open st-fill(,0) st-open host-agcr(H1) st-fill(H1,0) st-agcr(0)]');
+        Observer.Expect('gotorecord', '0 No []');
+        Observer.Expect('send', '1 Yes [act-send cu-send(H1) st-fill(H1,1) st-agr(1) st-agr(1) st-agcr(1) host-agcr(H1) st-fill(H1,1) st-agr(1) st-agr(1) st-agcr(1)]');
+        Observer.Expect('next', '1 No [host-agcr(H2) st-fill(H2,0)]');
+        Observer.Expect('closed', '1 [st-close host-close]');
+#elif BC29PLUS
         Observer.Expect('open', '0 No [host-open st-fill(,0) st-open host-agcr(H1) st-fill(H1,0) st-agcr(0)]');
         Observer.Expect('gotorecord', '0 No []');
         Observer.Expect('send', '1 Yes [act-send cu-send(H1) st-fill(H1,1) st-agr(1) st-agr(1) st-agcr(1) host-agcr(H1) st-fill(H1,1) st-agr(1) st-agr(1) st-agcr(1) st-agr(1) st-agr(1) st-agcr(1)]');
@@ -622,7 +638,14 @@ codeunit 75320 "PG6 HJ Journal Shape"
         Say('next', P.Status.Visible());
         P.Close();
         Say('closed');
-#if BC29PLUS
+#if BC29_1PLUS
+        // version change: 29.1-page-part-refresh (29.1 gives the 27/28 log again: no third read of the part after the action, no OnAfterGetCurrRecord of the empty part after Next)
+        Observer.Expect('open', '0 No [host-open st-fill(,0) st-open host-agcr(H1) st-fill(H1,0) st-agcr(0)]');
+        Observer.Expect('gotorecord', '0 No []');
+        Observer.Expect('send', '1 Yes [act-send cu-send(H1) st-fill(H1,1) st-agr(1) st-agr(1) st-agcr(1) host-agcr(H1) st-fill(H1,1) st-agr(1) st-agr(1) st-agcr(1)]');
+        Observer.Expect('next', '1 No [host-agcr(H2) st-fill(H2,0)]');
+        Observer.Expect('closed', '1 [st-close host-close]');
+#elif BC29PLUS
         Observer.Expect('open', '0 No [host-open st-fill(,0) st-open host-agcr(H1) st-fill(H1,0) st-agcr(0)]');
         Observer.Expect('gotorecord', '0 No []');
         Observer.Expect('send', '1 Yes [act-send cu-send(H1) st-fill(H1,1) st-agr(1) st-agr(1) st-agcr(1) host-agcr(H1) st-fill(H1,1) st-agr(1) st-agr(1) st-agcr(1) st-agr(1) st-agr(1) st-agcr(1)]');
@@ -656,7 +679,14 @@ codeunit 75320 "PG6 HJ Journal Shape"
         Say('next', P.Status.Visible());
         P.Close();
         Say('closed');
-#if BC29PLUS
+#if BC29_1PLUS
+        // version change: 29.1-page-part-refresh (29.1 gives the 27/28 log again: no third read of the part after the action, no OnAfterGetCurrRecord of the empty part after Next)
+        Observer.Expect('open', '0 No [host-open st-fill(,0) st-open host-agcr(H1) st-fill(H1,0) st-agcr(0)]');
+        Observer.Expect('gotorecord', '0 No []');
+        Observer.Expect('send', '1 Yes [act-send cu-send(H1) st-fill(H1,1) st-agr(1) st-agr(1) st-agcr(1) host-agcr(H1) st-fill(H1,1) st-agr(1) st-agr(1) st-agcr(1)]');
+        Observer.Expect('next', '1 No [host-agcr(H2) st-fill(H2,0)]');
+        Observer.Expect('closed', '1 [st-close host-close]');
+#elif BC29PLUS
         Observer.Expect('open', '0 No [host-open st-fill(,0) st-open host-agcr(H1) st-fill(H1,0) st-agcr(0)]');
         Observer.Expect('gotorecord', '0 No []');
         Observer.Expect('send', '1 Yes [act-send cu-send(H1) st-fill(H1,1) st-agr(1) st-agr(1) st-agcr(1) host-agcr(H1) st-fill(H1,1) st-agr(1) st-agr(1) st-agcr(1) st-agr(1) st-agr(1) st-agcr(1)]');
@@ -694,7 +724,15 @@ codeunit 75320 "PG6 HJ Journal Shape"
         Say('previous', P.Status.Visible());
         P.Close();
         Say('closed');
-#if BC29PLUS
+#if BC29_1PLUS
+        // version change: 29.1-page-part-refresh (29.1 gives the 27/28 log again: no third read of the part after the action, no OnAfterGetCurrRecord of the empty part after Next)
+        Observer.Expect('setup', '1 [cu-send(H1)]');
+        Observer.Expect('open', '1 Yes [host-open st-fill(,0) st-open host-agcr(H1) st-fill(H1,1) st-agr(1) st-agr(1) st-agcr(1)]');
+        Observer.Expect('gotorecord', '1 Yes []');
+        Observer.Expect('next', '1 No [host-agcr(H2) st-fill(H2,0)]');
+        Observer.Expect('previous', '1 Yes [host-agcr(H1) st-fill(H1,1) st-agr(1) st-agr(1) st-agcr(1)]');
+        Observer.Expect('closed', '1 [st-close host-close]');
+#elif BC29PLUS
         Observer.Expect('setup', '1 [cu-send(H1)]');
         Observer.Expect('open', '1 Yes [host-open st-fill(,0) st-open host-agcr(H1) st-fill(H1,1) st-agr(1) st-agr(1) st-agcr(1)]');
         Observer.Expect('gotorecord', '1 Yes []');

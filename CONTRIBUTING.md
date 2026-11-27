@@ -254,15 +254,33 @@ end;
 #endif
 ```
 
-The CI matrix defines these symbols per version:
+The CI matrix defines these symbols per version. They come from one list, `.github/released-minors.txt` (every released minor from 27.0
+on); `.github/scripts/ci-legs.py` derives the legs (the newest minor of each major) and each version's symbols from it, and the results
+manifest records both. A new minor is one line in that list.
 
 | Symbol | Meaning |
 |--------|---------|
 | `BC27PLUS` | Available from BC 27.0 onwards (always defined) |
 | `BC28PLUS` | Available from BC 28.0 onwards |
 | `BC29PLUS` | Available from BC 29.0 onwards |
+| `BC<n>_<m>PLUS` | One per released minor with `m` of at least 1 (`BC27_1PLUS` ... `BC27_5PLUS`, `BC28_1PLUS` ... `BC28_5PLUS`, `BC29_1PLUS`): that minor, every later minor of its major and every later major |
 
-The guard comment must explain **why** the guard exists — which API or behavior changed.
+Minor symbols have the form `BC<major>_<minor>PLUS`. Use one when a value or a behavior changed in a minor update. Guard newest first and
+keep the older values, they document the older builds:
+
+```al
+#if BC29_1PLUS
+    // version change: 29.1-page-part-refresh
+    Observer.Expect('send', '...');   // 29.1 and later
+#elif BC29PLUS
+    Observer.Expect('send', '...');   // 29.0
+#else
+    Observer.Expect('send', '...');   // 27 and 28
+#endif
+```
+
+The guard comment must explain **why** the guard exists — which API or behavior changed. A guard for a version change names the change
+with a short id (`// version change: <minor>-<short-id>`), the id the version-changes page of the docs links to.
 
 If you are writing a test for a feature available in all supported BC versions (27.5+), **no guard is needed**.
 
@@ -423,7 +441,7 @@ python3 .github/scripts/select-tests.py --head HEAD --codeunits '{"tests/al-lang
 
 Each test job of `ci.yml` (one test app on one BC version, a "leg") calls `.github/workflows/bc-leg.yml`. That workflow runs the leg in one or more shards, each in a BC container of its own, and then merges their JUnit. The `al-language` legs run in three or four shards; the other test apps run in one.
 
-- **Check names.** The leg "BC 29.0" has the checks `BC 29.0 / shard 1 of 3 / test` to `BC 29.0 / shard 3 of 3 / test`, one per shard, and `BC 29.0 / test`. The last one is the job that merges and reports; it is the check the master ruleset requires. It fails when any shard failed or was cancelled.
+- **Check names.** A leg is named by its major only (matrix field `leg`), so the names stay the same when the leg moves to a newer minor. The leg "BC 29" (it runs 29.1) has the checks `BC 29 / shard 1 of 3 / test` to `BC 29 / shard 3 of 3 / test`, one per shard, and `BC 29 / test`. The last one is the job that merges and reports; it is the check the master ruleset requires. It fails when any shard failed or was cancelled.
 - **Artifact.** Each shard uploads `junit-test-results-<bc version>`. The merging job merges them (also when there is only one), adds the provenance of each codeunit (see "BC build and result provenance"), uploads the result under the same name and deletes the shards' artifacts, so each leg still has one artifact with one JUnit file. After **Re-run failed jobs**, the merge takes the earlier merged file and replaces the codeunits of the re-run shard.
 - **Shard ranges.** A shard is a range of codeunit ids. `.github/ci-shards.json` holds the first id of each shard per BC major. The ranges are balanced by the wall time of each codeunit in a full master run. A new codeunit falls into the shard of its neighbours, so adding tests needs no edit there. When the shards' times drift apart (see the "Run AL tests" step of each shard), measure them again from the JUnit files of a green master run:
 
@@ -465,7 +483,7 @@ al-runtime-rs takes the JUnit files of a green master run as its oracle. These f
   | `app` | `full`: the run published the full test app |
 
   After **Re-run failed jobs**, a codeunit that the earlier attempt stamped keeps its stamp; a codeunit of a re-run shard gets the new attempt. The test results and the timestamps do not change.
-- **Results manifest.** When every leg of a push run (master) or of the nightly run succeeded, the job `manifest` writes `results-manifest.json` and uploads it as the artifact `results-manifest` (`provenance.py manifest`). It names the run, the attempt, the commit and, per BC version, the build, the artifact URL and, per leg, the number of codeunits. The job fails when a leg has no JUnit file or no codeunit, or a codeunit lacks this run's provenance (run, commit, `app` full) or names another build. The manifest of a full run has `base_run` null. The nightly run's job "Nightly comparison" adds the comparison to it (see "Nightly full run"). Pull request runs and dispatched runs do not write a manifest.
+- **Results manifest.** When every leg of a push run (master) or of the nightly run succeeded, the job `manifest` writes `results-manifest.json` and uploads it as the artifact `results-manifest` (`provenance.py manifest`). It names the run, the attempt, the commit, the list of released minors (`released_minors`, from `.github/released-minors.txt`) and, per BC version, the build, the artifact URL, the preprocessor symbols the run compiled with (`preprocessor_symbols`, a list) and, per leg, the number of codeunits. al-runtime-rs refuses a bump when its own symbols of a version differ from the recorded ones. The job fails when a leg has no JUnit file or no codeunit, or a codeunit lacks this run's provenance (run, commit, `app` full) or names another build. The manifest of a full run has `base_run` null. The nightly run's job "Nightly comparison" adds the comparison to it (see "Nightly full run"). Pull request runs and dispatched runs do not write a manifest.
 - **When a manifest counts.** Only for the run's latest attempt, and only when the run's conclusion is success. A later attempt (**Re-run all jobs**, or a re-run of one job) replaces the legs' JUnit files; when it ends red, the job `manifest` is skipped and the manifest of the earlier attempt stays. Every reader checks this with `provenance.py check-manifest --manifest results-manifest.json --run-json run.json`, where `run.json` is `gh api repos/<repo>/actions/runs/<run id>`.
 - **Downloads.** The merging job and the job `manifest` download the run's artifacts with `.github/scripts/run-artifacts.sh`. A download that answers HTTP 404 is skipped only when the artifact itself is gone, that is when `gh api repos/<repo>/actions/artifacts/<id>` also answers HTTP 404: another leg's merging job deleted that shard artifact after the listing. A 404 download of an artifact that still exists fails the job, and so does every other failure, including any other answer of that metadata call.
 
