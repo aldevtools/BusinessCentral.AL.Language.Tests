@@ -14,7 +14,26 @@
 //   it refuses. Pairs already pinned by SrcFilterConvertKinds.al (numbers into Code and Text, Code and Text into number and Boolean
 //   fields, SetRange, SetFilter and Value := of a text into a Guid field) are not repeated; of the Guid text pairs only Validate is new.
 //   Companion of SrcFilterConvertKinds.al and SrcSetRangeConvert.al.
-//   Observe round: every test ends with Probe.Finish(), which fails the test with the readings (OBSERVE:...); nothing is asserted yet.
+//   Measured on BC 29.0 (Linux, W1, en-US session) with an invented app holding these objects, each test codeunit run once; the
+//   values are the readings of that run, turned into Expect and Verify by convert.py verbatim. This pull request's CI checks them on
+//   27.5, 28.5 and 29.0; a version difference gets a version guard.
+//   Facts (BC 29.0):
+//   - Boolean false into BigInteger, Integer or Decimal: 0 by every method. Into Option: A by SetRange and SetFilter, 0 by Value and
+//     Validate. Into Guid: 'The value "No" can't be evaluated into type GUID.' (Evaluate:Argument). Into Date: the date-format error
+//     for 'No' (Evaluate:Conversion), by every method.
+//   - The Date 2026-01-17 into BigInteger, Integer, Option: 1479997 by every method; into Decimal the filter is 1,479,997 and the
+//     value 1479997; into Boolean the filter Yes and the value true; into Guid 'The value "01/17/26" can't be evaluated into type
+//     GUID.' by every method.
+//   - Integer 5 and BigInteger 5 into Boolean: Yes / true; into Date: the date-format error for '5'; into Guid: 'The value "5"
+//     can't be evaluated into type GUID.', by every method.
+//   - Decimal 1.5 into BigInteger: 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to
+//     System.Int64.' (ConversionCast); into Integer, Boolean and Option the same with System.Int32; into Date the date-format error
+//     for '1.5'; into Guid 'The value "1.5" can't be evaluated into type GUID.'; by every method.
+//   - Code 'ABC' and Text 'XY' into Option: 'The value "ABC" can't be evaluated into type Option.' (Evaluate:Format) by every
+//     method. Code '123' into Option: 123 by every method (an ordinal outside the members, no error). Code '123' into Date: the
+//     date-format error for '123'.
+//   - Validate of Code 'ABC', Code '123' or Text 'XY' into Guid: typed, 'Invalid format of GUID string. ...' (InvalidGuidFormat);
+//     through a Variant, 'The value "ABC" can't be evaluated into type GUID.' (Evaluate:Argument). The two forms differ.
 // BC versions: 27, 28, 29 by CI
 table 73470 "LT FRC Row"
 {
@@ -373,7 +392,11 @@ codeunit 73471 "LT FRC Bool Date Tests"
     begin
         X := false;
         Probe.CellsBool(2, X);
-        Probe.Finish();
+        Probe.Expect('r', 'ok: 0');
+        Probe.Expect('f', 'ok: 0');
+        Probe.Expect('v', 'ok: 0');
+        Probe.Expect('d', 'ok: 0');
+        Probe.Verify();
     end;
 
     // Boolean false into the Integer field Int.
@@ -385,7 +408,11 @@ codeunit 73471 "LT FRC Bool Date Tests"
     begin
         X := false;
         Probe.CellsBool(3, X);
-        Probe.Finish();
+        Probe.Expect('r', 'ok: 0');
+        Probe.Expect('f', 'ok: 0');
+        Probe.Expect('v', 'ok: 0');
+        Probe.Expect('d', 'ok: 0');
+        Probe.Verify();
     end;
 
     // Boolean false into the Decimal field Dec.
@@ -397,7 +424,11 @@ codeunit 73471 "LT FRC Bool Date Tests"
     begin
         X := false;
         Probe.CellsBool(4, X);
-        Probe.Finish();
+        Probe.Expect('r', 'ok: 0');
+        Probe.Expect('f', 'ok: 0');
+        Probe.Expect('v', 'ok: 0');
+        Probe.Expect('d', 'ok: 0');
+        Probe.Verify();
     end;
 
     // Boolean false into the Date field D.
@@ -409,7 +440,11 @@ codeunit 73471 "LT FRC Bool Date Tests"
     begin
         X := false;
         Probe.CellsBool(7, X);
-        Probe.Finish();
+        Probe.Expect('r', 'E: The format of the Date ''No'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Probe.Expect('f', 'E: The format of the Date ''No'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Probe.Expect('v', 'E: The format of the Date ''No'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Probe.Expect('d', 'E: The format of the Date ''No'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Probe.Verify();
     end;
 
     // Boolean false into the Option A,B,C field Opt.
@@ -421,7 +456,11 @@ codeunit 73471 "LT FRC Bool Date Tests"
     begin
         X := false;
         Probe.CellsBool(9, X);
-        Probe.Finish();
+        Probe.Expect('r', 'ok: A');
+        Probe.Expect('f', 'ok: A');
+        Probe.Expect('v', 'ok: 0');
+        Probe.Expect('d', 'ok: 0');
+        Probe.Verify();
     end;
 
     // Boolean false into the Guid field G.
@@ -433,7 +472,11 @@ codeunit 73471 "LT FRC Bool Date Tests"
     begin
         X := false;
         Probe.CellsBool(10, X);
-        Probe.Finish();
+        Probe.Expect('r', 'E: The value "No" can''t be evaluated into type GUID. | Evaluate:Argument');
+        Probe.Expect('f', 'E: The value "No" can''t be evaluated into type GUID. | Evaluate:Argument');
+        Probe.Expect('v', 'E: The value "No" can''t be evaluated into type GUID. | Evaluate:Argument');
+        Probe.Expect('d', 'E: The value "No" can''t be evaluated into type GUID. | Evaluate:Argument');
+        Probe.Verify();
     end;
 
     // Date 2026-01-17 into the BigInteger field Big.
@@ -445,7 +488,11 @@ codeunit 73471 "LT FRC Bool Date Tests"
     begin
         X := 20260117D;
         Probe.CellsDate(2, X);
-        Probe.Finish();
+        Probe.Expect('r', 'ok: 1479997');
+        Probe.Expect('f', 'ok: 1479997');
+        Probe.Expect('v', 'ok: 1479997');
+        Probe.Expect('d', 'ok: 1479997');
+        Probe.Verify();
     end;
 
     // Date 2026-01-17 into the Integer field Int.
@@ -457,7 +504,11 @@ codeunit 73471 "LT FRC Bool Date Tests"
     begin
         X := 20260117D;
         Probe.CellsDate(3, X);
-        Probe.Finish();
+        Probe.Expect('r', 'ok: 1479997');
+        Probe.Expect('f', 'ok: 1479997');
+        Probe.Expect('v', 'ok: 1479997');
+        Probe.Expect('d', 'ok: 1479997');
+        Probe.Verify();
     end;
 
     // Date 2026-01-17 into the Decimal field Dec.
@@ -469,7 +520,11 @@ codeunit 73471 "LT FRC Bool Date Tests"
     begin
         X := 20260117D;
         Probe.CellsDate(4, X);
-        Probe.Finish();
+        Probe.Expect('r', 'ok: 1,479,997');
+        Probe.Expect('f', 'ok: 1,479,997');
+        Probe.Expect('v', 'ok: 1479997');
+        Probe.Expect('d', 'ok: 1479997');
+        Probe.Verify();
     end;
 
     // Date 2026-01-17 into the Boolean field Bool.
@@ -481,7 +536,11 @@ codeunit 73471 "LT FRC Bool Date Tests"
     begin
         X := 20260117D;
         Probe.CellsDate(8, X);
-        Probe.Finish();
+        Probe.Expect('r', 'ok: Yes');
+        Probe.Expect('f', 'ok: Yes');
+        Probe.Expect('v', 'ok: true');
+        Probe.Expect('d', 'ok: true');
+        Probe.Verify();
     end;
 
     // Date 2026-01-17 into the Option A,B,C field Opt.
@@ -493,7 +552,11 @@ codeunit 73471 "LT FRC Bool Date Tests"
     begin
         X := 20260117D;
         Probe.CellsDate(9, X);
-        Probe.Finish();
+        Probe.Expect('r', 'ok: 1479997');
+        Probe.Expect('f', 'ok: 1479997');
+        Probe.Expect('v', 'ok: 1479997');
+        Probe.Expect('d', 'ok: 1479997');
+        Probe.Verify();
     end;
 
     // Date 2026-01-17 into the Guid field G.
@@ -505,7 +568,11 @@ codeunit 73471 "LT FRC Bool Date Tests"
     begin
         X := 20260117D;
         Probe.CellsDate(10, X);
-        Probe.Finish();
+        Probe.Expect('r', 'E: The value "01/17/26" can''t be evaluated into type GUID. | Evaluate:Argument');
+        Probe.Expect('f', 'E: The value "01/17/26" can''t be evaluated into type GUID. | Evaluate:Argument');
+        Probe.Expect('v', 'E: The value "01/17/26" can''t be evaluated into type GUID. | Evaluate:Argument');
+        Probe.Expect('d', 'E: The value "01/17/26" can''t be evaluated into type GUID. | Evaluate:Argument');
+        Probe.Verify();
     end;
 }
 
@@ -524,7 +591,11 @@ codeunit 73472 "LT FRC Number Tests"
     begin
         X := 5;
         Probe.CellsInt(7, X);
-        Probe.Finish();
+        Probe.Expect('r', 'E: The format of the Date ''5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Probe.Expect('f', 'E: The format of the Date ''5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Probe.Expect('v', 'E: The format of the Date ''5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Probe.Expect('d', 'E: The format of the Date ''5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Probe.Verify();
     end;
 
     // Integer 5 into the Boolean field Bool.
@@ -536,7 +607,11 @@ codeunit 73472 "LT FRC Number Tests"
     begin
         X := 5;
         Probe.CellsInt(8, X);
-        Probe.Finish();
+        Probe.Expect('r', 'ok: Yes');
+        Probe.Expect('f', 'ok: Yes');
+        Probe.Expect('v', 'ok: true');
+        Probe.Expect('d', 'ok: true');
+        Probe.Verify();
     end;
 
     // Integer 5 into the Guid field G.
@@ -548,7 +623,11 @@ codeunit 73472 "LT FRC Number Tests"
     begin
         X := 5;
         Probe.CellsInt(10, X);
-        Probe.Finish();
+        Probe.Expect('r', 'E: The value "5" can''t be evaluated into type GUID. | Evaluate:Argument');
+        Probe.Expect('f', 'E: The value "5" can''t be evaluated into type GUID. | Evaluate:Argument');
+        Probe.Expect('v', 'E: The value "5" can''t be evaluated into type GUID. | Evaluate:Argument');
+        Probe.Expect('d', 'E: The value "5" can''t be evaluated into type GUID. | Evaluate:Argument');
+        Probe.Verify();
     end;
 
     // BigInteger 5 into the Date field D.
@@ -560,7 +639,11 @@ codeunit 73472 "LT FRC Number Tests"
     begin
         X := 5;
         Probe.CellsBig(7, X);
-        Probe.Finish();
+        Probe.Expect('r', 'E: The format of the Date ''5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Probe.Expect('f', 'E: The format of the Date ''5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Probe.Expect('v', 'E: The format of the Date ''5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Probe.Expect('d', 'E: The format of the Date ''5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Probe.Verify();
     end;
 
     // BigInteger 5 into the Boolean field Bool.
@@ -572,7 +655,11 @@ codeunit 73472 "LT FRC Number Tests"
     begin
         X := 5;
         Probe.CellsBig(8, X);
-        Probe.Finish();
+        Probe.Expect('r', 'ok: Yes');
+        Probe.Expect('f', 'ok: Yes');
+        Probe.Expect('v', 'ok: true');
+        Probe.Expect('d', 'ok: true');
+        Probe.Verify();
     end;
 
     // BigInteger 5 into the Guid field G.
@@ -584,7 +671,11 @@ codeunit 73472 "LT FRC Number Tests"
     begin
         X := 5;
         Probe.CellsBig(10, X);
-        Probe.Finish();
+        Probe.Expect('r', 'E: The value "5" can''t be evaluated into type GUID. | Evaluate:Argument');
+        Probe.Expect('f', 'E: The value "5" can''t be evaluated into type GUID. | Evaluate:Argument');
+        Probe.Expect('v', 'E: The value "5" can''t be evaluated into type GUID. | Evaluate:Argument');
+        Probe.Expect('d', 'E: The value "5" can''t be evaluated into type GUID. | Evaluate:Argument');
+        Probe.Verify();
     end;
 
     // Decimal 1.5 into the BigInteger field Big.
@@ -596,7 +687,11 @@ codeunit 73472 "LT FRC Number Tests"
     begin
         X := 1.5;
         Probe.CellsDec(2, X);
-        Probe.Finish();
+        Probe.Expect('r', 'E: Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int64. | ConversionCast');
+        Probe.Expect('f', 'E: Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int64. | ConversionCast');
+        Probe.Expect('v', 'E: Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int64. | ConversionCast');
+        Probe.Expect('d', 'E: Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int64. | ConversionCast');
+        Probe.Verify();
     end;
 
     // Decimal 1.5 into the Integer field Int.
@@ -608,7 +703,11 @@ codeunit 73472 "LT FRC Number Tests"
     begin
         X := 1.5;
         Probe.CellsDec(3, X);
-        Probe.Finish();
+        Probe.Expect('r', 'E: Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32. | ConversionCast');
+        Probe.Expect('f', 'E: Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32. | ConversionCast');
+        Probe.Expect('v', 'E: Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32. | ConversionCast');
+        Probe.Expect('d', 'E: Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32. | ConversionCast');
+        Probe.Verify();
     end;
 
     // Decimal 1.5 into the Boolean field Bool.
@@ -620,7 +719,11 @@ codeunit 73472 "LT FRC Number Tests"
     begin
         X := 1.5;
         Probe.CellsDec(8, X);
-        Probe.Finish();
+        Probe.Expect('r', 'E: Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32. | ConversionCast');
+        Probe.Expect('f', 'E: Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32. | ConversionCast');
+        Probe.Expect('v', 'E: Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32. | ConversionCast');
+        Probe.Expect('d', 'E: Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32. | ConversionCast');
+        Probe.Verify();
     end;
 
     // Decimal 1.5 into the Option A,B,C field Opt.
@@ -632,7 +735,11 @@ codeunit 73472 "LT FRC Number Tests"
     begin
         X := 1.5;
         Probe.CellsDec(9, X);
-        Probe.Finish();
+        Probe.Expect('r', 'E: Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32. | ConversionCast');
+        Probe.Expect('f', 'E: Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32. | ConversionCast');
+        Probe.Expect('v', 'E: Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32. | ConversionCast');
+        Probe.Expect('d', 'E: Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32. | ConversionCast');
+        Probe.Verify();
     end;
 
     // Decimal 1.5 into the Date field D.
@@ -644,7 +751,11 @@ codeunit 73472 "LT FRC Number Tests"
     begin
         X := 1.5;
         Probe.CellsDec(7, X);
-        Probe.Finish();
+        Probe.Expect('r', 'E: The format of the Date ''1.5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Probe.Expect('f', 'E: The format of the Date ''1.5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Probe.Expect('v', 'E: The format of the Date ''1.5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Probe.Expect('d', 'E: The format of the Date ''1.5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Probe.Verify();
     end;
 
     // Decimal 1.5 into the Guid field G.
@@ -656,7 +767,11 @@ codeunit 73472 "LT FRC Number Tests"
     begin
         X := 1.5;
         Probe.CellsDec(10, X);
-        Probe.Finish();
+        Probe.Expect('r', 'E: The value "1.5" can''t be evaluated into type GUID. | Evaluate:Argument');
+        Probe.Expect('f', 'E: The value "1.5" can''t be evaluated into type GUID. | Evaluate:Argument');
+        Probe.Expect('v', 'E: The value "1.5" can''t be evaluated into type GUID. | Evaluate:Argument');
+        Probe.Expect('d', 'E: The value "1.5" can''t be evaluated into type GUID. | Evaluate:Argument');
+        Probe.Verify();
     end;
 }
 
@@ -675,7 +790,11 @@ codeunit 73473 "LT FRC Text Tests"
     begin
         X := 'ABC';
         Probe.CellsCode(9, X);
-        Probe.Finish();
+        Probe.Expect('r', 'E: The value "ABC" can''t be evaluated into type Option. | Evaluate:Format');
+        Probe.Expect('f', 'E: The value "ABC" can''t be evaluated into type Option. | Evaluate:Format');
+        Probe.Expect('v', 'E: The value "ABC" can''t be evaluated into type Option. | Evaluate:Format');
+        Probe.Expect('d', 'E: The value "ABC" can''t be evaluated into type Option. | Evaluate:Format');
+        Probe.Verify();
     end;
 
     // Code '123' into the Option A,B,C field Opt.
@@ -687,7 +806,11 @@ codeunit 73473 "LT FRC Text Tests"
     begin
         X := '123';
         Probe.CellsCode(9, X);
-        Probe.Finish();
+        Probe.Expect('r', 'ok: 123');
+        Probe.Expect('f', 'ok: 123');
+        Probe.Expect('v', 'ok: 123');
+        Probe.Expect('d', 'ok: 123');
+        Probe.Verify();
     end;
 
     // Text 'XY' into the Option A,B,C field Opt.
@@ -699,7 +822,11 @@ codeunit 73473 "LT FRC Text Tests"
     begin
         X := 'XY';
         Probe.CellsTxt(9, X);
-        Probe.Finish();
+        Probe.Expect('r', 'E: The value "XY" can''t be evaluated into type Option. | Evaluate:Format');
+        Probe.Expect('f', 'E: The value "XY" can''t be evaluated into type Option. | Evaluate:Format');
+        Probe.Expect('v', 'E: The value "XY" can''t be evaluated into type Option. | Evaluate:Format');
+        Probe.Expect('d', 'E: The value "XY" can''t be evaluated into type Option. | Evaluate:Format');
+        Probe.Verify();
     end;
 
     // Code '123' into the Date field D.
@@ -711,7 +838,11 @@ codeunit 73473 "LT FRC Text Tests"
     begin
         X := '123';
         Probe.CellsCode(7, X);
-        Probe.Finish();
+        Probe.Expect('r', 'E: The format of the Date ''123'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Probe.Expect('f', 'E: The format of the Date ''123'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Probe.Expect('v', 'E: The format of the Date ''123'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Probe.Expect('d', 'E: The format of the Date ''123'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Probe.Verify();
     end;
 
     // Code 'ABC' into the Guid field G by Validate, typed (d) and through a Variant (dv).
@@ -726,7 +857,9 @@ codeunit 73473 "LT FRC Text Tests"
         V := X;
         Probe.CellCode('d', 10, X);
         Probe.CellValidateVariant(10, V);
-        Probe.Finish();
+        Probe.Expect('d', 'E: Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits. | InvalidGuidFormat');
+        Probe.Expect('dv', 'E: The value "ABC" can''t be evaluated into type GUID. | Evaluate:Argument');
+        Probe.Verify();
     end;
 
     // Code '123' into the Guid field G by Validate, typed (d) and through a Variant (dv).
@@ -741,7 +874,9 @@ codeunit 73473 "LT FRC Text Tests"
         V := X;
         Probe.CellCode('d', 10, X);
         Probe.CellValidateVariant(10, V);
-        Probe.Finish();
+        Probe.Expect('d', 'E: Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits. | InvalidGuidFormat');
+        Probe.Expect('dv', 'E: The value "123" can''t be evaluated into type GUID. | Evaluate:Argument');
+        Probe.Verify();
     end;
 
     // Text 'XY' into the Guid field G by Validate, typed (d) and through a Variant (dv).
@@ -756,6 +891,8 @@ codeunit 73473 "LT FRC Text Tests"
         V := X;
         Probe.CellTxt('d', 10, X);
         Probe.CellValidateVariant(10, V);
-        Probe.Finish();
+        Probe.Expect('d', 'E: Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits. | InvalidGuidFormat');
+        Probe.Expect('dv', 'E: The value "XY" can''t be evaluated into type GUID. | Evaluate:Argument');
+        Probe.Verify();
     end;
 }

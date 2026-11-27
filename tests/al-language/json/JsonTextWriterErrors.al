@@ -17,11 +17,20 @@
 //   Control             SetDoNotFormat(), WriteStartObject(''), WriteStringProperty('a', 'x'), WriteEndObject(); no error, and the JSON text.
 //   Forms: TryFunction (try_<scenario>: "ok" or "E: <GetLastErrorText> | <GetLastErrorCode>"), and for the two repros of the issue also
 //   the statement under asserterror (assert_<scenario>, ObserveError: text and code).
-//   Observe round: every test ends with Observer.Finish(), which fails the test with the readings (OBSERVE:...); nothing is asserted yet.
+//   Measured on BC 29.0 (Linux, W1, en-US session) with an invented app holding these objects; the values are that run's readings,
+//   turned into Expect and Verify by convert.py verbatim. This pull request's CI checks them on 27.5, 28.5 and 29.0.
+//   Facts (BC 29.0): a JsonWriterException becomes the AL error 'A call to Newtonsoft.Json.JsonTextWriter.<Method> failed with this
+//   message: <the exception's message>' with GetLastErrorCode 'DotNetInvoke:JsonWriter', the same under asserterror and in a
+//   TryFunction. The messages: 'No token to close. Path ''.' (WriteEndObject or WriteEndArray with nothing open, WriteEndArray
+//   while an object is open, WriteEndObject while an array is open); 'Token <Token> in state <State> would result in an invalid JSON
+//   object. Path ''.' (StartObject or StartArray in state ObjectStart, PropertyName in state Property or ArrayStart).
+//   PropertyAfterEnd raises nothing. A call before the writer exists: 'A DotNet variable has not been instantiated. Attempting to
+//   call Newtonsoft.Json.JsonTextWriter.WriteEndObject in CodeUnit Json Text Reader/Writer: WriteEndObject'
+//   (DotNetVariableNotCreated). The control writes {"a":"x"}.
 // BC versions: 27, 28, 29 by CI
 codeunit 73474 "LT JTW Probe"
 {
-    // One scenario on the given writer; the last call of each scenario but Control is the invalid one.
+    // One scenario on the given writer.
     procedure Run(var Writer: Codeunit "Json Text Reader/Writer"; Scenario: Text)
     begin
         case Scenario of
@@ -131,7 +140,13 @@ codeunit 73475 "LT JTW Writer Error Tests"
 
         Probe.ObserveTry(Observer, 'EndObjectTwice');
         Probe.ObserveTry(Observer, 'StartObjectInObject');
-        Observer.Finish();
+        Observer.Expect('assert_EndObjectTwice|text', 'A call to Newtonsoft.Json.JsonTextWriter.WriteEndObject failed with this message: No token to close. Path ''''.');
+        Observer.Expect('assert_EndObjectTwice|code', 'DotNetInvoke:JsonWriter');
+        Observer.Expect('assert_StartObjectInObject|text', 'A call to Newtonsoft.Json.JsonTextWriter.WriteStartObject failed with this message: Token StartObject in state ObjectStart would result in an invalid JSON object. Path ''''.');
+        Observer.Expect('assert_StartObjectInObject|code', 'DotNetInvoke:JsonWriter');
+        Observer.Expect('try_EndObjectTwice', 'E: A call to Newtonsoft.Json.JsonTextWriter.WriteEndObject failed with this message: No token to close. Path ''''. | DotNetInvoke:JsonWriter');
+        Observer.Expect('try_StartObjectInObject', 'E: A call to Newtonsoft.Json.JsonTextWriter.WriteStartObject failed with this message: Token StartObject in state ObjectStart would result in an invalid JSON object. Path ''''. | DotNetInvoke:JsonWriter');
+        Observer.Verify();
     end;
 
     // The neighbours: the other write calls that reach a JsonWriterException, in the TryFunction form.
@@ -148,7 +163,14 @@ codeunit 73475 "LT JTW Writer Error Tests"
         Probe.ObserveTry(Observer, 'EndObjectInArray');
         Probe.ObserveTry(Observer, 'StartArrayInObject');
         Probe.ObserveTry(Observer, 'PropertyAfterEnd');
-        Observer.Finish();
+        Observer.Expect('try_PropertyTwice', 'E: A call to Newtonsoft.Json.JsonTextWriter.WritePropertyName failed with this message: Token PropertyName in state Property would result in an invalid JSON object. Path ''''. | DotNetInvoke:JsonWriter');
+        Observer.Expect('try_PropertyInArray', 'E: A call to Newtonsoft.Json.JsonTextWriter.WritePropertyName failed with this message: Token PropertyName in state ArrayStart would result in an invalid JSON object. Path ''''. | DotNetInvoke:JsonWriter');
+        Observer.Expect('try_EndArrayInObject', 'E: A call to Newtonsoft.Json.JsonTextWriter.WriteEndArray failed with this message: No token to close. Path ''''. | DotNetInvoke:JsonWriter');
+        Observer.Expect('try_EndArrayTwice', 'E: A call to Newtonsoft.Json.JsonTextWriter.WriteEndArray failed with this message: No token to close. Path ''''. | DotNetInvoke:JsonWriter');
+        Observer.Expect('try_EndObjectInArray', 'E: A call to Newtonsoft.Json.JsonTextWriter.WriteEndObject failed with this message: No token to close. Path ''''. | DotNetInvoke:JsonWriter');
+        Observer.Expect('try_StartArrayInObject', 'E: A call to Newtonsoft.Json.JsonTextWriter.WriteStartArray failed with this message: Token StartArray in state ObjectStart would result in an invalid JSON object. Path ''''. | DotNetInvoke:JsonWriter');
+        Observer.Expect('try_PropertyAfterEnd', 'ok');
+        Observer.Verify();
     end;
 
     // A write call before the .NET writer exists, and the control without an error (with its JSON text, unformatted).
@@ -163,6 +185,9 @@ codeunit 73475 "LT JTW Writer Error Tests"
         Probe.ObserveTry(Observer, 'Control');
         Probe.Run(Writer, 'Control');
         Observer.Observe('control_json', Writer.GetJSonAsText());
-        Observer.Finish();
+        Observer.Expect('try_EndObjectFirst', 'E: A DotNet variable has not been instantiated. Attempting to call Newtonsoft.Json.JsonTextWriter.WriteEndObject in CodeUnit Json Text Reader/Writer: WriteEndObject | DotNetVariableNotCreated');
+        Observer.Expect('try_Control', 'ok');
+        Observer.Expect('control_json', '{"a":"x"}');
+        Observer.Verify();
     end;
 }

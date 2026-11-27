@@ -10,7 +10,12 @@
 //     <text> stmt: the statement Evaluate(X, T) in a TryFunction; records "ok <Format(X, 0, 9)>" or "E: <GetLastErrorText> | <GetLastErrorCode>".
 //   A test is <Target>_<Group>. The texts are written in brackets in the names ([<300] bool) so the spaces can be seen.
 //   Not repeated: Evaluate(D, ''), '1,000', 'abc' and '(100)' (EvaluateDecimal.al and EvalDecimalEn.al).
-//   Observe round: every test ends with Observer.Finish(), which fails the test with the readings (OBSERVE:...); nothing is asserted yet.
+//   Measured on BC 29.0 (Linux, W1, en-US session) with an invented app holding these objects; the values are that run's readings,
+//   turned into Expect and Verify by convert.py verbatim. This pull request's CI checks them on 27.5, 28.5 and 29.0.
+//   Facts (BC 29.0), the same for all four targets: every comparison text, every range, '300|400', '*', '300*' and the text of
+//   25 spaces fail: the Boolean form returns No and leaves the target at 7; the statement raises 'The value "<text>" can't be
+//   evaluated into type <Decimal|Integer|BigInteger>.' with GetLastErrorCode 'Evaluate'. ' 300' and '300 ' evaluate to 300 in both
+//   forms.
 // BC versions: 27, 28, 29 by CI
 table 73476 "LT ECF Row"
 {
@@ -156,7 +161,23 @@ codeunit 73477 "LT ECF Evaluate Tests"
     begin
         foreach T in Probe.Texts('Comparison') do
             Probe.CellDec(Observer, T);
-        Observer.Finish();
+        Observer.Expect('[<300] bool', 'No 7');
+        Observer.Expect('[<300] stmt', 'E: The value "<300" can''t be evaluated into type Decimal. | Evaluate');
+        Observer.Expect('[>300] bool', 'No 7');
+        Observer.Expect('[>300] stmt', 'E: The value ">300" can''t be evaluated into type Decimal. | Evaluate');
+        Observer.Expect('[<=300] bool', 'No 7');
+        Observer.Expect('[<=300] stmt', 'E: The value "<=300" can''t be evaluated into type Decimal. | Evaluate');
+        Observer.Expect('[>=300] bool', 'No 7');
+        Observer.Expect('[>=300] stmt', 'E: The value ">=300" can''t be evaluated into type Decimal. | Evaluate');
+        Observer.Expect('[<>300] bool', 'No 7');
+        Observer.Expect('[<>300] stmt', 'E: The value "<>300" can''t be evaluated into type Decimal. | Evaluate');
+        Observer.Expect('[=300] bool', 'No 7');
+        Observer.Expect('[=300] stmt', 'E: The value "=300" can''t be evaluated into type Decimal. | Evaluate');
+        Observer.Expect('[<] bool', 'No 7');
+        Observer.Expect('[<] stmt', 'E: The value "<" can''t be evaluated into type Decimal. | Evaluate');
+        Observer.Expect('[<-1.5] bool', 'No 7');
+        Observer.Expect('[<-1.5] stmt', 'E: The value "<-1.5" can''t be evaluated into type Decimal. | Evaluate');
+        Observer.Verify();
     end;
 
     [Test]
@@ -168,7 +189,25 @@ codeunit 73477 "LT ECF Evaluate Tests"
     begin
         foreach T in Probe.Texts('Other') do
             Probe.CellDec(Observer, T);
-        Observer.Finish();
+        Observer.Expect('[300..400] bool', 'No 7');
+        Observer.Expect('[300..400] stmt', 'E: The value "300..400" can''t be evaluated into type Decimal. | Evaluate');
+        Observer.Expect('[..300] bool', 'No 7');
+        Observer.Expect('[..300] stmt', 'E: The value "..300" can''t be evaluated into type Decimal. | Evaluate');
+        Observer.Expect('[300..] bool', 'No 7');
+        Observer.Expect('[300..] stmt', 'E: The value "300.." can''t be evaluated into type Decimal. | Evaluate');
+        Observer.Expect('[300|400] bool', 'No 7');
+        Observer.Expect('[300|400] stmt', 'E: The value "300|400" can''t be evaluated into type Decimal. | Evaluate');
+        Observer.Expect('[*] bool', 'No 7');
+        Observer.Expect('[*] stmt', 'E: The value "*" can''t be evaluated into type Decimal. | Evaluate');
+        Observer.Expect('[300*] bool', 'No 7');
+        Observer.Expect('[300*] stmt', 'E: The value "300*" can''t be evaluated into type Decimal. | Evaluate');
+        Observer.Expect('[ 300] bool', 'Yes 300');
+        Observer.Expect('[ 300] stmt', 'ok 300');
+        Observer.Expect('[300 ] bool', 'Yes 300');
+        Observer.Expect('[300 ] stmt', 'ok 300');
+        Observer.Expect('[                         ] bool', 'No 7');
+        Observer.Expect('[                         ] stmt', 'E: The value "                         " can''t be evaluated into type Decimal. | Evaluate');
+        Observer.Verify();
     end;
 
     [Test]
@@ -180,7 +219,23 @@ codeunit 73477 "LT ECF Evaluate Tests"
     begin
         foreach T in Probe.Texts('Comparison') do
             Probe.CellInt(Observer, T);
-        Observer.Finish();
+        Observer.Expect('[<300] bool', 'No 7');
+        Observer.Expect('[<300] stmt', 'E: The value "<300" can''t be evaluated into type Integer. | Evaluate');
+        Observer.Expect('[>300] bool', 'No 7');
+        Observer.Expect('[>300] stmt', 'E: The value ">300" can''t be evaluated into type Integer. | Evaluate');
+        Observer.Expect('[<=300] bool', 'No 7');
+        Observer.Expect('[<=300] stmt', 'E: The value "<=300" can''t be evaluated into type Integer. | Evaluate');
+        Observer.Expect('[>=300] bool', 'No 7');
+        Observer.Expect('[>=300] stmt', 'E: The value ">=300" can''t be evaluated into type Integer. | Evaluate');
+        Observer.Expect('[<>300] bool', 'No 7');
+        Observer.Expect('[<>300] stmt', 'E: The value "<>300" can''t be evaluated into type Integer. | Evaluate');
+        Observer.Expect('[=300] bool', 'No 7');
+        Observer.Expect('[=300] stmt', 'E: The value "=300" can''t be evaluated into type Integer. | Evaluate');
+        Observer.Expect('[<] bool', 'No 7');
+        Observer.Expect('[<] stmt', 'E: The value "<" can''t be evaluated into type Integer. | Evaluate');
+        Observer.Expect('[<-1.5] bool', 'No 7');
+        Observer.Expect('[<-1.5] stmt', 'E: The value "<-1.5" can''t be evaluated into type Integer. | Evaluate');
+        Observer.Verify();
     end;
 
     [Test]
@@ -192,7 +247,25 @@ codeunit 73477 "LT ECF Evaluate Tests"
     begin
         foreach T in Probe.Texts('Other') do
             Probe.CellInt(Observer, T);
-        Observer.Finish();
+        Observer.Expect('[300..400] bool', 'No 7');
+        Observer.Expect('[300..400] stmt', 'E: The value "300..400" can''t be evaluated into type Integer. | Evaluate');
+        Observer.Expect('[..300] bool', 'No 7');
+        Observer.Expect('[..300] stmt', 'E: The value "..300" can''t be evaluated into type Integer. | Evaluate');
+        Observer.Expect('[300..] bool', 'No 7');
+        Observer.Expect('[300..] stmt', 'E: The value "300.." can''t be evaluated into type Integer. | Evaluate');
+        Observer.Expect('[300|400] bool', 'No 7');
+        Observer.Expect('[300|400] stmt', 'E: The value "300|400" can''t be evaluated into type Integer. | Evaluate');
+        Observer.Expect('[*] bool', 'No 7');
+        Observer.Expect('[*] stmt', 'E: The value "*" can''t be evaluated into type Integer. | Evaluate');
+        Observer.Expect('[300*] bool', 'No 7');
+        Observer.Expect('[300*] stmt', 'E: The value "300*" can''t be evaluated into type Integer. | Evaluate');
+        Observer.Expect('[ 300] bool', 'Yes 300');
+        Observer.Expect('[ 300] stmt', 'ok 300');
+        Observer.Expect('[300 ] bool', 'Yes 300');
+        Observer.Expect('[300 ] stmt', 'ok 300');
+        Observer.Expect('[                         ] bool', 'No 7');
+        Observer.Expect('[                         ] stmt', 'E: The value "                         " can''t be evaluated into type Integer. | Evaluate');
+        Observer.Verify();
     end;
 
     [Test]
@@ -204,7 +277,23 @@ codeunit 73477 "LT ECF Evaluate Tests"
     begin
         foreach T in Probe.Texts('Comparison') do
             Probe.CellBig(Observer, T);
-        Observer.Finish();
+        Observer.Expect('[<300] bool', 'No 7');
+        Observer.Expect('[<300] stmt', 'E: The value "<300" can''t be evaluated into type BigInteger. | Evaluate');
+        Observer.Expect('[>300] bool', 'No 7');
+        Observer.Expect('[>300] stmt', 'E: The value ">300" can''t be evaluated into type BigInteger. | Evaluate');
+        Observer.Expect('[<=300] bool', 'No 7');
+        Observer.Expect('[<=300] stmt', 'E: The value "<=300" can''t be evaluated into type BigInteger. | Evaluate');
+        Observer.Expect('[>=300] bool', 'No 7');
+        Observer.Expect('[>=300] stmt', 'E: The value ">=300" can''t be evaluated into type BigInteger. | Evaluate');
+        Observer.Expect('[<>300] bool', 'No 7');
+        Observer.Expect('[<>300] stmt', 'E: The value "<>300" can''t be evaluated into type BigInteger. | Evaluate');
+        Observer.Expect('[=300] bool', 'No 7');
+        Observer.Expect('[=300] stmt', 'E: The value "=300" can''t be evaluated into type BigInteger. | Evaluate');
+        Observer.Expect('[<] bool', 'No 7');
+        Observer.Expect('[<] stmt', 'E: The value "<" can''t be evaluated into type BigInteger. | Evaluate');
+        Observer.Expect('[<-1.5] bool', 'No 7');
+        Observer.Expect('[<-1.5] stmt', 'E: The value "<-1.5" can''t be evaluated into type BigInteger. | Evaluate');
+        Observer.Verify();
     end;
 
     [Test]
@@ -216,7 +305,25 @@ codeunit 73477 "LT ECF Evaluate Tests"
     begin
         foreach T in Probe.Texts('Other') do
             Probe.CellBig(Observer, T);
-        Observer.Finish();
+        Observer.Expect('[300..400] bool', 'No 7');
+        Observer.Expect('[300..400] stmt', 'E: The value "300..400" can''t be evaluated into type BigInteger. | Evaluate');
+        Observer.Expect('[..300] bool', 'No 7');
+        Observer.Expect('[..300] stmt', 'E: The value "..300" can''t be evaluated into type BigInteger. | Evaluate');
+        Observer.Expect('[300..] bool', 'No 7');
+        Observer.Expect('[300..] stmt', 'E: The value "300.." can''t be evaluated into type BigInteger. | Evaluate');
+        Observer.Expect('[300|400] bool', 'No 7');
+        Observer.Expect('[300|400] stmt', 'E: The value "300|400" can''t be evaluated into type BigInteger. | Evaluate');
+        Observer.Expect('[*] bool', 'No 7');
+        Observer.Expect('[*] stmt', 'E: The value "*" can''t be evaluated into type BigInteger. | Evaluate');
+        Observer.Expect('[300*] bool', 'No 7');
+        Observer.Expect('[300*] stmt', 'E: The value "300*" can''t be evaluated into type BigInteger. | Evaluate');
+        Observer.Expect('[ 300] bool', 'Yes 300');
+        Observer.Expect('[ 300] stmt', 'ok 300');
+        Observer.Expect('[300 ] bool', 'Yes 300');
+        Observer.Expect('[300 ] stmt', 'ok 300');
+        Observer.Expect('[                         ] bool', 'No 7');
+        Observer.Expect('[                         ] stmt', 'E: The value "                         " can''t be evaluated into type BigInteger. | Evaluate');
+        Observer.Verify();
     end;
 
     [Test]
@@ -228,7 +335,23 @@ codeunit 73477 "LT ECF Evaluate Tests"
     begin
         foreach T in Probe.Texts('Comparison') do
             Probe.CellField(Observer, T);
-        Observer.Finish();
+        Observer.Expect('[<300] bool', 'No 7');
+        Observer.Expect('[<300] stmt', 'E: The value "<300" can''t be evaluated into type Decimal. | Evaluate');
+        Observer.Expect('[>300] bool', 'No 7');
+        Observer.Expect('[>300] stmt', 'E: The value ">300" can''t be evaluated into type Decimal. | Evaluate');
+        Observer.Expect('[<=300] bool', 'No 7');
+        Observer.Expect('[<=300] stmt', 'E: The value "<=300" can''t be evaluated into type Decimal. | Evaluate');
+        Observer.Expect('[>=300] bool', 'No 7');
+        Observer.Expect('[>=300] stmt', 'E: The value ">=300" can''t be evaluated into type Decimal. | Evaluate');
+        Observer.Expect('[<>300] bool', 'No 7');
+        Observer.Expect('[<>300] stmt', 'E: The value "<>300" can''t be evaluated into type Decimal. | Evaluate');
+        Observer.Expect('[=300] bool', 'No 7');
+        Observer.Expect('[=300] stmt', 'E: The value "=300" can''t be evaluated into type Decimal. | Evaluate');
+        Observer.Expect('[<] bool', 'No 7');
+        Observer.Expect('[<] stmt', 'E: The value "<" can''t be evaluated into type Decimal. | Evaluate');
+        Observer.Expect('[<-1.5] bool', 'No 7');
+        Observer.Expect('[<-1.5] stmt', 'E: The value "<-1.5" can''t be evaluated into type Decimal. | Evaluate');
+        Observer.Verify();
     end;
 
     [Test]
@@ -240,6 +363,24 @@ codeunit 73477 "LT ECF Evaluate Tests"
     begin
         foreach T in Probe.Texts('Other') do
             Probe.CellField(Observer, T);
-        Observer.Finish();
+        Observer.Expect('[300..400] bool', 'No 7');
+        Observer.Expect('[300..400] stmt', 'E: The value "300..400" can''t be evaluated into type Decimal. | Evaluate');
+        Observer.Expect('[..300] bool', 'No 7');
+        Observer.Expect('[..300] stmt', 'E: The value "..300" can''t be evaluated into type Decimal. | Evaluate');
+        Observer.Expect('[300..] bool', 'No 7');
+        Observer.Expect('[300..] stmt', 'E: The value "300.." can''t be evaluated into type Decimal. | Evaluate');
+        Observer.Expect('[300|400] bool', 'No 7');
+        Observer.Expect('[300|400] stmt', 'E: The value "300|400" can''t be evaluated into type Decimal. | Evaluate');
+        Observer.Expect('[*] bool', 'No 7');
+        Observer.Expect('[*] stmt', 'E: The value "*" can''t be evaluated into type Decimal. | Evaluate');
+        Observer.Expect('[300*] bool', 'No 7');
+        Observer.Expect('[300*] stmt', 'E: The value "300*" can''t be evaluated into type Decimal. | Evaluate');
+        Observer.Expect('[ 300] bool', 'Yes 300');
+        Observer.Expect('[ 300] stmt', 'ok 300');
+        Observer.Expect('[300 ] bool', 'Yes 300');
+        Observer.Expect('[300 ] stmt', 'ok 300');
+        Observer.Expect('[                         ] bool', 'No 7');
+        Observer.Expect('[                         ] stmt', 'E: The value "                         " can''t be evaluated into type Decimal. | Evaluate');
+        Observer.Verify();
     end;
 }
