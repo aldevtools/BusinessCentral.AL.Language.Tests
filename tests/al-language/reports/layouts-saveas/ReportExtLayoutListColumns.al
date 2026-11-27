@@ -219,7 +219,7 @@ codeunit 97788 "LT RLE Layout List Tests"
             Shown := Format(FRef.Type) + ' ' + Show(FRef);
             Shown := Shown.Replace(Format(Info.Id()).ToLower().Replace('{', '').Replace('}', ''), '<this app>');
             Shown := Shown.Replace(Format(Info.Id()).ToUpper().Replace('{', '').Replace('}', ''), '<this app>');
-            Observer.Observe(Label + ' ' + Format(FRef.Number) + ' ' + FRef.Name, Shown);
+            Observer.Observe(Label + ' ' + Format(FRef.Number), Shown); // names omitted while measuring: the failure message keeps about 2000 characters
         end;
     end;
 
