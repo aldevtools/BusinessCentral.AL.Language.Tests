@@ -1,0 +1,35 @@
+{
+  "id": "6f0e2b3a-9c41-4d7e-8a52-1b7c3e9d4f80",
+  "name": "AL Language Web Service Session Probe",
+  "publisher": "AL Language",
+  "version": "1.0.0.0",
+  "brief": "Observe-only probe of what dialogs and session reads do in a web-service session (a test runner called over OData).",
+  "description": "Not run by ci.yml or by the Windows nightly: both run tests in a session with a client (TestRunnerHub, or page 130455 through Run-TestsInBcContainer), and a test cannot start a web-service session. Run it by publishing the app next to the main corpus app and calling Microsoft's test runner codeunit (130454) over OData for the test codeunit range 97880..97899. Each test ends with Probe Observer's Finish, so its failure message carries what BC did.",
+  "privacyStatement": "",
+  "EULA": "",
+  "help": "",
+  "url": "",
+  "logo": "",
+  "dependencies": [
+    {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "name": "AL Language Coverage Tests",
+      "publisher": "AL Language",
+      "version": "1.0.0.0"
+    }
+  ],
+  "screenshots": [],
+  "platform": "27.0.0.0",
+  "application": "27.0.0.0",
+  "idRanges": [
+    {
+      "from": 97880,
+      "to": 97899
+    }
+  ],
+  "features": [
+    "NoImplicitWith"
+  ],
+  "runtime": "16.0",
+  "target": "Cloud"
+}
