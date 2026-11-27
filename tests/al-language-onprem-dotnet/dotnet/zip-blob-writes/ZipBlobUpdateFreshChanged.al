@@ -25,6 +25,57 @@ codeunit 99026 "LT ZB Update Fresh Changed"
         CopyStream(BufferOut, SeedIn);
     end;
 
+    local procedure ReadBytes(var InS: InStream; var Bytes: List of [Integer])
+    var
+        B: Byte;
+    begin
+        Clear(Bytes);
+        while not InS.EOS() do begin
+            InS.Read(B);
+            Bytes.Add(B);
+        end;
+    end;
+
+    // "<offset>:<b1>,<b2>,<b3>" at the first byte (0-based) where Now differs from Before; "shorter" or "same" otherwise.
+    local procedure FirstChange(var Before: List of [Integer]; var Now: List of [Integer]): Text
+    var
+        I: Integer;
+        J: Integer;
+        Bytes: Text;
+        Changed: Boolean;
+    begin
+        for I := 1 to Now.Count() do begin
+            Changed := I > Before.Count();
+            if not Changed then
+                Changed := Now.Get(I) <> Before.Get(I);
+            if Changed then begin
+                for J := I to I + 2 do
+                    if J <= Now.Count() then
+                        Bytes += Format(Now.Get(J)) + ',';
+                exit(Format(I - 1) + ':' + Bytes.TrimEnd(','));
+            end;
+        end;
+        if Now.Count() < Before.Count() then
+            exit('shorter');
+        exit('same');
+    end;
+
+    local procedure BufferBytes(var Buffer: Record "LT ZB Zip File" temporary; var Bytes: List of [Integer])
+    var
+        InS: InStream;
+    begin
+        Buffer.Content.CreateInStream(InS);
+        ReadBytes(InS, Bytes);
+    end;
+
+    local procedure StoredBytes(var Stored: Record "LT ZB Stored Zip File"; var Bytes: List of [Integer])
+    var
+        InS: InStream;
+    begin
+        Stored.Content.CreateInStream(InS);
+        ReadBytes(InS, Bytes);
+    end;
+
     [TryFunction]
     local procedure TryDispose(ZipArchive: DotNet LtZbZipArchive)
     begin
@@ -81,14 +132,19 @@ codeunit 99026 "LT ZB Update Fresh Changed"
         Mode: DotNet LtZbZipMode;
         Enc: DotNet LtZbEncoding;
         BufferOut: OutStream;
+        Before: List of [Integer];
+        After: List of [Integer];
     begin
         SeedBuffer(Buffer);
+        BufferBytes(Buffer, Before);
         Buffer.Content.CreateOutStream(BufferOut);
         ZipArchive := ZipArchive.ZipArchive(BufferOut, Mode.Update, false, Enc.UTF8());
         Observer.Observe('entries in archive', Format(ZipArchive.Entries.Count));
         Helper.AddEntry(ZipArchive, 'b.txt');
         BufferOut.WriteText('x');
         Observer.Observe('length after write', Format(Buffer.Content.Length));
+        BufferBytes(Buffer, After);
+        Observer.Observe('first change after write', FirstChange(Before, After));
         Observer.Observe('last bytes after write', Helper.LastBytes(Buffer));
         ObserveDispose(Observer, ZipArchive);
         ObserveBuffer(Observer, Buffer);
@@ -105,12 +161,17 @@ codeunit 99026 "LT ZB Update Fresh Changed"
         Mode: DotNet LtZbZipMode;
         Enc: DotNet LtZbEncoding;
         BufferOut: OutStream;
+        Before: List of [Integer];
+        After: List of [Integer];
     begin
         SeedBuffer(Buffer);
+        BufferBytes(Buffer, Before);
         Buffer.Content.CreateOutStream(BufferOut);
         ZipArchive := ZipArchive.ZipArchive(BufferOut, Mode.Update, false, Enc.UTF8());
         BufferOut.WriteText('x');
         Observer.Observe('length after write', Format(Buffer.Content.Length));
+        BufferBytes(Buffer, After);
+        Observer.Observe('first change after write', FirstChange(Before, After));
         Observer.Observe('last bytes after write', Helper.LastBytes(Buffer));
         Helper.AddEntry(ZipArchive, 'b.txt');
         ObserveDispose(Observer, ZipArchive);
@@ -127,14 +188,19 @@ codeunit 99026 "LT ZB Update Fresh Changed"
         ZipArchive: DotNet LtZbZipArchive;
         Mode: DotNet LtZbZipMode;
         BufferOut: OutStream;
+        Before: List of [Integer];
+        After: List of [Integer];
     begin
         SeedBuffer(Buffer);
+        BufferBytes(Buffer, Before);
         Buffer.Content.CreateOutStream(BufferOut);
         ZipArchive := ZipArchive.ZipArchive(BufferOut, Mode.Update);
         Observer.Observe('entries in archive', Format(ZipArchive.Entries.Count));
         Helper.AddEntry(ZipArchive, 'b.txt');
         BufferOut.WriteText('x');
         Observer.Observe('length after write', Format(Buffer.Content.Length));
+        BufferBytes(Buffer, After);
+        Observer.Observe('first change after write', FirstChange(Before, After));
         ObserveDispose(Observer, ZipArchive);
         ObserveBuffer(Observer, Buffer);
         Observer.Finish();
@@ -153,6 +219,8 @@ codeunit 99026 "LT ZB Update Fresh Changed"
         SeedIn: InStream;
         StoredOut: OutStream;
         Names: Text;
+        Before: List of [Integer];
+        After: List of [Integer];
     begin
         Stored.DeleteAll();
         Helper.SeedIn(Seed, 'a.txt', SeedIn);
@@ -163,12 +231,15 @@ codeunit 99026 "LT ZB Update Fresh Changed"
         Stored.Insert();
         Stored.Get(1);
         Stored.CalcFields(Content);
+        StoredBytes(Stored, Before);
         Stored.Content.CreateOutStream(StoredOut);
         ZipArchive := ZipArchive.ZipArchive(StoredOut, Mode.Update, false, Enc.UTF8());
         Observer.Observe('entries in archive', Format(ZipArchive.Entries.Count));
         Helper.AddEntry(ZipArchive, 'b.txt');
         StoredOut.WriteText('x');
         Observer.Observe('length after write', Format(Stored.Content.Length));
+        StoredBytes(Stored, After);
+        Observer.Observe('first change after write', FirstChange(Before, After));
         ObserveDispose(Observer, ZipArchive);
         Observer.Observe('length after Dispose', Format(Stored.Content.Length));
         Stored.Modify();
@@ -245,8 +316,11 @@ codeunit 99026 "LT ZB Update Fresh Changed"
         Enc: DotNet LtZbEncoding;
         Writer: DotNet LtZbStreamWriter;
         BufferOut: OutStream;
+        Before: List of [Integer];
+        After: List of [Integer];
     begin
         SeedBuffer(Buffer);
+        BufferBytes(Buffer, Before);
         Buffer.Content.CreateOutStream(BufferOut);
         ZipArchive := ZipArchive.ZipArchive(BufferOut, Mode.Update, false, Enc.UTF8());
         Helper.AddEntry(ZipArchive, 'b.txt');
@@ -254,6 +328,8 @@ codeunit 99026 "LT ZB Update Fresh Changed"
         Writer.Write('xyz');
         Writer.Flush();
         Observer.Observe('length after append', Format(Buffer.Content.Length));
+        BufferBytes(Buffer, After);
+        Observer.Observe('first change after append', FirstChange(Before, After));
         Observer.Observe('last bytes after append', Helper.LastBytes(Buffer));
         ObserveDispose(Observer, ZipArchive);
         ObserveBuffer(Observer, Buffer);
