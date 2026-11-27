@@ -40,6 +40,9 @@ report 97784 "LT RLE Base"
         {
             DataItemTableView = sorting(Number) where(Number = const(1));
             column(Num; Number) { }
+            // the Excel layouts (copies of the Y67 files) hold a data table with the columns No_ and Name_, and alc refuses an Excel layout with a column the report does not have (AL0444)
+            column(No_; Number) { }
+            column(Name_; Number) { }
         }
     }
 
