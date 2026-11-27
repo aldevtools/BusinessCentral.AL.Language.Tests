@@ -14,6 +14,14 @@
 // row the step wrote (from the record buffer, no re-read); min/min0 is MinimumActiveRowVersion() against its read at the start of the test;
 // min/last1 against LastUsedRowVersion() + 1; next/last1 is the buffer SystemRowVersion of a fresh Insert into "RVS Other" against the
 // value + 1 read before it.
+// Measured on BC 29.0 (local run; 27.5 and 28.5 see the PR run): every write that sends a row (Insert followed by another statement, a checked
+// Insert, Modify, Get and Modify, Rename, Delete or DeleteAll of inserted rows, writes to a second table) leaves LastUsedRowVersion() equal to
+// the SystemRowVersion of the row written last. A Modify (also right after the row's own Insert) and a Rename give the row a greater
+// SystemRowVersion than before. DeleteAll with no Insert before it (unfiltered, filtered, empty table) and a Get leave the value the same.
+// A Delete or DeleteAll (any filter) after an Insert makes the value the inserted row's version. Truncate and ModifyAll after an Insert make it
+// greater than the inserted row's version; after ModifyAll the last modified row equals the value and the first is below it. In two tables, the
+// second table's inserted row is below the first table's row version. MinimumActiveRowVersion() stays at its start value and below
+// LastUsedRowVersion() + 1 in every shape. After every shape the next Insert gets LastUsedRowVersion() + 1.
 // BC versions: 27+
 
 table 76640 "RVS Row"
@@ -147,7 +155,17 @@ codeunit 76643 "RVS Write Shapes"
         Row.Get(1);
         Steps.Snap(Observer, 'get', Row.SystemRowVersion);
         Steps.Next(Observer, 'after');
-        Observer.Finish();
+        Observer.Expect('modify row/ins', 'greater');
+        Observer.Expect('modify last/prev', 'greater');
+        Observer.Expect('modify last/row', 'same');
+        Observer.Expect('modify min/min0', 'same');
+        Observer.Expect('modify min/last1', 'less');
+        Observer.Expect('get last/prev', 'same');
+        Observer.Expect('get last/row', 'same');
+        Observer.Expect('get min/min0', 'same');
+        Observer.Expect('get min/last1', 'less');
+        Observer.Expect('after next/last1', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -167,7 +185,16 @@ codeunit 76643 "RVS Write Shapes"
             Error('insert failed');
         Steps.Snap(Observer, 'checked2', Row.SystemRowVersion);
         Steps.Next(Observer, 'after');
-        Observer.Finish();
+        Observer.Expect('checked1 last/prev', 'greater');
+        Observer.Expect('checked1 last/row', 'same');
+        Observer.Expect('checked1 min/min0', 'same');
+        Observer.Expect('checked1 min/last1', 'less');
+        Observer.Expect('checked2 last/prev', 'greater');
+        Observer.Expect('checked2 last/row', 'same');
+        Observer.Expect('checked2 min/min0', 'same');
+        Observer.Expect('checked2 min/last1', 'less');
+        Observer.Expect('after next/last1', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -185,7 +212,12 @@ codeunit 76643 "RVS Write Shapes"
         Row.Modify();
         Steps.Snap(Observer, 'getmodify', Row.SystemRowVersion);
         Steps.Next(Observer, 'after');
-        Observer.Finish();
+        Observer.Expect('getmodify last/prev', 'greater');
+        Observer.Expect('getmodify last/row', 'same');
+        Observer.Expect('getmodify min/min0', 'same');
+        Observer.Expect('getmodify min/last1', 'less');
+        Observer.Expect('after next/last1', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -207,7 +239,17 @@ codeunit 76643 "RVS Write Shapes"
         Row.Modify();
         Steps.Snap(Observer, 'modify2', Row.SystemRowVersion);
         Steps.Next(Observer, 'after');
-        Observer.Finish();
+        Observer.Expect('modify row/before', 'greater');
+        Observer.Expect('modify last/prev', 'greater');
+        Observer.Expect('modify last/row', 'same');
+        Observer.Expect('modify min/min0', 'same');
+        Observer.Expect('modify min/last1', 'less');
+        Observer.Expect('modify2 last/prev', 'greater');
+        Observer.Expect('modify2 last/row', 'same');
+        Observer.Expect('modify2 min/min0', 'same');
+        Observer.Expect('modify2 min/last1', 'less');
+        Observer.Expect('after next/last1', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -222,7 +264,12 @@ codeunit 76643 "RVS Write Shapes"
         Steps.Snap(Observer, 'deleteall', 0);
         Observer.Observe('count', Format(Row.Count()));
         Steps.Next(Observer, 'after');
-        Observer.Finish();
+        Observer.Expect('deleteall last/prev', 'same');
+        Observer.Expect('deleteall min/min0', 'same');
+        Observer.Expect('deleteall min/last1', 'less');
+        Observer.Expect('count', '0');
+        Observer.Expect('after next/last1', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -239,7 +286,12 @@ codeunit 76643 "RVS Write Shapes"
         Row.Reset();
         Observer.Observe('count', Format(Row.Count()));
         Steps.Next(Observer, 'after');
-        Observer.Finish();
+        Observer.Expect('deleteall last/prev', 'same');
+        Observer.Expect('deleteall min/min0', 'same');
+        Observer.Expect('deleteall min/last1', 'less');
+        Observer.Expect('count', '1');
+        Observer.Expect('after next/last1', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -253,7 +305,11 @@ codeunit 76643 "RVS Write Shapes"
         Row.DeleteAll();
         Steps.Snap(Observer, 'deleteall', 0);
         Steps.Next(Observer, 'after');
-        Observer.Finish();
+        Observer.Expect('deleteall last/prev', 'same');
+        Observer.Expect('deleteall min/min0', 'same');
+        Observer.Expect('deleteall min/last1', 'less');
+        Observer.Expect('after next/last1', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -270,7 +326,12 @@ codeunit 76643 "RVS Write Shapes"
         Row.DeleteAll();
         Steps.Snap(Observer, 'deleteall', Ins);
         Steps.Next(Observer, 'after');
-        Observer.Finish();
+        Observer.Expect('deleteall last/prev', 'greater');
+        Observer.Expect('deleteall last/row', 'same');
+        Observer.Expect('deleteall min/min0', 'same');
+        Observer.Expect('deleteall min/last1', 'less');
+        Observer.Expect('after next/last1', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -289,7 +350,13 @@ codeunit 76643 "RVS Write Shapes"
         Row.Reset();
         Observer.Observe('count', Format(Row.Count()));
         Steps.Next(Observer, 'after');
-        Observer.Finish();
+        Observer.Expect('deleteall last/prev', 'greater');
+        Observer.Expect('deleteall last/row', 'same');
+        Observer.Expect('deleteall min/min0', 'same');
+        Observer.Expect('deleteall min/last1', 'less');
+        Observer.Expect('count', '1');
+        Observer.Expect('after next/last1', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -305,7 +372,12 @@ codeunit 76643 "RVS Write Shapes"
         Row.DeleteAll();
         Steps.Snap(Observer, 'deleteall', Ins);
         Steps.Next(Observer, 'after');
-        Observer.Finish();
+        Observer.Expect('deleteall last/prev', 'greater');
+        Observer.Expect('deleteall last/row', 'same');
+        Observer.Expect('deleteall min/min0', 'same');
+        Observer.Expect('deleteall min/last1', 'less');
+        Observer.Expect('after next/last1', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -321,7 +393,12 @@ codeunit 76643 "RVS Write Shapes"
         Row.Truncate();
         Steps.Snap(Observer, 'truncate', Ins);
         Steps.Next(Observer, 'after');
-        Observer.Finish();
+        Observer.Expect('truncate last/prev', 'greater');
+        Observer.Expect('truncate last/row', 'greater');
+        Observer.Expect('truncate min/min0', 'same');
+        Observer.Expect('truncate min/last1', 'less');
+        Observer.Expect('after next/last1', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -339,7 +416,12 @@ codeunit 76643 "RVS Write Shapes"
         Row.Delete();
         Steps.Snap(Observer, 'delete', Ins);
         Steps.Next(Observer, 'after');
-        Observer.Finish();
+        Observer.Expect('delete last/prev', 'greater');
+        Observer.Expect('delete last/row', 'same');
+        Observer.Expect('delete min/min0', 'same');
+        Observer.Expect('delete min/last1', 'less');
+        Observer.Expect('after next/last1', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -358,7 +440,13 @@ codeunit 76643 "RVS Write Shapes"
         Observer.Observe('rename row/ins', Steps.Rel(Row.SystemRowVersion, Ins));
         Steps.Snap(Observer, 'rename', Row.SystemRowVersion);
         Steps.Next(Observer, 'after');
-        Observer.Finish();
+        Observer.Expect('rename row/ins', 'greater');
+        Observer.Expect('rename last/prev', 'greater');
+        Observer.Expect('rename last/row', 'same');
+        Observer.Expect('rename min/min0', 'same');
+        Observer.Expect('rename min/last1', 'less');
+        Observer.Expect('after next/last1', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -381,7 +469,14 @@ codeunit 76643 "RVS Write Shapes"
         Row.Get(1);
         Observer.Observe('modifyall row1/last', Steps.Rel(Row.SystemRowVersion, Last));
         Steps.Next(Observer, 'after');
-        Observer.Finish();
+        Observer.Expect('modifyall last/prev', 'greater');
+        Observer.Expect('modifyall last/row', 'greater');
+        Observer.Expect('modifyall min/min0', 'same');
+        Observer.Expect('modifyall min/last1', 'less');
+        Observer.Expect('modifyall row2/last', 'same');
+        Observer.Expect('modifyall row1/last', 'less');
+        Observer.Expect('after next/last1', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -406,7 +501,21 @@ codeunit 76643 "RVS Write Shapes"
         Other.Modify();
         Steps.Snap(Observer, 'modify2', Other.SystemRowVersion);
         Steps.Next(Observer, 'after');
-        Observer.Finish();
+        Observer.Expect('insert2 last/prev', 'greater');
+        Observer.Expect('insert2 last/row', 'same');
+        Observer.Expect('insert2 min/min0', 'same');
+        Observer.Expect('insert2 min/last1', 'less');
+        Observer.Expect('insert2 other/row', 'less');
+        Observer.Expect('modify1 last/prev', 'greater');
+        Observer.Expect('modify1 last/row', 'same');
+        Observer.Expect('modify1 min/min0', 'same');
+        Observer.Expect('modify1 min/last1', 'less');
+        Observer.Expect('modify2 last/prev', 'greater');
+        Observer.Expect('modify2 last/row', 'same');
+        Observer.Expect('modify2 min/min0', 'same');
+        Observer.Expect('modify2 min/last1', 'less');
+        Observer.Expect('after next/last1', 'same');
+        Observer.Verify();
     end;
 
     // The write order of AL Runner issue 8671: DeleteAll on two tables (one filtered), an Insert and Modify of a setup row, three inserts on
@@ -443,6 +552,17 @@ codeunit 76643 "RVS Write Shapes"
         Row.Name := 'x';
         Row.Modify();
         Steps.Snap(Observer, 'modify', Row.SystemRowVersion);
-        Observer.Finish();
+        Observer.Expect('watermark last/prev', 'greater');
+        Observer.Expect('watermark min/min0', 'same');
+        Observer.Expect('watermark min/last1', 'less');
+        Observer.Expect('checked last/prev', 'greater');
+        Observer.Expect('checked last/row', 'same');
+        Observer.Expect('checked min/min0', 'same');
+        Observer.Expect('checked min/last1', 'less');
+        Observer.Expect('modify last/prev', 'greater');
+        Observer.Expect('modify last/row', 'same');
+        Observer.Expect('modify min/min0', 'same');
+        Observer.Expect('modify min/last1', 'less');
+        Observer.Verify();
     end;
 }
