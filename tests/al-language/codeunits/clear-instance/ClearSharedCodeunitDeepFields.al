@@ -273,6 +273,11 @@ codeunit 86806 "CSF Test"
         Observer.Observe(Prefix + 'p', R.StateP());
     end;
 
+    local procedure RowState(var Row: Record "CKK Row"): Text
+    begin
+        exit(StrSubstNo('row[%1,%2,%3]', Row."No.", Row.Txt, Row.GetFilters()));
+    end;
+
     local procedure Run(Mode: Integer; AllLevels: Boolean)
     var
         R: Codeunit "CSF DReg";
@@ -430,5 +435,28 @@ codeunit 86806 "CSF Test"
         Observer.Expect('write.owner.si', 'd2si[6110,6110,s6110]d3[6111,6111,ws,|tmp 0,0,]');
         Observer.Expect('write.r.p', 'd2p[0,0,]d3[0,0,wp,|tmp 0,0,]');
         Observer.Verify();
+    end;
+
+    [Test]
+    procedure DeepFields_AfterRegRun_OwnerClearAll()
+    var
+        R: Codeunit "CSF DReg";
+        Owner: Codeunit "CSF DOwner";
+        Row: Record "CKK Row";
+    begin
+        R.Prime(7000, 2, true);
+        Owner.SetReg(R);
+        Row."No." := 7;
+        Row.Txt := 'row';
+        Row.SetRange("No.", 7);
+        R.Run(Row);
+        ObserveTree('before.', R);
+        Observer.Observe('before.row', RowState(Row));
+        Owner.DoClearAll();
+        ObserveTree('after.', R);
+        Observer.Observe('after.owner.p', Owner.StateP());
+        Observer.Observe('after.owner.si', Owner.StateSi());
+        Observer.Observe('after.row', RowState(Row));
+        Observer.Finish();
     end;
 }
