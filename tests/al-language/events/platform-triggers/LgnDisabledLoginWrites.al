@@ -313,10 +313,10 @@ codeunit 87404 "LGN DLW Anchor"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Observer.Observe('login rows', Format(Probe.Get('A0 ROWS')));
+        Observer.Observe('login rows of this session', Format(Probe.SessionCount(SessionId(), 'LOGIN')));
+        Observer.Observe('registration rows of this session', Format(Probe.SessionCount(SessionId(), 'REGISTER')));
         Observer.Observe('OnAfterLogin calls in this session', Format(Probe.Get('A0 CALLS')));
         Observer.Observe('OnRegisterAssistedSetup calls in this session', Format(Probe.Get('A0 REGS')));
-        Observer.Observe('rows of other sessions', Format(Probe.OtherSessionsCount()));
         Observer.Finish();
     end;
 }
