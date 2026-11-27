@@ -24,8 +24,8 @@
 //   verbatim. This pull request's CI run 46076954371 then passed every test of codeunits 73781 and 73782 on BC 27.5.54899.59044,
 //   28.5.54976.59048 and 29.0.54011.55816 (the 27.5 readings of 73782 had been measured by the observe run 46075012030), so the
 //   facts below hold on all three builds with no version guard. The tests R1, R2 and R3 at the end of codeunit 73782 were measured
-//   on the local 29.0.54011.57673 only: asserted on BC 28 and later; on BC 27.5 they are an observe round, red on purpose (#else
-//   ends with Finish()).
+//   on the local 29.0.54011.57673 and, for 27.5.54899.59044, by the observe run 46081071674 (both 27.5 legs identical, the same
+//   readings as 29.0), so they have one block, without a version guard, too.
 //   Facts (BC 27.5.54899.59044, 28.5.54976.59048, 29.0.54011.55816), the same for the three Blob fields:
 //   - A Blob that was never loaded is not stored by Insert: every C cell (:=, the same variable, Copy, a by-value parameter, a
 //     Variant, a RecordRef, FindFirst, FindSet, SetLoadFields with or without the Blob) stores a row without Blob content. Right
@@ -47,7 +47,7 @@
 //   - CalcFields on the inserting record right after its Insert (I4): HasValue Yes, empty text.
 //   - A source read in another company (G1), inserted into this one, stores no Blob; the reverse (a source of this company inserted
 //     into the other company) stores none either.
-//   R1-R3 (local BC 29.0.54011.57673 only):
+//   R1-R3 (local BC 29.0.54011.57673 and CI 27.5.54899.59044, run 46081071674):
 //   - R1: a second variable clears Body and modifies the row after the first variable's Get; the first variable's Modify (Note
 //     changed) keeps the row as the second left it: Body empty, Raw and Ext unchanged.
 //   - R2: B.Body := Src.Body into another table ("LT BFA Rec", 95950) with Body not loaded stores no Blob; after
@@ -1003,15 +1003,11 @@ codeunit 73782 "LT BIU More Tests"
         Src.Note := 'modified';
         Src.Modify();
         Probe.Stored(Observer, 'SRC');
-#if BC28PLUS
         Observer.Expect('before', 'body=No raw=Yes ext=Yes');
         Observer.Expect('stored_body', 'hasValue=No text=[]');
         Observer.Expect('stored_raw', 'hasValue=Yes text=[hello-raw]');
         Observer.Expect('stored_ext', 'hasValue=Yes text=[hello-ext]');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     // R2: a Blob field assignment into another table: B.Body := Src.Body (Src read with Get, Body not loaded), B.Insert on
@@ -1045,13 +1041,9 @@ codeunit 73782 "LT BIU More Tests"
         B.Delete();
         B.Get(73781);
         B.Delete();
-#if BC28PLUS
         Observer.Expect('unloaded', 'before=No hasValue=No text=[]');
         Observer.Expect('calcfields_first', 'before=Yes hasValue=Yes text=[hello]');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     local procedure OtherTableBody(K: Integer): Text
@@ -1115,7 +1107,6 @@ codeunit 73782 "LT BIU More Tests"
             end;
             Other.DeleteAll();
         end;
-#if BC28PLUS
         Observer.Expect('other_company_found', 'Yes');
         Observer.Expect('in_this_company', 'Yes');
         Observer.Expect('before', 'body=No raw=No ext=No');
@@ -1124,8 +1115,5 @@ codeunit 73782 "LT BIU More Tests"
         Observer.Expect('stored_ext', 'hasValue=No text=[]');
         Observer.Expect('in_other_company', 'No');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 }
