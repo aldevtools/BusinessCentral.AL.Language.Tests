@@ -11,7 +11,7 @@
 //        Instance methods (not constructors): DateTime.Add(TimeSpan), TimeSpan.Add(TimeSpan), StringBuilder.Remove(Int32, Int32).
 //        Calls whose outcome was not known beforehand run inside a [TryFunction] helper; the test records whether it
 //        failed, then the value or GetLastErrorText / GetLastErrorCode.
-// Values: every literal asserted is what BC produced on the corpus CI legs.
+// Values: every literal asserted is what BC produced on the corpus CI OnPrem DotNet legs 27.5, 28.5 and 29.0.
 // BC versions: 27, 28, 29
 
 dotnet
@@ -54,7 +54,13 @@ codeunit 61421 "LT N8268 Null Into ValueType"
         D := D.UtcNow();
         asserterror DTO := DTO.DateTimeOffset(D, TS);
         Observer.ObserveError('dto_null_ts');
-        Observer.Finish();
+#if BC28PLUS // BC 28.5 and 29.0 name the .NET Framework assembly; BC 27.5 names the .NET Core one
+        Observer.Expect('dto_null_ts|text', 'Cannot create an instance of the following .NET Framework object: assembly mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, type System.DateTimeOffset.');
+#else
+        Observer.Expect('dto_null_ts|text', 'Cannot create an instance of the following .NET Framework object: assembly System.Runtime, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, type System.DateTimeOffset.');
+#endif
+        Observer.Expect('dto_null_ts|code', 'DotNetCreate:NullReference');
+        Observer.Verify();
     end;
 
     // Control of cell 1: every argument assigned.
@@ -70,7 +76,9 @@ codeunit 61421 "LT N8268 Null Into ValueType"
         DTO := DTO.DateTimeOffset(D, TS);
         Observer.Observe('dto_offset_ticks', Format(DTO.Offset.Ticks));
         Observer.Observe('dto_equals_d', Format(DTO.UtcDateTime.Equals(D)));
-        Observer.Finish();
+        Observer.Expect('dto_offset_ticks', '0');
+        Observer.Expect('dto_equals_d', 'Yes');
+        Observer.Verify();
     end;
 
     // Cell 2: constructor, RegexOptions assigned, null TimeSpan.
@@ -84,7 +92,13 @@ codeunit 61421 "LT N8268 Null Into ValueType"
         Opt := Opt.None;
         asserterror R := R.Regex('a+', Opt, TS);
         Observer.ObserveError('regex_null_ts');
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('regex_null_ts|text', 'Cannot create an instance of the following .NET Framework object: assembly System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, type System.Text.RegularExpressions.Regex.');
+#else
+        Observer.Expect('regex_null_ts|text', 'Cannot create an instance of the following .NET Framework object: assembly System.Text.RegularExpressions, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, type System.Text.RegularExpressions.Regex.');
+#endif
+        Observer.Expect('regex_null_ts|code', 'DotNetCreate:NullReference');
+        Observer.Verify();
     end;
 
     // Neighbor of cell 2: null RegexOptions (an enum), TimeSpan assigned.
@@ -99,7 +113,15 @@ codeunit 61421 "LT N8268 Null Into ValueType"
         Observer.Observe('regex_null_opt_failed', Format(not TryRegex(R, Opt, TS)));
         Observer.Observe('regex_null_opt_result', ResultText);
         Observer.ObserveError('regex_null_opt');
-        Observer.Finish();
+        Observer.Expect('regex_null_opt_failed', 'Yes');
+        Observer.Expect('regex_null_opt_result', '');
+#if BC28PLUS
+        Observer.Expect('regex_null_opt|text', 'Cannot create an instance of the following .NET Framework object: assembly System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, type System.Text.RegularExpressions.Regex.');
+#else
+        Observer.Expect('regex_null_opt|text', 'Cannot create an instance of the following .NET Framework object: assembly System.Text.RegularExpressions, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, type System.Text.RegularExpressions.Regex.');
+#endif
+        Observer.Expect('regex_null_opt|code', 'DotNetCreate:NullReference');
+        Observer.Verify();
     end;
 
     // Neighbor of cell 2: both RegexOptions and TimeSpan null (the mutation shape "new Regex (String, null, TimeSpan)").
@@ -113,7 +135,15 @@ codeunit 61421 "LT N8268 Null Into ValueType"
         Observer.Observe('regex_null_both_failed', Format(not TryRegex(R, Opt, TS)));
         Observer.Observe('regex_null_both_result', ResultText);
         Observer.ObserveError('regex_null_both');
-        Observer.Finish();
+        Observer.Expect('regex_null_both_failed', 'Yes');
+        Observer.Expect('regex_null_both_result', '');
+#if BC28PLUS
+        Observer.Expect('regex_null_both|text', 'Cannot create an instance of the following .NET Framework object: assembly System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, type System.Text.RegularExpressions.Regex.');
+#else
+        Observer.Expect('regex_null_both|text', 'Cannot create an instance of the following .NET Framework object: assembly System.Text.RegularExpressions, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, type System.Text.RegularExpressions.Regex.');
+#endif
+        Observer.Expect('regex_null_both|code', 'DotNetCreate:NullReference');
+        Observer.Verify();
     end;
 
     // Control of cell 2: every argument assigned.
@@ -128,7 +158,8 @@ codeunit 61421 "LT N8268 Null Into ValueType"
         TS := TS.TimeSpan(0, 0, 5);
         R := R.Regex('a+', Opt, TS);
         Observer.Observe('regex_assigned_match', Format(R.IsMatch('baab')));
-        Observer.Finish();
+        Observer.Expect('regex_assigned_match', 'Yes');
+        Observer.Verify();
     end;
 
     // Cell 3: static call, null Byte.
@@ -141,7 +172,8 @@ codeunit 61421 "LT N8268 Null Into ValueType"
     begin
         Tx := Cv.ToString(B, 2);
         Observer.Observe('tostring_null_byte', Tx);
-        Observer.Finish();
+        Observer.Expect('tostring_null_byte', '0');
+        Observer.Verify();
     end;
 
     // Control of cell 3: Byte assigned.
@@ -153,7 +185,8 @@ codeunit 61421 "LT N8268 Null Into ValueType"
     begin
         B := Cv.ToByte(5);
         Observer.Observe('tostring_byte_5', Cv.ToString(B, 2));
-        Observer.Finish();
+        Observer.Expect('tostring_byte_5', '101');
+        Observer.Verify();
     end;
 
     // Static call, null Int32.
@@ -166,7 +199,11 @@ codeunit 61421 "LT N8268 Null Into ValueType"
         Observer.Observe('tostring_null_int32_failed', Format(not TryToStringInt32(I)));
         Observer.Observe('tostring_null_int32_result', ResultText);
         Observer.ObserveError('tostring_null_int32');
-        Observer.Finish();
+        Observer.Expect('tostring_null_int32_failed', 'No');
+        Observer.Expect('tostring_null_int32_result', '0');
+        Observer.Expect('tostring_null_int32|text', '');
+        Observer.Expect('tostring_null_int32|code', '');
+        Observer.Verify();
     end;
 
     // Static call, null Boolean.
@@ -178,7 +215,11 @@ codeunit 61421 "LT N8268 Null Into ValueType"
         Observer.Observe('toint32_null_bool_failed', Format(not TryToInt32Bool(Bo)));
         Observer.Observe('toint32_null_bool_result', ResultText);
         Observer.ObserveError('toint32_null_bool');
-        Observer.Finish();
+        Observer.Expect('toint32_null_bool_failed', 'No');
+        Observer.Expect('toint32_null_bool_result', '0');
+        Observer.Expect('toint32_null_bool|text', '');
+        Observer.Expect('toint32_null_bool|code', '');
+        Observer.Verify();
     end;
 
     // Static call, null DateTime (compared with DateTime.MinValue).
@@ -190,7 +231,11 @@ codeunit 61421 "LT N8268 Null Into ValueType"
         Observer.Observe('compare_null_dt_failed', Format(not TryCompareDateTime(DN)));
         Observer.Observe('compare_null_dt_result', ResultText);
         Observer.ObserveError('compare_null_dt');
-        Observer.Finish();
+        Observer.Expect('compare_null_dt_failed', 'No');
+        Observer.Expect('compare_null_dt_result', '0');
+        Observer.Expect('compare_null_dt|text', '');
+        Observer.Expect('compare_null_dt|code', '');
+        Observer.Verify();
     end;
 
     // Instance method, null TimeSpan argument on a DateTime.
@@ -202,7 +247,11 @@ codeunit 61421 "LT N8268 Null Into ValueType"
         Observer.Observe('dt_add_null_ts_failed', Format(not TryDateTimeAdd(TS)));
         Observer.Observe('dt_add_null_ts_result', ResultText);
         Observer.ObserveError('dt_add_null_ts');
-        Observer.Finish();
+        Observer.Expect('dt_add_null_ts_failed', 'No');
+        Observer.Expect('dt_add_null_ts_result', 'Yes');
+        Observer.Expect('dt_add_null_ts|text', '');
+        Observer.Expect('dt_add_null_ts|code', '');
+        Observer.Verify();
     end;
 
     // Instance method, null TimeSpan argument on a TimeSpan.
@@ -214,7 +263,11 @@ codeunit 61421 "LT N8268 Null Into ValueType"
         Observer.Observe('ts_add_null_ts_failed', Format(not TryTimeSpanAdd(TS)));
         Observer.Observe('ts_add_null_ts_result', ResultText);
         Observer.ObserveError('ts_add_null_ts');
-        Observer.Finish();
+        Observer.Expect('ts_add_null_ts_failed', 'No');
+        Observer.Expect('ts_add_null_ts_result', '36000000000');
+        Observer.Expect('ts_add_null_ts|text', '');
+        Observer.Expect('ts_add_null_ts|code', '');
+        Observer.Verify();
     end;
 
     // Instance method, null Int32 argument on a StringBuilder (Remove(Int32 startIndex, Int32 length)).
@@ -226,7 +279,11 @@ codeunit 61421 "LT N8268 Null Into ValueType"
         Observer.Observe('sb_remove_null_int32_failed', Format(not TrySbRemove(I)));
         Observer.Observe('sb_remove_null_int32_result', ResultText);
         Observer.ObserveError('sb_remove_null_int32');
-        Observer.Finish();
+        Observer.Expect('sb_remove_null_int32_failed', 'No');
+        Observer.Expect('sb_remove_null_int32_result', 'cdef');
+        Observer.Expect('sb_remove_null_int32|text', '');
+        Observer.Expect('sb_remove_null_int32|code', '');
+        Observer.Verify();
     end;
 
     // Constructor with a reference-type alternative at the null position:
@@ -240,7 +297,15 @@ codeunit 61421 "LT N8268 Null Into ValueType"
         Observer.Observe('sb_ctor_null_int32_failed', Format(not TrySbCtor(I)));
         Observer.Observe('sb_ctor_null_int32_result', ResultText);
         Observer.ObserveError('sb_ctor_null_int32');
-        Observer.Finish();
+        Observer.Expect('sb_ctor_null_int32_failed', 'Yes');
+        Observer.Expect('sb_ctor_null_int32_result', '');
+#if BC28PLUS
+        Observer.Expect('sb_ctor_null_int32|text', 'Cannot create an instance of the following .NET Framework object: assembly mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, type System.Text.StringBuilder.');
+#else
+        Observer.Expect('sb_ctor_null_int32|text', 'Cannot create an instance of the following .NET Framework object: assembly System.Runtime, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, type System.Text.StringBuilder.');
+#endif
+        Observer.Expect('sb_ctor_null_int32|code', 'DotNetCreate:NullReference');
+        Observer.Verify();
     end;
 
     // Control of the overload cell: Int32 assigned (0).
@@ -255,7 +320,9 @@ codeunit 61421 "LT N8268 Null Into ValueType"
         SB := SB.StringBuilder(I, 5);
         Observer.Observe('sb_ctor_int32_0_max', Format(SB.MaxCapacity));
         Observer.Observe('sb_ctor_int32_0_text', SB.ToString());
-        Observer.Finish();
+        Observer.Expect('sb_ctor_int32_0_max', '5');
+        Observer.Expect('sb_ctor_int32_0_text', '');
+        Observer.Verify();
     end;
 
     [TryFunction]
