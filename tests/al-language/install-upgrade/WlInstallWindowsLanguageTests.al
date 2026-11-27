@@ -6,6 +6,10 @@
 //   on the codeunit 151 "System Initialization Impl." path). The claim: the install session reads the same rows in OnInstallAppPerDatabase,
 //   OnInstallAppPerCompany and the "Company Triggers" OnCompanyOpen subscriber of the install session as the test session does, so the install
 //   order cannot change what the table returns.
+// The extra read (LT WLI Subs.ReadWindowsLanguageExtra, the "Extra" field of the log; Stefan Maron's note on corpus PR 1609): a checksum over every field of every
+//   row (RecordRef, all FieldCount columns), a Get of 99999 and of 0 (no such row), Count() under a filter on Primary CodePage = '1' (the rows with no OEM
+//   code page) and on Language Tag = 'hy-AM'. The checksum value is not pinned (the Windows and the Linux row text differ, see AgWindowsLanguage.al): the
+//   claim is that it equals the test session's in every install step; the other parts are asserted. Values measured by corpus CI: see below.
 // The read (LT WLI Subs.ReadWindowsLanguage): Count(); Get of 1033, 1031, 1049 and 1067 (Armenian, a language with no OEM code page) with
 //   Name, Primary CodePage and Language Tag; FindSet over SetRange("Globally Enabled", true) with the rows iterated and the sum of their Language ID.
 // Observer.Verify compares in order: the Expect calls follow the order of the Observe calls.
@@ -36,6 +40,23 @@ codeunit 96003 "LT WLI Install Tests"
             '1049=Yes|Russian (Russia)|866|ru-RU,' +
             '1067=Yes|Armenian (Armenia)|1|hy-AM,' +
             'globally enabled findset=248|1091889');
+    end;
+
+    local procedure ExpectedExtra(): Text
+    begin
+        exit('rows=248,fields=16,checksum=*,99999=No,0=No,codepage 1 count=44,tag hy-AM count=1');
+    end;
+
+    local procedure WithoutChecksum(Extra: Text): Text
+    var
+        Start: Integer;
+        Stop: Integer;
+    begin
+        Start := StrPos(Extra, 'checksum=');
+        if Start = 0 then
+            exit(Extra);
+        Stop := StrPos(CopyStr(Extra, Start), ',') + Start - 1;
+        exit(CopyStr(Extra, 1, Start - 1) + 'checksum=*' + CopyStr(Extra, Stop));
     end;
 
     local procedure CompanyNo(var Companies: List of [Text]; Company: Text): Text
@@ -81,6 +102,11 @@ codeunit 96003 "LT WLI Install Tests"
         Log.SetFilter("Session Id", '<>%1', InstallId);
         Observer.Observe('rows of other sessions', Format(Log.Count()));
         Observer.Observe('test session is the install session', Format(SessionId() = InstallId));
+        Log.SetRange("Session Id", InstallId);
+        if Log.FindSet() then
+            repeat
+                Observer.Observe(Log.Kind + ' ' + CompanyNo(Companies, Log.Company) + ' extra', WithoutChecksum(Log.Extra));
+            until Log.Next() = 0;
         Observer.Expect('install per database row', 'Yes');
         Observer.Expect('OnCompanyOpen C1', ExpectedRead());
         Observer.Expect('install per company C1', ExpectedRead());
@@ -90,6 +116,11 @@ codeunit 96003 "LT WLI Install Tests"
         Observer.Expect('install session', 'OnCompanyOpen|C1|Install;install per company|C1|Install;OnCompanyOpen|C2|Install;install per company|C2|Install;install per database|blank|Install;');
         Observer.Expect('rows of other sessions', '0');
         Observer.Expect('test session is the install session', 'No');
+        Observer.Expect('OnCompanyOpen C1 extra', ExpectedExtra());
+        Observer.Expect('install per company C1 extra', ExpectedExtra());
+        Observer.Expect('OnCompanyOpen C2 extra', ExpectedExtra());
+        Observer.Expect('install per company C2 extra', ExpectedExtra());
+        Observer.Expect('install per database blank extra', ExpectedExtra());
         Observer.Verify();
     end;
 
@@ -102,22 +133,30 @@ codeunit 96003 "LT WLI Install Tests"
         Subs: Codeunit "LT WLI Subs";
         Companies: List of [Text];
         TestRead: Text;
+        TestExtra: Text;
         Rows: Integer;
     begin
         TestRead := Subs.ReadWindowsLanguage();
+        TestExtra := Subs.ReadWindowsLanguageExtra();
         Log.SetCurrentKey(Id);
         Log.SetRange("Session Id", InstallSessionId());
         if Log.FindSet() then
             repeat
                 Rows += 1;
                 Observer.Observe(Log.Kind + ' ' + CompanyNo(Companies, Log.Company) + ' equals the test session', Format(Log."Read" = TestRead));
+                Observer.Observe(Log.Kind + ' ' + CompanyNo(Companies, Log.Company) + ' extra equals the test session', Format(Log.Extra = TestExtra));
             until Log.Next() = 0;
         Observer.Observe('install session rows', Format(Rows));
         Observer.Expect('OnCompanyOpen C1 equals the test session', 'Yes');
+        Observer.Expect('OnCompanyOpen C1 extra equals the test session', 'Yes');
         Observer.Expect('install per company C1 equals the test session', 'Yes');
+        Observer.Expect('install per company C1 extra equals the test session', 'Yes');
         Observer.Expect('OnCompanyOpen C2 equals the test session', 'Yes');
+        Observer.Expect('OnCompanyOpen C2 extra equals the test session', 'Yes');
         Observer.Expect('install per company C2 equals the test session', 'Yes');
+        Observer.Expect('install per company C2 extra equals the test session', 'Yes');
         Observer.Expect('install per database blank equals the test session', 'Yes');
+        Observer.Expect('install per database blank extra equals the test session', 'Yes');
         Observer.Expect('install session rows', '5');
         Observer.Verify();
     end;
@@ -132,8 +171,10 @@ codeunit 96003 "LT WLI Install Tests"
     begin
         Observer.Observe('subscriber in the test session', State.AsText());
         Observer.Observe('test procedure', Subs.ReadWindowsLanguage());
+        Observer.Observe('test procedure extra', WithoutChecksum(Subs.ReadWindowsLanguageExtra()));
         Observer.Expect('subscriber in the test session', 'OnCompanyOpen|' + ExpectedRead() + ';');
         Observer.Expect('test procedure', ExpectedRead());
+        Observer.Expect('test procedure extra', ExpectedExtra());
         Observer.Verify();
     end;
 }
