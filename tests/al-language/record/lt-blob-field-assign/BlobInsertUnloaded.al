@@ -718,3 +718,198 @@ codeunit 73781 "LT BIU Insert Tests"
         Observer.Verify();
     end;
 }
+
+// The shapes named in the review of AL Runner pull request 9301 (Modify of the same key, temporary <-> database copies, a field
+// assignment of an unloaded Blob, CalcFields after the Insert, a source read in another company).
+codeunit 73782 "LT BIU More Tests"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    // M1: the source read with Get (Blobs not loaded), Note changed, Modify of the same key: what the row stores.
+    [Test]
+    procedure M1_ModifySameKey()
+    var
+        Observer: Codeunit "Probe Observer";
+        Probe: Codeunit "LT BIU Probe";
+        Src: Record "LT BIU Row";
+    begin
+        Probe.Seed();
+        Src.Get('SRC');
+        Src.Note := 'modified';
+        Src.Modify();
+        Probe.Own(Observer, Src);
+        Probe.Stored(Observer, 'SRC');
+        Observer.Finish();
+    end;
+
+    // M2: a stale buffer: the source is read with Get, a second variable then writes 'changed' into the row's Body and modifies
+    // it, then the first variable (Blobs not loaded) changes Note and modifies the same key.
+    [Test]
+    procedure M2_ModifySameKeyStaleBuffer()
+    var
+        Observer: Codeunit "Probe Observer";
+        Probe: Codeunit "LT BIU Probe";
+        Src: Record "LT BIU Row";
+        Second: Record "LT BIU Row";
+    begin
+        Probe.Seed();
+        Src.Get('SRC');
+        Second.Get('SRC');
+        Probe.Write(Second, 'changed', '', '');
+        Second.Modify();
+        Src.Note := 'modified';
+        Src.Modify();
+        Probe.Stored(Observer, 'SRC');
+        Observer.Finish();
+    end;
+
+    // M3: the source read with Get, new key, Insert, then Note changed and Modify of the same variable.
+    [Test]
+    procedure M3_InsertThenModify()
+    var
+        Observer: Codeunit "Probe Observer";
+        Probe: Codeunit "LT BIU Probe";
+        Src: Record "LT BIU Row";
+    begin
+        Probe.Seed();
+        Src.Get('SRC');
+        Src."No." := 'NEW';
+        Src.Insert();
+        Src.Note := 'modified';
+        Src.Modify();
+        Probe.Own(Observer, Src);
+        Probe.Stored(Observer, 'NEW');
+        Observer.Finish();
+    end;
+
+    // I1: database to temporary: T := Src (read with Get, Blobs not loaded), Insert into a temporary table of the same table.
+    [Test]
+    procedure I1_DatabaseToTemporary()
+    var
+        Observer: Codeunit "Probe Observer";
+        Probe: Codeunit "LT BIU Probe";
+        Src: Record "LT BIU Row";
+        T: Record "LT BIU Row" temporary;
+    begin
+        Probe.Seed();
+        Src.Get('SRC');
+        T := Src;
+        T.Insert();
+        Probe.Own(Observer, T);
+        Probe.StoredTemp(Observer, T, 'SRC');
+        Observer.Finish();
+    end;
+
+    // I2: temporary to database: C := T (a temporary row with the seed Blobs, read with Get), new key, Insert into the table.
+    [Test]
+    procedure I2_TemporaryToDatabase()
+    var
+        Observer: Codeunit "Probe Observer";
+        Probe: Codeunit "LT BIU Probe";
+        T: Record "LT BIU Row" temporary;
+        C: Record "LT BIU Row";
+    begin
+        Probe.Seed();
+        Probe.SeedTemp(T);
+        T.Get('SRC');
+        C := T;
+        C."No." := 'NEW';
+        C.Insert();
+        Probe.Own(Observer, C);
+        Probe.Stored(Observer, 'NEW');
+        Observer.Finish();
+    end;
+
+    // I3: field assignment C.Body := Src.Body (and Raw, Ext) from a source read with Get, then C.Insert under a new key.
+    [Test]
+    procedure I3_FieldAssignInsert()
+    var
+        Observer: Codeunit "Probe Observer";
+        Probe: Codeunit "LT BIU Probe";
+        Src: Record "LT BIU Row";
+        C: Record "LT BIU Row";
+    begin
+        Probe.Seed();
+        Src.Get('SRC');
+        C.Init();
+        C."No." := 'NEW';
+        C.Body := Src.Body;
+        C.Raw := Src.Raw;
+        C.Ext := Src.Ext;
+        C.Insert();
+        Probe.Own(Observer, C);
+        Probe.Stored(Observer, 'NEW');
+        Observer.Finish();
+    end;
+
+    // I4: C := Src (read with Get), new key, Insert, then CalcFields on C itself: what C reads.
+    [Test]
+    procedure I4_CalcFieldsAfterInsert()
+    var
+        Observer: Codeunit "Probe Observer";
+        Probe: Codeunit "LT BIU Probe";
+        Src: Record "LT BIU Row";
+        C: Record "LT BIU Row";
+    begin
+        Probe.Seed();
+        Src.Get('SRC');
+        C := Src;
+        C."No." := 'NEW';
+        C.Insert();
+        C.CalcFields(Body, Raw, Ext);
+        Probe.Own(Observer, C);
+        Observer.Finish();
+    end;
+
+    // G1: a source read in another company (ChangeCompany, Get, no CalcFields), C := Other, new key, Insert in this company; and
+    // the reverse: a source read in this company, inserted into the other company.
+    [Test]
+    procedure G1_OtherCompanySource()
+    var
+        Observer: Codeunit "Probe Observer";
+        Probe: Codeunit "LT BIU Probe";
+        Company: Record Company;
+        Other: Record "LT BIU Row";
+        OtherNew: Record "LT BIU Row";
+        Src: Record "LT BIU Row";
+        C: Record "LT BIU Row";
+        OtherName: Text;
+    begin
+        Probe.Seed();
+        Company.SetFilter(Name, '<>%1', CompanyName());
+        if Company.FindFirst() then
+            OtherName := Company.Name;
+        Observer.Observe('other_company_found', Format(OtherName <> ''));
+        if OtherName <> '' then begin
+            Other.ChangeCompany(OtherName);
+            Other.DeleteAll();
+            Other.Init();
+            Other."No." := 'SRC';
+            Probe.Write(Other, 'there', 'there-raw', 'there-ext');
+            Other.Insert();
+            Clear(Other);
+            Other.ChangeCompany(OtherName);
+            Other.Get('SRC');
+            C := Other;
+            C.ChangeCompany(CompanyName());
+            C."No." := 'NEW';
+            C.Insert();
+            Probe.Stored(Observer, 'NEW');
+            Src.Get('SRC');
+            OtherNew := Src;
+            OtherNew.ChangeCompany(OtherName);
+            OtherNew."No." := 'BACK';
+            OtherNew.Insert();
+            Clear(Other);
+            Other.ChangeCompany(OtherName);
+            Other.Get('BACK');
+            Other.CalcFields(Body, Raw, Ext);
+            Observer.Observe('other_company_body', Probe.ShowBody(Other));
+            Observer.Observe('other_company_raw', Probe.ShowRaw(Other));
+            Observer.Observe('other_company_ext', Probe.ShowExt(Other));
+            Other.DeleteAll();
+        end;
+        Observer.Finish();
+    end;
+}
