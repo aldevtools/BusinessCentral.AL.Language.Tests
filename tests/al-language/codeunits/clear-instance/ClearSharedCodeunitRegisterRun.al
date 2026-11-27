@@ -14,7 +14,7 @@
 // temporariness and rows, including a field OnRun changed in Rec (passed back through the var record). A guarded Reg.Run(Row)
 // whose OnRun errors returns false with the error text, keeps the global OnRun set before the error until ClearAll resets it.
 // ClearAll inside the register gives the same result as ClearAll in the owner. Codeunit.Run(Codeunit::"CSR Reg", Row) runs a
-// separate instance: it returns true (the return value is read) and the shared register's counter stays 0. A second
+// separate instance: read as a return value it returns true; read or not, the shared register's counter stays 0. A second
 // Reg.Run(Row2) after ClearAll sees the reset globals (the temporary rows stay), and the caller's first Row is unchanged.
 // Not measured: Reg.Run() without a record (does not compile for a TableNo codeunit: AL0135), Rec read from a procedure other
 // than OnRun (Rec exists only inside OnRun: AL0118), a temporary record below the register that read a row into its buffer (Get or
@@ -333,6 +333,24 @@ codeunit 86810 "CSR Test"
         Observer.Expect('after.owner', 'reg[0,,0,0,0]node[0,,0]kept[0,,]');
         Observer.Expect('after.row', 'row[5,row,No.: 5,No,-]');
         Observer.Verify();
+    end;
+
+    [Test]
+    procedure RegRun_StaticRunUnguarded_OwnerClearAll()
+    var
+        R: Codeunit "CSR Reg";
+        Owner: Codeunit "CSR Owner";
+        Row: Record "CKK Row";
+    begin
+        MakeRow(Row);
+        Owner.SetReg(R);
+        R.SetMode(1);
+        Codeunit.Run(Codeunit::"CSR Reg", Row);
+        Observer.Observe('before.reg', R.State());
+        Observer.Observe('before.kept', R.KeptState());
+        Owner.DoClearAll();
+        ObserveAfter(R, Owner, Row);
+        Observer.Finish();
     end;
 
     [Test]
