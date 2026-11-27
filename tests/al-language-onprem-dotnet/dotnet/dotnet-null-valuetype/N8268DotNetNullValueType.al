@@ -95,7 +95,7 @@ codeunit 61421 "LT N8268 Null Into ValueType"
         Opt: DotNet LtN82RegexOptions;
         TS: DotNet LtN82TimeSpan;
     begin
-        TS := TS.FromSeconds(5);
+        TS := TS.TimeSpan(0, 0, 5);
         Observer.Observe('regex_null_opt_failed', Format(not TryRegex(R, Opt, TS)));
         Observer.Observe('regex_null_opt_result', ResultText);
         Observer.ObserveError('regex_null_opt');
@@ -125,7 +125,7 @@ codeunit 61421 "LT N8268 Null Into ValueType"
         TS: DotNet LtN82TimeSpan;
     begin
         Opt := Opt.None;
-        TS := TS.FromSeconds(5);
+        TS := TS.TimeSpan(0, 0, 5);
         R := R.Regex('a+', Opt, TS);
         Observer.Observe('regex_assigned_match', Format(R.IsMatch('baab')));
         Observer.Finish();
@@ -290,7 +290,7 @@ codeunit 61421 "LT N8268 Null Into ValueType"
         DMin: DotNet LtN82DateTime;
     begin
         ResultText := '';
-        DMin := DMin.MinValue;
+        DMin := DMin.DateTime(1, 1, 1); // equals DateTime.MinValue (a field, not reachable from AL)
         ResultText := Format(DMin.Compare(DN, DMin));
     end;
 
