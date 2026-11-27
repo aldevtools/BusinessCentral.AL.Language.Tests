@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/record/record-calcfields-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160); own table 73780, table extension 73780, helper codeunit 73780, test codeunit 73781
+// Fixtures used: Probe Observer (69160); own table 73780, table extension 73780, helper codeunit 73780, test codeunits 73781 and 73782
 // Probe (AL Runner issue 9286): what Insert and Modify store from a record whose Blob fields were never loaded (read with Get,
 //   FindFirst or FindSet, no CalcFields). The table has three Blob fields: Body (Compressed, the default), Raw (Compressed = false)
 //   and, from a table extension, Ext. The seed row SRC holds 'hello' in Body, 'hello-raw' in Raw and 'hello-ext' in Ext; the row
@@ -32,6 +32,16 @@
 //     inserting record reads empty.
 //   - Controls: CalcFields on the source before := (K1) or on the copy before the new key (K2) stores the content; an empty
 //     source (K3) and TransferFields (K4) store no Blob.
+//   Codeunit 73782, the shapes named in the review of AL Runner pull request 9301 (BC 29.0, asserted on BC 28 and later; on BC
+//   27.5 these tests are an observe round, red on purpose: #else ends with Finish()):
+//   - Modify of the key the row was read under (M1) keeps the stored Blobs ('hello', ...). With a stale buffer (M2: a second
+//     variable wrote 'changed' into Body and modified the row after the first variable's Get) the Modify succeeds and the row keeps
+//     'changed'. Insert under a new key, then Modify of the same variable (M3), stores no Blob.
+//   - Database to temporary (I1: T := Src, T.Insert): the temporary row answers HasValue Yes before CalcFields, No and empty after
+//     it. Temporary to database (I2: C := T after T.Get) and a field assignment C.Body := Src.Body (I3) store no Blob.
+//   - CalcFields on the inserting record right after its Insert (I4): HasValue Yes, empty text.
+//   - A source read in another company (G1), inserted into this one, stores no Blob; the reverse (a source of this company inserted
+//     into the other company) stores none either.
 // BC versions: 27, 28, 29 by CI
 table 73780 "LT BIU Row"
 {
@@ -740,7 +750,18 @@ codeunit 73782 "LT BIU More Tests"
         Src.Modify();
         Probe.Own(Observer, Src);
         Probe.Stored(Observer, 'SRC');
+#if BC28PLUS
+        Observer.Expect('own_body', 'hasValue=Yes text=[]');
+        Observer.Expect('own_raw', 'hasValue=Yes text=[]');
+        Observer.Expect('own_ext', 'hasValue=Yes text=[]');
+        Observer.Expect('before', 'body=Yes raw=Yes ext=Yes');
+        Observer.Expect('stored_body', 'hasValue=Yes text=[hello]');
+        Observer.Expect('stored_raw', 'hasValue=Yes text=[hello-raw]');
+        Observer.Expect('stored_ext', 'hasValue=Yes text=[hello-ext]');
+        Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
         Observer.Finish();
+#endif
     end;
 
     // M2: a stale buffer: the source is read with Get, a second variable then writes 'changed' into the row's Body and modifies
@@ -761,7 +782,15 @@ codeunit 73782 "LT BIU More Tests"
         Src.Note := 'modified';
         Src.Modify();
         Probe.Stored(Observer, 'SRC');
+#if BC28PLUS
+        Observer.Expect('before', 'body=Yes raw=Yes ext=Yes');
+        Observer.Expect('stored_body', 'hasValue=Yes text=[changed]');
+        Observer.Expect('stored_raw', 'hasValue=Yes text=[hello-raw]');
+        Observer.Expect('stored_ext', 'hasValue=Yes text=[hello-ext]');
+        Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
         Observer.Finish();
+#endif
     end;
 
     // M3: the source read with Get, new key, Insert, then Note changed and Modify of the same variable.
@@ -780,7 +809,18 @@ codeunit 73782 "LT BIU More Tests"
         Src.Modify();
         Probe.Own(Observer, Src);
         Probe.Stored(Observer, 'NEW');
+#if BC28PLUS
+        Observer.Expect('own_body', 'hasValue=Yes text=[]');
+        Observer.Expect('own_raw', 'hasValue=Yes text=[]');
+        Observer.Expect('own_ext', 'hasValue=Yes text=[]');
+        Observer.Expect('before', 'body=No raw=No ext=No');
+        Observer.Expect('stored_body', 'hasValue=No text=[]');
+        Observer.Expect('stored_raw', 'hasValue=No text=[]');
+        Observer.Expect('stored_ext', 'hasValue=No text=[]');
+        Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
         Observer.Finish();
+#endif
     end;
 
     // I1: database to temporary: T := Src (read with Get, Blobs not loaded), Insert into a temporary table of the same table.
@@ -798,7 +838,18 @@ codeunit 73782 "LT BIU More Tests"
         T.Insert();
         Probe.Own(Observer, T);
         Probe.StoredTemp(Observer, T, 'SRC');
+#if BC28PLUS
+        Observer.Expect('own_body', 'hasValue=Yes text=[]');
+        Observer.Expect('own_raw', 'hasValue=Yes text=[]');
+        Observer.Expect('own_ext', 'hasValue=Yes text=[]');
+        Observer.Expect('before', 'body=Yes raw=Yes ext=Yes');
+        Observer.Expect('stored_body', 'hasValue=No text=[]');
+        Observer.Expect('stored_raw', 'hasValue=No text=[]');
+        Observer.Expect('stored_ext', 'hasValue=No text=[]');
+        Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
         Observer.Finish();
+#endif
     end;
 
     // I2: temporary to database: C := T (a temporary row with the seed Blobs, read with Get), new key, Insert into the table.
@@ -818,7 +869,18 @@ codeunit 73782 "LT BIU More Tests"
         C.Insert();
         Probe.Own(Observer, C);
         Probe.Stored(Observer, 'NEW');
+#if BC28PLUS
+        Observer.Expect('own_body', 'hasValue=Yes text=[]');
+        Observer.Expect('own_raw', 'hasValue=Yes text=[]');
+        Observer.Expect('own_ext', 'hasValue=Yes text=[]');
+        Observer.Expect('before', 'body=No raw=No ext=No');
+        Observer.Expect('stored_body', 'hasValue=No text=[]');
+        Observer.Expect('stored_raw', 'hasValue=No text=[]');
+        Observer.Expect('stored_ext', 'hasValue=No text=[]');
+        Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
         Observer.Finish();
+#endif
     end;
 
     // I3: field assignment C.Body := Src.Body (and Raw, Ext) from a source read with Get, then C.Insert under a new key.
@@ -840,7 +902,18 @@ codeunit 73782 "LT BIU More Tests"
         C.Insert();
         Probe.Own(Observer, C);
         Probe.Stored(Observer, 'NEW');
+#if BC28PLUS
+        Observer.Expect('own_body', 'hasValue=No text=[]');
+        Observer.Expect('own_raw', 'hasValue=No text=[]');
+        Observer.Expect('own_ext', 'hasValue=No text=[]');
+        Observer.Expect('before', 'body=No raw=No ext=No');
+        Observer.Expect('stored_body', 'hasValue=No text=[]');
+        Observer.Expect('stored_raw', 'hasValue=No text=[]');
+        Observer.Expect('stored_ext', 'hasValue=No text=[]');
+        Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
         Observer.Finish();
+#endif
     end;
 
     // I4: C := Src (read with Get), new key, Insert, then CalcFields on C itself: what C reads.
@@ -859,7 +932,14 @@ codeunit 73782 "LT BIU More Tests"
         C.Insert();
         C.CalcFields(Body, Raw, Ext);
         Probe.Own(Observer, C);
+#if BC28PLUS
+        Observer.Expect('own_body', 'hasValue=Yes text=[]');
+        Observer.Expect('own_raw', 'hasValue=Yes text=[]');
+        Observer.Expect('own_ext', 'hasValue=Yes text=[]');
+        Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
         Observer.Finish();
+#endif
     end;
 
     // G1: a source read in another company (ChangeCompany, Get, no CalcFields), C := Other, new key, Insert in this company; and
@@ -910,6 +990,18 @@ codeunit 73782 "LT BIU More Tests"
             Observer.Observe('other_company_ext', Probe.ShowExt(Other));
             Other.DeleteAll();
         end;
+#if BC28PLUS
+        Observer.Expect('other_company_found', 'Yes');
+        Observer.Expect('before', 'body=No raw=No ext=No');
+        Observer.Expect('stored_body', 'hasValue=No text=[]');
+        Observer.Expect('stored_raw', 'hasValue=No text=[]');
+        Observer.Expect('stored_ext', 'hasValue=No text=[]');
+        Observer.Expect('other_company_body', 'hasValue=No text=[]');
+        Observer.Expect('other_company_raw', 'hasValue=No text=[]');
+        Observer.Expect('other_company_ext', 'hasValue=No text=[]');
+        Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
         Observer.Finish();
+#endif
     end;
 }
