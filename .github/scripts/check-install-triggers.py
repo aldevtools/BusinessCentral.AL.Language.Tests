@@ -14,6 +14,9 @@ import sys
 from pathlib import Path
 
 ALLOWED = {
+    # corpus issue 1614: makes six number sequences only when missing, each in a TryFunction whose result is discarded; no table
+    # writes. (SeqNextHubFunction.al)
+    'tests/al-language codeunit 73339',  # "LT SQH Install"
     # Issue 8954: local DotNet builders only in a write-free TryFunction; observation uses Get/Insert/Modify(false).
     'tests/al-language-onprem-dotnet codeunit 99452',
     # Workbook pipeline in a TryFunction: temporary Excel rows only, no persistent writes inside it;
