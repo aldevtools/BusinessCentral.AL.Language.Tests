@@ -28,7 +28,15 @@
 //   both, keys PK ("No.") and ByAmount (Amount, "No."). Rows A1 (Amount 5, Kind 1), A2 (Amount 0, Kind 2), A3 (Amount 7, Kind 1);
 //   A1 has entries 100 (2026-01-10, Kind 7) and -40 (2026-03-10, Kind 3). The caller runs on row A1.
 //   Not probed: a key with a descending field (AL keys have no per-field direction).
-//   Observe round: every test ends with Observer.Finish(), which fails the test with the readings (OBSERVE:...); nothing is asserted yet.
+//   Measured on a local BC 29.0.54011.57673 service tier (Linux, W1, en-US session) on 2026-11-27 with an invented app holding
+//   these objects, through the dev endpoint's TestRunnerHub; the values are those readings, turned into Expect and Verify by
+//   convert.py verbatim. This pull request's CI checks them on 27.5, 28.5 and 29.0; a version difference gets a version guard.
+//   Facts (BC 29.0.54011.57673), the same in all 24 cells, table and table extension alike: inside the callee the copy has the
+//   default view whatever the caller set: no filter in group 0, 2 or -1, FilterGroup() 0, CurrentKey No., Ascending Yes,
+//   MarkedOnly No, AreFieldsLoaded(Kind) Yes, Net 60 (no FlowFilter), Count 3 and the rows A1 A2 A3 in primary key order; it keeps
+//   the row's values (No. A1). Back in the caller its own view is unchanged (its filters in their groups, its key, its order, its
+//   marks with MarkedOnly). AreFieldsLoaded(Kind) reads Yes in the caller too after SetLoadFields(Amount) and Get, so the
+//   SetLoadFields cell does not tell a load request apart on this tier.
 // BC versions: 27, 28, 29 by CI
 
 table 73790 "BVF Item"
@@ -287,7 +295,9 @@ codeunit 73793 "BVF View Facts Tests"
         T := Item.CallerT(0);
         Observer.Observe('inside', T.Substring(1, T.IndexOf(' || ') - 1));
         Observer.Observe('caller_after', T.Substring(T.IndexOf(' || ') + 4));
-        Observer.Finish();
+        Observer.Expect('inside', 'inside: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[] g2=[] g-1=[] Count=3 Rows=[A1 A2 A3]');
+        Observer.Expect('caller_after', 'caller after: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[] g2=[] g-1=[] Count=3 Rows=[A1 A2 A3]');
+        Observer.Verify();
     end;
 
     // Table extension: no view (control: CurrentKey, AreFieldsLoaded and the rest of the default view).
@@ -303,7 +313,9 @@ codeunit 73793 "BVF View Facts Tests"
         T := Item.CallerX(0);
         Observer.Observe('inside', T.Substring(1, T.IndexOf(' || ') - 1));
         Observer.Observe('caller_after', T.Substring(T.IndexOf(' || ') + 4));
-        Observer.Finish();
+        Observer.Expect('inside', 'inside: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[] g2=[] g-1=[] Count=3 Rows=[A1 A2 A3]');
+        Observer.Expect('caller_after', 'caller after: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[] g2=[] g-1=[] Count=3 Rows=[A1 A2 A3]');
+        Observer.Verify();
     end;
 
     // Table: SetFilter("Date Filter", ..01/31/26), SetFilter("Kind Filter", 7), CalcFields(Net) before the hand-off (the issue's shape).
@@ -319,7 +331,9 @@ codeunit 73793 "BVF View Facts Tests"
         T := Item.CallerT(1);
         Observer.Observe('inside', T.Substring(1, T.IndexOf(' || ') - 1));
         Observer.Observe('caller_after', T.Substring(T.IndexOf(' || ') + 4));
-        Observer.Finish();
+        Observer.Expect('inside', 'inside: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[] g2=[] g-1=[] Count=3 Rows=[A1 A2 A3]');
+        Observer.Expect('caller_after', 'caller after: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=100 g0=[Date Filter: ..01/31/26, Kind Filter: 7] g2=[] g-1=[] Count=3 Rows=[A1 A2 A3]');
+        Observer.Verify();
     end;
 
     // Table extension: SetFilter("Date Filter", ..01/31/26), SetFilter("Kind Filter", 7), CalcFields(Net) before the hand-off (the issue's shape).
@@ -335,7 +349,9 @@ codeunit 73793 "BVF View Facts Tests"
         T := Item.CallerX(1);
         Observer.Observe('inside', T.Substring(1, T.IndexOf(' || ') - 1));
         Observer.Observe('caller_after', T.Substring(T.IndexOf(' || ') + 4));
-        Observer.Finish();
+        Observer.Expect('inside', 'inside: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[] g2=[] g-1=[] Count=3 Rows=[A1 A2 A3]');
+        Observer.Expect('caller_after', 'caller after: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=100 g0=[Date Filter: ..01/31/26, Kind Filter: 7] g2=[] g-1=[] Count=3 Rows=[A1 A2 A3]');
+        Observer.Verify();
     end;
 
     // Table: SetFilter("Date Filter", ..01/31/26), handed to a global (not local) procedure.
@@ -351,7 +367,9 @@ codeunit 73793 "BVF View Facts Tests"
         T := Item.CallerT(2);
         Observer.Observe('inside', T.Substring(1, T.IndexOf(' || ') - 1));
         Observer.Observe('caller_after', T.Substring(T.IndexOf(' || ') + 4));
-        Observer.Finish();
+        Observer.Expect('inside', 'inside: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[] g2=[] g-1=[] Count=3 Rows=[A1 A2 A3]');
+        Observer.Expect('caller_after', 'caller after: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=100 g0=[Date Filter: ..01/31/26] g2=[] g-1=[] Count=3 Rows=[A1 A2 A3]');
+        Observer.Verify();
     end;
 
     // Table extension: SetFilter("Date Filter", ..01/31/26), handed to a global (not local) procedure.
@@ -367,7 +385,9 @@ codeunit 73793 "BVF View Facts Tests"
         T := Item.CallerX(2);
         Observer.Observe('inside', T.Substring(1, T.IndexOf(' || ') - 1));
         Observer.Observe('caller_after', T.Substring(T.IndexOf(' || ') + 4));
-        Observer.Finish();
+        Observer.Expect('inside', 'inside: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[] g2=[] g-1=[] Count=3 Rows=[A1 A2 A3]');
+        Observer.Expect('caller_after', 'caller after: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=100 g0=[Date Filter: ..01/31/26] g2=[] g-1=[] Count=3 Rows=[A1 A2 A3]');
+        Observer.Verify();
     end;
 
     // Table: SetFilter(Amount, <>0) in filter group 2, then FilterGroup(0).
@@ -383,7 +403,9 @@ codeunit 73793 "BVF View Facts Tests"
         T := Item.CallerT(3);
         Observer.Observe('inside', T.Substring(1, T.IndexOf(' || ') - 1));
         Observer.Observe('caller_after', T.Substring(T.IndexOf(' || ') + 4));
-        Observer.Finish();
+        Observer.Expect('inside', 'inside: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[] g2=[] g-1=[] Count=3 Rows=[A1 A2 A3]');
+        Observer.Expect('caller_after', 'caller after: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[] g2=[Amount: <>0] g-1=[] Count=2 Rows=[A1 A3]');
+        Observer.Verify();
     end;
 
     // Table extension: SetFilter(Amount, <>0) in filter group 2, then FilterGroup(0).
@@ -399,7 +421,9 @@ codeunit 73793 "BVF View Facts Tests"
         T := Item.CallerX(3);
         Observer.Observe('inside', T.Substring(1, T.IndexOf(' || ') - 1));
         Observer.Observe('caller_after', T.Substring(T.IndexOf(' || ') + 4));
-        Observer.Finish();
+        Observer.Expect('inside', 'inside: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[] g2=[] g-1=[] Count=3 Rows=[A1 A2 A3]');
+        Observer.Expect('caller_after', 'caller after: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[] g2=[Amount: <>0] g-1=[] Count=2 Rows=[A1 A3]');
+        Observer.Verify();
     end;
 
     // Table: SetFilter(Amount, <>0) in filter group -1, then FilterGroup(0).
@@ -415,7 +439,9 @@ codeunit 73793 "BVF View Facts Tests"
         T := Item.CallerT(4);
         Observer.Observe('inside', T.Substring(1, T.IndexOf(' || ') - 1));
         Observer.Observe('caller_after', T.Substring(T.IndexOf(' || ') + 4));
-        Observer.Finish();
+        Observer.Expect('inside', 'inside: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[] g2=[] g-1=[] Count=3 Rows=[A1 A2 A3]');
+        Observer.Expect('caller_after', 'caller after: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[] g2=[] g-1=[Amount: <>0] Count=2 Rows=[A1 A3]');
+        Observer.Verify();
     end;
 
     // Table extension: SetFilter(Amount, <>0) in filter group -1, then FilterGroup(0).
@@ -431,7 +457,9 @@ codeunit 73793 "BVF View Facts Tests"
         T := Item.CallerX(4);
         Observer.Observe('inside', T.Substring(1, T.IndexOf(' || ') - 1));
         Observer.Observe('caller_after', T.Substring(T.IndexOf(' || ') + 4));
-        Observer.Finish();
+        Observer.Expect('inside', 'inside: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[] g2=[] g-1=[] Count=3 Rows=[A1 A2 A3]');
+        Observer.Expect('caller_after', 'caller after: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[] g2=[] g-1=[Amount: <>0] Count=2 Rows=[A1 A3]');
+        Observer.Verify();
     end;
 
     // Table: FilterGroup(2), SetFilter(Amount, <>0), handed off while the caller is in group 2.
@@ -447,7 +475,9 @@ codeunit 73793 "BVF View Facts Tests"
         T := Item.CallerT(5);
         Observer.Observe('inside', T.Substring(1, T.IndexOf(' || ') - 1));
         Observer.Observe('caller_after', T.Substring(T.IndexOf(' || ') + 4));
-        Observer.Finish();
+        Observer.Expect('inside', 'inside: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[] g2=[] g-1=[] Count=3 Rows=[A1 A2 A3]');
+        Observer.Expect('caller_after', 'caller after: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[] g2=[Amount: <>0] g-1=[] Count=2 Rows=[A1 A3]');
+        Observer.Verify();
     end;
 
     // Table extension: FilterGroup(2), SetFilter(Amount, <>0), handed off while the caller is in group 2.
@@ -463,7 +493,9 @@ codeunit 73793 "BVF View Facts Tests"
         T := Item.CallerX(5);
         Observer.Observe('inside', T.Substring(1, T.IndexOf(' || ') - 1));
         Observer.Observe('caller_after', T.Substring(T.IndexOf(' || ') + 4));
-        Observer.Finish();
+        Observer.Expect('inside', 'inside: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[] g2=[] g-1=[] Count=3 Rows=[A1 A2 A3]');
+        Observer.Expect('caller_after', 'caller after: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[] g2=[Amount: <>0] g-1=[] Count=2 Rows=[A1 A3]');
+        Observer.Verify();
     end;
 
     // Table: SetCurrentKey(Amount, "No."), SetFilter(Amount, <>0).
@@ -479,7 +511,9 @@ codeunit 73793 "BVF View Facts Tests"
         T := Item.CallerT(6);
         Observer.Observe('inside', T.Substring(1, T.IndexOf(' || ') - 1));
         Observer.Observe('caller_after', T.Substring(T.IndexOf(' || ') + 4));
-        Observer.Finish();
+        Observer.Expect('inside', 'inside: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[] g2=[] g-1=[] Count=3 Rows=[A1 A2 A3]');
+        Observer.Expect('caller_after', 'caller after: No.=A1 FilterGroup()=0 CurrentKey=Amount,No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[Amount: <>0] g2=[] g-1=[] Count=2 Rows=[A1 A3]');
+        Observer.Verify();
     end;
 
     // Table extension: SetCurrentKey(Amount, "No."), SetFilter(Amount, <>0).
@@ -495,7 +529,9 @@ codeunit 73793 "BVF View Facts Tests"
         T := Item.CallerX(6);
         Observer.Observe('inside', T.Substring(1, T.IndexOf(' || ') - 1));
         Observer.Observe('caller_after', T.Substring(T.IndexOf(' || ') + 4));
-        Observer.Finish();
+        Observer.Expect('inside', 'inside: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[] g2=[] g-1=[] Count=3 Rows=[A1 A2 A3]');
+        Observer.Expect('caller_after', 'caller after: No.=A1 FilterGroup()=0 CurrentKey=Amount,No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[Amount: <>0] g2=[] g-1=[] Count=2 Rows=[A1 A3]');
+        Observer.Verify();
     end;
 
     // Table: SetCurrentKey(Amount, "No.") only (control).
@@ -511,7 +547,9 @@ codeunit 73793 "BVF View Facts Tests"
         T := Item.CallerT(7);
         Observer.Observe('inside', T.Substring(1, T.IndexOf(' || ') - 1));
         Observer.Observe('caller_after', T.Substring(T.IndexOf(' || ') + 4));
-        Observer.Finish();
+        Observer.Expect('inside', 'inside: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[] g2=[] g-1=[] Count=3 Rows=[A1 A2 A3]');
+        Observer.Expect('caller_after', 'caller after: No.=A1 FilterGroup()=0 CurrentKey=Amount,No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[] g2=[] g-1=[] Count=3 Rows=[A2 A1 A3]');
+        Observer.Verify();
     end;
 
     // Table extension: SetCurrentKey(Amount, "No.") only (control).
@@ -527,7 +565,9 @@ codeunit 73793 "BVF View Facts Tests"
         T := Item.CallerX(7);
         Observer.Observe('inside', T.Substring(1, T.IndexOf(' || ') - 1));
         Observer.Observe('caller_after', T.Substring(T.IndexOf(' || ') + 4));
-        Observer.Finish();
+        Observer.Expect('inside', 'inside: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[] g2=[] g-1=[] Count=3 Rows=[A1 A2 A3]');
+        Observer.Expect('caller_after', 'caller after: No.=A1 FilterGroup()=0 CurrentKey=Amount,No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[] g2=[] g-1=[] Count=3 Rows=[A2 A1 A3]');
+        Observer.Verify();
     end;
 
     // Table: Ascending(false).
@@ -543,7 +583,9 @@ codeunit 73793 "BVF View Facts Tests"
         T := Item.CallerT(8);
         Observer.Observe('inside', T.Substring(1, T.IndexOf(' || ') - 1));
         Observer.Observe('caller_after', T.Substring(T.IndexOf(' || ') + 4));
-        Observer.Finish();
+        Observer.Expect('inside', 'inside: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[] g2=[] g-1=[] Count=3 Rows=[A1 A2 A3]');
+        Observer.Expect('caller_after', 'caller after: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=No MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[] g2=[] g-1=[] Count=3 Rows=[A3 A2 A1]');
+        Observer.Verify();
     end;
 
     // Table extension: Ascending(false).
@@ -559,7 +601,9 @@ codeunit 73793 "BVF View Facts Tests"
         T := Item.CallerX(8);
         Observer.Observe('inside', T.Substring(1, T.IndexOf(' || ') - 1));
         Observer.Observe('caller_after', T.Substring(T.IndexOf(' || ') + 4));
-        Observer.Finish();
+        Observer.Expect('inside', 'inside: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[] g2=[] g-1=[] Count=3 Rows=[A1 A2 A3]');
+        Observer.Expect('caller_after', 'caller after: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=No MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[] g2=[] g-1=[] Count=3 Rows=[A3 A2 A1]');
+        Observer.Verify();
     end;
 
     // Table: Mark(true) on A3 and A1, MarkedOnly(true).
@@ -575,7 +619,9 @@ codeunit 73793 "BVF View Facts Tests"
         T := Item.CallerT(9);
         Observer.Observe('inside', T.Substring(1, T.IndexOf(' || ') - 1));
         Observer.Observe('caller_after', T.Substring(T.IndexOf(' || ') + 4));
-        Observer.Finish();
+        Observer.Expect('inside', 'inside: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[] g2=[] g-1=[] Count=3 Rows=[A1 A2 A3]');
+        Observer.Expect('caller_after', 'caller after: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=Yes AreFieldsLoaded(Kind)=Yes Net=60 g0=[Marked: Yes] g2=[Marked: Yes] g-1=[Marked: Yes] Count=2 Rows=[A1 A3]');
+        Observer.Verify();
     end;
 
     // Table extension: Mark(true) on A3 and A1, MarkedOnly(true).
@@ -591,7 +637,9 @@ codeunit 73793 "BVF View Facts Tests"
         T := Item.CallerX(9);
         Observer.Observe('inside', T.Substring(1, T.IndexOf(' || ') - 1));
         Observer.Observe('caller_after', T.Substring(T.IndexOf(' || ') + 4));
-        Observer.Finish();
+        Observer.Expect('inside', 'inside: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[] g2=[] g-1=[] Count=3 Rows=[A1 A2 A3]');
+        Observer.Expect('caller_after', 'caller after: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=Yes AreFieldsLoaded(Kind)=Yes Net=60 g0=[Marked: Yes] g2=[Marked: Yes] g-1=[Marked: Yes] Count=2 Rows=[A1 A3]');
+        Observer.Verify();
     end;
 
     // Table: SetLoadFields(Amount) before the Get.
@@ -607,7 +655,9 @@ codeunit 73793 "BVF View Facts Tests"
         T := Item.CallerT(10);
         Observer.Observe('inside', T.Substring(1, T.IndexOf(' || ') - 1));
         Observer.Observe('caller_after', T.Substring(T.IndexOf(' || ') + 4));
-        Observer.Finish();
+        Observer.Expect('inside', 'inside: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[] g2=[] g-1=[] Count=3 Rows=[A1 A2 A3]');
+        Observer.Expect('caller_after', 'caller after: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[] g2=[] g-1=[] Count=3 Rows=[A1 A2 A3]');
+        Observer.Verify();
     end;
 
     // Table extension: SetLoadFields(Amount) before the Get.
@@ -623,7 +673,9 @@ codeunit 73793 "BVF View Facts Tests"
         T := Item.CallerX(10);
         Observer.Observe('inside', T.Substring(1, T.IndexOf(' || ') - 1));
         Observer.Observe('caller_after', T.Substring(T.IndexOf(' || ') + 4));
-        Observer.Finish();
+        Observer.Expect('inside', 'inside: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[] g2=[] g-1=[] Count=3 Rows=[A1 A2 A3]');
+        Observer.Expect('caller_after', 'caller after: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[] g2=[] g-1=[] Count=3 Rows=[A1 A2 A3]');
+        Observer.Verify();
     end;
 
     // Table: SetFilter(Amount, <>0), SetFilter(Kind, 1).
@@ -639,7 +691,9 @@ codeunit 73793 "BVF View Facts Tests"
         T := Item.CallerT(11);
         Observer.Observe('inside', T.Substring(1, T.IndexOf(' || ') - 1));
         Observer.Observe('caller_after', T.Substring(T.IndexOf(' || ') + 4));
-        Observer.Finish();
+        Observer.Expect('inside', 'inside: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[] g2=[] g-1=[] Count=3 Rows=[A1 A2 A3]');
+        Observer.Expect('caller_after', 'caller after: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[Amount: <>0, Kind: 1] g2=[] g-1=[] Count=2 Rows=[A1 A3]');
+        Observer.Verify();
     end;
 
     // Table extension: SetFilter(Amount, <>0), SetFilter(Kind, 1).
@@ -655,6 +709,8 @@ codeunit 73793 "BVF View Facts Tests"
         T := Item.CallerX(11);
         Observer.Observe('inside', T.Substring(1, T.IndexOf(' || ') - 1));
         Observer.Observe('caller_after', T.Substring(T.IndexOf(' || ') + 4));
-        Observer.Finish();
+        Observer.Expect('inside', 'inside: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[] g2=[] g-1=[] Count=3 Rows=[A1 A2 A3]');
+        Observer.Expect('caller_after', 'caller after: No.=A1 FilterGroup()=0 CurrentKey=No. Ascending=Yes MarkedOnly=No AreFieldsLoaded(Kind)=Yes Net=60 g0=[Amount: <>0, Kind: 1] g2=[] g-1=[] Count=2 Rows=[A1 A3]');
+        Observer.Verify();
     end;
 }
