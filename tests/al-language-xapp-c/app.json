@@ -31,6 +31,12 @@
       "version": "1.0.0.0"
     },
     {
+      "id": "63ca2fa4-4f03-4f2b-a480-172fef340d3f",
+      "name": "System Application",
+      "publisher": "Microsoft",
+      "version": "27.0.0.0"
+    },
+    {
       "id": "437dbf0e-84ff-417a-965d-ed2bb9650972",
       "name": "Base Application",
       "publisher": "Microsoft",
@@ -55,7 +61,9 @@
       "from": 95830,
       "to": 95839
     },
-    { "from": 96300, "to": 96304 }
+    { "from": 96300, "to": 96304 },
+    { "from": 98520, "to": 98524 },
+    { "from": 98530, "to": 98539 }
   ],
   "features": [],
   "runtime": "18.0",
