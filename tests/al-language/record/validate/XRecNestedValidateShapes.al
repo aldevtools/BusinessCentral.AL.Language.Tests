@@ -576,6 +576,10 @@ table 77468 "XNV Proc Line"
                         Cfg.Add('caught', GetLastErrorText(), '-');
                     ClearLastError();
                 end;
+                if Cfg.Get().EndsWith('trystmt') then begin
+                    TryAssignXRec();
+                    Cfg.Add('T after try', Format(xRec.Mode, 0, 2) + '/' + xRec.Series + '/' + xRec."Item No.", Format(Mode, 0, 2) + '/' + Series + '/' + "Item No.");
+                end;
             end;
         }
         field(3; Series; Code[20]) { }
@@ -1873,6 +1877,54 @@ codeunit 77473 "XNV Tests"
         Observer.Expect('log', 'I x=0/NEW/I1 r=0/NEW/I2;T x=0/OUT/I1 r=1/MID/I2;I after x=0/OUT/I1 r=1/MID/I2;');
         Observer.Expect('record', '1/MID/I2');
         Observer.Verify();
+    end;
+
+    [Test]
+    procedure Validate_NoProcInnerTryStatementAssigns_Observed()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XNV Proc Line";
+    begin
+        Line.DeleteAll();
+        Line.Init();
+        Line."Line No." := 1;
+        Line.Mode := Line.Mode::Purchase;
+        Line.Series := 'OLD';
+        Line."Item No." := 'I1';
+        Line.Insert(false);
+        Line.Series := 'NEW';
+        Cfg.Set('direct-trystmt');
+        Observer.Observe('validate ok', Format(TryValidateItem(Line)));
+        Observer.Observe('error', GetLastErrorText());
+        ClearLastError();
+        Observer.Observe('log', Cfg.Take());
+        Observer.Observe('record', Format(Line.Mode, 0, 2) + '/' + Line.Series + '/' + Line."Item No.");
+        Cfg.Set('');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Validate_TwoProcsInnerTryStatementAssigns_Observed()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XNV Proc Line";
+    begin
+        Line.DeleteAll();
+        Line.Init();
+        Line."Line No." := 1;
+        Line.Mode := Line.Mode::Purchase;
+        Line.Series := 'OLD';
+        Line."Item No." := 'I1';
+        Line.Insert(false);
+        Line.Series := 'NEW';
+        Cfg.Set('two-trystmt');
+        Observer.Observe('validate ok', Format(TryValidateItem(Line)));
+        Observer.Observe('error', GetLastErrorText());
+        ClearLastError();
+        Observer.Observe('log', Cfg.Take());
+        Observer.Observe('record', Format(Line.Mode, 0, 2) + '/' + Line.Series + '/' + Line."Item No.");
+        Cfg.Set('');
+        Observer.Finish();
     end;
 
     [TryFunction]
