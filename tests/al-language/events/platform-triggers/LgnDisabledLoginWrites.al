@@ -9,30 +9,34 @@
 //   committed, does a delete of the login's rows by a Disabled codeunit stay, and is User Login updated again.
 // Harness (see codeunits/run-onrun/RqIsolationModes.al): no handlers and TestPermissions = Disabled, so BC 28+ legs run these
 //   codeunits through the TestRunnerHub with their RequiredTestIsolation, in ascending id order. BC 27 legs run every codeunit
-//   under "Test Runner - Isol. Codeunit" (130450); the observing tests assert nothing there (#else branches).
+//   under "Test Runner - Isol. Codeunit" (130450); the observing tests and codeunits exist only on BC 28+ (#if BC28PLUS).
 // Fixture: this file's login subscriber writes one row per OnAfterLogin and per OnRegisterAssistedSetup in a Web session (table
 //   87400) and counts the calls in a SingleInstance codeunit (87412). A Disabled codeunit's first test (never fails) writes a
 //   snapshot (table 87401: session id, the two counters, the rows, the newest entry); later codeunits compare with it. A Disabled
 //   A codeunit's last test writes its end time and waits 61 seconds, so a later login is outside the one minute in which
 //   "User Login Time Tracker".CreateOrUpdateLoginInfo skips the update of User Login.
 // Cells: 87404 anchor (Disabled); 87405, 87406 control (Codeunit, Codeunit; cell 6); 87407 -> 87408 Disabled -> Disabled (cells 1,
-//   4, 5); 87409 -> 87410 Disabled -> Codeunit (cell 2, cell 5); 87411 deletes the login's rows -> 87413 (cell 3).
+//   4, 5); 87409 -> 87410 Disabled -> Codeunit (cell 2, cell 5); 87411 deletes the login's rows -> 87413 Disabled, 87428 Codeunit,
+//   87429 Function (cell 3).
 // Measured on BC 28.5 (28.5.54976.59048) and 29.0 (29.0.54011.59052), local BC on Linux legs that mirror the CI legs (2026-11-28):
 //   - The hub runs every test codeunit in ONE session (same session as the snapshot: Yes in every codeunit).
-//   - OnAfterLogin is raised once for that session, before the first test codeunit, and never again: 0 calls since every snapshot,
-//     whatever the isolation of the codeunit before or of the codeunit itself (Codeunit after Disabled, Disabled after Disabled,
-//     Codeunit after Codeunit). OnRegisterAssistedSetup likewise (1 call in the session, 0 since). In the anchor the session has 1
-//     login row and 1 registration row.
-//   - The login's rows are not part of any codeunit's isolation: they stay through Codeunit isolation codeunits (rows of the
-//     snapshot gone: 0) and through Disabled ones, and no row is added for a later codeunit (rows written since: 0).
+//   - OnAfterLogin was raised once in that session, already when the anchor's first test ran, and never again: 0 calls since every
+//     snapshot, for the measured pairs (Codeunit after Disabled, Disabled after Disabled, Codeunit after Codeunit, and Codeunit and
+//     Function after Disabled in cell 3). OnRegisterAssistedSetup likewise (1 call in the session, 0 since). In the anchor the
+//     session has 1 login row and 1 registration row.
+//   - Rows the login wrote before the anchor stay through later Codeunit isolation codeunits (rows of the snapshot gone: 0) and
+//     Disabled ones, and no row is added for a later codeunit (rows written since: 0). No cell has a rollback that spans the login.
 //   - Since no later login runs, no later login sees what a Disabled codeunit committed (newest login row saw every mark A left: No),
 //     and User Login is not updated after a Disabled codeunit ends, 61 seconds later (UserLoggedInSinceDateTime: No).
-//     ShouldInitializeChecklist(false) is No in the next codeunit (the session's login marked the checklist done).
-//   - A Disabled codeunit that deletes the login's rows: they are gone in its next test and in the next codeunit (rows: 0); the
-//     next codeunit's login does not write them again.
-// BC 27.5: not asserted. A local BC 27.5 leg ran these codeunits through the hub (same values as 28 and 29); the CI 27 legs run
-//   them under 130450, which the local leg could not reproduce.
-// Object ids 87400-87413.
+//     ShouldInitializeChecklist(false) is No in the next codeunit.
+//   - A Disabled codeunit that deletes the login's rows: they are gone in its next test and in the next codeunits, Disabled, Codeunit
+//     and Function isolation alike (rows: 0). No login runs for those codeunits, so nothing writes the rows again.
+//   - Function isolation after that delete: the first test reads 0 rows and inserts one (1 row); the second test reads 0 rows, no
+//     login or registration row, the first test's row gone: each test rolls back to what the Disabled codeunit left, not to the
+//     state right after the login.
+// BC 27.5: not measured. The observing tests and codeunits exist only on BC 28+ (#if BC28PLUS). A local BC 27.5 leg ran these
+//   codeunits through the hub (same values as 28 and 29); the CI 27 legs run them under 130450, which needs a CI observation.
+// Object ids 87400-87413, 87428-87430.
 // BC versions: 27.5, 28.5, 29.0
 
 // local object: the rows are written by this file's login subscriber and must outlive the test codeunit that wrote them
@@ -339,7 +343,7 @@ codeunit 87404 "LGN DLW Anchor"
         Probe.SnapA('A0');
     end;
 
-#if BC28PLUS // BC 27 legs run every test codeunit under 130450, not through the hub: not measured
+#if BC28PLUS // BC 27 legs have no TestRunnerHub (every codeunit runs under 130450): not measured
     [Test]
     procedure DLW_Anchor_Session()
     var
@@ -359,7 +363,7 @@ codeunit 87404 "LGN DLW Anchor"
 }
 
 // Cell 6, control: two codeunits under Codeunit isolation after the anchor.
-#if BC28PLUS // BC 27 legs run every test codeunit under 130450, not through the hub: not measured
+#if BC28PLUS // BC 27 legs have no TestRunnerHub (every codeunit runs under 130450): not measured
 codeunit 87405 "LGN DLW Ctl A"
 {
     Subtype = Test;
@@ -386,7 +390,7 @@ codeunit 87405 "LGN DLW Ctl A"
 }
 #endif
 
-#if BC28PLUS // BC 27 legs run every test codeunit under 130450, not through the hub: not measured
+#if BC28PLUS // BC 27 legs have no TestRunnerHub (every codeunit runs under 130450): not measured
 codeunit 87406 "LGN DLW Ctl B"
 {
     Subtype = Test;
@@ -429,7 +433,7 @@ codeunit 87407 "LGN DLW G1 A"
         Probe.SnapA('G1A');
     end;
 
-#if BC28PLUS // BC 27 legs run every test codeunit under 130450, not through the hub: not measured
+#if BC28PLUS // BC 27 legs have no TestRunnerHub (every codeunit runs under 130450): not measured
     [Test]
     procedure DLW_G1A_SinceAnchor()
     var
@@ -453,7 +457,7 @@ codeunit 87407 "LGN DLW G1 A"
     end;
 }
 
-#if BC28PLUS // BC 27 legs run every test codeunit under 130450, not through the hub: not measured
+#if BC28PLUS // BC 27 legs have no TestRunnerHub (every codeunit runs under 130450): not measured
 codeunit 87408 "LGN DLW G1 B"
 {
     Subtype = Test;
@@ -504,7 +508,7 @@ codeunit 87409 "LGN DLW G2 A"
         Probe.SnapA('G2A');
     end;
 
-#if BC28PLUS // BC 27 legs run every test codeunit under 130450, not through the hub: not measured
+#if BC28PLUS // BC 27 legs have no TestRunnerHub (every codeunit runs under 130450): not measured
     [Test]
     procedure DLW_G2A_SinceG1A()
     var
@@ -528,7 +532,7 @@ codeunit 87409 "LGN DLW G2 A"
     end;
 }
 
-#if BC28PLUS // BC 27 legs run every test codeunit under 130450, not through the hub: not measured
+#if BC28PLUS // BC 27 legs have no TestRunnerHub (every codeunit runs under 130450): not measured
 codeunit 87410 "LGN DLW G2 B"
 {
     Subtype = Test;
@@ -579,7 +583,7 @@ codeunit 87411 "LGN DLW G3 A"
         Probe.SnapA('G3A');
     end;
 
-#if BC28PLUS // BC 27 legs run every test codeunit under 130450, not through the hub: not measured
+#if BC28PLUS // BC 27 legs have no TestRunnerHub (every codeunit runs under 130450): not measured
     [Test]
     procedure DLW_G3A_SinceG2A()
     var
@@ -603,7 +607,7 @@ codeunit 87411 "LGN DLW G3 A"
         Probe.Put('G3A AFTER DELETE', Probe.AllRows());
     end;
 
-#if BC28PLUS // BC 27 legs run every test codeunit under 130450, not through the hub: not measured
+#if BC28PLUS // BC 27 legs have no TestRunnerHub (every codeunit runs under 130450): not measured
     [Test]
     procedure DLW_G3A_DeletedInNextTest()
     var
@@ -618,7 +622,7 @@ codeunit 87411 "LGN DLW G3 A"
 #endif
 }
 
-#if BC28PLUS // BC 27 legs run every test codeunit under 130450, not through the hub: not measured
+#if BC28PLUS // BC 27 legs have no TestRunnerHub (every codeunit runs under 130450): not measured
 codeunit 87413 "LGN DLW G3 B"
 {
     Subtype = Test;
@@ -644,7 +648,7 @@ codeunit 87413 "LGN DLW G3 B"
 }
 #endif
 
-#if BC28PLUS // BC 27 legs run every test codeunit under 130450, not through the hub: not measured
+#if BC28PLUS // BC 27 legs have no TestRunnerHub (every codeunit runs under 130450): not measured
 // Cell 3, Codeunit isolation: after G3A deleted the login's rows (and G3B read them), a Codeunit isolation codeunit reads them.
 codeunit 87428 "LGN DLW G3 C"
 {
@@ -665,7 +669,12 @@ codeunit 87428 "LGN DLW G3 C"
         Observer.Observe('OnAfterLogin calls since A snapshot', Format(Probe.LiveCalls('LOGIN') - Probe.Get('G3A CALLS')));
         Observer.Observe('OnRegisterAssistedSetup calls since A snapshot', Format(Probe.LiveCalls('REGISTER') - Probe.Get('G3A REGS')));
         Observer.Observe('same session as A', Format(SessionId() = Probe.Get('G3A S')));
-        Observer.Finish();
+        Observer.Expect('rows', '0');
+        Observer.Expect('login rows of this session', '0');
+        Observer.Expect('OnAfterLogin calls since A snapshot', '0');
+        Observer.Expect('OnRegisterAssistedSetup calls since A snapshot', '0');
+        Observer.Expect('same session as A', 'Yes');
+        Observer.Verify();
     end;
 }
 
@@ -699,7 +708,12 @@ codeunit 87429 "LGN DLW G3 D"
         Observer.Observe('OnAfterLogin calls since A snapshot', Format(Probe.LiveCalls('LOGIN') - Probe.Get('G3A CALLS')));
         Observer.Observe('OnRegisterAssistedSetup calls since A snapshot', Format(Probe.LiveCalls('REGISTER') - Probe.Get('G3A REGS')));
         Observer.Observe('same session as A', Format(SessionId() = Probe.Get('G3A S')));
-        Observer.Finish();
+        Observer.Expect('rows', '0');
+        Observer.Expect('rows after its insert', '1');
+        Observer.Expect('OnAfterLogin calls since A snapshot', '0');
+        Observer.Expect('OnRegisterAssistedSetup calls since A snapshot', '0');
+        Observer.Expect('same session as A', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -715,7 +729,14 @@ codeunit 87429 "LGN DLW G3 D"
         Observer.Observe('row of the first test there', Format(Row.Get(FnLog.Inserted())));
         Observer.Observe('OnAfterLogin calls since A snapshot', Format(Probe.LiveCalls('LOGIN') - Probe.Get('G3A CALLS')));
         Observer.Observe('same session as A', Format(SessionId() = Probe.Get('G3A S')));
-        Observer.Finish();
+        Observer.Expect('first test ran', 'Yes');
+        Observer.Expect('rows', '0');
+        Observer.Expect('login rows', '0');
+        Observer.Expect('registration rows', '0');
+        Observer.Expect('row of the first test there', 'No');
+        Observer.Expect('OnAfterLogin calls since A snapshot', '0');
+        Observer.Expect('same session as A', 'Yes');
+        Observer.Verify();
     end;
 }
 
