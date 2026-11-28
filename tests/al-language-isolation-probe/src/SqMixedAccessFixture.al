@@ -455,15 +455,17 @@ codeunit 79527 "LT SQM Access"
         Report.SaveAs(Report::"LT SQM Row Report", '', ReportFormat::Xml, OutS);
     end;
 
-    // The posting preview shape: Codeunit.Run (with a return value) of a codeunit that posts and ends with Error('').
-    // Returns 'Yes' or 'No' and the last error text.
-    procedure RunPreview(Name: Text): Text
+    // The posting preview shape: Codeunit.Run (with a return value) of a codeunit that posts and, by Mode, ends with
+    // Error('') (0), ends normally (1) or ends with Error('preview engine error') (2). Returns 'Yes' or 'No' and the last
+    // error text.
+    procedure RunPreview(Name: Text; Mode: Integer): Text
     var
         Engine: Codeunit "LT SQM Preview";
         Ok: Boolean;
         Result: Text;
     begin
         Engine.SetName(Name);
+        Engine.SetMode(Mode);
         Ok := Engine.Run();
         Result := Format(Ok) + ':''' + GetLastErrorText() + '''';
         ClearLastError();
@@ -493,7 +495,8 @@ codeunit 79527 "LT SQM Access"
     end;
 }
 
-// The posting preview engine shape: writes a row, takes a number through the helper when a name is set, then Error('').
+// The posting preview engine shape: writes a row, takes a number through the helper when a name is set, then by Mode
+// Error('') (0, as Gen. Jnl.-Post Preview ends), nothing (1) or Error('preview engine error') (2).
 codeunit 79528 "LT SQM Preview"
 {
     trigger OnRun()
@@ -504,7 +507,12 @@ codeunit 79528 "LT SQM Preview"
         Access.InsertRow('PV');
         if SequenceName <> '' then
             Seq.InsertEntry(SequenceName, 'PV');
-        Error('');
+        case EngineMode of
+            0:
+                Error('');
+            2:
+                Error('preview engine error');
+        end;
     end;
 
     procedure SetName(Name: Text)
@@ -512,6 +520,12 @@ codeunit 79528 "LT SQM Preview"
         SequenceName := Name;
     end;
 
+    procedure SetMode(Mode: Integer)
+    begin
+        EngineMode := Mode;
+    end;
+
     var
         SequenceName: Text;
+        EngineMode: Integer;
 }
