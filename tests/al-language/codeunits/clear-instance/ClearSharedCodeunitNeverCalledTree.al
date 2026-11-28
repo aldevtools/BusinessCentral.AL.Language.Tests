@@ -15,7 +15,22 @@
 // ClearAll separate "reset" from "never set". al-runner issue 8964.
 // singleinstance-shared-on-purpose: the subject is SingleInstance codeunits held below a register that ClearAll resets.
 // BC versions: 27, 28, 29
-// What BC did: see the Expect lines of each test.
+// What BC did (observed on local BC 29.0; the pull request CI run asserts the same values on 27.5, 28.5 and 29.0):
+// - Register never called, owner ClearAll: every plain global of the register, A, B, the A below B and W reads its default
+//   (records: no field values, no filters; temporary records: no rows; Integer 0, Date 0D, Booleans false). Labels keep their
+//   text. The SingleInstance U (reached as B.U, A.U and B.A.U) keeps the record field value, filter and Txt primed through
+//   another variable, and C/I keeps the primed Boolean (true). A write to U through another variable after the ClearAll is seen
+//   through every path of the register. No register entry row is written.
+// - Neighbor, register written before the ClearAll (SetAll through the holder): the same ClearAll resets every plain global that
+//   was set (field values, filters, Integer, Date, Booleans), temporary records keep their rows (Count 1), Labels keep their
+//   text, U and C/I keep their values.
+// - The register stays shared after the ClearAll: a write through the owner's variable (after OnRun, or inside OnRun right after
+//   the ClearAll) is read through the holder's variable, and a write through the holder's is read through the owner's.
+// - Runs after the ClearAll use the one shared instance: the first run (by the holder, or by the owner inside OnRun) numbers a
+//   new entry row after the last existing one (No. 5 after row 4) and inserts it; every later run, by the holder or the owner,
+//   increments the run counter (2) and modifies that same row (Runs 2). Both variables read the same counter and entry No.
+// - Neighbor, register run once before the ClearAll (entry 5 inserted, counter 1): the ClearAll resets the entry record and the
+//   counter (No. 0, counter 0), so the next run inserts a new row No. 6 with counter 1.
 table 86890 "CNC Reg Entry"
 {
     DataClassification = SystemMetadata;
@@ -465,7 +480,14 @@ codeunit 86900 "CNC Test"
         UomMgt.Set(32);
         Observer.Observe('siwrite.si', H.StateSI());
         Observer.Observe('entries', Entries());
-        Observer.Finish();
+        Observer.Expect('after.reg', 'reg[0,0,0,,,0,reg label,reg plain,false]');
+        Observer.Expect('after.a', 'a[0,0,,,0,,,0,,falsefalsefalsefalse,a label,a plain]');
+        Observer.Expect('after.b', 'b[0,,,0,,0,falsefalse,0,b label,b plain]w[w label,w plain]a[0,0,,,0,,,0,,falsefalsefalsefalse,a label,a plain]');
+        Observer.Expect('after.si', 'ci[Yes]u[31,No.: 31,u31,u label,u plain]|u[31,No.: 31,u31,u label,u plain]ci[Yes]u[31,No.: 31,u31,u label,u plain]');
+        Observer.Expect('after.owner', 'reg[0,0,0,,,0,reg label,reg plain,false]');
+        Observer.Expect('siwrite.si', 'ci[Yes]u[32,No.: 32,u32,u label,u plain]|u[32,No.: 32,u32,u label,u plain]ci[Yes]u[32,No.: 32,u32,u label,u plain]');
+        Observer.Expect('entries', 'entries[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -480,7 +502,16 @@ codeunit 86900 "CNC Test"
         H.Post(0);
         ObserveTree('after', H);
         Observer.Observe('after.owner', H.OwnerState());
-        Observer.Finish();
+        Observer.Expect('before.reg', 'reg[0,0,5,No.: 5,q5,5,reg label,reg plain,true]');
+        Observer.Expect('before.a', 'a[1,5,No.: 5,t5,5,No.: 5,n5,5,2020-01-06,truetruetruetrue,a label,a plain]');
+        Observer.Expect('before.b', 'b[15,No.: 15,r15,16,Txt: x,1,truetrue,15,b label,b plain]w[w label,w plain]a[1,16,No.: 16,t16,16,No.: 16,n16,16,2020-01-17,truetruetruetrue,a label,a plain]');
+        Observer.Expect('before.si', 'ci[Yes]u[41,No.: 41,u41,u label,u plain]|u[41,No.: 41,u41,u label,u plain]ci[Yes]u[41,No.: 41,u41,u label,u plain]');
+        Observer.Expect('after.reg', 'reg[0,0,0,,,0,reg label,reg plain,false]');
+        Observer.Expect('after.a', 'a[1,0,,,0,,,0,,falsefalsefalsefalse,a label,a plain]');
+        Observer.Expect('after.b', 'b[0,,,0,,1,falsefalse,0,b label,b plain]w[w label,w plain]a[1,0,,,0,,,0,,falsefalsefalsefalse,a label,a plain]');
+        Observer.Expect('after.si', 'ci[Yes]u[41,No.: 41,u41,u label,u plain]|u[41,No.: 41,u41,u label,u plain]ci[Yes]u[41,No.: 41,u41,u label,u plain]');
+        Observer.Expect('after.owner', 'reg[0,0,0,,,0,reg label,reg plain,false]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -494,7 +525,9 @@ codeunit 86900 "CNC Test"
         H.OwnerSetCnt(11);
         Observer.Observe('holder', H.State());
         Observer.Observe('owner', H.OwnerState());
-        Observer.Finish();
+        Observer.Expect('holder', 'reg[0,0,0,,,11,reg label,reg plain,false]');
+        Observer.Expect('owner', 'reg[0,0,0,,,11,reg label,reg plain,false]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -508,7 +541,9 @@ codeunit 86900 "CNC Test"
         H.SetCnt(12);
         Observer.Observe('holder', H.State());
         Observer.Observe('owner', H.OwnerState());
-        Observer.Finish();
+        Observer.Expect('holder', 'reg[0,0,0,,,12,reg label,reg plain,false]');
+        Observer.Expect('owner', 'reg[0,0,0,,,12,reg label,reg plain,false]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -521,7 +556,9 @@ codeunit 86900 "CNC Test"
         H.Post(1);
         Observer.Observe('holder', H.State());
         Observer.Observe('owner', H.OwnerState());
-        Observer.Finish();
+        Observer.Expect('holder', 'reg[0,0,0,,,21,reg label,reg plain,false]');
+        Observer.Expect('owner', 'reg[0,0,0,,,21,reg label,reg plain,false]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -537,7 +574,11 @@ codeunit 86900 "CNC Test"
         Observer.Observe('owner', H.OwnerState());
         Observer.Observe('entries', Entries());
         Observer.Observe('si', H.StateSI());
-        Observer.Finish();
+        Observer.Expect('holder', 'reg[5,1,7,,,1,reg label,reg plain,true]');
+        Observer.Expect('owner', 'reg[5,1,7,,,1,reg label,reg plain,true]');
+        Observer.Expect('entries', 'entries[4:0;5:1;]');
+        Observer.Expect('si', 'ci[Yes]u[61,No.: 61,u61,u label,u plain]|u[61,No.: 61,u61,u label,u plain]ci[Yes]u[61,No.: 61,u61,u label,u plain]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -553,7 +594,10 @@ codeunit 86900 "CNC Test"
         Observer.Observe('holder', H.State());
         Observer.Observe('owner', H.OwnerState());
         Observer.Observe('entries', Entries());
-        Observer.Finish();
+        Observer.Expect('holder', 'reg[5,2,7,,,2,reg label,reg plain,true]');
+        Observer.Expect('owner', 'reg[5,2,7,,,2,reg label,reg plain,true]');
+        Observer.Expect('entries', 'entries[4:0;5:2;]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -569,7 +613,10 @@ codeunit 86900 "CNC Test"
         Observer.Observe('holder', H.State());
         Observer.Observe('owner', H.OwnerState());
         Observer.Observe('entries', Entries());
-        Observer.Finish();
+        Observer.Expect('holder', 'reg[5,2,8,,,2,reg label,reg plain,true]');
+        Observer.Expect('owner', 'reg[5,2,8,,,2,reg label,reg plain,true]');
+        Observer.Expect('entries', 'entries[4:0;5:2;]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -586,7 +633,12 @@ codeunit 86900 "CNC Test"
         Observer.Observe('second.holder', H.State());
         Observer.Observe('second.owner', H.OwnerState());
         Observer.Observe('second.entries', Entries());
-        Observer.Finish();
+        Observer.Expect('first.holder', 'reg[5,1,8,,,1,reg label,reg plain,true]');
+        Observer.Expect('first.entries', 'entries[4:0;5:1;]');
+        Observer.Expect('second.holder', 'reg[5,2,7,,,2,reg label,reg plain,true]');
+        Observer.Expect('second.owner', 'reg[5,2,7,,,2,reg label,reg plain,true]');
+        Observer.Expect('second.entries', 'entries[4:0;5:2;]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -606,6 +658,13 @@ codeunit 86900 "CNC Test"
         Observer.Observe('again.holder', H.State());
         Observer.Observe('again.owner', H.OwnerState());
         Observer.Observe('again.entries', Entries());
-        Observer.Finish();
+        Observer.Expect('before.holder', 'reg[5,1,7,,,1,reg label,reg plain,true]');
+        Observer.Expect('before.entries', 'entries[4:0;5:1;]');
+        Observer.Expect('after.holder', 'reg[0,0,0,,,0,reg label,reg plain,false]');
+        Observer.Expect('after.owner', 'reg[0,0,0,,,0,reg label,reg plain,false]');
+        Observer.Expect('again.holder', 'reg[6,1,7,,,1,reg label,reg plain,true]');
+        Observer.Expect('again.owner', 'reg[6,1,7,,,1,reg label,reg plain,true]');
+        Observer.Expect('again.entries', 'entries[4:0;5:1;6:1;]');
+        Observer.Verify();
     end;
 }
