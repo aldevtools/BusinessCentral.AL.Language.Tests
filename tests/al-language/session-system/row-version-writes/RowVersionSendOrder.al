@@ -18,7 +18,7 @@
 // transaction handed out, not row version numbers. Another session's write can only raise an offset, so each test runs its body up to four
 // times and passes on the first attempt whose observations all match; a difference that is the same on every attempt still fails (the
 // pattern of PlTRowVersionValue.al, corpus issue 1063).
-// Measured on BC 27.5, 28.5 and 29.0 (local runs of the CI leg; the PR run follows):
+// Measured on BC 27.5, 28.5 and 29.0 on Linux (local runs of the CI leg) and on BC 27.5 on Windows (all 49 tests of both files passed):
 // - A checked Insert (if not Rec.Insert() then) sends its row at once: the value is the row's version. It also sends the unsent rows of the
 //   same table first (plain then checked: value 2, rows 1 and 2), but not the unsent rows of another table: those get their versions only
 //   when their buffer is read, after the checked rows (other table unsent: value 1, row 1, other 2; issue layout: value 2, the three other
@@ -33,7 +33,7 @@
 //   a DeleteAll of another table does not (value 0). After such a DeleteAll every inserted row's buffer shows the version of the last one.
 // - A plain Modify, Delete or Rename right after the Insert sends the row first: Modify and Rename hand out the insert's and their own version
 //   (value 2), Delete only the insert's (value 1). ModifyAll after two Inserts sends both, then modifies both (value 4; a Get shows rows 3
-//   and 4). Truncate after an Insert gives value 1 on BC on Linux (RowVersionWriteShapes.al has the Windows difference).
+//   and 4). Truncate after an Insert gives value 1, on Linux and on Windows 27.5 (RowVersionWriteShapes.al ignores its own Truncate cell).
 // - Two tables: two plain Inserts leave the value the same; a Modify of the first table's row sends only that table's row (value 2); the
 //   second table's row is sent by its own Modify (insert 3, modify 4).
 // - Issue order: after the setup row's Insert and Modify (watermark 2) and three plain Inserts into another table, two checked Inserts give
