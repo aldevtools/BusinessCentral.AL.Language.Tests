@@ -27,6 +27,10 @@
 //   PropertyAfterEnd raises nothing. A call before the writer exists: 'A DotNet variable has not been instantiated. Attempting to
 //   call Newtonsoft.Json.JsonTextWriter.WriteEndObject in CodeUnit Json Text Reader/Writer: WriteEndObject'
 //   (DotNetVariableNotCreated). The control writes {"a":"x"}.
+//   Review additions (asserted on BC 28 and later from a local BC 29.0.54011.57673 run on 2026-11-28; on BC 27.5 they are an
+//   observe round, red on purpose: #else ends with Finish()):
+//   WriterText_AfterScenarios: GetJSonAsText after PropertyAfterEnd (no error) is '{}"a":"x"' (the writer keeps writing past the
+//   closed object), and after a caught EndObjectTwice on the same writer it is '{}'; both writers unformatted (SetDoNotFormat).
 // BC versions: 27, 28, 29 by CI
 codeunit 73474 "LT JTW Probe"
 {
@@ -189,5 +193,41 @@ codeunit 73475 "LT JTW Writer Error Tests"
         Observer.Expect('try_Control', 'ok');
         Observer.Expect('control_json', '{"a":"x"}');
         Observer.Verify();
+    end;
+
+    [TryFunction]
+    local procedure TryRunOn(var Writer: Codeunit "Json Text Reader/Writer"; Scenario: Text)
+    var
+        Probe: Codeunit "LT JTW Probe";
+    begin
+        Probe.Run(Writer, Scenario);
+    end;
+
+    // GetJSonAsText after PropertyAfterEnd, and after a caught EndObjectTwice on the same writer (both unformatted: SetDoNotFormat).
+    [Test]
+    procedure WriterText_AfterScenarios()
+    var
+        Observer: Codeunit "Probe Observer";
+        Writer1: Codeunit "Json Text Reader/Writer";
+        Writer2: Codeunit "Json Text Reader/Writer";
+    begin
+        Writer1.SetDoNotFormat();
+        ClearLastError();
+        Observer.Observe('property_after_end_ok', Format(TryRunOn(Writer1, 'PropertyAfterEnd')));
+        ClearLastError();
+        Observer.Observe('property_after_end_json', Writer1.GetJSonAsText());
+        Writer2.SetDoNotFormat();
+        Observer.Observe('end_object_twice_ok', Format(TryRunOn(Writer2, 'EndObjectTwice')));
+        ClearLastError();
+        Observer.Observe('end_object_twice_json', Writer2.GetJSonAsText());
+#if BC28PLUS
+        Observer.Expect('property_after_end_ok', 'Yes');
+        Observer.Expect('property_after_end_json', '{}"a":"x"');
+        Observer.Expect('end_object_twice_ok', 'No');
+        Observer.Expect('end_object_twice_json', '{}');
+        Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
+        Observer.Finish();
+#endif
     end;
 }

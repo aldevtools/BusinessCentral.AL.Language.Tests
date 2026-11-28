@@ -16,6 +16,10 @@
 //   25 spaces fail: the Boolean form returns No and leaves the target at 7; the statement raises 'The value "<text>" can't be
 //   evaluated into type <Decimal|Integer|BigInteger>.' with GetLastErrorCode 'Evaluate'. ' 300' and '300 ' evaluate to 300 in both
 //   forms.
+//   Review additions (asserted on BC 28 and later from a local BC 29.0.54011.57673 run on 2026-11-28; on BC 27.5 they are an
+//   observe round, red on purpose: #else ends with Finish()):
+//   AllTargets_OneSpace: a text of one space fails like the 25-space text: No and the target unchanged, and 'The value " " can't
+//   be evaluated into type <Decimal|Integer|BigInteger>.' (Evaluate).
 // BC versions: 27, 28, 29 by CI
 table 73476 "LT ECF Row"
 {
@@ -382,5 +386,31 @@ codeunit 73477 "LT ECF Evaluate Tests"
         Observer.Expect('[                         ] bool', 'No 7');
         Observer.Expect('[                         ] stmt', 'E: The value "                         " can''t be evaluated into type Decimal. | Evaluate');
         Observer.Verify();
+    end;
+
+    // A text of one space, into each target.
+    [Test]
+    procedure AllTargets_OneSpace()
+    var
+        Observer: Codeunit "Probe Observer";
+        Probe: Codeunit "LT ECF Probe";
+    begin
+        Probe.CellDec(Observer, ' ');
+        Probe.CellInt(Observer, ' ');
+        Probe.CellBig(Observer, ' ');
+        Probe.CellField(Observer, ' ');
+#if BC28PLUS
+        Observer.Expect('[ ] bool', 'No 7');
+        Observer.Expect('[ ] stmt', 'E: The value " " can''t be evaluated into type Decimal. | Evaluate');
+        Observer.Expect('[ ] bool', 'No 7');
+        Observer.Expect('[ ] stmt', 'E: The value " " can''t be evaluated into type Integer. | Evaluate');
+        Observer.Expect('[ ] bool', 'No 7');
+        Observer.Expect('[ ] stmt', 'E: The value " " can''t be evaluated into type BigInteger. | Evaluate');
+        Observer.Expect('[ ] bool', 'No 7');
+        Observer.Expect('[ ] stmt', 'E: The value " " can''t be evaluated into type Decimal. | Evaluate');
+        Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
+        Observer.Finish();
+#endif
     end;
 }

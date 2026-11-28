@@ -44,6 +44,12 @@
 //     date-format error for '123'.
 //   - Validate of Code 'ABC', Code '123' or Text 'XY' into Guid: typed, 'Invalid format of GUID string. ...' (InvalidGuidFormat);
 //     through a Variant, 'The value "ABC" can't be evaluated into type GUID.' (Evaluate:Argument). The two forms differ.
+//   Review additions (asserted on BC 28 and later from a local BC 29.0.54011.57673 run on 2026-11-28; on BC 27.5 they are an
+//   observe round, red on purpose: #else ends with Finish()):
+//   codeunit 73478: Boolean true into BigInteger, Integer and Decimal gives 1 by every method (the ordinal, not a default 0); into
+//   Option B by SetRange and SetFilter and 1 by Value and Validate; into Date and Guid the 'Yes' form of the errors. Decimal 2
+//   into BigInteger and Integer gives 2 (only a fraction overflows), into Boolean Yes / true, into Option C by the filters and 2 by
+//   Value and Validate. Code '1' into the Option field gives B by the filters and 1 by Value and Validate.
 // BC versions: 27, 28, 29 by CI
 table 73470 "LT FRC Row"
 {
@@ -1017,6 +1023,234 @@ codeunit 73473 "LT FRC Text Tests"
         Probe.Expect('d', 'E: Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits. | InvalidGuidFormat');
         Probe.Expect('dv', 'E: Invalid Conversion. Source: NavVariant, Destination: NavGuid. | Argument');
         Probe.Verify();
+#endif
+    end;
+}
+
+// Review additions (corpus pull request 1627): Boolean true next to false, a whole Decimal next to 1.5, and Code '1' into the
+// Option field.
+codeunit 73478 "LT FRC More Tests"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    // Boolean true into the field Big.
+    [Test]
+    procedure BoolTrue_Big()
+    var
+        Probe: Codeunit "LT FRC Probe";
+        X: Boolean;
+    begin
+        X := true;
+        Probe.CellsBool(2, X);
+#if BC28PLUS
+        Probe.Expect('r', 'ok: 1');
+        Probe.Expect('f', 'ok: 1');
+        Probe.Expect('v', 'ok: 1');
+        Probe.Expect('d', 'ok: 1');
+        Probe.Verify();
+#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
+        Probe.Finish();
+#endif
+    end;
+
+    // Boolean true into the field Int.
+    [Test]
+    procedure BoolTrue_Int()
+    var
+        Probe: Codeunit "LT FRC Probe";
+        X: Boolean;
+    begin
+        X := true;
+        Probe.CellsBool(3, X);
+#if BC28PLUS
+        Probe.Expect('r', 'ok: 1');
+        Probe.Expect('f', 'ok: 1');
+        Probe.Expect('v', 'ok: 1');
+        Probe.Expect('d', 'ok: 1');
+        Probe.Verify();
+#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
+        Probe.Finish();
+#endif
+    end;
+
+    // Boolean true into the field Dec.
+    [Test]
+    procedure BoolTrue_Dec()
+    var
+        Probe: Codeunit "LT FRC Probe";
+        X: Boolean;
+    begin
+        X := true;
+        Probe.CellsBool(4, X);
+#if BC28PLUS
+        Probe.Expect('r', 'ok: 1');
+        Probe.Expect('f', 'ok: 1');
+        Probe.Expect('v', 'ok: 1');
+        Probe.Expect('d', 'ok: 1');
+        Probe.Verify();
+#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
+        Probe.Finish();
+#endif
+    end;
+
+    // Boolean true into the field Opt.
+    [Test]
+    procedure BoolTrue_Opt()
+    var
+        Probe: Codeunit "LT FRC Probe";
+        X: Boolean;
+    begin
+        X := true;
+        Probe.CellsBool(9, X);
+#if BC28PLUS
+        Probe.Expect('r', 'ok: B');
+        Probe.Expect('f', 'ok: B');
+        Probe.Expect('v', 'ok: 1');
+        Probe.Expect('d', 'ok: 1');
+        Probe.Verify();
+#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
+        Probe.Finish();
+#endif
+    end;
+
+    // Boolean true into the field D.
+    [Test]
+    procedure BoolTrue_D()
+    var
+        Probe: Codeunit "LT FRC Probe";
+        X: Boolean;
+    begin
+        X := true;
+        Probe.CellsBool(7, X);
+#if BC28PLUS
+        Probe.Expect('r', 'E: The format of the Date ''Yes'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Probe.Expect('f', 'E: The format of the Date ''Yes'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Probe.Expect('v', 'E: The format of the Date ''Yes'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Probe.Expect('d', 'E: The format of the Date ''Yes'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
+        Probe.Verify();
+#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
+        Probe.Finish();
+#endif
+    end;
+
+    // Boolean true into the field G.
+    [Test]
+    procedure BoolTrue_G()
+    var
+        Probe: Codeunit "LT FRC Probe";
+        X: Boolean;
+    begin
+        X := true;
+        Probe.CellsBool(10, X);
+#if BC28PLUS
+        Probe.Expect('r', 'E: The value "Yes" can''t be evaluated into type GUID. | Evaluate:Argument');
+        Probe.Expect('f', 'E: The value "Yes" can''t be evaluated into type GUID. | Evaluate:Argument');
+        Probe.Expect('v', 'E: The value "Yes" can''t be evaluated into type GUID. | Evaluate:Argument');
+        Probe.Expect('d', 'E: The value "Yes" can''t be evaluated into type GUID. | Evaluate:Argument');
+        Probe.Verify();
+#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
+        Probe.Finish();
+#endif
+    end;
+
+    // Decimal 2 into the field Big.
+    [Test]
+    procedure Dec2_Big()
+    var
+        Probe: Codeunit "LT FRC Probe";
+        X: Decimal;
+    begin
+        X := 2;
+        Probe.CellsDec(2, X);
+#if BC28PLUS
+        Probe.Expect('r', 'ok: 2');
+        Probe.Expect('f', 'ok: 2');
+        Probe.Expect('v', 'ok: 2');
+        Probe.Expect('d', 'ok: 2');
+        Probe.Verify();
+#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
+        Probe.Finish();
+#endif
+    end;
+
+    // Decimal 2 into the field Int.
+    [Test]
+    procedure Dec2_Int()
+    var
+        Probe: Codeunit "LT FRC Probe";
+        X: Decimal;
+    begin
+        X := 2;
+        Probe.CellsDec(3, X);
+#if BC28PLUS
+        Probe.Expect('r', 'ok: 2');
+        Probe.Expect('f', 'ok: 2');
+        Probe.Expect('v', 'ok: 2');
+        Probe.Expect('d', 'ok: 2');
+        Probe.Verify();
+#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
+        Probe.Finish();
+#endif
+    end;
+
+    // Decimal 2 into the field Bool.
+    [Test]
+    procedure Dec2_Bool()
+    var
+        Probe: Codeunit "LT FRC Probe";
+        X: Decimal;
+    begin
+        X := 2;
+        Probe.CellsDec(8, X);
+#if BC28PLUS
+        Probe.Expect('r', 'ok: Yes');
+        Probe.Expect('f', 'ok: Yes');
+        Probe.Expect('v', 'ok: true');
+        Probe.Expect('d', 'ok: true');
+        Probe.Verify();
+#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
+        Probe.Finish();
+#endif
+    end;
+
+    // Decimal 2 into the field Opt.
+    [Test]
+    procedure Dec2_Opt()
+    var
+        Probe: Codeunit "LT FRC Probe";
+        X: Decimal;
+    begin
+        X := 2;
+        Probe.CellsDec(9, X);
+#if BC28PLUS
+        Probe.Expect('r', 'ok: C');
+        Probe.Expect('f', 'ok: C');
+        Probe.Expect('v', 'ok: 2');
+        Probe.Expect('d', 'ok: 2');
+        Probe.Verify();
+#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
+        Probe.Finish();
+#endif
+    end;
+
+    // Code '1' into the field Opt.
+    [Test]
+    procedure Code1_Opt()
+    var
+        Probe: Codeunit "LT FRC Probe";
+        X: Code[20];
+    begin
+        X := '1';
+        Probe.CellsCode(9, X);
+#if BC28PLUS
+        Probe.Expect('r', 'ok: B');
+        Probe.Expect('f', 'ok: B');
+        Probe.Expect('v', 'ok: 1');
+        Probe.Expect('d', 'ok: 1');
+        Probe.Verify();
+#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
+        Probe.Finish();
 #endif
     end;
 }
