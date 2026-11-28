@@ -33,8 +33,9 @@
 //     stores the value after Close), but no row fails with "Validation error for Field: BookCtl,  Message = 'The field Book Code
 //     of table LT TSV Host contains a value (ZZZ) that cannot be found in the related table (LT TSV Book). (Select Refresh to
 //     discard errors)'" (TestValidation), and the record keeps an empty Book Code.
-//   Codeunit 73396 (the cells the review of corpus pull request 1646 asks for; BC 29.0.54011.57673, asserted on BC 28 and later;
-//   on BC 27.5 these tests are an observe round, red on purpose: #else ends with Finish()):
+//   Codeunit 73396 (the cells the review of corpus pull request 1646 asks for; BC 29.0.54011.57673; BC 27.5 gave the same
+//   readings in every cell in this pull request's CI observe run 46134940373, both 27.5 legs alike, so one set of assertions holds
+//   on every version):
 //   - Only a key prefix completes: 'BC' (inside a key) and 'Unique' (the start of a Name) fail with the does-not-exist error; the
 //     text shows the Code-converted value: Code='BC', Code='UNIQUE', and 'zzz' gives Code='ZZZ'.
 //   - SetValue('ABC') then SetValue('ZZZ'): the second fails and the control keeps ABC (OnValidate ran once). SetValue('') is
@@ -947,14 +948,10 @@ codeunit 73396 "LT TSV SetValue More Tests"
         Observer: Codeunit "Probe Observer";
     begin
         CodeVar(Observer, 'ABC');
-#if BC28PLUS
         Observer.Expect('set', 'ok');
         Observer.Expect('value', 'ABC');
         Observer.Expect('validated', '1');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     [Test]
@@ -963,14 +960,10 @@ codeunit 73396 "LT TSV SetValue More Tests"
         Observer: Codeunit "Probe Observer";
     begin
         CodeVar(Observer, 'AB');
-#if BC28PLUS
         Observer.Expect('set', 'ok');
         Observer.Expect('value', 'ABC');
         Observer.Expect('validated', '1');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     // 2. Text[10] variable: a lower-case prefix of one key.
@@ -980,14 +973,10 @@ codeunit 73396 "LT TSV SetValue More Tests"
         Observer: Codeunit "Probe Observer";
     begin
         TextVar(Observer, 'mn', false);
-#if BC28PLUS
         Observer.Expect('set', 'ok');
         Observer.Expect('value', 'MNO');
         Observer.Expect('validated', '1');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     // 3. Filtered variable: an exact key outside the filter, in lower case.
@@ -997,14 +986,10 @@ codeunit 73396 "LT TSV SetValue More Tests"
         Observer: Codeunit "Probe Observer";
     begin
         FilteredVar(Observer, 'xyz', false);
-#if BC28PLUS
         Observer.Expect('set', 'ok');
         Observer.Expect('value', 'xyz');
         Observer.Expect('validated', '1');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     // 4. Text[10] variable: no row, in lower case.
@@ -1014,14 +999,10 @@ codeunit 73396 "LT TSV SetValue More Tests"
         Observer: Codeunit "Probe Observer";
     begin
         TextVar(Observer, 'zzz', false);
-#if BC28PLUS
         Observer.Expect('set', 'E: Validation error for Field: BookCtl,  Message = ''The LT TSV Book does not exist. Identification fields and values: Code=''ZZZ'''' | TestValidation');
         Observer.Expect('value', '');
         Observer.Expect('validated', '0');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     // 5. Text[10] variable: a prefix of two keys with ABD inserted before ABC.
@@ -1031,14 +1012,10 @@ codeunit 73396 "LT TSV SetValue More Tests"
         Observer: Codeunit "Probe Observer";
     begin
         TextVar(Observer, 'AB', true);
-#if BC28PLUS
         Observer.Expect('set', 'ok');
         Observer.Expect('value', 'ABC');
         Observer.Expect('validated', '1');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     // 6. Text[10] variable: 'BC' (inside a key, not at its start) and 'Unique' (the start of MNO's Name, no key).
@@ -1048,14 +1025,10 @@ codeunit 73396 "LT TSV SetValue More Tests"
         Observer: Codeunit "Probe Observer";
     begin
         TextVar(Observer, 'BC', false);
-#if BC28PLUS
         Observer.Expect('set', 'E: Validation error for Field: BookCtl,  Message = ''The LT TSV Book does not exist. Identification fields and values: Code=''BC'''' | TestValidation');
         Observer.Expect('value', '');
         Observer.Expect('validated', '0');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     [Test]
@@ -1064,14 +1037,10 @@ codeunit 73396 "LT TSV SetValue More Tests"
         Observer: Codeunit "Probe Observer";
     begin
         TextVar(Observer, 'Unique', false);
-#if BC28PLUS
         Observer.Expect('set', 'E: Validation error for Field: BookCtl,  Message = ''The LT TSV Book does not exist. Identification fields and values: Code=''UNIQUE'''' | TestValidation');
         Observer.Expect('value', '');
         Observer.Expect('validated', '0');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     // 7. Text[10] variable: SetValue('ABC'), then SetValue('ZZZ'); the readings after the second call.
@@ -1089,15 +1058,11 @@ codeunit 73396 "LT TSV SetValue More Tests"
         Observer.Observe('value', TP.BookCtl.Value());
         Observer.Observe('validated', TP.ValidatedCtl.Value());
         TP.Close();
-#if BC28PLUS
         Observer.Expect('first', 'ok');
         Observer.Expect('second', 'E: Validation error for Field: BookCtl,  Message = ''The LT TSV Book does not exist. Identification fields and values: Code=''ZZZ'''' | TestValidation');
         Observer.Expect('value', 'ABC');
         Observer.Expect('validated', '1');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     // 7. SetValue('') on the Text[10] page, the Name page and the host card.
@@ -1107,14 +1072,10 @@ codeunit 73396 "LT TSV SetValue More Tests"
         Observer: Codeunit "Probe Observer";
     begin
         TextVar(Observer, '', false);
-#if BC28PLUS
         Observer.Expect('set', 'ok');
         Observer.Expect('value', '');
         Observer.Expect('validated', '1');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     [Test]
@@ -1130,14 +1091,10 @@ codeunit 73396 "LT TSV SetValue More Tests"
         Observer.Observe('value', TP.BookCtl.Value());
         Observer.Observe('validated', TP.ValidatedCtl.Value());
         TP.Close();
-#if BC28PLUS
         Observer.Expect('set', 'E: Validation error for Field: BookCtl,  Message = ''The following field must be included into the table''s primary key: Field: Name Table: LT TSV Book'' | TestValidation');
         Observer.Expect('value', '');
         Observer.Expect('validated', '0');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     [Test]
@@ -1146,15 +1103,11 @@ codeunit 73396 "LT TSV SetValue More Tests"
         Observer: Codeunit "Probe Observer";
     begin
         HostField(Observer, '', false);
-#if BC28PLUS
         Observer.Expect('set', 'ok');
         Observer.Expect('value', '');
         Observer.Expect('validated', '1');
         Observer.Expect('stored', 'Book Code= Active Book Code= validated=1');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     // 8. A report request page: a Text[10] variable related to the table, set in a RequestPageHandler.
@@ -1186,12 +1139,8 @@ codeunit 73396 "LT TSV SetValue More Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RequestCell(Observer, 'abc');
-#if BC28PLUS
         Observer.Expect('request', 'set=ok value=ABC validated=1');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     [Test]
@@ -1201,12 +1150,8 @@ codeunit 73396 "LT TSV SetValue More Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RequestCell(Observer, 'MN');
-#if BC28PLUS
         Observer.Expect('request', 'set=ok value=MNO validated=1');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     [Test]
@@ -1216,12 +1161,8 @@ codeunit 73396 "LT TSV SetValue More Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RequestCell(Observer, 'ZZZ');
-#if BC28PLUS
         Observer.Expect('request', 'set=E: Validation error for Field: BookCtl,  Message = ''The LT TSV Book does not exist. Identification fields and values: Code=''ZZZ'''' | TestValidation value= validated=0');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     // 8. A table field with a filter (Active = true): an exact key outside the filter, a prefix of it; 'AB' on the plain field.
@@ -1231,15 +1172,11 @@ codeunit 73396 "LT TSV SetValue More Tests"
         Observer: Codeunit "Probe Observer";
     begin
         HostField(Observer, 'XYZ', true);
-#if BC28PLUS
         Observer.Expect('set', 'E: Validation error for Field: ActiveBookCtl,  Message = ''The field Active Book Code of table LT TSV Host contains a value (XYZ) that cannot be found in the related table (LT TSV Book). (Select Refresh to discard errors)'' | TestValidation');
         Observer.Expect('value', '');
         Observer.Expect('validated', '0');
         Observer.Expect('stored', 'Book Code= Active Book Code= validated=0');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     [Test]
@@ -1248,15 +1185,11 @@ codeunit 73396 "LT TSV SetValue More Tests"
         Observer: Codeunit "Probe Observer";
     begin
         HostField(Observer, 'XY', true);
-#if BC28PLUS
         Observer.Expect('set', 'E: Validation error for Field: ActiveBookCtl,  Message = ''The field Active Book Code of table LT TSV Host contains a value (XY) that cannot be found in the related table (LT TSV Book). (Select Refresh to discard errors)'' | TestValidation');
         Observer.Expect('value', '');
         Observer.Expect('validated', '0');
         Observer.Expect('stored', 'Book Code= Active Book Code= validated=0');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     [Test]
@@ -1265,15 +1198,11 @@ codeunit 73396 "LT TSV SetValue More Tests"
         Observer: Codeunit "Probe Observer";
     begin
         HostField(Observer, 'AB', false);
-#if BC28PLUS
         Observer.Expect('set', 'ok');
         Observer.Expect('value', 'ABC');
         Observer.Expect('validated', '1');
         Observer.Expect('stored', 'Book Code=ABC Active Book Code= validated=1');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     // 8. Captions: no row on a variable and on a table field related to a table whose caption and key caption differ.
@@ -1289,13 +1218,9 @@ codeunit 73396 "LT TSV SetValue More Tests"
         Observer.Observe('set', Outcome(TrySetCap(TP, 'ZZZ')));
         Observer.Observe('value', TP.BookCtl.Value());
         TP.Close();
-#if BC28PLUS
         Observer.Expect('set', 'E: Validation error for Field: BookCtl,  Message = ''The Captioned Book does not exist. Identification fields and values: Book No.=''ZZZ'''' | TestValidation');
         Observer.Expect('value', '');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     [Test]
@@ -1313,13 +1238,9 @@ codeunit 73396 "LT TSV SetValue More Tests"
         Observer.Observe('set', Outcome(TrySetCapHost(TP, 'ZZZ')));
         Observer.Observe('value', TP.BookCtl.Value());
         TP.Close();
-#if BC28PLUS
         Observer.Expect('set', 'E: Validation error for Field: BookCtl,  Message = ''The field Captioned Book No. of table Captioned Host contains a value (ZZZ) that cannot be found in the related table (Captioned Book). (Select Refresh to discard errors)'' | TestValidation');
         Observer.Expect('value', '');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     // Optional: a relation that names the key field, and a filtered prefix whose first match is outside the filter.
@@ -1337,15 +1258,11 @@ codeunit 73396 "LT TSV SetValue More Tests"
         Observer.Observe('set_mn', Outcome(TrySetKeyField(TP, 'mn')));
         Observer.Observe('value_mn', TP.BookCtl.Value());
         TP.Close();
-#if BC28PLUS
         Observer.Expect('set_abc', 'ok');
         Observer.Expect('value_abc', 'ABC');
         Observer.Expect('set_mn', 'ok');
         Observer.Expect('value_mn', 'MNO');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     [Test]
@@ -1354,13 +1271,9 @@ codeunit 73396 "LT TSV SetValue More Tests"
         Observer: Codeunit "Probe Observer";
     begin
         FilteredVar(Observer, 'XY', true);
-#if BC28PLUS
         Observer.Expect('set', 'ok');
         Observer.Expect('value', 'XYB');
         Observer.Expect('validated', '1');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 }
