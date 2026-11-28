@@ -13,7 +13,24 @@
 //   Each cell opens the page with OpenEdit, calls SetValue inside a TryFunction and records: set = "ok" or "E: <GetLastErrorText> |
 //   <GetLastErrorCode>"; value = the control's Value() afterwards; validated = the trigger count. The host cells also record the
 //   stored record after TestPage.Close(): stored = "<Book Code> validated=<count>".
-//   Observe round: every test ends with Observer.Finish(), which fails the test with the readings (OBSERVE:...); nothing is asserted yet.
+//   Measured on a local BC 29.0.54011.57673 service tier (Linux, W1, en-US session) on 2026-11-28 with an invented app holding
+//   these objects (AL 18.0.43.1464, run by al runtests of AL tool 18.1.43.24897); the values are those readings, turned into
+//   Expect and Verify by convert.py verbatim. This pull request's CI checks them on 27.5, 28.5 and 29.0; a version difference
+//   gets a version guard.
+//   Facts (BC 29.0.54011.57673):
+//   - A variable related to the key (Text[10] and Code[10] alike) takes the related row's stored key: 'ABC' and 'abc' give ABC,
+//     the prefix 'MN' gives MNO, and the prefix 'AB' of two keys gives the first, ABC. OnValidate runs once.
+//   - No row ('ZZZ'): SetValue fails with "Validation error for Field: BookCtl,  Message = 'The LT TSV Book does not exist.
+//     Identification fields and values: Code='ZZZ''" (TestValidation, two spaces after the comma); the control reads empty and
+//     OnValidate does not run.
+//   - With the filter Active = true: 'MNO' (inside) gives MNO; 'XYZ' (an exact key outside the filter) is taken too, XYZ; the
+//     prefix 'XY' of a row outside the filter fails with the does-not-exist error for Code='XY'.
+//   - Related to the non-key field Name: every SetValue fails with "Validation error for Field: BookCtl,  Message = 'The
+//     following field must be included into the table's primary key: Field: Name Table: LT TSV Book'" (TestValidation).
+//   - A table field related to the key behaves like the variable (ABC, ABC, MNO; the table's OnValidate runs once; the record
+//     stores the value after Close), but no row fails with "Validation error for Field: BookCtl,  Message = 'The field Book Code
+//     of table LT TSV Host contains a value (ZZZ) that cannot be found in the related table (LT TSV Book). (Select Refresh to
+//     discard errors)'" (TestValidation), and the record keeps an empty Book Code.
 // BC versions: 27, 28, 29 by CI
 table 73390 "LT TSV Book"
 {
@@ -338,7 +355,10 @@ codeunit 73395 "LT TSV SetValue Tests"
         Observer: Codeunit "Probe Observer";
     begin
         TextVar(Observer, 'ABC');
-        Observer.Finish();
+        Observer.Expect('set', 'ok');
+        Observer.Expect('value', 'ABC');
+        Observer.Expect('validated', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -347,7 +367,10 @@ codeunit 73395 "LT TSV SetValue Tests"
         Observer: Codeunit "Probe Observer";
     begin
         TextVar(Observer, 'abc');
-        Observer.Finish();
+        Observer.Expect('set', 'ok');
+        Observer.Expect('value', 'ABC');
+        Observer.Expect('validated', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -356,7 +379,10 @@ codeunit 73395 "LT TSV SetValue Tests"
         Observer: Codeunit "Probe Observer";
     begin
         TextVar(Observer, 'MN');
-        Observer.Finish();
+        Observer.Expect('set', 'ok');
+        Observer.Expect('value', 'MNO');
+        Observer.Expect('validated', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -365,7 +391,10 @@ codeunit 73395 "LT TSV SetValue Tests"
         Observer: Codeunit "Probe Observer";
     begin
         TextVar(Observer, 'AB');
-        Observer.Finish();
+        Observer.Expect('set', 'ok');
+        Observer.Expect('value', 'ABC');
+        Observer.Expect('validated', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -374,7 +403,10 @@ codeunit 73395 "LT TSV SetValue Tests"
         Observer: Codeunit "Probe Observer";
     begin
         TextVar(Observer, 'ZZZ');
-        Observer.Finish();
+        Observer.Expect('set', 'E: Validation error for Field: BookCtl,  Message = ''The LT TSV Book does not exist. Identification fields and values: Code=''ZZZ'''' | TestValidation');
+        Observer.Expect('value', '');
+        Observer.Expect('validated', '0');
+        Observer.Verify();
     end;
 
     // Code[10] variable related to the key.
@@ -384,7 +416,10 @@ codeunit 73395 "LT TSV SetValue Tests"
         Observer: Codeunit "Probe Observer";
     begin
         CodeVar(Observer, 'abc');
-        Observer.Finish();
+        Observer.Expect('set', 'ok');
+        Observer.Expect('value', 'ABC');
+        Observer.Expect('validated', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -393,7 +428,10 @@ codeunit 73395 "LT TSV SetValue Tests"
         Observer: Codeunit "Probe Observer";
     begin
         CodeVar(Observer, 'mn');
-        Observer.Finish();
+        Observer.Expect('set', 'ok');
+        Observer.Expect('value', 'MNO');
+        Observer.Expect('validated', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -402,7 +440,10 @@ codeunit 73395 "LT TSV SetValue Tests"
         Observer: Codeunit "Probe Observer";
     begin
         CodeVar(Observer, 'ZZZ');
-        Observer.Finish();
+        Observer.Expect('set', 'E: Validation error for Field: BookCtl,  Message = ''The LT TSV Book does not exist. Identification fields and values: Code=''ZZZ'''' | TestValidation');
+        Observer.Expect('value', '');
+        Observer.Expect('validated', '0');
+        Observer.Verify();
     end;
 
     // Text[10] variable related with a filter (Active = true): a row inside, a row outside, a prefix of a row outside.
@@ -412,7 +453,10 @@ codeunit 73395 "LT TSV SetValue Tests"
         Observer: Codeunit "Probe Observer";
     begin
         FilteredVar(Observer, 'MNO');
-        Observer.Finish();
+        Observer.Expect('set', 'ok');
+        Observer.Expect('value', 'MNO');
+        Observer.Expect('validated', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -421,7 +465,10 @@ codeunit 73395 "LT TSV SetValue Tests"
         Observer: Codeunit "Probe Observer";
     begin
         FilteredVar(Observer, 'XYZ');
-        Observer.Finish();
+        Observer.Expect('set', 'ok');
+        Observer.Expect('value', 'XYZ');
+        Observer.Expect('validated', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -430,7 +477,10 @@ codeunit 73395 "LT TSV SetValue Tests"
         Observer: Codeunit "Probe Observer";
     begin
         FilteredVar(Observer, 'XY');
-        Observer.Finish();
+        Observer.Expect('set', 'E: Validation error for Field: BookCtl,  Message = ''The LT TSV Book does not exist. Identification fields and values: Code=''XY'''' | TestValidation');
+        Observer.Expect('value', '');
+        Observer.Expect('validated', '0');
+        Observer.Verify();
     end;
 
     // Text[30] variable related to the non-key field Name: exact, other case, prefix, a value of two rows, no row.
@@ -440,7 +490,10 @@ codeunit 73395 "LT TSV SetValue Tests"
         Observer: Codeunit "Probe Observer";
     begin
         NameVar(Observer, 'Unique Name');
-        Observer.Finish();
+        Observer.Expect('set', 'E: Validation error for Field: BookCtl,  Message = ''The following field must be included into the table''s primary key: Field: Name Table: LT TSV Book'' | TestValidation');
+        Observer.Expect('value', '');
+        Observer.Expect('validated', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -449,7 +502,10 @@ codeunit 73395 "LT TSV SetValue Tests"
         Observer: Codeunit "Probe Observer";
     begin
         NameVar(Observer, 'unique name');
-        Observer.Finish();
+        Observer.Expect('set', 'E: Validation error for Field: BookCtl,  Message = ''The following field must be included into the table''s primary key: Field: Name Table: LT TSV Book'' | TestValidation');
+        Observer.Expect('value', '');
+        Observer.Expect('validated', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -458,7 +514,10 @@ codeunit 73395 "LT TSV SetValue Tests"
         Observer: Codeunit "Probe Observer";
     begin
         NameVar(Observer, 'Uni');
-        Observer.Finish();
+        Observer.Expect('set', 'E: Validation error for Field: BookCtl,  Message = ''The following field must be included into the table''s primary key: Field: Name Table: LT TSV Book'' | TestValidation');
+        Observer.Expect('value', '');
+        Observer.Expect('validated', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -467,7 +526,10 @@ codeunit 73395 "LT TSV SetValue Tests"
         Observer: Codeunit "Probe Observer";
     begin
         NameVar(Observer, 'Shared');
-        Observer.Finish();
+        Observer.Expect('set', 'E: Validation error for Field: BookCtl,  Message = ''The following field must be included into the table''s primary key: Field: Name Table: LT TSV Book'' | TestValidation');
+        Observer.Expect('value', '');
+        Observer.Expect('validated', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -476,7 +538,10 @@ codeunit 73395 "LT TSV SetValue Tests"
         Observer: Codeunit "Probe Observer";
     begin
         NameVar(Observer, 'Nope');
-        Observer.Finish();
+        Observer.Expect('set', 'E: Validation error for Field: BookCtl,  Message = ''The following field must be included into the table''s primary key: Field: Name Table: LT TSV Book'' | TestValidation');
+        Observer.Expect('value', '');
+        Observer.Expect('validated', '0');
+        Observer.Verify();
     end;
 
     // A Code[10] table field related to the key, on a Card over the host record.
@@ -486,7 +551,11 @@ codeunit 73395 "LT TSV SetValue Tests"
         Observer: Codeunit "Probe Observer";
     begin
         HostField(Observer, 'ABC');
-        Observer.Finish();
+        Observer.Expect('set', 'ok');
+        Observer.Expect('value', 'ABC');
+        Observer.Expect('validated', '1');
+        Observer.Expect('stored', 'ABC validated=1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -495,7 +564,11 @@ codeunit 73395 "LT TSV SetValue Tests"
         Observer: Codeunit "Probe Observer";
     begin
         HostField(Observer, 'abc');
-        Observer.Finish();
+        Observer.Expect('set', 'ok');
+        Observer.Expect('value', 'ABC');
+        Observer.Expect('validated', '1');
+        Observer.Expect('stored', 'ABC validated=1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -504,7 +577,11 @@ codeunit 73395 "LT TSV SetValue Tests"
         Observer: Codeunit "Probe Observer";
     begin
         HostField(Observer, 'MN');
-        Observer.Finish();
+        Observer.Expect('set', 'ok');
+        Observer.Expect('value', 'MNO');
+        Observer.Expect('validated', '1');
+        Observer.Expect('stored', 'MNO validated=1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -513,6 +590,10 @@ codeunit 73395 "LT TSV SetValue Tests"
         Observer: Codeunit "Probe Observer";
     begin
         HostField(Observer, 'ZZZ');
-        Observer.Finish();
+        Observer.Expect('set', 'E: Validation error for Field: BookCtl,  Message = ''The field Book Code of table LT TSV Host contains a value (ZZZ) that cannot be found in the related table (LT TSV Book). (Select Refresh to discard errors)'' | TestValidation');
+        Observer.Expect('value', '');
+        Observer.Expect('validated', '0');
+        Observer.Expect('stored', ' validated=0');
+        Observer.Verify();
     end;
 }
