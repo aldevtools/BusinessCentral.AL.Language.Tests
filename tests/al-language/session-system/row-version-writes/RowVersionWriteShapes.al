@@ -14,7 +14,9 @@
 // row the step wrote (from the record buffer, no re-read); min/min0 is MinimumActiveRowVersion() against its read at the start of the test;
 // min/last1 against LastUsedRowVersion() + 1; next/last1 is the buffer SystemRowVersion of a fresh Insert into "RVS Other" against the
 // value + 1 read before it.
-// Measured on BC 29.0 (local run; 27.5 and 28.5 see the PR run): every write that sends a row (Insert followed by another statement, a checked
+// Note: these tests read SystemRowVersion from the record buffer before LastUsedRowVersion(), and that read sends an unsent row. Which writes
+// send a row by themselves is measured in RowVersionSendOrder.al, which reads LastUsedRowVersion() first.
+// Measured on BC 29.0 (local run; 27.5 and 28.5 see the PR run): every write that sends a row (an Insert whose buffer is read, a checked
 // Insert, Modify, Get and Modify, Rename, Delete or DeleteAll of inserted rows, writes to a second table) leaves LastUsedRowVersion() equal to
 // the SystemRowVersion of the row written last. A Modify (also right after the row's own Insert) and a Rename give the row a greater
 // SystemRowVersion than before. DeleteAll with no Insert before it (unfiltered, filtered, empty table) and a Get leave the value the same.
@@ -133,7 +135,7 @@ codeunit 76642 "RVS Steps"
         foreach Pair in BestAcc.Split('|') do
             if Pair <> '' then begin
                 At := Pair.IndexOf('=');
-                Fact(CopyStr(Pair, 1, At - 1), CopyStr(Pair, At + 1));
+                Observer.Observe(CopyStr(Pair, 1, At - 1), CopyStr(Pair, At + 1));
             end;
     end;
 
