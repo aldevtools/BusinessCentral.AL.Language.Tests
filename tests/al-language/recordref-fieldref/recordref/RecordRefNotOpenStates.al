@@ -28,7 +28,8 @@
 //   TestRunnerHub (the member tests also through a codeunit run request: the same readings); the values are that run's readings,
 //   turned into Expect and Verify by convert.py verbatim. This pull request's CI gave the same values on 27.5, 28.5 and 29.0. The
 //   review cells Card_Closed, Card_AfterGetEmpty and Card_AfterGetMissing were measured on a local BC 29.0.54011.57673 on
-//   2026-11-28 and are asserted on BC 28 and later; on BC 27.5 they are an observe round, red on purpose (#else ends with Finish()).
+//   2026-11-28; on BC 27.5 this pull request's CI observe run 46136061483 gave the same readings (both 27.5 legs alike), so they
+//   hold on every version with no version guard.
 //   Facts (BC 27.5, 28.5 and 29.0):
 //   - Every member above but Number fails with 'The record is not open.' (RecordNotOpened) in every state that is not open: Fresh,
 //     OpenZero, GetEmpty, GetMissing and Closed, Duplicate and ClearMarks included. Number is 0 in all of them.
@@ -701,14 +702,10 @@ codeunit 73482 "LT RUO Page Run Tests"
         Observer: Codeunit "Probe Observer";
     begin
         StateCell(Observer, 'Closed');
-#if BC28PLUS
         Observer.Expect('state', 'ok');
         Observer.Expect('run', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavRecordRef to Microsoft.Dynamics.Nav.Runtime.INavRecordHandle. | Conversion');
         Observer.Expect('seen', '');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     [Test]
@@ -717,14 +714,10 @@ codeunit 73482 "LT RUO Page Run Tests"
         Observer: Codeunit "Probe Observer";
     begin
         StateCell(Observer, 'GetEmpty');
-#if BC28PLUS
         Observer.Expect('state', 'No');
         Observer.Expect('run', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavRecordRef to Microsoft.Dynamics.Nav.Runtime.INavRecordHandle. | Conversion');
         Observer.Expect('seen', '');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     [Test]
@@ -733,13 +726,9 @@ codeunit 73482 "LT RUO Page Run Tests"
         Observer: Codeunit "Probe Observer";
     begin
         StateCell(Observer, 'GetMissing');
-#if BC28PLUS
         Observer.Expect('state', 'No');
         Observer.Expect('run', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavRecordRef to Microsoft.Dynamics.Nav.Runtime.INavRecordHandle. | Conversion');
         Observer.Expect('seen', '');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 }
