@@ -9,12 +9,15 @@
 // with an OnInsert trigger that reads another table, with an OnBeforeInsertEvent subscriber, Insert(false, true), Insert(true) with no trigger,
 // a checked Insert that fails on a duplicate key, a checked Insert into a temporary record); a plain Insert (record and RecordRef, Blob and
 // AutoIncrement tables) with the value read first, a plain Insert with the buffer read first; plain Inserts followed by DeleteAll (unfiltered,
-// filtered to committed rows, over committed rows too, through a RecordRef, of another table).
+// filtered to committed rows, over committed rows too, through a RecordRef, of another table); the no-read twins of RowVersionWriteShapes.al:
+// a plain Modify, Delete, Rename, ModifyAll and Truncate after an Insert, Inserts and Modifies in two tables, and the issue order (are the
+// three config rows above the watermark the issue's export reads).
 // Each value is an offset from LastUsedRowVersion() read right after the commit that starts the attempt: 'value' is LastUsedRowVersion() right
 // after the shape, 'rowN' / 'otherN' the buffer SystemRowVersion read after that, 'value2' LastUsedRowVersion() after those reads, 'next' the
 // buffer SystemRowVersion of a fresh Insert into RVS Other, 'end' LastUsedRowVersion() at the end. Offsets are counts of row versions this
-// transaction handed out, not row version numbers. Each test repeats its shape four times and keeps the attempt with the smallest 'end'
-// (another session's write can only raise it; corpus issue 1063).
+// transaction handed out, not row version numbers. Another session's write can only raise an offset, so each test runs its body up to four
+// times and passes on the first attempt whose observations all match; a difference that is the same on every attempt still fails (the
+// pattern of PlTRowVersionValue.al, corpus issue 1063).
 // Measured on BC 27.5, 28.5 and 29.0 (local runs of the CI leg; the PR run follows):
 // - A checked Insert (if not Rec.Insert() then) sends its row at once: the value is the row's version. It also sends the unsent rows of the
 //   same table first (plain then checked: value 2, rows 1 and 2), but not the unsent rows of another table: those get their versions only
@@ -28,7 +31,16 @@
 //   (value 1 after the read). A plain Insert into a table with a Blob or an AutoIncrement field is sent at once (value 1).
 // - DeleteAll of the same table after plain Inserts sends them first, whatever its filter and also through a RecordRef (two rows: value 2);
 //   a DeleteAll of another table does not (value 0). After such a DeleteAll every inserted row's buffer shows the version of the last one.
+// - A plain Modify, Delete or Rename right after the Insert sends the row first: Modify and Rename hand out the insert's and their own version
+//   (value 2), Delete only the insert's (value 1). ModifyAll after two Inserts sends both, then modifies both (value 4; a Get shows rows 3
+//   and 4). Truncate after an Insert gives value 1 on BC on Linux (RowVersionWriteShapes.al has the Windows difference).
+// - Two tables: two plain Inserts leave the value the same; a Modify of the first table's row sends only that table's row (value 2); the
+//   second table's row is sent by its own Modify (insert 3, modify 4).
+// - Issue order: after the setup row's Insert and Modify (watermark 2) and three plain Inserts into another table, two checked Inserts give
+//   value 4; the three config rows were not sent then, and a Get gives them versions 5, 6 and 7, all above the watermark.
 // - After every shape the next Insert gets the value + 1.
+// - One run of RowVersionSend_CheckedInsert_AfterOtherModify on BC 29.0 gave every offset one higher than the other runs (an extra row
+//   version before the other table's Insert); the asserted values are those of the other runs, and the retry covers such a run.
 // BC versions: 27+
 
 table 76644 "RVS Blob Row"
@@ -243,10 +255,14 @@ codeunit 76650 "RVS Send Order"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    [Test]
-    procedure RowVersionSend_CheckedInsert_Single()
+    [TryFunction]
+    local procedure TryVerify(var Observer: Codeunit "Probe Observer")
+    begin
+        Observer.Verify();
+    end;
+
+    local procedure RowVersionSend_CheckedInsert_Single_Body(var Observer: Codeunit "Probe Observer")
     var
-        Observer: Codeunit "Probe Observer";
         Cells: Codeunit "RVS Send Cells";
         R1: Record "RVS Row";
     begin
@@ -260,13 +276,34 @@ codeunit 76650 "RVS Send Order"
         Cells.NextInsert();
         Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '1');
+        Observer.Expect('row1', '1');
+        Observer.Expect('value2', '1');
+        Observer.Expect('next', '2');
+        Observer.Expect('end', '2');
     end;
 
     [Test]
-    procedure RowVersionSend_CheckedInsert_Two()
+    procedure RowVersionSend_CheckedInsert_Single()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            RowVersionSend_CheckedInsert_Single_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        RowVersionSend_CheckedInsert_Single_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure RowVersionSend_CheckedInsert_Two_Body(var Observer: Codeunit "Probe Observer")
+    var
         Cells: Codeunit "RVS Send Cells";
         R1: Record "RVS Row";
         R2: Record "RVS Row";
@@ -285,13 +322,35 @@ codeunit 76650 "RVS Send Order"
         Cells.NextInsert();
         Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '2');
+        Observer.Expect('row1', '1');
+        Observer.Expect('row2', '2');
+        Observer.Expect('value2', '2');
+        Observer.Expect('next', '3');
+        Observer.Expect('end', '3');
     end;
 
     [Test]
-    procedure RowVersionSend_CheckedInsert_AfterPlainSameTable()
+    procedure RowVersionSend_CheckedInsert_Two()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            RowVersionSend_CheckedInsert_Two_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        RowVersionSend_CheckedInsert_Two_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure RowVersionSend_CheckedInsert_AfterPlainSameTable_Body(var Observer: Codeunit "Probe Observer")
+    var
         Cells: Codeunit "RVS Send Cells";
         R1: Record "RVS Row";
         R2: Record "RVS Row";
@@ -309,13 +368,35 @@ codeunit 76650 "RVS Send Order"
         Cells.NextInsert();
         Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '2');
+        Observer.Expect('row1', '1');
+        Observer.Expect('row2', '2');
+        Observer.Expect('value2', '2');
+        Observer.Expect('next', '3');
+        Observer.Expect('end', '3');
     end;
 
     [Test]
-    procedure RowVersionSend_CheckedInsert_AfterLockTable()
+    procedure RowVersionSend_CheckedInsert_AfterPlainSameTable()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            RowVersionSend_CheckedInsert_AfterPlainSameTable_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        RowVersionSend_CheckedInsert_AfterPlainSameTable_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure RowVersionSend_CheckedInsert_AfterLockTable_Body(var Observer: Codeunit "Probe Observer")
+    var
         Cells: Codeunit "RVS Send Cells";
         R1: Record "RVS Row";
     begin
@@ -330,13 +411,34 @@ codeunit 76650 "RVS Send Order"
         Cells.NextInsert();
         Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '1');
+        Observer.Expect('row1', '1');
+        Observer.Expect('value2', '1');
+        Observer.Expect('next', '2');
+        Observer.Expect('end', '2');
     end;
 
     [Test]
-    procedure RowVersionSend_CheckedInsert_RecordRef()
+    procedure RowVersionSend_CheckedInsert_AfterLockTable()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            RowVersionSend_CheckedInsert_AfterLockTable_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        RowVersionSend_CheckedInsert_AfterLockTable_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure RowVersionSend_CheckedInsert_RecordRef_Body(var Observer: Codeunit "Probe Observer")
+    var
         Cells: Codeunit "RVS Send Cells";
         RecRef: RecordRef;
         R1: Record "RVS Row";
@@ -355,13 +457,34 @@ codeunit 76650 "RVS Send Order"
         Cells.NextInsert();
         Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '1');
+        Observer.Expect('row1', '1');
+        Observer.Expect('value2', '1');
+        Observer.Expect('next', '2');
+        Observer.Expect('end', '2');
     end;
 
     [Test]
-    procedure RowVersionSend_PlainInsert_RecordRef()
+    procedure RowVersionSend_CheckedInsert_RecordRef()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            RowVersionSend_CheckedInsert_RecordRef_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        RowVersionSend_CheckedInsert_RecordRef_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure RowVersionSend_PlainInsert_RecordRef_Body(var Observer: Codeunit "Probe Observer")
+    var
         Cells: Codeunit "RVS Send Cells";
         RecRef: RecordRef;
         R1: Record "RVS Row";
@@ -379,13 +502,34 @@ codeunit 76650 "RVS Send Order"
         Cells.NextInsert();
         Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '0');
+        Observer.Expect('row1', '1');
+        Observer.Expect('value2', '1');
+        Observer.Expect('next', '2');
+        Observer.Expect('end', '2');
     end;
 
     [Test]
-    procedure RowVersionSend_CheckedInsert_BlobTable()
+    procedure RowVersionSend_PlainInsert_RecordRef()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            RowVersionSend_PlainInsert_RecordRef_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        RowVersionSend_PlainInsert_RecordRef_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure RowVersionSend_CheckedInsert_BlobTable_Body(var Observer: Codeunit "Probe Observer")
+    var
         Cells: Codeunit "RVS Send Cells";
         B1: Record "RVS Blob Row";
     begin
@@ -399,13 +543,34 @@ codeunit 76650 "RVS Send Order"
         Cells.NextInsert();
         Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '1');
+        Observer.Expect('row1', '1');
+        Observer.Expect('value2', '1');
+        Observer.Expect('next', '2');
+        Observer.Expect('end', '2');
     end;
 
     [Test]
-    procedure RowVersionSend_PlainInsert_BlobTable()
+    procedure RowVersionSend_CheckedInsert_BlobTable()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            RowVersionSend_CheckedInsert_BlobTable_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        RowVersionSend_CheckedInsert_BlobTable_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure RowVersionSend_PlainInsert_BlobTable_Body(var Observer: Codeunit "Probe Observer")
+    var
         Cells: Codeunit "RVS Send Cells";
         B1: Record "RVS Blob Row";
     begin
@@ -418,13 +583,34 @@ codeunit 76650 "RVS Send Order"
         Cells.NextInsert();
         Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '1');
+        Observer.Expect('row1', '1');
+        Observer.Expect('value2', '1');
+        Observer.Expect('next', '2');
+        Observer.Expect('end', '2');
     end;
 
     [Test]
-    procedure RowVersionSend_CheckedInsert_AutoIncrement()
+    procedure RowVersionSend_PlainInsert_BlobTable()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            RowVersionSend_PlainInsert_BlobTable_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        RowVersionSend_PlainInsert_BlobTable_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure RowVersionSend_CheckedInsert_AutoIncrement_Body(var Observer: Codeunit "Probe Observer")
+    var
         Cells: Codeunit "RVS Send Cells";
         A1: Record "RVS Auto Row";
     begin
@@ -438,13 +624,34 @@ codeunit 76650 "RVS Send Order"
         Cells.NextInsert();
         Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '1');
+        Observer.Expect('row1', '1');
+        Observer.Expect('value2', '1');
+        Observer.Expect('next', '2');
+        Observer.Expect('end', '2');
     end;
 
     [Test]
-    procedure RowVersionSend_PlainInsert_AutoIncrement()
+    procedure RowVersionSend_CheckedInsert_AutoIncrement()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            RowVersionSend_CheckedInsert_AutoIncrement_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        RowVersionSend_CheckedInsert_AutoIncrement_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure RowVersionSend_PlainInsert_AutoIncrement_Body(var Observer: Codeunit "Probe Observer")
+    var
         Cells: Codeunit "RVS Send Cells";
         A1: Record "RVS Auto Row";
     begin
@@ -457,13 +664,34 @@ codeunit 76650 "RVS Send Order"
         Cells.NextInsert();
         Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '1');
+        Observer.Expect('row1', '1');
+        Observer.Expect('value2', '1');
+        Observer.Expect('next', '2');
+        Observer.Expect('end', '2');
     end;
 
     [Test]
-    procedure RowVersionSend_CheckedInsert_OtherTableUnsent()
+    procedure RowVersionSend_PlainInsert_AutoIncrement()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            RowVersionSend_PlainInsert_AutoIncrement_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        RowVersionSend_PlainInsert_AutoIncrement_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure RowVersionSend_CheckedInsert_OtherTableUnsent_Body(var Observer: Codeunit "Probe Observer")
+    var
         Cells: Codeunit "RVS Send Cells";
         O1: Record "RVS Other";
         R1: Record "RVS Row";
@@ -481,13 +709,35 @@ codeunit 76650 "RVS Send Order"
         Cells.NextInsert();
         Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '1');
+        Observer.Expect('other1', '2');
+        Observer.Expect('row1', '1');
+        Observer.Expect('value2', '2');
+        Observer.Expect('next', '3');
+        Observer.Expect('end', '3');
     end;
 
     [Test]
-    procedure RowVersionSend_CheckedInsert_IssueLayout()
+    procedure RowVersionSend_CheckedInsert_OtherTableUnsent()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            RowVersionSend_CheckedInsert_OtherTableUnsent_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        RowVersionSend_CheckedInsert_OtherTableUnsent_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure RowVersionSend_CheckedInsert_IssueLayout_Body(var Observer: Codeunit "Probe Observer")
+    var
         Cells: Codeunit "RVS Send Cells";
         O1: Record "RVS Other";
         O2: Record "RVS Other";
@@ -518,13 +768,38 @@ codeunit 76650 "RVS Send Order"
         Cells.NextInsert();
         Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '2');
+        Observer.Expect('other1', '5');
+        Observer.Expect('other2', '5');
+        Observer.Expect('other3', '5');
+        Observer.Expect('row1', '1');
+        Observer.Expect('row2', '2');
+        Observer.Expect('value2', '5');
+        Observer.Expect('next', '6');
+        Observer.Expect('end', '6');
     end;
 
     [Test]
-    procedure RowVersionSend_CheckedInsert_AfterOtherModify()
+    procedure RowVersionSend_CheckedInsert_IssueLayout()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            RowVersionSend_CheckedInsert_IssueLayout_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        RowVersionSend_CheckedInsert_IssueLayout_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure RowVersionSend_CheckedInsert_AfterOtherModify_Body(var Observer: Codeunit "Probe Observer")
+    var
         Cells: Codeunit "RVS Send Cells";
         O1: Record "RVS Other";
         R1: Record "RVS Row";
@@ -548,13 +823,36 @@ codeunit 76650 "RVS Send Order"
         Cells.NextInsert();
         Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '4');
+        Observer.Expect('row1', '3');
+        Observer.Expect('other1', '2');
+        Observer.Expect('row2', '4');
+        Observer.Expect('value2', '4');
+        Observer.Expect('next', '5');
+        Observer.Expect('end', '5');
     end;
 
     [Test]
-    procedure RowVersionSend_CheckedInsertTrue_OnInsertReadsOther()
+    procedure RowVersionSend_CheckedInsert_AfterOtherModify()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            RowVersionSend_CheckedInsert_AfterOtherModify_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        RowVersionSend_CheckedInsert_AfterOtherModify_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure RowVersionSend_CheckedInsertTrue_OnInsertReadsOther_Body(var Observer: Codeunit "Probe Observer")
+    var
         Cells: Codeunit "RVS Send Cells";
         O1: Record "RVS Other";
         T1: Record "RVS Trig Row";
@@ -574,13 +872,36 @@ codeunit 76650 "RVS Send Order"
         Cells.NextInsert();
         Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '2');
+        Observer.Expect('trigger name', 'o');
+        Observer.Expect('other1', '1');
+        Observer.Expect('row1', '2');
+        Observer.Expect('value2', '2');
+        Observer.Expect('next', '3');
+        Observer.Expect('end', '3');
     end;
 
     [Test]
-    procedure RowVersionSend_CheckedInsert_Subscriber()
+    procedure RowVersionSend_CheckedInsertTrue_OnInsertReadsOther()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            RowVersionSend_CheckedInsertTrue_OnInsertReadsOther_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        RowVersionSend_CheckedInsertTrue_OnInsertReadsOther_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure RowVersionSend_CheckedInsert_Subscriber_Body(var Observer: Codeunit "Probe Observer")
+    var
         Cells: Codeunit "RVS Send Cells";
         S1: Record "RVS Sub Row";
     begin
@@ -595,13 +916,35 @@ codeunit 76650 "RVS Send Order"
         Cells.NextInsert();
         Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '1');
+        Observer.Expect('subscriber name', 'sub');
+        Observer.Expect('row1', '1');
+        Observer.Expect('value2', '1');
+        Observer.Expect('next', '2');
+        Observer.Expect('end', '2');
     end;
 
     [Test]
-    procedure RowVersionSend_CheckedInsert_WithSystemId()
+    procedure RowVersionSend_CheckedInsert_Subscriber()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            RowVersionSend_CheckedInsert_Subscriber_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        RowVersionSend_CheckedInsert_Subscriber_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure RowVersionSend_CheckedInsert_WithSystemId_Body(var Observer: Codeunit "Probe Observer")
+    var
         Cells: Codeunit "RVS Send Cells";
         R1: Record "RVS Row";
     begin
@@ -616,13 +959,34 @@ codeunit 76650 "RVS Send Order"
         Cells.NextInsert();
         Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '1');
+        Observer.Expect('row1', '1');
+        Observer.Expect('value2', '1');
+        Observer.Expect('next', '2');
+        Observer.Expect('end', '2');
     end;
 
     [Test]
-    procedure RowVersionSend_CheckedInsertTrue_NoTrigger()
+    procedure RowVersionSend_CheckedInsert_WithSystemId()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            RowVersionSend_CheckedInsert_WithSystemId_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        RowVersionSend_CheckedInsert_WithSystemId_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure RowVersionSend_CheckedInsertTrue_NoTrigger_Body(var Observer: Codeunit "Probe Observer")
+    var
         Cells: Codeunit "RVS Send Cells";
         R1: Record "RVS Row";
     begin
@@ -636,13 +1000,34 @@ codeunit 76650 "RVS Send Order"
         Cells.NextInsert();
         Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '1');
+        Observer.Expect('row1', '1');
+        Observer.Expect('value2', '1');
+        Observer.Expect('next', '2');
+        Observer.Expect('end', '2');
     end;
 
     [Test]
-    procedure RowVersionSend_CheckedInsert_DuplicateOtherUnsent()
+    procedure RowVersionSend_CheckedInsertTrue_NoTrigger()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            RowVersionSend_CheckedInsertTrue_NoTrigger_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        RowVersionSend_CheckedInsertTrue_NoTrigger_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure RowVersionSend_CheckedInsert_DuplicateOtherUnsent_Body(var Observer: Codeunit "Probe Observer")
+    var
         Cells: Codeunit "RVS Send Cells";
         O1: Record "RVS Other";
         R1: Record "RVS Row";
@@ -658,13 +1043,35 @@ codeunit 76650 "RVS Send Order"
         Cells.NextInsert();
         Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('inserted', 'No');
+        Observer.Expect('value', '1');
+        Observer.Expect('other1', '2');
+        Observer.Expect('value2', '2');
+        Observer.Expect('next', '3');
+        Observer.Expect('end', '3');
     end;
 
     [Test]
-    procedure RowVersionSend_CheckedInsert_TemporaryOtherUnsent()
+    procedure RowVersionSend_CheckedInsert_DuplicateOtherUnsent()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            RowVersionSend_CheckedInsert_DuplicateOtherUnsent_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        RowVersionSend_CheckedInsert_DuplicateOtherUnsent_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure RowVersionSend_CheckedInsert_TemporaryOtherUnsent_Body(var Observer: Codeunit "Probe Observer")
+    var
         Cells: Codeunit "RVS Send Cells";
         O1: Record "RVS Other";
         R1: Record "RVS Row" temporary;
@@ -682,13 +1089,34 @@ codeunit 76650 "RVS Send Order"
         Cells.NextInsert();
         Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '0');
+        Observer.Expect('other1', '1');
+        Observer.Expect('value2', '1');
+        Observer.Expect('next', '2');
+        Observer.Expect('end', '2');
     end;
 
     [Test]
-    procedure RowVersionSend_PlainInsert_ValueFirst()
+    procedure RowVersionSend_CheckedInsert_TemporaryOtherUnsent()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            RowVersionSend_CheckedInsert_TemporaryOtherUnsent_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        RowVersionSend_CheckedInsert_TemporaryOtherUnsent_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure RowVersionSend_PlainInsert_ValueFirst_Body(var Observer: Codeunit "Probe Observer")
+    var
         Cells: Codeunit "RVS Send Cells";
         R1: Record "RVS Row";
     begin
@@ -701,13 +1129,34 @@ codeunit 76650 "RVS Send Order"
         Cells.NextInsert();
         Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '0');
+        Observer.Expect('row1', '1');
+        Observer.Expect('value2', '1');
+        Observer.Expect('next', '2');
+        Observer.Expect('end', '2');
     end;
 
     [Test]
-    procedure RowVersionSend_PlainInsert_BufferReadFirst()
+    procedure RowVersionSend_PlainInsert_ValueFirst()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            RowVersionSend_PlainInsert_ValueFirst_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        RowVersionSend_PlainInsert_ValueFirst_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure RowVersionSend_PlainInsert_BufferReadFirst_Body(var Observer: Codeunit "Probe Observer")
+    var
         Cells: Codeunit "RVS Send Cells";
         R1: Record "RVS Row";
         RowVersion: BigInteger;
@@ -722,13 +1171,34 @@ codeunit 76650 "RVS Send Order"
         Cells.NextInsert();
         Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '1');
+        Observer.Expect('row1', '1');
+        Observer.Expect('value2', '1');
+        Observer.Expect('next', '2');
+        Observer.Expect('end', '2');
     end;
 
     [Test]
-    procedure RowVersionSend_PlainInsertTwo_DeleteAll()
+    procedure RowVersionSend_PlainInsert_BufferReadFirst()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            RowVersionSend_PlainInsert_BufferReadFirst_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        RowVersionSend_PlainInsert_BufferReadFirst_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure RowVersionSend_PlainInsertTwo_DeleteAll_Body(var Observer: Codeunit "Probe Observer")
+    var
         Cells: Codeunit "RVS Send Cells";
         R1: Record "RVS Row";
         R2: Record "RVS Row";
@@ -748,13 +1218,36 @@ codeunit 76650 "RVS Send Order"
         Cells.NextInsert();
         Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '2');
+        Observer.Expect('row1', '2');
+        Observer.Expect('row2', '2');
+        Observer.Expect('value2', '2');
+        Observer.Expect('count', '0');
+        Observer.Expect('next', '3');
+        Observer.Expect('end', '3');
     end;
 
     [Test]
-    procedure RowVersionSend_PlainInsertTwo_DeleteAllFilteredOther()
+    procedure RowVersionSend_PlainInsertTwo_DeleteAll()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            RowVersionSend_PlainInsertTwo_DeleteAll_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        RowVersionSend_PlainInsertTwo_DeleteAll_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure RowVersionSend_PlainInsertTwo_DeleteAllFilteredOther_Body(var Observer: Codeunit "Probe Observer")
+    var
         Cells: Codeunit "RVS Send Cells";
         R1: Record "RVS Row";
         R2: Record "RVS Row";
@@ -776,13 +1269,36 @@ codeunit 76650 "RVS Send Order"
         Cells.NextInsert();
         Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '2');
+        Observer.Expect('row1', '2');
+        Observer.Expect('row2', '2');
+        Observer.Expect('value2', '2');
+        Observer.Expect('count', '2');
+        Observer.Expect('next', '3');
+        Observer.Expect('end', '3');
     end;
 
     [Test]
-    procedure RowVersionSend_PlainInsert_DeleteAllCommittedToo()
+    procedure RowVersionSend_PlainInsertTwo_DeleteAllFilteredOther()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            RowVersionSend_PlainInsertTwo_DeleteAllFilteredOther_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        RowVersionSend_PlainInsertTwo_DeleteAllFilteredOther_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure RowVersionSend_PlainInsert_DeleteAllCommittedToo_Body(var Observer: Codeunit "Probe Observer")
+    var
         Cells: Codeunit "RVS Send Cells";
         R1: Record "RVS Row";
         Row: Record "RVS Row";
@@ -798,13 +1314,35 @@ codeunit 76650 "RVS Send Order"
         Cells.NextInsert();
         Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '1');
+        Observer.Expect('row1', '1');
+        Observer.Expect('value2', '1');
+        Observer.Expect('count', '0');
+        Observer.Expect('next', '2');
+        Observer.Expect('end', '2');
     end;
 
     [Test]
-    procedure RowVersionSend_PlainInsertTwo_DeleteAllRecordRef()
+    procedure RowVersionSend_PlainInsert_DeleteAllCommittedToo()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            RowVersionSend_PlainInsert_DeleteAllCommittedToo_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        RowVersionSend_PlainInsert_DeleteAllCommittedToo_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure RowVersionSend_PlainInsertTwo_DeleteAllRecordRef_Body(var Observer: Codeunit "Probe Observer")
+    var
         Cells: Codeunit "RVS Send Cells";
         R1: Record "RVS Row";
         R2: Record "RVS Row";
@@ -826,13 +1364,36 @@ codeunit 76650 "RVS Send Order"
         Cells.NextInsert();
         Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '2');
+        Observer.Expect('row1', '2');
+        Observer.Expect('row2', '2');
+        Observer.Expect('value2', '2');
+        Observer.Expect('count', '0');
+        Observer.Expect('next', '3');
+        Observer.Expect('end', '3');
     end;
 
     [Test]
-    procedure RowVersionSend_PlainInsert_DeleteAllOtherTable()
+    procedure RowVersionSend_PlainInsertTwo_DeleteAllRecordRef()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            RowVersionSend_PlainInsertTwo_DeleteAllRecordRef_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        RowVersionSend_PlainInsertTwo_DeleteAllRecordRef_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure RowVersionSend_PlainInsert_DeleteAllOtherTable_Body(var Observer: Codeunit "Probe Observer")
+    var
         Cells: Codeunit "RVS Send Cells";
         R1: Record "RVS Row";
         Other: Record "RVS Other";
@@ -847,13 +1408,34 @@ codeunit 76650 "RVS Send Order"
         Cells.NextInsert();
         Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '0');
+        Observer.Expect('row1', '1');
+        Observer.Expect('value2', '1');
+        Observer.Expect('next', '2');
+        Observer.Expect('end', '2');
     end;
 
     [Test]
-    procedure RowVersionSend_PlainModifyAfterInsert()
+    procedure RowVersionSend_PlainInsert_DeleteAllOtherTable()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            RowVersionSend_PlainInsert_DeleteAllOtherTable_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        RowVersionSend_PlainInsert_DeleteAllOtherTable_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure RowVersionSend_PlainModifyAfterInsert_Body(var Observer: Codeunit "Probe Observer")
+    var
         Cells: Codeunit "RVS Send Cells";
         R1: Record "RVS Row";
     begin
@@ -868,13 +1450,34 @@ codeunit 76650 "RVS Send Order"
         Cells.NextInsert();
         Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '2');
+        Observer.Expect('row1', '2');
+        Observer.Expect('value2', '2');
+        Observer.Expect('next', '3');
+        Observer.Expect('end', '3');
     end;
 
     [Test]
-    procedure RowVersionSend_DeleteAfterInsert()
+    procedure RowVersionSend_PlainModifyAfterInsert()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            RowVersionSend_PlainModifyAfterInsert_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        RowVersionSend_PlainModifyAfterInsert_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure RowVersionSend_DeleteAfterInsert_Body(var Observer: Codeunit "Probe Observer")
+    var
         Cells: Codeunit "RVS Send Cells";
         R1: Record "RVS Row";
     begin
@@ -888,13 +1491,34 @@ codeunit 76650 "RVS Send Order"
         Cells.NextInsert();
         Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '1');
+        Observer.Expect('row1', '1');
+        Observer.Expect('value2', '1');
+        Observer.Expect('next', '2');
+        Observer.Expect('end', '2');
     end;
 
     [Test]
-    procedure RowVersionSend_RenameAfterInsert()
+    procedure RowVersionSend_DeleteAfterInsert()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            RowVersionSend_DeleteAfterInsert_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        RowVersionSend_DeleteAfterInsert_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure RowVersionSend_RenameAfterInsert_Body(var Observer: Codeunit "Probe Observer")
+    var
         Cells: Codeunit "RVS Send Cells";
         R1: Record "RVS Row";
     begin
@@ -908,13 +1532,34 @@ codeunit 76650 "RVS Send Order"
         Cells.NextInsert();
         Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '2');
+        Observer.Expect('row1', '2');
+        Observer.Expect('value2', '2');
+        Observer.Expect('next', '3');
+        Observer.Expect('end', '3');
     end;
 
     [Test]
-    procedure RowVersionSend_ModifyAllAfterInsert()
+    procedure RowVersionSend_RenameAfterInsert()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            RowVersionSend_RenameAfterInsert_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        RowVersionSend_RenameAfterInsert_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure RowVersionSend_ModifyAllAfterInsert_Body(var Observer: Codeunit "Probe Observer")
+    var
         Cells: Codeunit "RVS Send Cells";
         R1: Record "RVS Row";
         R2: Record "RVS Row";
@@ -937,13 +1582,37 @@ codeunit 76650 "RVS Send Order"
         Cells.NextInsert();
         Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '4');
+        Observer.Expect('row1', '2');
+        Observer.Expect('row2', '2');
+        Observer.Expect('get1', '3');
+        Observer.Expect('get2', '4');
+        Observer.Expect('value2', '4');
+        Observer.Expect('next', '5');
+        Observer.Expect('end', '5');
     end;
 
     [Test]
-    procedure RowVersionSend_TruncateAfterInsert()
+    procedure RowVersionSend_ModifyAllAfterInsert()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            RowVersionSend_ModifyAllAfterInsert_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        RowVersionSend_ModifyAllAfterInsert_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure RowVersionSend_TruncateAfterInsert_Body(var Observer: Codeunit "Probe Observer")
+    var
         Cells: Codeunit "RVS Send Cells";
         R1: Record "RVS Row";
         Row: Record "RVS Row";
@@ -958,13 +1627,34 @@ codeunit 76650 "RVS Send Order"
         Cells.NextInsert();
         Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '1');
+        Observer.Expect('row1', '1');
+        Observer.Expect('value2', '1');
+        Observer.Expect('next', '2');
+        Observer.Expect('end', '2');
     end;
 
     [Test]
-    procedure RowVersionSend_TwoTablesInsertModify()
+    procedure RowVersionSend_TruncateAfterInsert()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            RowVersionSend_TruncateAfterInsert_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        RowVersionSend_TruncateAfterInsert_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure RowVersionSend_TwoTablesInsertModify_Body(var Observer: Codeunit "Probe Observer")
+    var
         Cells: Codeunit "RVS Send Cells";
         R1: Record "RVS Row";
         O1: Record "RVS Other";
@@ -987,13 +1677,37 @@ codeunit 76650 "RVS Send Order"
         Cells.NextInsert();
         Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '0');
+        Observer.Expect('value modify1', '2');
+        Observer.Expect('value modify2', '4');
+        Observer.Expect('row1', '2');
+        Observer.Expect('other1', '4');
+        Observer.Expect('value2', '4');
+        Observer.Expect('next', '5');
+        Observer.Expect('end', '5');
     end;
 
     [Test]
-    procedure RowVersionSend_IssueOrder()
+    procedure RowVersionSend_TwoTablesInsertModify()
     var
         Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            RowVersionSend_TwoTablesInsertModify_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        RowVersionSend_TwoTablesInsertModify_Body(Observer);
+        Observer.Verify();
+    end;
+
+    local procedure RowVersionSend_IssueOrder_Body(var Observer: Codeunit "Probe Observer")
+    var
         Cells: Codeunit "RVS Send Cells";
         Row: Record "RVS Row";
         Other: Record "RVS Other";
@@ -1044,6 +1758,37 @@ codeunit 76650 "RVS Send Order"
         Cells.NextInsert();
         Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('watermark', '2');
+        Observer.Expect('value', '4');
+        Observer.Expect('config1/watermark', 'greater');
+        Observer.Expect('config1', '5');
+        Observer.Expect('config2/watermark', 'greater');
+        Observer.Expect('config2', '6');
+        Observer.Expect('config3/watermark', 'greater');
+        Observer.Expect('config3', '7');
+        Observer.Expect('row201/value', 'less');
+        Observer.Expect('row202/value', 'same');
+        Observer.Expect('value modify', '8');
+        Observer.Expect('next', '9');
+        Observer.Expect('end', '9');
+    end;
+
+    [Test]
+    procedure RowVersionSend_IssueOrder()
+    var
+        Observer: Codeunit "Probe Observer";
+        Attempt: Integer;
+    begin
+        // Another session or a background task of the BC service can write between two reads of LastUsedRowVersion; a run that
+        // saw such a write is repeated, a difference that is the same on every attempt still fails (issue 1063).
+        for Attempt := 1 to 4 do begin
+            Clear(Observer);
+            RowVersionSend_IssueOrder_Body(Observer);
+            if TryVerify(Observer) then
+                exit;
+        end;
+        Clear(Observer);
+        RowVersionSend_IssueOrder_Body(Observer);
+        Observer.Verify();
     end;
 }
