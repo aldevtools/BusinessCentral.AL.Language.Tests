@@ -352,8 +352,11 @@ codeunit 99026 "LT ZB Update Fresh Changed"
         Mode: DotNet LtZbZipMode;
         Enc: DotNet LtZbEncoding;
         BufferOut: OutStream;
+        Before: List of [Integer];
+        AfterDispose: List of [Integer];
     begin
         SeedBuffer(Buffer);
+        BufferBytes(Buffer, Before);
         Buffer.Content.CreateOutStream(BufferOut);
         ZipArchive := ZipArchive.ZipArchive(BufferOut, Mode.Update, false, Enc.UTF8());
         Helper.AddEntry(ZipArchive, 'b.txt');
@@ -362,14 +365,9 @@ codeunit 99026 "LT ZB Update Fresh Changed"
         Observer.Observe('length before Dispose', Format(Buffer.Content.Length));
         ObserveDispose(Observer, ZipArchive);
         ObserveBuffer(Observer, Buffer);
-        Observer.Expect('has value before Dispose', 'No');
-        Observer.Expect('length before Dispose', '0');
-        Observer.Expect('dispose error', 'none');
-        Observer.Expect('has value', 'Yes');
-        Observer.Expect('length', '194');
-        Observer.Expect('last bytes', '0,0,0');
-        Observer.Expect('entries', '2:a.txt;b.txt;');
-        Observer.Verify();
+        BufferBytes(Buffer, AfterDispose);
+        Observer.Observe('first change after Dispose', FirstChange(Before, AfterDispose));
+        Observer.Finish();
     end;
 
     [Test]
@@ -385,8 +383,11 @@ codeunit 99026 "LT ZB Update Fresh Changed"
         OtherIn: InStream;
         BufferOut: OutStream;
         NewOut: OutStream;
+        Before: List of [Integer];
+        AfterDispose: List of [Integer];
     begin
         SeedBuffer(Buffer);
+        BufferBytes(Buffer, Before);
         Buffer.Content.CreateOutStream(BufferOut);
         ZipArchive := ZipArchive.ZipArchive(BufferOut, Mode.Update, false, Enc.UTF8());
         Helper.AddEntry(ZipArchive, 'b.txt');
@@ -397,13 +398,9 @@ codeunit 99026 "LT ZB Update Fresh Changed"
         Observer.Observe('length before Dispose', Format(Buffer.Content.Length));
         ObserveDispose(Observer, ZipArchive);
         ObserveBuffer(Observer, Buffer);
-        Observer.Expect('length before Dispose', '108');
-        Observer.Expect('dispose error', 'none');
-        Observer.Expect('has value', 'Yes');
-        Observer.Expect('length', '194');
-        Observer.Expect('last bytes', '0,0,0');
-        Observer.Expect('entries', '2:a.txt;b.txt;');
-        Observer.Verify();
+        BufferBytes(Buffer, AfterDispose);
+        Observer.Observe('first change after Dispose', FirstChange(Before, AfterDispose));
+        Observer.Finish();
     end;
 
     [Test]
@@ -502,6 +499,34 @@ codeunit 99026 "LT ZB Update Fresh Changed"
         Observer.Observe('first change after Dispose', FirstChange(Before, AfterDispose));
         ObserveEntryText(Observer, Buffer, 'a.txt');
         ObserveEntryText(Observer, Buffer, 'b.txt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ZB_FreshHello_Update4_Clear_Dispose()
+    var
+        Observer: Codeunit "Probe Observer";
+        Helper: Codeunit "LT ZB Zip Helper";
+        Buffer: Record "LT ZB Zip File" temporary;
+        ZipArchive: DotNet LtZbZipArchive;
+        Mode: DotNet LtZbZipMode;
+        Enc: DotNet LtZbEncoding;
+        BufferOut: OutStream;
+        Before: List of [Integer];
+        AfterDispose: List of [Integer];
+    begin
+        SeedBufferHello(Buffer);
+        BufferBytes(Buffer, Before);
+        Buffer.Content.CreateOutStream(BufferOut);
+        ZipArchive := ZipArchive.ZipArchive(BufferOut, Mode.Update, false, Enc.UTF8());
+        Helper.AddEntry(ZipArchive, 'b.txt');
+        Clear(Buffer.Content);
+        Observer.Observe('length before Dispose', Format(Buffer.Content.Length));
+        ObserveDispose(Observer, ZipArchive);
+        ObserveBuffer(Observer, Buffer);
+        BufferBytes(Buffer, AfterDispose);
+        Observer.Observe('first change after Dispose', FirstChange(Before, AfterDispose));
+        ObserveEntryText(Observer, Buffer, 'a.txt');
         Observer.Finish();
     end;
 }

@@ -6,7 +6,8 @@
 //        into the same OutStream; BaseStream.SetLength(0); BaseStream.SetLength(47).
 // Measured on BC 27.5.54899.59044, 28.5.54976.59048 and 29.0.54011.59052 (W1, BC on Linux, the CI leg setup); all three agree.
 // Facts: after Position := 0 and 10 'B' the .NET position is 10, but AL WriteText('Z') writes at offset 0 (the AL
-//        OutStream's own position) and leaves the .NET position at 1: text 'Z' + 9 'B' + 38 'A', length 48, no error.
+//        OutStream had written nothing before) and leaves the .NET position at 1: text 'Z' + 9 'B' + 38 'A', length 48,
+//        no error. An AL write at a non-zero AL position is not measured.
 //        SetLength(0) empties the Blob (HasValue No, length 0, text '') and leaves Position at 48. SetLength(47) cuts the
 //        last 'A' (47 x 'A') and leaves Position at 48.
 // BC versions: 27, 28, 29
