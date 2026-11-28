@@ -39,8 +39,8 @@
 //     Variant cannot be type-converted to a Decimal value.' (TypeConversion:Overflow). JsonValue.ReadFrom of it, then AsDecimal:
 //     'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.Decimal18.'
 //     (Conversion). 9223372036854775807 into a Decimal holds 9223.37203685477581 e15.
-//   Codeunit 73592 (review cells, measured on a local BC 29.0.54011.57673 on 2026-11-28, asserted on BC 28 and later; on BC 27.5
-//   an observe round, red on purpose: #else ends with Finish()): the overflow boundary between the 18-digit MAX and the .NET
+//   Codeunit 73592 (review cells, measured on a local BC 29.0.54011.57673 on 2026-11-28; on BC 27.5 this pull request's CI
+//   observe run 46136358533 gave the same readings, both 27.5 legs alike, so they hold on every version with no version guard): the overflow boundary between the 18-digit MAX and the .NET
 //   maximum, the 19-digit literal alone, a negative mirror, Row.Amount := MAX alone and the field's range boundary, and two
 //   divisions past MAX. Readings (BC 29.0.54011.57673): 79228162514264337500000000000 + 49999999999, + 50000000000 and
 //   + 93543950335 (up to the exact .NET maximum) raise nothing and equal the 18-digit start value (the sum rounds back to it), and so
@@ -859,16 +859,12 @@ codeunit 73592 "LT DOV Boundary Tests"
         Cell(Observer, 'plus_93543950335');
         Cell(Observer, 'literal_19_digits');
         Cell(Observer, 'negative_minus_50000000000');
-#if BC28PLUS
         Observer.Expect('plus_49999999999', 'ok: big 79228162514264.3375 e15 equals D=Yes');
         Observer.Expect('plus_50000000000', 'ok: big 79228162514264.3375 e15 equals D=Yes');
         Observer.Expect('plus_93543950335', 'ok: big 79228162514264.3375 e15 equals D=Yes');
         Observer.Expect('literal_19_digits', 'ok: big 79228162514264.3375 e15 equals 79228162514264337500000000000=Yes');
         Observer.Expect('negative_minus_50000000000', 'ok: big -79228162514264.3375 e15 equals D=Yes');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     [Test]
@@ -879,14 +875,10 @@ codeunit 73592 "LT DOV Boundary Tests"
         Cell(Observer, 'field_assign_max');
         Cell(Observer, 'field_assign_1e15');
         Cell(Observer, 'field_assign_below_1e15');
-#if BC28PLUS
         Observer.Expect('field_assign_max', 'E: The value of Decimal parameter  is outside of the permitted range. The current value is: 79,228,162,514,264,337,500,000,000,000. The permitted range is: from -999,999,999,999,999.99 to 999,999,999,999,999.99. | OutsidePermittedRange');
         Observer.Expect('field_assign_1e15', 'E: The value of Decimal parameter  is outside of the permitted range. The current value is: 1,000,000,000,000,000. The permitted range is: from -999,999,999,999,999.99 to 999,999,999,999,999.99. | OutsidePermittedRange');
         Observer.Expect('field_assign_below_1e15', 'ok: 999999999999999.99');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     [Test]
@@ -896,12 +888,8 @@ codeunit 73592 "LT DOV Boundary Tests"
     begin
         Cell(Observer, 'max_div_half');
         Cell(Observer, '1e28_div_001');
-#if BC28PLUS
         Observer.Expect('max_div_half', 'E: Value was either too large or too small for a Decimal. | AL:Overflow');
         Observer.Expect('1e28_div_001', 'E: Value was either too large or too small for a Decimal. | AL:Overflow');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 }
