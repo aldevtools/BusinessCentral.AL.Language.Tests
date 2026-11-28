@@ -28,8 +28,8 @@
 //
 // The expected values are the readings this pull request's own CI printed in its observe round (test b ended with
 // Observer.Finish()), turned into Expect and Verify by convert.py per BC version, verbatim. 28.5 and 29.0 (the hub's Function
-// isolation) gave the same readings; 27.5 (130450, the Codeunit control) differs in every cell, so each asserted cell has a
-// BC28PLUS guard.
+// isolation) gave the same readings; 27.5 (130450, the Codeunit control) differs in every cell, so each asserted cell had a
+// BC28PLUS guard. Since the third fix below, E2, E3 and E1C read the same on every version and have no guard.
 // Measured on the CI legs 27.5, 28.5 and 29.0 (Linux):
 //   - Every cell: OnRun ran once on the instance (onrun_calls 1) and the codeunit's globals survived test a (initialized Yes),
 //     under both runners.
@@ -62,7 +62,18 @@
 // starts from a committed sequence whatever ran before it; the isolation then undoes only test a's own changes.
 // Second fix (E4b flaked on 28.5 after the Commit above: b_start was 'missing'): every E cell also commits in Initialize, at the
 // start of test a, so the sequence is committed whichever way OnRun reached it (made or found). No expected value changed.
-// Object ids 73330-73338.
+// Third fix (issue 1614; runs 45977641511 and 45980581207, BC 28.5 only): E2b and O1b still read b_start 'missing' now and
+// then, although test a had read the sequence and E2 commits in Prepare and in Initialize. On the 28.5 hub, the rollback
+// at the end of test a sometimes also undoes the sequence made during the run (in OnRun), Commit or not; the cells before
+// the failing one passed in the same run, and no other file uses these names, so it is not the run order. So:
+//   - E cells: install code (73339) makes their sequences when the app is installed, outside any test isolation, so they
+//     exist when the tests begin and no test rollback can undo them. OnRun now finds them ('found') on every version.
+//     Measured on a local BC 27.5 before this commit: every E cell read 'found' (that host's harness is not
+//     the Linux legs', so its b readings are not used).
+//     The onrun Expect is now 'found' without a version guard, and the CI legs check it.
+//   - O cells: their shape is a sequence created in OnRun, so install code cannot help. On 28 and later, b_start, b_taken
+//     and b_after are observed and not asserted (Observer.Ignore): the hub does not give one reading for them.
+// Object ids 73330-73339.
 // BC versions: 27.5, 28.5, 29.0
 
 // The sequence calls of the cells. The name is fixed per cell, so a sequence made by an earlier run is found again ('found').
@@ -275,11 +286,7 @@ codeunit 73332 "LT SQH E2 Existing CompanyWide"
         Observer.Observe('b_start', Seq.Rel(Name(), CompanyWide(), Base));
         Observer.Observe('b_taken', Seq.RelNext(Name(), CompanyWide(), Base));
         Observer.Observe('b_after', Seq.Rel(Name(), CompanyWide(), Base));
-#if BC28PLUS
-        Observer.Expect('onrun', 'created');
-#else
         Observer.Expect('onrun', 'found');
-#endif
         Observer.Expect('onrun_calls', '1');
         Observer.Expect('initialized', 'Yes');
         Observer.Expect('a_start', 'cur=S');
@@ -364,11 +371,7 @@ codeunit 73333 "LT SQH E3 Existing Next Commit"
         Observer.Observe('b_start', Seq.Rel(Name(), CompanyWide(), Base));
         Observer.Observe('b_taken', Seq.RelNext(Name(), CompanyWide(), Base));
         Observer.Observe('b_after', Seq.Rel(Name(), CompanyWide(), Base));
-#if BC28PLUS
-        Observer.Expect('onrun', 'created');
-#else
         Observer.Expect('onrun', 'found');
-#endif
         Observer.Expect('onrun_calls', '1');
         Observer.Expect('initialized', 'Yes');
         Observer.Expect('a_start', 'cur=S');
@@ -452,11 +455,7 @@ codeunit 73334 "LT SQH E4 Existing Restart"
         Observer.Observe('b_start', Seq.Rel(Name(), CompanyWide(), Base));
         Observer.Observe('b_taken', Seq.RelNext(Name(), CompanyWide(), Base));
         Observer.Observe('b_after', Seq.Rel(Name(), CompanyWide(), Base));
-#if BC28PLUS
-        Observer.Expect('onrun', 'created');
-#else
         Observer.Expect('onrun', 'found');
-#endif
         Observer.Expect('onrun_calls', '1');
         Observer.Expect('initialized', 'Yes');
         Observer.Expect('a_start', 'cur=S');
@@ -546,11 +545,7 @@ codeunit 73335 "LT SQH E5 Existing Delete"
         Observer.Observe('b_start', Seq.Rel(Name(), CompanyWide(), Base));
         Observer.Observe('b_taken', Seq.RelNext(Name(), CompanyWide(), Base));
         Observer.Observe('b_after', Seq.Rel(Name(), CompanyWide(), Base));
-#if BC28PLUS
-        Observer.Expect('onrun', 'created');
-#else
         Observer.Expect('onrun', 'found');
-#endif
         Observer.Expect('onrun_calls', '1');
         Observer.Expect('initialized', 'Yes');
         Observer.Expect('a_start', 'cur=S');
@@ -650,9 +645,16 @@ codeunit 73336 "LT SQH O1 OnRun Next"
         Observer.Expect('a_start', 'cur=S');
         Observer.Expect('a_changed', 'cur=S');
         Observer.Expect('a_taken', 'S');
+#if BC28PLUS
+        // Not asserted on 28+: the hub's Function isolation sometimes also rolls back the sequence OnRun created (see the header).
+        Observer.Ignore('b_start');
+        Observer.Ignore('b_taken');
+        Observer.Ignore('b_after');
+#else
         Observer.Expect('b_start', 'cur=S');
         Observer.Expect('b_taken', 'S+1');
         Observer.Expect('b_after', 'cur=S+1');
+#endif
         Observer.Verify();
     end;
 
@@ -736,9 +738,16 @@ codeunit 73337 "LT SQH O2 OnRun CompanyWide"
         Observer.Expect('a_start', 'cur=S');
         Observer.Expect('a_changed', 'cur=S');
         Observer.Expect('a_taken', 'S');
+#if BC28PLUS
+        // Not asserted on 28+: the hub's Function isolation sometimes also rolls back the sequence OnRun created (see the header).
+        Observer.Ignore('b_start');
+        Observer.Ignore('b_taken');
+        Observer.Ignore('b_after');
+#else
         Observer.Expect('b_start', 'cur=S');
         Observer.Expect('b_taken', 'S+1');
         Observer.Expect('b_after', 'cur=S+1');
+#endif
         Observer.Verify();
     end;
 
@@ -813,11 +822,7 @@ codeunit 73338 "LT SQH E1C Existing Next Late"
         Observer.Observe('b_start', Seq.Rel(Name(), CompanyWide(), Base));
         Observer.Observe('b_taken', Seq.RelNext(Name(), CompanyWide(), Base));
         Observer.Observe('b_after', Seq.Rel(Name(), CompanyWide(), Base));
-#if BC28PLUS
-        Observer.Expect('onrun', 'created');
-#else
         Observer.Expect('onrun', 'found');
-#endif
         Observer.Expect('onrun_calls', '1');
         Observer.Expect('initialized', 'Yes');
         Observer.Expect('a_start', 'cur=S');
@@ -848,5 +853,33 @@ codeunit 73338 "LT SQH E1C Existing Next Late"
         Commit();
         Base := Seq.CurrentOrZero(Name(), CompanyWide());
         IsInitialized := true;
+    end;
+}
+
+// Install code (issue 1614): makes the E cells' sequences when the app is installed, outside any test isolation, so a
+// test rollback cannot undo them. Same state as Prepare (Insert(Name, 1, 1), Next twice). Each one runs only when
+// NumberSequence.Exists says it is missing, so Insert cannot meet an existing name. No TryFunction: the first local
+// observe of the TryFunction form hung at the app install on two backends.
+codeunit 73339 "LT SQH Install"
+{
+    Subtype = Install;
+
+    trigger OnInstallAppPerCompany()
+    begin
+        Make('LTSQHE1', false);
+        Make('LTSQHE2', true);
+        Make('LTSQHE3', false);
+        Make('LTSQHE4', false);
+        Make('LTSQHE5', false);
+        Make('LTSQHE1C', false);
+    end;
+
+    local procedure Make(Name: Text; CompanyWide: Boolean)
+    begin
+        if NumberSequence.Exists(Name, CompanyWide) then
+            exit;
+        NumberSequence.Insert(Name, 1, 1, CompanyWide);
+        if NumberSequence.Next(Name, CompanyWide) = 0 then;
+        if NumberSequence.Next(Name, CompanyWide) = 0 then;
     end;
 }
