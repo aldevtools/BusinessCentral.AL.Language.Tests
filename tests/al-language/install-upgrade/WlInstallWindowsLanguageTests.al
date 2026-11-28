@@ -1,0 +1,186 @@
+// BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/application/system-application/table/system.globalization.windows-language
+//   and https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/triggers-auto/codeunit/codeunit-company-triggers
+// Scope: in-scope
+// Fixtures used: Probe Observer (69160); LT WLI Log, LT WLI State, LT WLI Subs (WlInstallWindowsLanguage.al).
+// Probe: al-runner issue 9046 (provider table 2000000045 "Windows Language", one of the reasons that tie the install order of an app that reads it
+//   on the codeunit 151 "System Initialization Impl." path). The claim: the install session reads the same rows in OnInstallAppPerDatabase,
+//   OnInstallAppPerCompany and the "Company Triggers" OnCompanyOpen subscriber of the install session as the test session does, so the install
+//   order cannot change what the table returns.
+// The extra read (LT WLI Subs.ReadWindowsLanguageExtra, the "Extra" field of the log; Stefan Maron's note on corpus PR 1609): a checksum over every field of every
+//   row (RecordRef, all FieldCount columns), a Get of 99999 and of 0 (no such row), Count() under a filter on Primary CodePage = '1' (the rows with no OEM
+//   code page) and on Language Tag = 'hy-AM'. The checksum value is not pinned (the Windows and the Linux row text differ, see AgWindowsLanguage.al): the
+//   claim is that it equals the test session's in every install step; the other parts are asserted. Values measured by corpus CI: see "Measured on" below.
+// The read (LT WLI Subs.ReadWindowsLanguage): Count(); Get of 1033, 1031, 1049 and 1067 (Armenian, a language with no OEM code page) with
+//   Name, Primary CodePage and Language Tag; FindSet over SetRange("Globally Enabled", true) with the rows iterated and the sum of their Language ID.
+// Observer.Verify compares in order: the Expect calls follow the order of the Observe calls.
+// Install-session rows are the rows with the session id of the install per database row. The test session is the control.
+//   Companies are numbered C1, C2, ... in the order of their first row (no names: the company order differs between hosts).
+// Expected values: the rows of record/table-properties/Y39WindowsLanguageTable.al (248 rows, all Globally Enabled, Language ID sum 1091889; lines 4 to 10
+//   are also the source of the extra read's fields=16 and codepage 1 count=44);
+//   Primary CodePage of 1067 is '1' on every major (corpus PR 1607).
+// No Initialize() with DeleteAll: the tests read the rows the install session wrote; deleting them would remove what is measured.
+// Measured on: BC 27.5, 28.5 and 29.0 in corpus CI (fresh install of every app; SaaS shards, OnPrem, OnPrem DotNet, TestLibraries and TryWrites runs). All three tests
+//   gave the same values on all three. The install session reads the same Windows Language rows in OnInstallAppPerDatabase, OnInstallAppPerCompany (both
+//   companies) and the OnCompanyOpen subscriber (both companies) as the test session: Count 248, 1033 English (United States) 437 en-US, 1031 German (Germany)
+//   850 de-DE, 1049 Russian (Russia) 866 ru-RU, 1067 Armenian (Armenia) with Primary CodePage 1 hy-AM, all 248 rows Globally Enabled (Language ID sum 1091889).
+//   The install session runs OnCompanyOpen, install per company for C1, then the same for C2, then install per database; it is a different session than
+//   the test session and left no rows in other sessions. The test session reads the same values in its own OnCompanyOpen subscriber and in the test procedure.
+//   The extra read gave the same on all three: rows 248, fields 16, a Get of 99999 and of 0 finds no row, Count 44 under Primary CodePage = '1', Count 1 under
+//   Language Tag = 'hy-AM'; the checksum over all fields of all rows was equal in every install step (OnInstallAppPerDatabase, OnInstallAppPerCompany of both
+//   companies, OnCompanyOpen of both companies) and the test session (corpus PR 1625).
+// Not measured: upgrade sessions (CI installs fresh, an upgrade trigger never runs here; the OnCompanyOpen subscriber also writes rows for an
+//   Upgrade context, so a later upgrade job reads them without a fixture change). A second company beyond the ones CI creates. The checksum value
+//   itself (only its equality across the install steps and the test session is asserted). Filters other than an equality SetRange (ranges, wildcards,
+//   a SetFilter expression). FindLast and descending order (SetCurrentKey with Ascending(false)).
+// BC versions: 27 - 29
+codeunit 96003 "LT WLI Install Tests"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    local procedure ExpectedRead(): Text
+    begin
+        exit('count=248,' +
+            '1033=Yes|English (United States)|437|en-US,' +
+            '1031=Yes|German (Germany)|850|de-DE,' +
+            '1049=Yes|Russian (Russia)|866|ru-RU,' +
+            '1067=Yes|Armenian (Armenia)|1|hy-AM,' +
+            'globally enabled findset=248|1091889');
+    end;
+
+    local procedure ExpectedExtra(): Text
+    begin
+        exit('rows=248,fields=16,checksum=*,99999=No,0=No,codepage 1 count=44,tag hy-AM count=1');
+    end;
+
+    local procedure WithoutChecksum(Extra: Text): Text
+    var
+        Start: Integer;
+        Stop: Integer;
+    begin
+        Start := StrPos(Extra, 'checksum=');
+        if Start = 0 then
+            exit(Extra);
+        Stop := StrPos(CopyStr(Extra, Start), ',') + Start - 1;
+        exit(CopyStr(Extra, 1, Start - 1) + 'checksum=*' + CopyStr(Extra, Stop));
+    end;
+
+    local procedure CompanyNo(var Companies: List of [Text]; Company: Text): Text
+    begin
+        if Company = '' then
+            exit('blank');
+        if not Companies.Contains(Company) then
+            Companies.Add(Company);
+        exit('C' + Format(Companies.IndexOf(Company)));
+    end;
+
+    local procedure InstallSessionId(): Integer
+    var
+        Log: Record "LT WLI Log";
+    begin
+        Log.SetRange(Kind, 'install per database');
+        if Log.FindFirst() then
+            exit(Log."Session Id");
+        exit(-1);
+    end;
+
+    [Test]
+    procedure InstallSession_WindowsLanguage_ReadsInEveryInstallStep()
+    // CLAIM: OnInstallAppPerDatabase, OnInstallAppPerCompany and OnCompanyOpen of the install session run in one session, in this order per
+    //   company, and each reads the 248 rows and the four fixed rows of Windows Language.
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Record "LT WLI Log";
+        Companies: List of [Text];
+        Sequence: Text;
+        InstallId: Integer;
+    begin
+        InstallId := InstallSessionId();
+        Observer.Observe('install per database row', Format(InstallId <> -1));
+        Log.SetCurrentKey(Id);
+        Log.SetRange("Session Id", InstallId);
+        if Log.FindSet() then
+            repeat
+                Sequence += Log.Kind + '|' + CompanyNo(Companies, Log.Company) + '|' + Log.Context + ';';
+                Observer.Observe(Log.Kind + ' ' + CompanyNo(Companies, Log.Company), Log."Read");
+            until Log.Next() = 0;
+        Observer.Observe('install session', Sequence);
+        Log.SetFilter("Session Id", '<>%1', InstallId);
+        Observer.Observe('rows of other sessions', Format(Log.Count()));
+        Observer.Observe('test session is the install session', Format(SessionId() = InstallId));
+        Log.SetRange("Session Id", InstallId);
+        if Log.FindSet() then
+            repeat
+                Observer.Observe(Log.Kind + ' ' + CompanyNo(Companies, Log.Company) + ' extra', WithoutChecksum(Log.Extra));
+            until Log.Next() = 0;
+        Observer.Expect('install per database row', 'Yes');
+        Observer.Expect('OnCompanyOpen C1', ExpectedRead());
+        Observer.Expect('install per company C1', ExpectedRead());
+        Observer.Expect('OnCompanyOpen C2', ExpectedRead());
+        Observer.Expect('install per company C2', ExpectedRead());
+        Observer.Expect('install per database blank', ExpectedRead());
+        Observer.Expect('install session', 'OnCompanyOpen|C1|Install;install per company|C1|Install;OnCompanyOpen|C2|Install;install per company|C2|Install;install per database|blank|Install;');
+        Observer.Expect('rows of other sessions', '0');
+        Observer.Expect('test session is the install session', 'No');
+        Observer.Expect('OnCompanyOpen C1 extra', ExpectedExtra());
+        Observer.Expect('install per company C1 extra', ExpectedExtra());
+        Observer.Expect('OnCompanyOpen C2 extra', ExpectedExtra());
+        Observer.Expect('install per company C2 extra', ExpectedExtra());
+        Observer.Expect('install per database blank extra', ExpectedExtra());
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure InstallSession_WindowsLanguage_SameAsTestSession()
+    // CLAIM: every read of the install session equals the same read in the test session, whatever the values are.
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Record "LT WLI Log";
+        Subs: Codeunit "LT WLI Subs";
+        Companies: List of [Text];
+        TestRead: Text;
+        TestExtra: Text;
+        Rows: Integer;
+    begin
+        TestRead := Subs.ReadWindowsLanguage();
+        TestExtra := Subs.ReadWindowsLanguageExtra();
+        Log.SetCurrentKey(Id);
+        Log.SetRange("Session Id", InstallSessionId());
+        if Log.FindSet() then
+            repeat
+                Rows += 1;
+                Observer.Observe(Log.Kind + ' ' + CompanyNo(Companies, Log.Company) + ' equals the test session', Format(Log."Read" = TestRead));
+                Observer.Observe(Log.Kind + ' ' + CompanyNo(Companies, Log.Company) + ' extra equals the test session', Format(Log.Extra = TestExtra));
+            until Log.Next() = 0;
+        Observer.Observe('install session rows', Format(Rows));
+        Observer.Expect('OnCompanyOpen C1 equals the test session', 'Yes');
+        Observer.Expect('OnCompanyOpen C1 extra equals the test session', 'Yes');
+        Observer.Expect('install per company C1 equals the test session', 'Yes');
+        Observer.Expect('install per company C1 extra equals the test session', 'Yes');
+        Observer.Expect('OnCompanyOpen C2 equals the test session', 'Yes');
+        Observer.Expect('OnCompanyOpen C2 extra equals the test session', 'Yes');
+        Observer.Expect('install per company C2 equals the test session', 'Yes');
+        Observer.Expect('install per company C2 extra equals the test session', 'Yes');
+        Observer.Expect('install per database blank equals the test session', 'Yes');
+        Observer.Expect('install per database blank extra equals the test session', 'Yes');
+        Observer.Expect('install session rows', '5');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TestSession_Control_WindowsLanguage_InSubscriberAndTestProcedure()
+    // CLAIM: the test session reads the same rows in its own OnCompanyOpen subscriber and in the test procedure.
+    var
+        Observer: Codeunit "Probe Observer";
+        State: Codeunit "LT WLI State";
+        Subs: Codeunit "LT WLI Subs";
+    begin
+        Observer.Observe('subscriber in the test session', State.AsText());
+        Observer.Observe('test procedure', Subs.ReadWindowsLanguage());
+        Observer.Observe('test procedure extra', WithoutChecksum(Subs.ReadWindowsLanguageExtra()));
+        Observer.Expect('subscriber in the test session', 'OnCompanyOpen|' + ExpectedRead() + ';');
+        Observer.Expect('test procedure', ExpectedRead());
+        Observer.Expect('test procedure extra', ExpectedExtra());
+        Observer.Verify();
+    end;
+}
