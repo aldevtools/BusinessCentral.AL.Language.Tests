@@ -15,7 +15,7 @@
 // ClearAll separate "reset" from "never set". al-runner issue 8964.
 // singleinstance-shared-on-purpose: the subject is SingleInstance codeunits held below a register that ClearAll resets.
 // BC versions: 27, 28, 29
-// What BC did (observed on local BC 29.0; the pull request CI run asserts the same values on 27.5, 28.5 and 29.0):
+// What BC did (local BC 27.5, 28.5 and 29.0 legs gave the same values; the pull request CI run asserts them on 27, 28, 29):
 // - Register never called, owner ClearAll: every plain global of the register, A, B, the A below B and W reads its default
 //   (records: no field values, no filters; temporary records: no rows; Integer 0, Date 0D, Booleans false). Labels keep their
 //   text. The SingleInstance U (reached as B.U, A.U and B.A.U) keeps the record field value, filter and Txt primed through
