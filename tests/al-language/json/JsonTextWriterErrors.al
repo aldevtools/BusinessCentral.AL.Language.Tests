@@ -27,8 +27,8 @@
 //   PropertyAfterEnd raises nothing. A call before the writer exists: 'A DotNet variable has not been instantiated. Attempting to
 //   call Newtonsoft.Json.JsonTextWriter.WriteEndObject in CodeUnit Json Text Reader/Writer: WriteEndObject'
 //   (DotNetVariableNotCreated). The control writes {"a":"x"}.
-//   Review additions (asserted on BC 28 and later from a local BC 29.0.54011.57673 run on 2026-11-28; on BC 27.5 they are an
-//   observe round, red on purpose: #else ends with Finish()):
+//   Review additions (measured on a local BC 29.0.54011.57673 on 2026-11-28; on BC 27.5 by this pull request's CI observe run
+//   46135846648, both 27.5 legs alike; one block where 27.5 equals BC 29, #if BC28PLUS / #else where it differs):
 //   WriterText_AfterScenarios: GetJSonAsText after PropertyAfterEnd (no error) is '{}"a":"x"' (the writer keeps writing past the
 //   closed object), and after a caught EndObjectTwice on the same writer it is '{}'; both writers unformatted (SetDoNotFormat).
 // BC versions: 27, 28, 29 by CI
@@ -220,14 +220,10 @@ codeunit 73475 "LT JTW Writer Error Tests"
         Observer.Observe('end_object_twice_ok', Format(TryRunOn(Writer2, 'EndObjectTwice')));
         ClearLastError();
         Observer.Observe('end_object_twice_json', Writer2.GetJSonAsText());
-#if BC28PLUS
         Observer.Expect('property_after_end_ok', 'Yes');
         Observer.Expect('property_after_end_json', '{}"a":"x"');
         Observer.Expect('end_object_twice_ok', 'No');
         Observer.Expect('end_object_twice_json', '{}');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 }

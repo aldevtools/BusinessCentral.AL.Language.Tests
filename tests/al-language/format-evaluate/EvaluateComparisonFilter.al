@@ -16,8 +16,8 @@
 //   25 spaces fail: the Boolean form returns No and leaves the target at 7; the statement raises 'The value "<text>" can't be
 //   evaluated into type <Decimal|Integer|BigInteger>.' with GetLastErrorCode 'Evaluate'. ' 300' and '300 ' evaluate to 300 in both
 //   forms.
-//   Review additions (asserted on BC 28 and later from a local BC 29.0.54011.57673 run on 2026-11-28; on BC 27.5 they are an
-//   observe round, red on purpose: #else ends with Finish()):
+//   Review additions (measured on a local BC 29.0.54011.57673 on 2026-11-28; on BC 27.5 by this pull request's CI observe run
+//   46135846648, both 27.5 legs alike; one block where 27.5 equals BC 29, #if BC28PLUS / #else where it differs):
 //   AllTargets_OneSpace: a text of one space fails like the 25-space text: No and the target unchanged, and 'The value " " can't
 //   be evaluated into type <Decimal|Integer|BigInteger>.' (Evaluate).
 // BC versions: 27, 28, 29 by CI
@@ -399,7 +399,6 @@ codeunit 73477 "LT ECF Evaluate Tests"
         Probe.CellInt(Observer, ' ');
         Probe.CellBig(Observer, ' ');
         Probe.CellField(Observer, ' ');
-#if BC28PLUS
         Observer.Expect('[ ] bool', 'No 7');
         Observer.Expect('[ ] stmt', 'E: The value " " can''t be evaluated into type Decimal. | Evaluate');
         Observer.Expect('[ ] bool', 'No 7');
@@ -409,8 +408,5 @@ codeunit 73477 "LT ECF Evaluate Tests"
         Observer.Expect('[ ] bool', 'No 7');
         Observer.Expect('[ ] stmt', 'E: The value " " can''t be evaluated into type Decimal. | Evaluate');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 }

@@ -44,12 +44,15 @@
 //     date-format error for '123'.
 //   - Validate of Code 'ABC', Code '123' or Text 'XY' into Guid: typed, 'Invalid format of GUID string. ...' (InvalidGuidFormat);
 //     through a Variant, 'The value "ABC" can't be evaluated into type GUID.' (Evaluate:Argument). The two forms differ.
-//   Review additions (asserted on BC 28 and later from a local BC 29.0.54011.57673 run on 2026-11-28; on BC 27.5 they are an
-//   observe round, red on purpose: #else ends with Finish()):
+//   Review additions (measured on a local BC 29.0.54011.57673 on 2026-11-28; on BC 27.5 by this pull request's CI observe run
+//   46135846648, both 27.5 legs alike; one block where 27.5 equals BC 29, #if BC28PLUS / #else where it differs):
 //   codeunit 73478: Boolean true into BigInteger, Integer and Decimal gives 1 by every method (the ordinal, not a default 0); into
 //   Option B by SetRange and SetFilter and 1 by Value and Validate; into Date and Guid the 'Yes' form of the errors. Decimal 2
 //   into BigInteger and Integer gives 2 (only a fraction overflows), into Boolean Yes / true, into Option C by the filters and 2 by
 //   Value and Validate. Code '1' into the Option field gives B by the filters and 1 by Value and Validate.
+//   On 27.5 BoolTrue_D gives 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBoolean to System.DateTime.' (Conversion)
+//   and BoolTrue_G 'Invalid Conversion. Source: NavBoolean, Destination: NavGuid.' (Argument) by every method, as BoolFalse_D and
+//   BoolFalse_G; every other review cell equals BC 29.
 // BC versions: 27, 28, 29 by CI
 table 73470 "LT FRC Row"
 {
@@ -1043,15 +1046,11 @@ codeunit 73478 "LT FRC More Tests"
     begin
         X := true;
         Probe.CellsBool(2, X);
-#if BC28PLUS
         Probe.Expect('r', 'ok: 1');
         Probe.Expect('f', 'ok: 1');
         Probe.Expect('v', 'ok: 1');
         Probe.Expect('d', 'ok: 1');
         Probe.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Probe.Finish();
-#endif
     end;
 
     // Boolean true into the field Int.
@@ -1063,15 +1062,11 @@ codeunit 73478 "LT FRC More Tests"
     begin
         X := true;
         Probe.CellsBool(3, X);
-#if BC28PLUS
         Probe.Expect('r', 'ok: 1');
         Probe.Expect('f', 'ok: 1');
         Probe.Expect('v', 'ok: 1');
         Probe.Expect('d', 'ok: 1');
         Probe.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Probe.Finish();
-#endif
     end;
 
     // Boolean true into the field Dec.
@@ -1083,15 +1078,11 @@ codeunit 73478 "LT FRC More Tests"
     begin
         X := true;
         Probe.CellsBool(4, X);
-#if BC28PLUS
         Probe.Expect('r', 'ok: 1');
         Probe.Expect('f', 'ok: 1');
         Probe.Expect('v', 'ok: 1');
         Probe.Expect('d', 'ok: 1');
         Probe.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Probe.Finish();
-#endif
     end;
 
     // Boolean true into the field Opt.
@@ -1103,15 +1094,11 @@ codeunit 73478 "LT FRC More Tests"
     begin
         X := true;
         Probe.CellsBool(9, X);
-#if BC28PLUS
         Probe.Expect('r', 'ok: B');
         Probe.Expect('f', 'ok: B');
         Probe.Expect('v', 'ok: 1');
         Probe.Expect('d', 'ok: 1');
         Probe.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Probe.Finish();
-#endif
     end;
 
     // Boolean true into the field D.
@@ -1129,8 +1116,12 @@ codeunit 73478 "LT FRC More Tests"
         Probe.Expect('v', 'E: The format of the Date ''Yes'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
         Probe.Expect('d', 'E: The format of the Date ''Yes'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. | Evaluate:Conversion');
         Probe.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Probe.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46135846648 on 27.5 (both 27.5 legs agree)
+        Probe.Expect('r', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBoolean to System.DateTime. | Conversion');
+        Probe.Expect('f', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBoolean to System.DateTime. | Conversion');
+        Probe.Expect('v', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBoolean to System.DateTime. | Conversion');
+        Probe.Expect('d', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavBoolean to System.DateTime. | Conversion');
+        Probe.Verify();
 #endif
     end;
 
@@ -1149,8 +1140,12 @@ codeunit 73478 "LT FRC More Tests"
         Probe.Expect('v', 'E: The value "Yes" can''t be evaluated into type GUID. | Evaluate:Argument');
         Probe.Expect('d', 'E: The value "Yes" can''t be evaluated into type GUID. | Evaluate:Argument');
         Probe.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Probe.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46135846648 on 27.5 (both 27.5 legs agree)
+        Probe.Expect('r', 'E: Invalid Conversion. Source: NavBoolean, Destination: NavGuid. | Argument');
+        Probe.Expect('f', 'E: Invalid Conversion. Source: NavBoolean, Destination: NavGuid. | Argument');
+        Probe.Expect('v', 'E: Invalid Conversion. Source: NavBoolean, Destination: NavGuid. | Argument');
+        Probe.Expect('d', 'E: Invalid Conversion. Source: NavBoolean, Destination: NavGuid. | Argument');
+        Probe.Verify();
 #endif
     end;
 
@@ -1163,15 +1158,11 @@ codeunit 73478 "LT FRC More Tests"
     begin
         X := 2;
         Probe.CellsDec(2, X);
-#if BC28PLUS
         Probe.Expect('r', 'ok: 2');
         Probe.Expect('f', 'ok: 2');
         Probe.Expect('v', 'ok: 2');
         Probe.Expect('d', 'ok: 2');
         Probe.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Probe.Finish();
-#endif
     end;
 
     // Decimal 2 into the field Int.
@@ -1183,15 +1174,11 @@ codeunit 73478 "LT FRC More Tests"
     begin
         X := 2;
         Probe.CellsDec(3, X);
-#if BC28PLUS
         Probe.Expect('r', 'ok: 2');
         Probe.Expect('f', 'ok: 2');
         Probe.Expect('v', 'ok: 2');
         Probe.Expect('d', 'ok: 2');
         Probe.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Probe.Finish();
-#endif
     end;
 
     // Decimal 2 into the field Bool.
@@ -1203,15 +1190,11 @@ codeunit 73478 "LT FRC More Tests"
     begin
         X := 2;
         Probe.CellsDec(8, X);
-#if BC28PLUS
         Probe.Expect('r', 'ok: Yes');
         Probe.Expect('f', 'ok: Yes');
         Probe.Expect('v', 'ok: true');
         Probe.Expect('d', 'ok: true');
         Probe.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Probe.Finish();
-#endif
     end;
 
     // Decimal 2 into the field Opt.
@@ -1223,15 +1206,11 @@ codeunit 73478 "LT FRC More Tests"
     begin
         X := 2;
         Probe.CellsDec(9, X);
-#if BC28PLUS
         Probe.Expect('r', 'ok: C');
         Probe.Expect('f', 'ok: C');
         Probe.Expect('v', 'ok: 2');
         Probe.Expect('d', 'ok: 2');
         Probe.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Probe.Finish();
-#endif
     end;
 
     // Code '1' into the field Opt.
@@ -1243,14 +1222,10 @@ codeunit 73478 "LT FRC More Tests"
     begin
         X := '1';
         Probe.CellsCode(9, X);
-#if BC28PLUS
         Probe.Expect('r', 'ok: B');
         Probe.Expect('f', 'ok: B');
         Probe.Expect('v', 'ok: 1');
         Probe.Expect('d', 'ok: 1');
         Probe.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Probe.Finish();
-#endif
     end;
 }
