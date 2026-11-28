@@ -11,15 +11,17 @@ namespace ALLanguage.IsolationProbe;
 // Codeunit.Run with a return value, TestIsolation = Codeunit.
 // Fixtures used: SqMixedAccessFixture.al ("LT SQM Row", "LT SQM Entry", "LT SQM Entry2", "LT SQM Row Card",
 // "LT SQM Row Query", "LT SQM Row Report", "LT SQM Seq", "LT SQM Access", "LT SQM Preview").
-// Each cell is one test codeunit: test a sets up, test b (and b2) fails on purpose (PN and XP are controls in which b
-// passes), test c reads the state and asserts it in the same codeunit (no SingleInstance log, AL Runner issue 8520).
+// Each cell is one test codeunit: test a sets up, test b (and b2) fails on purpose (XP is a control in which b passes; in
+// PN, b would pass but the guarded Codeunit.Run fails it), test c reads the state and asserts it in the same codeunit (no
+// SingleInstance log, AL Runner issue 8520).
 // M, N, P and F cells use a new sequence: its name carries a token made once per codeunit run. X cells (and FE) use a
 // sequence that existed when the tests began (OnRun makes it when it is missing; the name is fixed per cell), and read
 // every number relative to S, the Current value test a found, because numbers taken with Next stay taken from run to run.
 // Readings of test c: onrun = what OnRun found (X cells); initialized = the codeunit's globals survived; start, changed,
 // taken = the start state, the state right after the helper's step and the number test b took (X cells); pv = what the
 // posting preview step returned ('run:' and nothing after it: the Codeunit.Run call raised; 'No:''': it returned false
-// with an empty last error; 'asserterror:''': the asserterror caught an empty error); name and preview = state of the
+// with an empty last error; 'asserterror:''': the asserterror caught an empty error; PT: 'run:asserterror:'<text>'
+// code:'<code>'': GetLastErrorText and GetLastErrorCode after the asserterror); name and preview = state of the
 // sequence Name and 'Preview' + Name ('missing' or cur=<Current>); name2, preview2, entries2 = the same for the second
 // entry table (M2); rows = keys of "LT SQM Row"; entries = Entry Nos. of "LT SQM Entry"; next and preview next = what
 // NumberSequence.Next returns then; name after = state after that.
@@ -30,28 +32,34 @@ namespace ALLanguage.IsolationProbe;
 // nightly only.
 //
 // What BC does:
-// - Cell 1 (one stretch mixes access kinds). A sequence the helper made before a Commit() survives the failed test when
-//   that stretch also wrote a table: MA (Record write, temporary Record, session builtins, Query read, RecordRef calls), MW
-//   (Record write only), MT, MB, MQ, MK, MP, MR (Record write plus one more kind) and M2 (two tables and two sequences)
-//   all keep the sequence, the entry and the row written before the Commit(); the row written after it is gone. Without
+// - Cell 1 (one stretch mixes access kinds). A sequence the helper made before a Commit() survives the failed test. The
+//   helper's own entry insert is already a table write in every M cell; the cells vary only what comes on top of it: MA
+//   (Record write, temporary Record, session builtins, Query read, RecordRef calls), MW (a second Record write only), MT,
+//   MB, MQ, MK, MP, MR (a Record write plus one more kind) and M2 (two tables and two sequences) all keep the sequence,
+//   the entry and the row written before the Commit(); the row written after it is gone. Without
 //   the Commit() (MN) the failed test undoes everything: sequence, preview sequence, entry and rows.
 // - What counts as table access (raw NumberSequence.Insert and Next, no other table access before the Commit()): a
 //   temporary Record (NT), session builtins (NB), RecordRef calls without a read (NK) and all three together (NA) do not
 //   count: the sequence is gone. A Query read (NQ), Page.Run of a card (NP) and Report.SaveAs Xml (NR) count: the
 //   sequence is kept (cur=0: the raw Next took 0, the first number of Insert(Name, 0, 1)).
-// - Cell 2 (a guarded Codeunit.Run, return value used, as the posting preview runs). Inside a write transaction (a table
-//   write since the last commit) the Codeunit.Run call raises instead of returning a value: PA (engine ends with
+// - Cell 2 (a guarded Codeunit.Run, return value used, as the posting preview runs). After a table write or a locking
+//   read since the last commit, the Codeunit.Run call raises instead of returning a value: PA (engine ends with
 //   Error('')), PF (engine ends normally), PG (engine ends with an error text), PC (no Commit), PD (engine takes no
-//   number) and XD (existing sequence). The failed test b reports "An error occurred and the transaction is stopped.
+//   number), XD (existing sequence), RW (helper, Commit(), a Record write, then the Run) and RL (helper, Commit(),
+//   LockTable and FindFirst, then the Run). The failed test b reports "An error occurred and the transaction is stopped.
 //   Contact your administrator or partner for further assistance." and everything since the last commit is gone. In the
-//   control PN, in which test b would pass, the same error fails it.
-// - With no table write since the last commit the guarded Codeunit.Run returns false with an empty last error
-//   (pv=run:No:''). PH (helper, Commit(), then the Run): the number the engine took stays taken (cur=2); the engine's row
-//   and entry are undone; the rest is kept. XF (existing sequence: the restart is committed, then the Run): the same,
-//   the restart is kept and the Run's number stays taken (cur=S+7). PI (raw Insert and Next, then the Run, then mixed
-//   kinds, Commit(), write): the sequence is gone although the row B1 written after the Run is kept: the Run's rollback
-//   also undid the Insert made before it in the same transaction. PJ (PI without the mixed kinds) and PE (engine takes no
-//   number): sequence and rows gone.
+//   control PN, in which test b would pass, the same error fails it. PT catches the raise with asserterror:
+//   GetLastErrorText() is that text and GetLastErrorCode() is 'DB:Ok'; the helper's sequence insert and the row B1 before
+//   it are undone, the sequence is missing.
+// - With no table write and no lock since the last commit the guarded Codeunit.Run returns false with an empty last
+//   error (pv=run:No:''). PH (helper, Commit(), then the Run): the number the engine took stays taken (cur=2); the
+//   engine's row and entry are undone; the rest is kept. RR (PH plus a Record FindFirst before the Run) and RQ (PH plus
+//   a Query read) give the same readings as PH: a plain read does not make the Run raise. XF (existing sequence: the
+//   restart is committed, then the Run): the same, the restart is kept and the Run's number stays taken (cur=S+7). PI
+//   (raw Insert and Next, then the Run, then mixed kinds, Commit(), write): the sequence is gone although the row B1
+//   written after the Run is kept. PK (PI with an engine that takes no number) gives the same: the Run's rollback undoes
+//   the Insert made before it in the same transaction, whether or not the engine used that sequence. PJ (PI without the
+//   mixed kinds) and PE (engine takes no number, no mixed kinds): sequence and rows gone.
 // - PB (asserterror of a plain call that writes a row, takes a number and ends with Error('')): the asserterror catches
 //   an empty error and undoes the sequence insert of the helper before it together with the entry; the row B1 written
 //   after it and committed is kept; the sequence is missing.
@@ -3394,7 +3402,7 @@ codeunit 79572 "LT SQM RR"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
         Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
         Actual += ' | name after=' + Seq.State(Name());
-        if Actual <> 'TBD' then
+        if Actual <> 'initialized=Yes | pv=run:No:'''' | name=cur=2 | preview=cur=-2000000001 | rows=B1,INIT | entries=1 | next=3 | preview next=-2000000000 | name after=cur=3' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -3472,7 +3480,7 @@ codeunit 79573 "LT SQM RQ"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
         Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
         Actual += ' | name after=' + Seq.State(Name());
-        if Actual <> 'TBD' then
+        if Actual <> 'initialized=Yes | pv=run:No:'''' | name=cur=2 | preview=cur=-2000000001 | rows=B1,INIT | entries=1 | next=3 | preview next=-2000000000 | name after=cur=3' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -3550,7 +3558,7 @@ codeunit 79574 "LT SQM RL"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
         Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
         Actual += ' | name after=' + Seq.State(Name());
-        if Actual <> 'TBD' then
+        if Actual <> 'initialized=Yes | pv=run: | name=cur=1 | preview=cur=-2000000001 | rows=INIT | entries=1 | next=2 | preview next=-2000000000 | name after=cur=2' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -3628,7 +3636,7 @@ codeunit 79575 "LT SQM RW"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
         Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
         Actual += ' | name after=' + Seq.State(Name());
-        if Actual <> 'TBD' then
+        if Actual <> 'initialized=Yes | pv=run: | name=cur=1 | preview=cur=-2000000001 | rows=INIT | entries=1 | next=2 | preview next=-2000000000 | name after=cur=2' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -3705,7 +3713,7 @@ codeunit 79576 "LT SQM PK"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
         Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
         Actual += ' | name after=' + Seq.State(Name());
-        if Actual <> 'TBD' then
+        if Actual <> 'initialized=Yes | pv=run:No:'''' | name=missing | preview=missing | rows=B1,INIT | entries=none | next=missing | preview next=missing | name after=missing' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -3779,7 +3787,7 @@ codeunit 79577 "LT SQM PT"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
         Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
         Actual += ' | name after=' + Seq.State(Name());
-        if Actual <> 'TBD' then
+        if Actual <> 'initialized=Yes | pv=run:asserterror:''An error occurred and the transaction is stopped. Contact your administrator or partner for further assistance.'' code:''DB:Ok'' | name=missing | preview=missing | rows=INIT | entries=none | next=missing | preview next=missing | name after=missing' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
