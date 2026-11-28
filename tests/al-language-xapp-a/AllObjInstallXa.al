@@ -3,7 +3,7 @@
 // xapp-d/AllObjInstallXd.al) calls Probe of the hub below. For each of the apps A, B and D (the installing app itself included) Probe notes whether
 // AllObj and AllObjWithCaption have a row for that app's table (types Table and TableData) and install codeunit, whether NAV App Installed App has
 // the app and whether NavApp.GetModuleInfo finds it. Then it counts the AllObj and AllObjWithCaption rows filtered on "App Package ID", for every
-// package id that has an object in the id blocks of the cross-app fixtures. B and D have no dependency path to each other, both depend on A.
+// package id of the main test app and of XApp A, B, C, D, N and T (one named object each, see TryPackages). B and D have no dependency path to each other, both depend on A.
 // The test "LT Y79 Install Unrelated" (94170, tests/al-language/install-upgrade/install-triggers/Y79InstallUnrelated.al) reads the notes back
 // and orders the installs by the first note of each app.
 // Install code must never fail (check-install-triggers.py): every read runs in a TryFunction that writes nothing, and the only write is
@@ -108,7 +108,7 @@ codeunit 94693 "INS AllObj Inst Hub"
             Note(Tag, 'error ' + GetLastErrorCode());
     end;
 
-    // For every package id that has an AllObj row in the id blocks of the cross-app fixtures: the count of AllObj and of AllObjWithCaption rows
+    // For the package id of each app that owns one of the named objects in TryPackages: the count of AllObj and of AllObjWithCaption rows
     // filtered on that "App Package ID" alone. Tag: App|Phase|pkg|<package id>, value: allobj=<n>;caption=<n>.
     local procedure PackageCounts(App: Text; Phase: Text)
     var
@@ -187,7 +187,9 @@ codeunit 94693 "INS AllObj Inst Hub"
     var
         Obj: Record AllObj;
     begin
-        Obj.SetFilter("Object ID", '50100|61100..61399|94440..96309|97810..97824');
+        // One named object per app (main test app, XApp A, B, C, D, N, T), single ids only (CONTRIBUTING.md, standing rule 10).
+        Obj.SetFilter("Object Type", '%1|%2', Obj."Object Type"::Table, Obj."Object Type"::Codeunit);
+        Obj.SetFilter("Object ID", '61121|61386|61396|94170|94697|97810|97815');
         if Obj.FindSet() then
             repeat
                 if not Packages.Contains(Obj."App Package ID") then
