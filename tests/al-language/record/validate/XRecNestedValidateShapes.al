@@ -550,6 +550,10 @@ table 77468 "XNV Proc Line"
                 Series := 'MID';
                 if Cfg.Get().EndsWith('outer-assign') then
                     xRec.Series := 'OUT';
+                if Cfg.Get() = 'self-filter' then
+                    xRec.SetRange(Series, 'F');
+                if Cfg.Get() = 'self-marked' then
+                    xRec.MarkedOnly(true);
                 case true of
                     Cfg.Get().StartsWith('direct'):
                         Validate(Mode, Mode::Production);
@@ -1340,6 +1344,7 @@ codeunit 77473 "XNV Tests"
         Line.Validate("Item No.", 'I2');
         Observer.Observe('log', Cfg.Take());
         Observer.Observe('record', Format(Line.Mode, 0, 2) + '/' + Line.Series + '/' + Line."Item No.");
+        Observer.Observe('caller filters', Line.GetFilters());
         Cfg.Set('');
         Observer.Finish();
     end;
@@ -1362,6 +1367,7 @@ codeunit 77473 "XNV Tests"
         Line.Validate("Item No.", 'I2');
         Observer.Observe('log', Cfg.Take());
         Observer.Observe('record', Format(Line.Mode, 0, 2) + '/' + Line.Series + '/' + Line."Item No.");
+        Observer.Observe('caller marked', Format(Line.MarkedOnly()));
         Cfg.Set('');
         Observer.Finish();
     end;
@@ -1450,6 +1456,7 @@ codeunit 77473 "XNV Tests"
         Line.Validate("Item No.", 'I2');
         Observer.Observe('log', Cfg.Take());
         Observer.Observe('record', Format(Line.Mode, 0, 2) + '/' + Line.Series + '/' + Line."Item No.");
+        Observer.Observe('caller filters', Line.GetFilters());
         Cfg.Set('');
         Observer.Finish();
     end;
@@ -1472,6 +1479,7 @@ codeunit 77473 "XNV Tests"
         Line.Validate("Item No.", 'I2');
         Observer.Observe('log', Cfg.Take());
         Observer.Observe('record', Format(Line.Mode, 0, 2) + '/' + Line.Series + '/' + Line."Item No.");
+        Observer.Observe('caller marked', Format(Line.MarkedOnly()));
         Cfg.Set('');
         Observer.Finish();
     end;
@@ -1560,6 +1568,7 @@ codeunit 77473 "XNV Tests"
         Line.Validate("Item No.", 'I2');
         Observer.Observe('log', Cfg.Take());
         Observer.Observe('record', Format(Line.Mode, 0, 2) + '/' + Line.Series + '/' + Line."Item No.");
+        Observer.Observe('caller filters', Line.GetFilters());
         Cfg.Set('');
         Observer.Finish();
     end;
@@ -1582,6 +1591,7 @@ codeunit 77473 "XNV Tests"
         Line.Validate("Item No.", 'I2');
         Observer.Observe('log', Cfg.Take());
         Observer.Observe('record', Format(Line.Mode, 0, 2) + '/' + Line.Series + '/' + Line."Item No.");
+        Observer.Observe('caller marked', Format(Line.MarkedOnly()));
         Cfg.Set('');
         Observer.Finish();
     end;
@@ -1604,6 +1614,52 @@ codeunit 77473 "XNV Tests"
         Line.Validate("Item No.", 'I2');
         Observer.Observe('log', Cfg.Take());
         Observer.Observe('record', Format(Line.Mode, 0, 2) + '/' + Line.Series + '/' + Line."Item No.");
+        Cfg.Set('');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Validate_OuterOwnXRecFilter_Observed()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XNV Proc Line";
+    begin
+        Line.DeleteAll();
+        Line.Init();
+        Line."Line No." := 1;
+        Line.Mode := Line.Mode::Purchase;
+        Line.Series := 'OLD';
+        Line."Item No." := 'I1';
+        Line.Insert(false);
+        Line.Series := 'NEW';
+        Cfg.Set('self-filter');
+        Line.Validate("Item No.", 'I2');
+        Observer.Observe('log', Cfg.Take());
+        Observer.Observe('record', Format(Line.Mode, 0, 2) + '/' + Line.Series + '/' + Line."Item No.");
+        Observer.Observe('caller filters', Line.GetFilters());
+        Cfg.Set('');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Validate_OuterOwnXRecMarkedOnly_Observed()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XNV Proc Line";
+    begin
+        Line.DeleteAll();
+        Line.Init();
+        Line."Line No." := 1;
+        Line.Mode := Line.Mode::Purchase;
+        Line.Series := 'OLD';
+        Line."Item No." := 'I1';
+        Line.Insert(false);
+        Line.Series := 'NEW';
+        Cfg.Set('self-marked');
+        Line.Validate("Item No.", 'I2');
+        Observer.Observe('log', Cfg.Take());
+        Observer.Observe('record', Format(Line.Mode, 0, 2) + '/' + Line.Series + '/' + Line."Item No.");
+        Observer.Observe('caller marked', Format(Line.MarkedOnly()));
         Cfg.Set('');
         Observer.Finish();
     end;
