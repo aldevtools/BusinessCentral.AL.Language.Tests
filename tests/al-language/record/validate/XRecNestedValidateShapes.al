@@ -29,8 +29,10 @@
 //     (also with two procedures); the outer trigger's own xRec.SetRange / MarkedOnly(true) without nesting;
 //   - the same [TryFunction] table procedure called as a statement (result not used), with zero and two procedures between, the
 //     outer Validate run from a test TryFunction;
+//   - the outer Validate run from a test TryFunction called as a statement (result discarded): inner assigns, outer assigns, and
+//     the nest raising through the statement-called table TryFunction;
 //   - the outer Validate run from a [TryFunction] and from a MessageHandler of the test codeunit (two procedures between).
-// Facts (measured on 27.5, 28.5 and 29.0, the same on all three; the two TryFunction statement cells locally on 29.0 only):
+// Facts (measured on 27.5, 28.5 and 29.0, the same on all three):
 //   - on the same record variable the nested Validates share ONE xRec: the inner trigger sees the outer Validate's before-image
 //     (0/NEW/I1, not the record at the inner call 1/MID/I2), at every depth (two levels, the same field nested) and with zero to
 //     three procedures between; whatever any code point assigns to it is what every later reader sees: the table extension
@@ -47,6 +49,9 @@
 //   - a [TryFunction] table procedure called as a statement does not catch its error: the error ('XNV try failed') leaves the inner
 //     trigger and both Validates, no later code point runs (no 'T after try', no 'I after'), and the caller's record is back at
 //     0/NEW/I1 after the failed test TryFunction.
+//   - a test TryFunction called as a statement runs the Validate as a plain call: one xRec as above (0/INN/I1, 0/OUT/I1); when the
+//     nest raises, the error leaves the test TryFunction too (asserterror catches 'XNV try failed', code Dialog) and the record is
+//     back at 0/NEW/I1.
 // BC versions: 27.5, 28.5, 29.0
 
 table 77460 "XNV InExt Line"
@@ -1959,7 +1964,9 @@ codeunit 77473 "XNV Tests"
         Observer.Observe('log', Cfg.Take());
         Observer.Observe('record', Format(Line.Mode, 0, 2) + '/' + Line.Series + '/' + Line."Item No.");
         Cfg.Set('');
-        Observer.Finish();
+        Observer.Expect('log', 'I x=0/NEW/I1 r=0/NEW/I2;T x=0/NEW/I1 r=1/MID/I2;I after x=0/INN/I1 r=1/MID/I2;');
+        Observer.Expect('record', '1/MID/I2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1981,11 +1988,13 @@ codeunit 77473 "XNV Tests"
         Observer.Observe('log', Cfg.Take());
         Observer.Observe('record', Format(Line.Mode, 0, 2) + '/' + Line.Series + '/' + Line."Item No.");
         Cfg.Set('');
-        Observer.Finish();
+        Observer.Expect('log', 'I x=0/NEW/I1 r=0/NEW/I2;T x=0/OUT/I1 r=1/MID/I2;I after x=0/OUT/I1 r=1/MID/I2;');
+        Observer.Expect('record', '1/MID/I2');
+        Observer.Verify();
     end;
 
     [Test]
-    procedure Validate_FromTestTryFunctionStatementInnerError_Observed()
+    procedure Validate_FromTestTryFunctionStatementInnerError_ErrorPropagates()
     var
         Observer: Codeunit "Probe Observer";
         Line: Record "XNV Proc Line";
@@ -2004,7 +2013,11 @@ codeunit 77473 "XNV Tests"
         Observer.Observe('log', Cfg.Take());
         Observer.Observe('record', Format(Line.Mode, 0, 2) + '/' + Line.Series + '/' + Line."Item No.");
         Cfg.Set('');
-        Observer.Finish();
+        Observer.Expect('error|text', 'XNV try failed');
+        Observer.Expect('error|code', 'Dialog');
+        Observer.Expect('log', 'I x=0/NEW/I1 r=0/NEW/I2;T x=0/NEW/I1 r=1/MID/I2;');
+        Observer.Expect('record', '0/NEW/I1');
+        Observer.Verify();
     end;
 
     [TryFunction]
