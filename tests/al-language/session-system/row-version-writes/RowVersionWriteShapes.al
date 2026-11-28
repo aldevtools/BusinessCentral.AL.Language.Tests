@@ -23,8 +23,10 @@
 // second table's inserted row is below the first table's row version. MinimumActiveRowVersion() stays at its start value and below
 // LastUsedRowVersion() + 1 in every shape. After every shape the next Insert gets LastUsedRowVersion() + 1.
 // LastUsedRowVersion() is database wide, and corpus CI runs the whole app, so other sessions can write between two reads. Such a write only
-// raises the value. The next-Insert check and the ModifyAll row-against-value check therefore retry (up to five times) until one try lands
-// on "same"; a "same" can only come from BC itself. Truncate after Insert is observed but not asserted against the row: BC on Linux differs.
+// raises the value. Every test therefore runs its shape four times and keeps the observations of the attempt in which LastUsedRowVersion()
+// grew least between Start and the end of the attempt: that is an attempt no other session wrote into (corpus issue 1063). The next-Insert
+// check and the ModifyAll row-against-value check also retry (up to five times) inside an attempt until one try lands on "same"; a "same"
+// can only come from BC itself. Truncate after Insert is observed but not asserted against the row: BC on Linux differs.
 // BC versions: 27+
 
 table 76640 "RVS Row"
@@ -66,6 +68,11 @@ codeunit 76642 "RVS Steps"
         Prev: BigInteger;
         Min0: BigInteger;
         NextId: Integer;
+        StartValue: BigInteger;
+        Acc: Text;
+        Best: BigInteger;
+        BestAcc: Text;
+        Attempts: Integer;
 
     procedure Rel(Value: BigInteger; Other: BigInteger): Text
     begin
@@ -94,6 +101,40 @@ codeunit 76642 "RVS Steps"
         NextId := 1000;
         Prev := LastUsedRowVersion();
         Min0 := MinimumActiveRowVersion();
+        StartValue := Prev;
+        Acc := '';
+    end;
+
+    // An observation of the current attempt (kept by Keep, written by Emit).
+    procedure Fact(Tag: Text; Value: Text)
+    begin
+        Acc += Tag + '=' + Value + '|';
+    end;
+
+    // Ends an attempt. LastUsedRowVersion() is database wide: a write of another session can only raise the end value, so the attempt
+    // with the smallest growth since Start is the one no other session wrote into; its observations are kept (corpus issue 1063).
+    procedure Keep()
+    var
+        EndValue: BigInteger;
+    begin
+        EndValue := LastUsedRowVersion();
+        Attempts += 1;
+        if (Attempts = 1) or (EndValue - StartValue < Best) then begin
+            Best := EndValue - StartValue;
+            BestAcc := Acc;
+        end;
+    end;
+
+    procedure Emit(var Observer: Codeunit "Probe Observer")
+    var
+        Pair: Text;
+        At: Integer;
+    begin
+        foreach Pair in BestAcc.Split('|') do
+            if Pair <> '' then begin
+                At := Pair.IndexOf('=');
+                Fact(CopyStr(Pair, 1, At - 1), CopyStr(Pair, At + 1));
+            end;
     end;
 
     procedure Snap(var Observer: Codeunit "Probe Observer"; Tag: Text; RowVersion: BigInteger)
@@ -103,11 +144,11 @@ codeunit 76642 "RVS Steps"
     begin
         Last := LastUsedRowVersion();
         MinActive := MinimumActiveRowVersion();
-        Observer.Observe(Tag + ' last/prev', Rel(Last, Prev));
+        Fact(Tag + ' last/prev', Rel(Last, Prev));
         if RowVersion <> 0 then
-            Observer.Observe(Tag + ' last/row', Rel(Last, RowVersion));
-        Observer.Observe(Tag + ' min/min0', Rel(MinActive, Min0));
-        Observer.Observe(Tag + ' min/last1', Rel(MinActive, Last + 1));
+            Fact(Tag + ' last/row', Rel(Last, RowVersion));
+        Fact(Tag + ' min/min0', Rel(MinActive, Min0));
+        Fact(Tag + ' min/last1', Rel(MinActive, Last + 1));
         Prev := Last;
     end;
 
@@ -127,7 +168,7 @@ codeunit 76642 "RVS Steps"
             Other.Id := NextId;
             Other.Insert();
         until (Other.SystemRowVersion = Last + 1) or (Attempt = 5);
-        Observer.Observe(Tag + ' next/last1', Rel(Other.SystemRowVersion, Last + 1));
+        Fact(Tag + ' next/last1', Rel(Other.SystemRowVersion, Last + 1));
         Prev := LastUsedRowVersion();
     end;
 
@@ -153,18 +194,24 @@ codeunit 76643 "RVS Write Shapes"
         Steps: Codeunit "RVS Steps";
         Row: Record "RVS Row";
         Ins: BigInteger;
+        Try: Integer;
     begin
-        Steps.Start(0);
-        Row.Id := 1;
-        Row.Insert();
-        Ins := Row.SystemRowVersion;
-        Row.Name := 'x';
-        Row.Modify();
-        Observer.Observe('modify row/ins', Steps.Rel(Row.SystemRowVersion, Ins));
-        Steps.Snap(Observer, 'modify', Row.SystemRowVersion);
-        Row.Get(1);
-        Steps.Snap(Observer, 'get', Row.SystemRowVersion);
-        Steps.Next(Observer, 'after');
+        for Try := 1 to 4 do begin
+            Clear(Row);
+            Steps.Start(0);
+            Row.Id := 1;
+            Row.Insert();
+            Ins := Row.SystemRowVersion;
+            Row.Name := 'x';
+            Row.Modify();
+            Steps.Fact('modify row/ins', Steps.Rel(Row.SystemRowVersion, Ins));
+            Steps.Snap(Observer, 'modify', Row.SystemRowVersion);
+            Row.Get(1);
+            Steps.Snap(Observer, 'get', Row.SystemRowVersion);
+            Steps.Next(Observer, 'after');
+            Steps.Keep();
+        end;
+        Steps.Emit(Observer);
         Observer.Expect('modify row/ins', 'greater');
         Observer.Expect('modify last/prev', 'greater');
         Observer.Expect('modify last/row', 'same');
@@ -184,17 +231,23 @@ codeunit 76643 "RVS Write Shapes"
         Observer: Codeunit "Probe Observer";
         Steps: Codeunit "RVS Steps";
         Row: Record "RVS Row";
+        Try: Integer;
     begin
-        Steps.Start(0);
-        Row.Id := 1;
-        if not Row.Insert() then
-            Error('insert failed');
-        Steps.Snap(Observer, 'checked1', Row.SystemRowVersion);
-        Row.Id := 2;
-        if not Row.Insert() then
-            Error('insert failed');
-        Steps.Snap(Observer, 'checked2', Row.SystemRowVersion);
-        Steps.Next(Observer, 'after');
+        for Try := 1 to 4 do begin
+            Clear(Row);
+            Steps.Start(0);
+            Row.Id := 1;
+            if not Row.Insert() then
+                Error('insert failed');
+            Steps.Snap(Observer, 'checked1', Row.SystemRowVersion);
+            Row.Id := 2;
+            if not Row.Insert() then
+                Error('insert failed');
+            Steps.Snap(Observer, 'checked2', Row.SystemRowVersion);
+            Steps.Next(Observer, 'after');
+            Steps.Keep();
+        end;
+        Steps.Emit(Observer);
         Observer.Expect('checked1 last/prev', 'greater');
         Observer.Expect('checked1 last/row', 'same');
         Observer.Expect('checked1 min/min0', 'same');
@@ -213,15 +266,21 @@ codeunit 76643 "RVS Write Shapes"
         Observer: Codeunit "Probe Observer";
         Steps: Codeunit "RVS Steps";
         Row: Record "RVS Row";
+        Try: Integer;
     begin
-        Steps.Start(0);
-        Steps.InsertRow(1);
-        Steps.InsertRow(2);
-        Row.Get(1);
-        Row.Name := 'x';
-        Row.Modify();
-        Steps.Snap(Observer, 'getmodify', Row.SystemRowVersion);
-        Steps.Next(Observer, 'after');
+        for Try := 1 to 4 do begin
+            Clear(Row);
+            Steps.Start(0);
+            Steps.InsertRow(1);
+            Steps.InsertRow(2);
+            Row.Get(1);
+            Row.Name := 'x';
+            Row.Modify();
+            Steps.Snap(Observer, 'getmodify', Row.SystemRowVersion);
+            Steps.Next(Observer, 'after');
+            Steps.Keep();
+        end;
+        Steps.Emit(Observer);
         Observer.Expect('getmodify last/prev', 'greater');
         Observer.Expect('getmodify last/row', 'same');
         Observer.Expect('getmodify min/min0', 'same');
@@ -237,18 +296,24 @@ codeunit 76643 "RVS Write Shapes"
         Steps: Codeunit "RVS Steps";
         Row: Record "RVS Row";
         Before: BigInteger;
+        Try: Integer;
     begin
-        Steps.Start(2);
-        Row.Get(1);
-        Before := Row.SystemRowVersion;
-        Row.Name := 'x';
-        Row.Modify();
-        Observer.Observe('modify row/before', Steps.Rel(Row.SystemRowVersion, Before));
-        Steps.Snap(Observer, 'modify', Row.SystemRowVersion);
-        Row.Name := 'y';
-        Row.Modify();
-        Steps.Snap(Observer, 'modify2', Row.SystemRowVersion);
-        Steps.Next(Observer, 'after');
+        for Try := 1 to 4 do begin
+            Clear(Row);
+            Steps.Start(2);
+            Row.Get(1);
+            Before := Row.SystemRowVersion;
+            Row.Name := 'x';
+            Row.Modify();
+            Steps.Fact('modify row/before', Steps.Rel(Row.SystemRowVersion, Before));
+            Steps.Snap(Observer, 'modify', Row.SystemRowVersion);
+            Row.Name := 'y';
+            Row.Modify();
+            Steps.Snap(Observer, 'modify2', Row.SystemRowVersion);
+            Steps.Next(Observer, 'after');
+            Steps.Keep();
+        end;
+        Steps.Emit(Observer);
         Observer.Expect('modify row/before', 'greater');
         Observer.Expect('modify last/prev', 'greater');
         Observer.Expect('modify last/row', 'same');
@@ -268,12 +333,18 @@ codeunit 76643 "RVS Write Shapes"
         Observer: Codeunit "Probe Observer";
         Steps: Codeunit "RVS Steps";
         Row: Record "RVS Row";
+        Try: Integer;
     begin
-        Steps.Start(3);
-        Row.DeleteAll();
-        Steps.Snap(Observer, 'deleteall', 0);
-        Observer.Observe('count', Format(Row.Count()));
-        Steps.Next(Observer, 'after');
+        for Try := 1 to 4 do begin
+            Clear(Row);
+            Steps.Start(3);
+            Row.DeleteAll();
+            Steps.Snap(Observer, 'deleteall', 0);
+            Steps.Fact('count', Format(Row.Count()));
+            Steps.Next(Observer, 'after');
+            Steps.Keep();
+        end;
+        Steps.Emit(Observer);
         Observer.Expect('deleteall last/prev', 'same');
         Observer.Expect('deleteall min/min0', 'same');
         Observer.Expect('deleteall min/last1', 'less');
@@ -288,14 +359,20 @@ codeunit 76643 "RVS Write Shapes"
         Observer: Codeunit "Probe Observer";
         Steps: Codeunit "RVS Steps";
         Row: Record "RVS Row";
+        Try: Integer;
     begin
-        Steps.Start(3);
-        Row.SetFilter(Id, '2..');
-        Row.DeleteAll();
-        Steps.Snap(Observer, 'deleteall', 0);
-        Row.Reset();
-        Observer.Observe('count', Format(Row.Count()));
-        Steps.Next(Observer, 'after');
+        for Try := 1 to 4 do begin
+            Clear(Row);
+            Steps.Start(3);
+            Row.SetFilter(Id, '2..');
+            Row.DeleteAll();
+            Steps.Snap(Observer, 'deleteall', 0);
+            Row.Reset();
+            Steps.Fact('count', Format(Row.Count()));
+            Steps.Next(Observer, 'after');
+            Steps.Keep();
+        end;
+        Steps.Emit(Observer);
         Observer.Expect('deleteall last/prev', 'same');
         Observer.Expect('deleteall min/min0', 'same');
         Observer.Expect('deleteall min/last1', 'less');
@@ -310,11 +387,17 @@ codeunit 76643 "RVS Write Shapes"
         Observer: Codeunit "Probe Observer";
         Steps: Codeunit "RVS Steps";
         Row: Record "RVS Row";
+        Try: Integer;
     begin
-        Steps.Start(0);
-        Row.DeleteAll();
-        Steps.Snap(Observer, 'deleteall', 0);
-        Steps.Next(Observer, 'after');
+        for Try := 1 to 4 do begin
+            Clear(Row);
+            Steps.Start(0);
+            Row.DeleteAll();
+            Steps.Snap(Observer, 'deleteall', 0);
+            Steps.Next(Observer, 'after');
+            Steps.Keep();
+        end;
+        Steps.Emit(Observer);
         Observer.Expect('deleteall last/prev', 'same');
         Observer.Expect('deleteall min/min0', 'same');
         Observer.Expect('deleteall min/last1', 'less');
@@ -329,13 +412,19 @@ codeunit 76643 "RVS Write Shapes"
         Steps: Codeunit "RVS Steps";
         Row: Record "RVS Row";
         Ins: BigInteger;
+        Try: Integer;
     begin
-        Steps.Start(0);
-        Steps.InsertRow(1);
-        Ins := Steps.InsertRow(2);
-        Row.DeleteAll();
-        Steps.Snap(Observer, 'deleteall', Ins);
-        Steps.Next(Observer, 'after');
+        for Try := 1 to 4 do begin
+            Clear(Row);
+            Steps.Start(0);
+            Steps.InsertRow(1);
+            Ins := Steps.InsertRow(2);
+            Row.DeleteAll();
+            Steps.Snap(Observer, 'deleteall', Ins);
+            Steps.Next(Observer, 'after');
+            Steps.Keep();
+        end;
+        Steps.Emit(Observer);
         Observer.Expect('deleteall last/prev', 'greater');
         Observer.Expect('deleteall last/row', 'same');
         Observer.Expect('deleteall min/min0', 'same');
@@ -351,15 +440,21 @@ codeunit 76643 "RVS Write Shapes"
         Steps: Codeunit "RVS Steps";
         Row: Record "RVS Row";
         Ins: BigInteger;
+        Try: Integer;
     begin
-        Steps.Start(2);
-        Ins := Steps.InsertRow(10);
-        Row.SetRange(Id, 1, 2);
-        Row.DeleteAll();
-        Steps.Snap(Observer, 'deleteall', Ins);
-        Row.Reset();
-        Observer.Observe('count', Format(Row.Count()));
-        Steps.Next(Observer, 'after');
+        for Try := 1 to 4 do begin
+            Clear(Row);
+            Steps.Start(2);
+            Ins := Steps.InsertRow(10);
+            Row.SetRange(Id, 1, 2);
+            Row.DeleteAll();
+            Steps.Snap(Observer, 'deleteall', Ins);
+            Row.Reset();
+            Steps.Fact('count', Format(Row.Count()));
+            Steps.Next(Observer, 'after');
+            Steps.Keep();
+        end;
+        Steps.Emit(Observer);
         Observer.Expect('deleteall last/prev', 'greater');
         Observer.Expect('deleteall last/row', 'same');
         Observer.Expect('deleteall min/min0', 'same');
@@ -376,12 +471,18 @@ codeunit 76643 "RVS Write Shapes"
         Steps: Codeunit "RVS Steps";
         Row: Record "RVS Row";
         Ins: BigInteger;
+        Try: Integer;
     begin
-        Steps.Start(2);
-        Ins := Steps.InsertRow(10);
-        Row.DeleteAll();
-        Steps.Snap(Observer, 'deleteall', Ins);
-        Steps.Next(Observer, 'after');
+        for Try := 1 to 4 do begin
+            Clear(Row);
+            Steps.Start(2);
+            Ins := Steps.InsertRow(10);
+            Row.DeleteAll();
+            Steps.Snap(Observer, 'deleteall', Ins);
+            Steps.Next(Observer, 'after');
+            Steps.Keep();
+        end;
+        Steps.Emit(Observer);
         Observer.Expect('deleteall last/prev', 'greater');
         Observer.Expect('deleteall last/row', 'same');
         Observer.Expect('deleteall min/min0', 'same');
@@ -397,14 +498,20 @@ codeunit 76643 "RVS Write Shapes"
         Steps: Codeunit "RVS Steps";
         Row: Record "RVS Row";
         Ins: BigInteger;
+        Try: Integer;
     begin
-        Steps.Start(0);
-        Ins := Steps.InsertRow(1);
-        Row.Truncate();
-        Steps.Snap(Observer, 'truncate', Ins);
-        Steps.Next(Observer, 'after');
-        // 'truncate last/row' is observed, not asserted: BC on Windows (27.5, 29.0) gives greater, BC on Linux in corpus CI gives same on
-        // 27.5, 28.5 and 29.0. Linux suspect, see https://github.com/aldevtools/MsDyn365Bc.On.Linux/issues/243
+        for Try := 1 to 4 do begin
+            Clear(Row);
+            Steps.Start(0);
+            Ins := Steps.InsertRow(1);
+            Row.Truncate();
+            Steps.Snap(Observer, 'truncate', Ins);
+            Steps.Next(Observer, 'after');
+            // 'truncate last/row' is observed, not asserted: BC on Windows (27.5, 29.0) gives greater, BC on Linux in corpus CI gives same on
+            // 27.5, 28.5 and 29.0. Linux suspect, see https://github.com/aldevtools/MsDyn365Bc.On.Linux/issues/243
+            Steps.Keep();
+        end;
+        Steps.Emit(Observer);
         Observer.Ignore('truncate last/row');
         Observer.Expect('truncate last/prev', 'greater');
         Observer.Expect('truncate min/min0', 'same');
@@ -420,14 +527,20 @@ codeunit 76643 "RVS Write Shapes"
         Steps: Codeunit "RVS Steps";
         Row: Record "RVS Row";
         Ins: BigInteger;
+        Try: Integer;
     begin
-        Steps.Start(0);
-        Row.Id := 1;
-        Row.Insert();
-        Ins := Row.SystemRowVersion;
-        Row.Delete();
-        Steps.Snap(Observer, 'delete', Ins);
-        Steps.Next(Observer, 'after');
+        for Try := 1 to 4 do begin
+            Clear(Row);
+            Steps.Start(0);
+            Row.Id := 1;
+            Row.Insert();
+            Ins := Row.SystemRowVersion;
+            Row.Delete();
+            Steps.Snap(Observer, 'delete', Ins);
+            Steps.Next(Observer, 'after');
+            Steps.Keep();
+        end;
+        Steps.Emit(Observer);
         Observer.Expect('delete last/prev', 'greater');
         Observer.Expect('delete last/row', 'same');
         Observer.Expect('delete min/min0', 'same');
@@ -443,15 +556,21 @@ codeunit 76643 "RVS Write Shapes"
         Steps: Codeunit "RVS Steps";
         Row: Record "RVS Row";
         Ins: BigInteger;
+        Try: Integer;
     begin
-        Steps.Start(0);
-        Row.Id := 1;
-        Row.Insert();
-        Ins := Row.SystemRowVersion;
-        Row.Rename(2);
-        Observer.Observe('rename row/ins', Steps.Rel(Row.SystemRowVersion, Ins));
-        Steps.Snap(Observer, 'rename', Row.SystemRowVersion);
-        Steps.Next(Observer, 'after');
+        for Try := 1 to 4 do begin
+            Clear(Row);
+            Steps.Start(0);
+            Row.Id := 1;
+            Row.Insert();
+            Ins := Row.SystemRowVersion;
+            Row.Rename(2);
+            Steps.Fact('rename row/ins', Steps.Rel(Row.SystemRowVersion, Ins));
+            Steps.Snap(Observer, 'rename', Row.SystemRowVersion);
+            Steps.Next(Observer, 'after');
+            Steps.Keep();
+        end;
+        Steps.Emit(Observer);
         Observer.Expect('rename row/ins', 'greater');
         Observer.Expect('rename last/prev', 'greater');
         Observer.Expect('rename last/row', 'same');
@@ -472,34 +591,41 @@ codeunit 76643 "RVS Write Shapes"
         Version2: BigInteger;
         Row2: Integer;
         Attempt: Integer;
+        Try: Integer;
     begin
-        Steps.Start(0);
-        Steps.InsertRow(1);
-        Ins := Steps.InsertRow(2);
-        Row.ModifyAll(Name, 'x');
-        Steps.Snap(Observer, 'modifyall', Ins);
-        // LastUsedRowVersion() is database wide: a write of another session after the ModifyAll raises it above the last modified row.
-        // Such a write can never make the two equal, so the shape (DeleteAll, two Inserts, ModifyAll) is repeated up to four more times
-        // until one try has the last modified row equal to the value; the row observations are those of the last try.
-        Row2 := 2;
-        repeat
-            Attempt += 1;
-            if Attempt > 1 then begin
-                Row.DeleteAll();
-                Steps.InsertRow(Row2 + 1);
-                Steps.InsertRow(Row2 + 2);
-                Row2 += 2;
-                Row.ModifyAll(Name, 'x');
-            end;
-            Last := LastUsedRowVersion();
-            Row.Get(Row2);
-            Version2 := Row.SystemRowVersion;
-        until (Version2 = Last) or (Attempt = 5);
-        Observer.Observe('modifyall row2/last', Steps.Rel(Version2, Last));
-        Row.Get(Row2 - 1);
-        Observer.Observe('modifyall row1/last', Steps.Rel(Row.SystemRowVersion, Last));
-        Observer.Observe('modifyall row1/row2', Steps.Rel(Row.SystemRowVersion, Version2));
-        Steps.Next(Observer, 'after');
+        for Try := 1 to 4 do begin
+            Clear(Row);
+            Attempt := 0;
+            Steps.Start(0);
+            Steps.InsertRow(1);
+            Ins := Steps.InsertRow(2);
+            Row.ModifyAll(Name, 'x');
+            Steps.Snap(Observer, 'modifyall', Ins);
+            // LastUsedRowVersion() is database wide: a write of another session after the ModifyAll raises it above the last modified row.
+            // Such a write can never make the two equal, so the shape (DeleteAll, two Inserts, ModifyAll) is repeated up to four more times
+            // until one try has the last modified row equal to the value; the row observations are those of the last try.
+            Row2 := 2;
+            repeat
+                Attempt += 1;
+                if Attempt > 1 then begin
+                    Row.DeleteAll();
+                    Steps.InsertRow(Row2 + 1);
+                    Steps.InsertRow(Row2 + 2);
+                    Row2 += 2;
+                    Row.ModifyAll(Name, 'x');
+                end;
+                Last := LastUsedRowVersion();
+                Row.Get(Row2);
+                Version2 := Row.SystemRowVersion;
+            until (Version2 = Last) or (Attempt = 5);
+            Steps.Fact('modifyall row2/last', Steps.Rel(Version2, Last));
+            Row.Get(Row2 - 1);
+            Steps.Fact('modifyall row1/last', Steps.Rel(Row.SystemRowVersion, Last));
+            Steps.Fact('modifyall row1/row2', Steps.Rel(Row.SystemRowVersion, Version2));
+            Steps.Next(Observer, 'after');
+            Steps.Keep();
+        end;
+        Steps.Emit(Observer);
         Observer.Expect('modifyall last/prev', 'greater');
         Observer.Expect('modifyall last/row', 'greater');
         Observer.Expect('modifyall min/min0', 'same');
@@ -518,21 +644,28 @@ codeunit 76643 "RVS Write Shapes"
         Steps: Codeunit "RVS Steps";
         Row: Record "RVS Row";
         Other: Record "RVS Other";
+        Try: Integer;
     begin
-        Steps.Start(0);
-        Row.Id := 1;
-        Row.Insert();
-        Other.Id := 1;
-        Other.Insert();
-        Steps.Snap(Observer, 'insert2', Other.SystemRowVersion);
-        Observer.Observe('insert2 other/row', Steps.Rel(Other.SystemRowVersion, Row.SystemRowVersion));
-        Row.Name := 'x';
-        Row.Modify();
-        Steps.Snap(Observer, 'modify1', Row.SystemRowVersion);
-        Other.Name := 'y';
-        Other.Modify();
-        Steps.Snap(Observer, 'modify2', Other.SystemRowVersion);
-        Steps.Next(Observer, 'after');
+        for Try := 1 to 4 do begin
+            Clear(Row);
+            Clear(Other);
+            Steps.Start(0);
+            Row.Id := 1;
+            Row.Insert();
+            Other.Id := 1;
+            Other.Insert();
+            Steps.Snap(Observer, 'insert2', Other.SystemRowVersion);
+            Steps.Fact('insert2 other/row', Steps.Rel(Other.SystemRowVersion, Row.SystemRowVersion));
+            Row.Name := 'x';
+            Row.Modify();
+            Steps.Snap(Observer, 'modify1', Row.SystemRowVersion);
+            Other.Name := 'y';
+            Other.Modify();
+            Steps.Snap(Observer, 'modify2', Other.SystemRowVersion);
+            Steps.Next(Observer, 'after');
+            Steps.Keep();
+        end;
+        Steps.Emit(Observer);
         Observer.Expect('insert2 last/prev', 'greater');
         Observer.Expect('insert2 last/row', 'same');
         Observer.Expect('insert2 min/min0', 'same');
@@ -560,30 +693,37 @@ codeunit 76643 "RVS Write Shapes"
         Row: Record "RVS Row";
         Other: Record "RVS Other";
         i: Integer;
+        Try: Integer;
     begin
-        Steps.Start(3);
-        Row.SetFilter(Id, '2..');
-        Row.DeleteAll();
-        Other.DeleteAll();
-        Other.Id := 1;
-        Other.Insert();
-        Other.Name := 'setup';
-        Other.Modify();
-        for i := 1 to 3 do
-            Steps.InsertRow(100 + i);
-        Steps.Snap(Observer, 'watermark', 0);
-        Row.Reset();
-        Row.Id := 201;
-        if not Row.Insert() then
-            Error('insert failed');
-        Row.Id := 202;
-        if not Row.Insert() then
-            Error('insert failed');
-        Steps.Snap(Observer, 'checked', Row.SystemRowVersion);
-        Row.Get(201);
-        Row.Name := 'x';
-        Row.Modify();
-        Steps.Snap(Observer, 'modify', Row.SystemRowVersion);
+        for Try := 1 to 4 do begin
+            Clear(Row);
+            Clear(Other);
+            Steps.Start(3);
+            Row.SetFilter(Id, '2..');
+            Row.DeleteAll();
+            Other.DeleteAll();
+            Other.Id := 1;
+            Other.Insert();
+            Other.Name := 'setup';
+            Other.Modify();
+            for i := 1 to 3 do
+                Steps.InsertRow(100 + i);
+            Steps.Snap(Observer, 'watermark', 0);
+            Row.Reset();
+            Row.Id := 201;
+            if not Row.Insert() then
+                Error('insert failed');
+            Row.Id := 202;
+            if not Row.Insert() then
+                Error('insert failed');
+            Steps.Snap(Observer, 'checked', Row.SystemRowVersion);
+            Row.Get(201);
+            Row.Name := 'x';
+            Row.Modify();
+            Steps.Snap(Observer, 'modify', Row.SystemRowVersion);
+            Steps.Keep();
+        end;
+        Steps.Emit(Observer);
         Observer.Expect('watermark last/prev', 'greater');
         Observer.Expect('watermark min/min0', 'same');
         Observer.Expect('watermark min/last1', 'less');

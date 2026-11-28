@@ -1,7 +1,34 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/database/database-lastusedrowversion-method
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); own tables 76641 (RVS Other, from RowVersionWriteShapes.al), 76640 (RVS Row), 76644 to 76647
-// Probe: HEADER-TODO
+// Probe: when an Insert of an open transaction gets its row version (when BC sends the row), measured by reading Database.LastUsedRowVersion()
+// FIRST, before any read of a record buffer (AL Runner issue 8671, review of runner PR 9237). RowVersionWriteShapes.al reads SystemRowVersion
+// from the buffer before LastUsedRowVersion(), and that read itself sends an unsent row; this file separates the two. Shapes: a checked Insert
+// (alone, twice, after a plain Insert into the same table, after LockTable, through a RecordRef, into a table with a Blob field or an
+// AutoIncrement field, while another table holds unsent rows, the issue's table layout, after another table's Insert and Modify, Insert(true)
+// with an OnInsert trigger that reads another table, with an OnBeforeInsertEvent subscriber, Insert(false, true), Insert(true) with no trigger,
+// a checked Insert that fails on a duplicate key, a checked Insert into a temporary record); a plain Insert (record and RecordRef, Blob and
+// AutoIncrement tables) with the value read first, a plain Insert with the buffer read first; plain Inserts followed by DeleteAll (unfiltered,
+// filtered to committed rows, over committed rows too, through a RecordRef, of another table).
+// Each value is an offset from LastUsedRowVersion() read right after the commit that starts the attempt: 'value' is LastUsedRowVersion() right
+// after the shape, 'rowN' / 'otherN' the buffer SystemRowVersion read after that, 'value2' LastUsedRowVersion() after those reads, 'next' the
+// buffer SystemRowVersion of a fresh Insert into RVS Other, 'end' LastUsedRowVersion() at the end. Offsets are counts of row versions this
+// transaction handed out, not row version numbers. Each test repeats its shape four times and keeps the attempt with the smallest 'end'
+// (another session's write can only raise it; corpus issue 1063).
+// Measured on BC 27.5, 28.5 and 29.0 (local runs of the CI leg; the PR run follows):
+// - A checked Insert (if not Rec.Insert() then) sends its row at once: the value is the row's version. It also sends the unsent rows of the
+//   same table first (plain then checked: value 2, rows 1 and 2), but not the unsent rows of another table: those get their versions only
+//   when their buffer is read, after the checked rows (other table unsent: value 1, row 1, other 2; issue layout: value 2, the three other
+//   rows 5). LockTable, a RecordRef, a Blob or AutoIncrement table, Insert(true), Insert(false, true) and an OnBeforeInsertEvent subscriber do
+//   not change this. An OnInsert trigger that reads the other table sends that table's unsent row before the checked row (other 1, row 2).
+// - Another table's Insert and Modify do not send an unsent row of the first table; the later checked Insert sends it (row 3 after other 2).
+// - A checked Insert that fails on a duplicate key returns false, hands out one row version, and does not send another table's unsent row.
+// - A checked Insert into a temporary record sends nothing (value 0).
+// - A plain Insert into a normal table is not sent (value 0, also through a RecordRef); reading its SystemRowVersion from the buffer sends it
+//   (value 1 after the read). A plain Insert into a table with a Blob or an AutoIncrement field is sent at once (value 1).
+// - DeleteAll of the same table after plain Inserts sends them first, whatever its filter and also through a RecordRef (two rows: value 2);
+//   a DeleteAll of another table does not (value 0). After such a DeleteAll every inserted row's buffer shows the version of the last one.
+// - After every shape the next Insert gets the value + 1.
 // BC versions: 27+
 
 table 76644 "RVS Blob Row"
@@ -221,7 +248,12 @@ codeunit 76650 "RVS Send Order"
             Cells.Keep();
         end;
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '1');
+        Observer.Expect('row1', '1');
+        Observer.Expect('value2', '1');
+        Observer.Expect('next', '2');
+        Observer.Expect('end', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -251,7 +283,13 @@ codeunit 76650 "RVS Send Order"
             Cells.Keep();
         end;
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '2');
+        Observer.Expect('row1', '1');
+        Observer.Expect('row2', '2');
+        Observer.Expect('value2', '2');
+        Observer.Expect('next', '3');
+        Observer.Expect('end', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -280,7 +318,13 @@ codeunit 76650 "RVS Send Order"
             Cells.Keep();
         end;
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '2');
+        Observer.Expect('row1', '1');
+        Observer.Expect('row2', '2');
+        Observer.Expect('value2', '2');
+        Observer.Expect('next', '3');
+        Observer.Expect('end', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -305,7 +349,12 @@ codeunit 76650 "RVS Send Order"
             Cells.Keep();
         end;
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '1');
+        Observer.Expect('row1', '1');
+        Observer.Expect('value2', '1');
+        Observer.Expect('next', '2');
+        Observer.Expect('end', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -335,7 +384,12 @@ codeunit 76650 "RVS Send Order"
             Cells.Keep();
         end;
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '1');
+        Observer.Expect('row1', '1');
+        Observer.Expect('value2', '1');
+        Observer.Expect('next', '2');
+        Observer.Expect('end', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -364,7 +418,12 @@ codeunit 76650 "RVS Send Order"
             Cells.Keep();
         end;
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '0');
+        Observer.Expect('row1', '1');
+        Observer.Expect('value2', '1');
+        Observer.Expect('next', '2');
+        Observer.Expect('end', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -388,7 +447,12 @@ codeunit 76650 "RVS Send Order"
             Cells.Keep();
         end;
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '1');
+        Observer.Expect('row1', '1');
+        Observer.Expect('value2', '1');
+        Observer.Expect('next', '2');
+        Observer.Expect('end', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -411,7 +475,12 @@ codeunit 76650 "RVS Send Order"
             Cells.Keep();
         end;
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '1');
+        Observer.Expect('row1', '1');
+        Observer.Expect('value2', '1');
+        Observer.Expect('next', '2');
+        Observer.Expect('end', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -435,7 +504,12 @@ codeunit 76650 "RVS Send Order"
             Cells.Keep();
         end;
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '1');
+        Observer.Expect('row1', '1');
+        Observer.Expect('value2', '1');
+        Observer.Expect('next', '2');
+        Observer.Expect('end', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -458,7 +532,12 @@ codeunit 76650 "RVS Send Order"
             Cells.Keep();
         end;
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '1');
+        Observer.Expect('row1', '1');
+        Observer.Expect('value2', '1');
+        Observer.Expect('next', '2');
+        Observer.Expect('end', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -487,7 +566,13 @@ codeunit 76650 "RVS Send Order"
             Cells.Keep();
         end;
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '1');
+        Observer.Expect('other1', '2');
+        Observer.Expect('row1', '1');
+        Observer.Expect('value2', '2');
+        Observer.Expect('next', '3');
+        Observer.Expect('end', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -532,7 +617,16 @@ codeunit 76650 "RVS Send Order"
             Cells.Keep();
         end;
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '2');
+        Observer.Expect('other1', '5');
+        Observer.Expect('other2', '5');
+        Observer.Expect('other3', '5');
+        Observer.Expect('row1', '1');
+        Observer.Expect('row2', '2');
+        Observer.Expect('value2', '5');
+        Observer.Expect('next', '6');
+        Observer.Expect('end', '6');
+        Observer.Verify();
     end;
 
     [Test]
@@ -568,7 +662,14 @@ codeunit 76650 "RVS Send Order"
             Cells.Keep();
         end;
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '4');
+        Observer.Expect('row1', '3');
+        Observer.Expect('other1', '2');
+        Observer.Expect('row2', '4');
+        Observer.Expect('value2', '4');
+        Observer.Expect('next', '5');
+        Observer.Expect('end', '5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -599,7 +700,14 @@ codeunit 76650 "RVS Send Order"
             Cells.Keep();
         end;
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '2');
+        Observer.Expect('trigger name', 'o');
+        Observer.Expect('other1', '1');
+        Observer.Expect('row1', '2');
+        Observer.Expect('value2', '2');
+        Observer.Expect('next', '3');
+        Observer.Expect('end', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -624,7 +732,13 @@ codeunit 76650 "RVS Send Order"
             Cells.Keep();
         end;
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '1');
+        Observer.Expect('subscriber name', 'sub');
+        Observer.Expect('row1', '1');
+        Observer.Expect('value2', '1');
+        Observer.Expect('next', '2');
+        Observer.Expect('end', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -649,7 +763,12 @@ codeunit 76650 "RVS Send Order"
             Cells.Keep();
         end;
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '1');
+        Observer.Expect('row1', '1');
+        Observer.Expect('value2', '1');
+        Observer.Expect('next', '2');
+        Observer.Expect('end', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -673,7 +792,12 @@ codeunit 76650 "RVS Send Order"
             Cells.Keep();
         end;
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '1');
+        Observer.Expect('row1', '1');
+        Observer.Expect('value2', '1');
+        Observer.Expect('next', '2');
+        Observer.Expect('end', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -700,7 +824,13 @@ codeunit 76650 "RVS Send Order"
             Cells.Keep();
         end;
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('inserted', 'No');
+        Observer.Expect('value', '1');
+        Observer.Expect('other1', '2');
+        Observer.Expect('value2', '2');
+        Observer.Expect('next', '3');
+        Observer.Expect('end', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -729,7 +859,12 @@ codeunit 76650 "RVS Send Order"
             Cells.Keep();
         end;
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '0');
+        Observer.Expect('other1', '1');
+        Observer.Expect('value2', '1');
+        Observer.Expect('next', '2');
+        Observer.Expect('end', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -752,7 +887,12 @@ codeunit 76650 "RVS Send Order"
             Cells.Keep();
         end;
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '0');
+        Observer.Expect('row1', '1');
+        Observer.Expect('value2', '1');
+        Observer.Expect('next', '2');
+        Observer.Expect('end', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -777,7 +917,12 @@ codeunit 76650 "RVS Send Order"
             Cells.Keep();
         end;
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '1');
+        Observer.Expect('row1', '1');
+        Observer.Expect('value2', '1');
+        Observer.Expect('next', '2');
+        Observer.Expect('end', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -809,7 +954,14 @@ codeunit 76650 "RVS Send Order"
             Cells.Keep();
         end;
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '2');
+        Observer.Expect('row1', '2');
+        Observer.Expect('row2', '2');
+        Observer.Expect('value2', '2');
+        Observer.Expect('count', '0');
+        Observer.Expect('next', '3');
+        Observer.Expect('end', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -843,7 +995,14 @@ codeunit 76650 "RVS Send Order"
             Cells.Keep();
         end;
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '2');
+        Observer.Expect('row1', '2');
+        Observer.Expect('row2', '2');
+        Observer.Expect('value2', '2');
+        Observer.Expect('count', '2');
+        Observer.Expect('next', '3');
+        Observer.Expect('end', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -870,7 +1029,13 @@ codeunit 76650 "RVS Send Order"
             Cells.Keep();
         end;
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '1');
+        Observer.Expect('row1', '1');
+        Observer.Expect('value2', '1');
+        Observer.Expect('count', '0');
+        Observer.Expect('next', '2');
+        Observer.Expect('end', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -904,7 +1069,14 @@ codeunit 76650 "RVS Send Order"
             Cells.Keep();
         end;
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '2');
+        Observer.Expect('row1', '2');
+        Observer.Expect('row2', '2');
+        Observer.Expect('value2', '2');
+        Observer.Expect('count', '0');
+        Observer.Expect('next', '3');
+        Observer.Expect('end', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -930,6 +1102,11 @@ codeunit 76650 "RVS Send Order"
             Cells.Keep();
         end;
         Cells.Emit(Observer);
-        Observer.Finish();
+        Observer.Expect('value', '0');
+        Observer.Expect('row1', '1');
+        Observer.Expect('value2', '1');
+        Observer.Expect('next', '2');
+        Observer.Expect('end', '2');
+        Observer.Verify();
     end;
 }
