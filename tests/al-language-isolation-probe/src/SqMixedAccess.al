@@ -1,6 +1,68 @@
 namespace ALLanguage.IsolationProbe;
 
-// HEADER PLACEHOLDER
+// Probe: a number sequence after a failed test when the stretch between two transaction ends mixes access kinds, as the
+// test bodies of Microsoft's SCM tests do (AL Runner issue 8972: Record writes, temporary Records, session builtins, Query,
+// RecordRef calls, Page.Run, Report.SaveAs and a posting preview rollback in one stretch). Extends SqFailedSeq.al and
+// SqExistingRestart.al, whose stretches hold one access kind each. Shapes only; no Microsoft code. The helper "LT SQM Seq"
+// (SqMixedAccessFixture.al) makes the NumberSequence calls of Sequence No. Mgt. in the same order.
+//
+// BC Documentation: https://learn.microsoft.com/dynamics365/business-central/dev-itpro/developer/methods-auto/numbersequence/numbersequence-data-type
+// Scope: NumberSequence.Insert / Restart / Next / Exists / Current after a test that fails, Commit(), asserterror,
+// Codeunit.Run with a return value, TestIsolation = Codeunit.
+// Fixtures used: SqMixedAccessFixture.al ("LT SQM Row", "LT SQM Entry", "LT SQM Entry2", "LT SQM Row Card",
+// "LT SQM Row Query", "LT SQM Row Report", "LT SQM Seq", "LT SQM Access", "LT SQM Preview").
+// Each cell is one test codeunit: test a sets up, test b (and b2) fails on purpose (PN and XP are controls in which b
+// passes), test c reads the state and asserts it in the same codeunit (no SingleInstance log, AL Runner issue 8520).
+// M, N, P and F cells use a new sequence: its name carries a token made once per codeunit run. X cells (and FE) use a
+// sequence that existed when the tests began (OnRun makes it when it is missing; the name is fixed per cell), and read
+// every number relative to S, the Current value test a found, because numbers taken with Next stay taken from run to run.
+// Readings of test c: onrun = what OnRun found (X cells); initialized = the codeunit's globals survived; start, changed,
+// taken = the start state, the state right after the helper's step and the number test b took (X cells); pv = what the
+// posting preview step returned ('run:' and nothing after it: the Codeunit.Run call raised; 'No:''': it returned false
+// with an empty last error; 'asserterror:''': the asserterror caught an empty error); name and preview = state of the
+// sequence Name and 'Preview' + Name ('missing' or cur=<Current>); name2, preview2, entries2 = the same for the second
+// entry table (M2); rows = keys of "LT SQM Row"; entries = Entry Nos. of "LT SQM Entry"; next and preview next = what
+// NumberSequence.Next returns then; name after = state after that.
+// Measured on: BC 27.5 (27.5.54899.59044), 28.5 (28.5.54976.59048) and 29.0 (29.0.54011.59052), each on the Linux
+// container setup of the corpus CI (bc-linux at the commit the corpus pins), run locally because this app has no Linux
+// CI job; runners 130450 (Microsoft's Test Runner - Isol. Codeunit) and 61301 (TestIsolation = Codeunit), each runner
+// twice in one container: the same readings and test outcomes in every run, on every version. The Windows containers and runner 61300 (TestIsolation = Function) are measured by the Windows
+// nightly only.
+//
+// What BC does:
+// - Cell 1 (one stretch mixes access kinds). A sequence the helper made before a Commit() survives the failed test when
+//   that stretch also wrote a table: MA (Record write, temporary Record, session builtins, Query read, RecordRef calls), MW
+//   (Record write only), MT, MB, MQ, MK, MP, MR (Record write plus one more kind) and M2 (two tables and two sequences)
+//   all keep the sequence, the entry and the row written before the Commit(); the row written after it is gone. Without
+//   the Commit() (MN) the failed test undoes everything: sequence, preview sequence, entry and rows.
+// - What counts as table access (raw NumberSequence.Insert and Next, no other table access before the Commit()): a
+//   temporary Record (NT), session builtins (NB), RecordRef calls without a read (NK) and all three together (NA) do not
+//   count: the sequence is gone. A Query read (NQ), Page.Run of a card (NP) and Report.SaveAs Xml (NR) count: the
+//   sequence is kept (cur=0: the raw Next took 0, the first number of Insert(Name, 0, 1)).
+// - Cell 2 (a guarded Codeunit.Run, return value used, as the posting preview runs). Inside a write transaction (a table
+//   write since the last commit) the Codeunit.Run call raises instead of returning a value: PA (engine ends with
+//   Error('')), PF (engine ends normally), PG (engine ends with an error text), PC (no Commit), PD (engine takes no
+//   number) and XD (existing sequence). The failed test b reports "An error occurred and the transaction is stopped.
+//   Contact your administrator or partner for further assistance." and everything since the last commit is gone. In the
+//   control PN, in which test b would pass, the same error fails it.
+// - With no table write since the last commit the guarded Codeunit.Run returns false with an empty last error
+//   (pv=run:No:''). PH (helper, Commit(), then the Run): the number the engine took stays taken (cur=2); the engine's row
+//   and entry are undone; the rest is kept. XF (existing sequence: the restart is committed, then the Run): the same,
+//   the restart is kept and the Run's number stays taken (cur=S+7). PI (raw Insert and Next, then the Run, then mixed
+//   kinds, Commit(), write): the sequence is gone although the row B1 written after the Run is kept: the Run's rollback
+//   also undid the Insert made before it in the same transaction. PJ (PI without the mixed kinds) and PE (engine takes no
+//   number): sequence and rows gone.
+// - PB (asserterror of a plain call that writes a row, takes a number and ends with Error('')): the asserterror catches
+//   an empty error and undoes the sequence insert of the helper before it together with the entry; the row B1 written
+//   after it and committed is kept; the sequence is missing.
+// - Cell 3 (existing sequence restarted by the helper). With a Commit() after the mixed stretch the restart is kept
+//   (XA, XC with Page.Run and Report.SaveAs: cur=S+6, preview S-2000000003); without it the restart is undone (XB, XE:
+//   cur=S). A raw Restart with only a temporary Record, builtins and RecordRef calls is kept (XN, cur=S+1000); a raw
+//   Restart and a Query read is undone (XQ). Control XP: the test passes and row B2 stays.
+// - Cell 4 (two failed tests in one codeunit). FA (both commit): cur=2, entries 1 and 2. FB (the second does not
+//   commit): cur=2, its Next is not undone, entries 1. FC (the first does not commit, the second does): cur=1, the second
+//   test made the sequence anew, entries 1. FD (the second only takes a number): cur=2. FE (existing sequence, the second
+//   restarts again with no commit): the first restart is kept (cur=S+6), the second undone.
 
 // MA: new sequence: helper and every mixed kind, Commit, Record write, then the test fails.
 // MAa: Initialize only.
@@ -50,7 +112,7 @@ codeunit 79530 "LT SQM MA"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
         Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
         Actual += ' | name after=' + Seq.State(Name());
-        if Actual <> 'TBD' then
+        if Actual <> 'initialized=Yes | name=cur=1 | preview=cur=-2000000001 | rows=B1,INIT | entries=1 | next=2 | preview next=-2000000000 | name after=cur=2' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -118,7 +180,7 @@ codeunit 79531 "LT SQM MW"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
         Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
         Actual += ' | name after=' + Seq.State(Name());
-        if Actual <> 'TBD' then
+        if Actual <> 'initialized=Yes | name=cur=1 | preview=cur=-2000000001 | rows=B1,INIT | entries=1 | next=2 | preview next=-2000000000 | name after=cur=2' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -187,7 +249,7 @@ codeunit 79532 "LT SQM MT"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
         Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
         Actual += ' | name after=' + Seq.State(Name());
-        if Actual <> 'TBD' then
+        if Actual <> 'initialized=Yes | name=cur=1 | preview=cur=-2000000001 | rows=B1,INIT | entries=1 | next=2 | preview next=-2000000000 | name after=cur=2' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -256,7 +318,7 @@ codeunit 79533 "LT SQM MB"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
         Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
         Actual += ' | name after=' + Seq.State(Name());
-        if Actual <> 'TBD' then
+        if Actual <> 'initialized=Yes | name=cur=1 | preview=cur=-2000000001 | rows=B1,INIT | entries=1 | next=2 | preview next=-2000000000 | name after=cur=2' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -325,7 +387,7 @@ codeunit 79534 "LT SQM MQ"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
         Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
         Actual += ' | name after=' + Seq.State(Name());
-        if Actual <> 'TBD' then
+        if Actual <> 'initialized=Yes | name=cur=1 | preview=cur=-2000000001 | rows=B1,INIT | entries=1 | next=2 | preview next=-2000000000 | name after=cur=2' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -394,7 +456,7 @@ codeunit 79535 "LT SQM MK"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
         Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
         Actual += ' | name after=' + Seq.State(Name());
-        if Actual <> 'TBD' then
+        if Actual <> 'initialized=Yes | name=cur=1 | preview=cur=-2000000001 | rows=B1,INIT | entries=1 | next=2 | preview next=-2000000000 | name after=cur=2' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -464,7 +526,7 @@ codeunit 79536 "LT SQM MP"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
         Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
         Actual += ' | name after=' + Seq.State(Name());
-        if Actual <> 'TBD' then
+        if Actual <> 'initialized=Yes | name=cur=1 | preview=cur=-2000000001 | rows=B1,INIT | entries=1 | next=2 | preview next=-2000000000 | name after=cur=2' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -539,7 +601,7 @@ codeunit 79537 "LT SQM MR"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
         Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
         Actual += ' | name after=' + Seq.State(Name());
-        if Actual <> 'TBD' then
+        if Actual <> 'initialized=Yes | name=cur=1 | preview=cur=-2000000001 | rows=B1,INIT | entries=1 | next=2 | preview next=-2000000000 | name after=cur=2' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -613,7 +675,7 @@ codeunit 79538 "LT SQM M2"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
         Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
         Actual += ' | name after=' + Seq.State(Name());
-        if Actual <> 'TBD' then
+        if Actual <> 'initialized=Yes | name=cur=1 | preview=cur=-2000000001 | name2=cur=1 | preview2=cur=-2000000001 | entries2=1 | rows=B1,INIT | entries=1 | next=2 | preview next=-2000000000 | name after=cur=2' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -689,7 +751,7 @@ codeunit 79539 "LT SQM MN"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
         Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
         Actual += ' | name after=' + Seq.State(Name());
-        if Actual <> 'TBD' then
+        if Actual <> 'initialized=Yes | name=missing | preview=missing | rows=INIT | entries=none | next=missing | preview next=missing | name after=missing' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -758,7 +820,7 @@ codeunit 79540 "LT SQM NT"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
         Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
         Actual += ' | name after=' + Seq.State(Name());
-        if Actual <> 'TBD' then
+        if Actual <> 'initialized=Yes | name=missing | preview=missing | rows=INIT | entries=none | next=missing | preview next=missing | name after=missing' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -827,7 +889,7 @@ codeunit 79541 "LT SQM NB"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
         Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
         Actual += ' | name after=' + Seq.State(Name());
-        if Actual <> 'TBD' then
+        if Actual <> 'initialized=Yes | name=missing | preview=missing | rows=INIT | entries=none | next=missing | preview next=missing | name after=missing' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -896,7 +958,7 @@ codeunit 79542 "LT SQM NQ"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
         Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
         Actual += ' | name after=' + Seq.State(Name());
-        if Actual <> 'TBD' then
+        if Actual <> 'initialized=Yes | name=cur=0 | preview=missing | rows=INIT | entries=none | next=1 | preview next=missing | name after=cur=1' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -965,7 +1027,7 @@ codeunit 79543 "LT SQM NK"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
         Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
         Actual += ' | name after=' + Seq.State(Name());
-        if Actual <> 'TBD' then
+        if Actual <> 'initialized=Yes | name=missing | preview=missing | rows=INIT | entries=none | next=missing | preview next=missing | name after=missing' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -1035,7 +1097,7 @@ codeunit 79544 "LT SQM NP"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
         Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
         Actual += ' | name after=' + Seq.State(Name());
-        if Actual <> 'TBD' then
+        if Actual <> 'initialized=Yes | name=cur=0 | preview=missing | rows=INIT | entries=none | next=1 | preview next=missing | name after=cur=1' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -1110,7 +1172,7 @@ codeunit 79545 "LT SQM NR"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
         Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
         Actual += ' | name after=' + Seq.State(Name());
-        if Actual <> 'TBD' then
+        if Actual <> 'initialized=Yes | name=cur=0 | preview=missing | rows=INIT | entries=none | next=1 | preview next=missing | name after=cur=1' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -1181,7 +1243,7 @@ codeunit 79546 "LT SQM NA"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
         Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
         Actual += ' | name after=' + Seq.State(Name());
-        if Actual <> 'TBD' then
+        if Actual <> 'initialized=Yes | name=missing | preview=missing | rows=INIT | entries=none | next=missing | preview next=missing | name after=missing' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -1257,7 +1319,7 @@ codeunit 79547 "LT SQM PA"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
         Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
         Actual += ' | name after=' + Seq.State(Name());
-        if Actual <> 'TBD' then
+        if Actual <> 'initialized=Yes | pv=run: | name=missing | preview=missing | rows=INIT | entries=none | next=missing | preview next=missing | name after=missing' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -1334,7 +1396,7 @@ codeunit 79548 "LT SQM PB"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
         Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
         Actual += ' | name after=' + Seq.State(Name());
-        if Actual <> 'TBD' then
+        if Actual <> 'initialized=Yes | pv=asserterror:'''' | name=missing | preview=missing | rows=B1,INIT | entries=none | next=missing | preview next=missing | name after=missing' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -1409,7 +1471,7 @@ codeunit 79549 "LT SQM PC"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
         Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
         Actual += ' | name after=' + Seq.State(Name());
-        if Actual <> 'TBD' then
+        if Actual <> 'initialized=Yes | pv=run: | name=missing | preview=missing | rows=INIT | entries=none | next=missing | preview next=missing | name after=missing' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -1485,7 +1547,7 @@ codeunit 79550 "LT SQM PD"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
         Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
         Actual += ' | name after=' + Seq.State(Name());
-        if Actual <> 'TBD' then
+        if Actual <> 'initialized=Yes | pv=run: | name=missing | preview=missing | rows=INIT | entries=none | next=missing | preview next=missing | name after=missing' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -1557,7 +1619,7 @@ codeunit 79551 "LT SQM PE"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
         Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
         Actual += ' | name after=' + Seq.State(Name());
-        if Actual <> 'TBD' then
+        if Actual <> 'initialized=Yes | pv=run:No:'''' | name=missing | preview=missing | rows=INIT | entries=none | next=missing | preview next=missing | name after=missing' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -1632,7 +1694,7 @@ codeunit 79552 "LT SQM PN"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
         Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
         Actual += ' | name after=' + Seq.State(Name());
-        if Actual <> 'TBD' then
+        if Actual <> 'initialized=Yes | pv=run: | name=missing | preview=missing | rows=INIT | entries=none | next=missing | preview next=missing | name after=missing' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -1718,7 +1780,7 @@ codeunit 79553 "LT SQM XA"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.EntriesRel(Base);
         Actual += ' | next=' + Seq.NextRel(Name(), Base) + ' | preview next=' + Seq.NextRel(Seq.PreviewName(Name()), PreviewBase);
         Actual += ' | name after=' + Seq.Rel(Name(), Base);
-        if Actual <> 'TBD' then
+        if Actual <> 'onrun=found,found | initialized=Yes | start=cur=S,cur=S | changed=restart cur=S+6 | taken=S+6 | name=cur=S+6 | preview=cur=S-2000000003 | rows=B1,INIT | entries=S+5,S+6 | next=S+7 | preview next=S-2000000002 | name after=cur=S+7' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -1805,7 +1867,7 @@ codeunit 79554 "LT SQM XB"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.EntriesRel(Base);
         Actual += ' | next=' + Seq.NextRel(Name(), Base) + ' | preview next=' + Seq.NextRel(Seq.PreviewName(Name()), PreviewBase);
         Actual += ' | name after=' + Seq.Rel(Name(), Base);
-        if Actual <> 'TBD' then
+        if Actual <> 'onrun=found,found | initialized=Yes | start=cur=S,cur=S | changed=restart cur=S+6 | taken=S+6 | name=cur=S | preview=cur=S | rows=INIT | entries=none | next=S+1 | preview next=S+1 | name after=cur=S+1' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -1896,7 +1958,7 @@ codeunit 79555 "LT SQM XC"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.EntriesRel(Base);
         Actual += ' | next=' + Seq.NextRel(Name(), Base) + ' | preview next=' + Seq.NextRel(Seq.PreviewName(Name()), PreviewBase);
         Actual += ' | name after=' + Seq.Rel(Name(), Base);
-        if Actual <> 'TBD' then
+        if Actual <> 'onrun=found,found | initialized=Yes | start=cur=S,cur=S | changed=restart cur=S+6 | taken=S+6 | name=cur=S+6 | preview=cur=S-2000000003 | rows=B1,INIT | entries=S+5,S+6 | next=S+7 | preview next=S-2000000002 | name after=cur=S+7' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -1994,7 +2056,7 @@ codeunit 79556 "LT SQM XD"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.EntriesRel(Base);
         Actual += ' | next=' + Seq.NextRel(Name(), Base) + ' | preview next=' + Seq.NextRel(Seq.PreviewName(Name()), PreviewBase);
         Actual += ' | name after=' + Seq.Rel(Name(), Base);
-        if Actual <> 'TBD' then
+        if Actual <> 'onrun=found,found | initialized=Yes | start=cur=S,cur=S | changed=restart cur=S+6 | taken=S+6 | pv=run: | name=cur=S | preview=cur=S | rows=INIT | entries=none | next=S+1 | preview next=S+1 | name after=cur=S+1' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -2084,7 +2146,7 @@ codeunit 79557 "LT SQM XE"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.EntriesRel(Base);
         Actual += ' | next=' + Seq.NextRel(Name(), Base) + ' | preview next=' + Seq.NextRel(Seq.PreviewName(Name()), PreviewBase);
         Actual += ' | name after=' + Seq.Rel(Name(), Base);
-        if Actual <> 'TBD' then
+        if Actual <> 'onrun=found,found | initialized=Yes | start=cur=S,cur=S | changed=restart cur=S+6 | taken=S+6 | name=cur=S | preview=cur=S | rows=INIT | entries=none | next=S+1 | preview next=S+1 | name after=cur=S+1' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -2173,7 +2235,7 @@ codeunit 79558 "LT SQM XN"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.EntriesRel(Base);
         Actual += ' | next=' + Seq.NextRel(Name(), Base) + ' | preview next=' + Seq.NextRel(Seq.PreviewName(Name()), PreviewBase);
         Actual += ' | name after=' + Seq.Rel(Name(), Base);
-        if Actual <> 'TBD' then
+        if Actual <> 'onrun=found,found | initialized=Yes | start=cur=S,cur=S | changed=cur=S+1000 | taken= | name=cur=S+1000 | preview=cur=S | rows=INIT | entries=none | next=S+1000 | preview next=S+1 | name after=cur=S+1000' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -2254,7 +2316,7 @@ codeunit 79559 "LT SQM XQ"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.EntriesRel(Base);
         Actual += ' | next=' + Seq.NextRel(Name(), Base) + ' | preview next=' + Seq.NextRel(Seq.PreviewName(Name()), PreviewBase);
         Actual += ' | name after=' + Seq.Rel(Name(), Base);
-        if Actual <> 'TBD' then
+        if Actual <> 'onrun=found,found | initialized=Yes | start=cur=S,cur=S | changed=cur=S+1000 | taken= | name=cur=S | preview=cur=S | rows=INIT | entries=none | next=S+1 | preview next=S+1 | name after=cur=S+1' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -2341,7 +2403,7 @@ codeunit 79560 "LT SQM XP"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.EntriesRel(Base);
         Actual += ' | next=' + Seq.NextRel(Name(), Base) + ' | preview next=' + Seq.NextRel(Seq.PreviewName(Name()), PreviewBase);
         Actual += ' | name after=' + Seq.Rel(Name(), Base);
-        if Actual <> 'TBD' then
+        if Actual <> 'onrun=found,found | initialized=Yes | start=cur=S,cur=S | changed=restart cur=S+6 | taken=S+6 | name=cur=S+6 | preview=cur=S-2000000003 | rows=B1,B2,INIT | entries=S+5,S+6 | next=S+7 | preview next=S-2000000002 | name after=cur=S+7' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -2429,7 +2491,7 @@ codeunit 79561 "LT SQM FA"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
         Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
         Actual += ' | name after=' + Seq.State(Name());
-        if Actual <> 'TBD' then
+        if Actual <> 'initialized=Yes | name=cur=2 | preview=cur=-2000000001 | rows=B1,C1,INIT | entries=1,2 | next=3 | preview next=-2000000000 | name after=cur=3' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -2514,7 +2576,7 @@ codeunit 79562 "LT SQM FB"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
         Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
         Actual += ' | name after=' + Seq.State(Name());
-        if Actual <> 'TBD' then
+        if Actual <> 'initialized=Yes | name=cur=2 | preview=cur=-2000000001 | rows=B1,INIT | entries=1 | next=3 | preview next=-2000000000 | name after=cur=3' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -2599,7 +2661,7 @@ codeunit 79563 "LT SQM FC"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
         Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
         Actual += ' | name after=' + Seq.State(Name());
-        if Actual <> 'TBD' then
+        if Actual <> 'initialized=Yes | name=cur=1 | preview=cur=-2000000001 | rows=C1,INIT | entries=1 | next=2 | preview next=-2000000000 | name after=cur=2' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -2680,7 +2742,7 @@ codeunit 79564 "LT SQM FD"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
         Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
         Actual += ' | name after=' + Seq.State(Name());
-        if Actual <> 'TBD' then
+        if Actual <> 'initialized=Yes | name=cur=2 | preview=cur=-2000000001 | rows=B1,INIT | entries=1 | next=3 | preview next=-2000000000 | name after=cur=3' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -2781,7 +2843,7 @@ codeunit 79565 "LT SQM FE"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.EntriesRel(Base);
         Actual += ' | next=' + Seq.NextRel(Name(), Base) + ' | preview next=' + Seq.NextRel(Seq.PreviewName(Name()), PreviewBase);
         Actual += ' | name after=' + Seq.Rel(Name(), Base);
-        if Actual <> 'TBD' then
+        if Actual <> 'onrun=found,found | initialized=Yes | start=cur=S,cur=S | changed=restart cur=S+6,restart cur=S+21 | taken=S+6,S+21 | name=cur=S+6 | preview=cur=S-2000000003 | rows=B1,INIT | entries=S+5,S+6 | next=S+7 | preview next=S-2000000002 | name after=cur=S+7' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -2859,7 +2921,7 @@ codeunit 79566 "LT SQM PF"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
         Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
         Actual += ' | name after=' + Seq.State(Name());
-        if Actual <> 'TBD' then
+        if Actual <> 'initialized=Yes | pv=run: | name=missing | preview=missing | rows=INIT | entries=none | next=missing | preview next=missing | name after=missing' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -2935,7 +2997,7 @@ codeunit 79567 "LT SQM PG"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
         Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
         Actual += ' | name after=' + Seq.State(Name());
-        if Actual <> 'TBD' then
+        if Actual <> 'initialized=Yes | pv=run: | name=missing | preview=missing | rows=INIT | entries=none | next=missing | preview next=missing | name after=missing' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -3012,7 +3074,7 @@ codeunit 79568 "LT SQM PH"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
         Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
         Actual += ' | name after=' + Seq.State(Name());
-        if Actual <> 'TBD' then
+        if Actual <> 'initialized=Yes | pv=run:No:'''' | name=cur=2 | preview=cur=-2000000001 | rows=B1,INIT | entries=1 | next=3 | preview next=-2000000000 | name after=cur=3' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -3089,7 +3151,7 @@ codeunit 79569 "LT SQM PI"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
         Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
         Actual += ' | name after=' + Seq.State(Name());
-        if Actual <> 'TBD' then
+        if Actual <> 'initialized=Yes | pv=run:No:'''' | name=missing | preview=missing | rows=B1,INIT | entries=none | next=missing | preview next=missing | name after=missing' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -3161,7 +3223,7 @@ codeunit 79570 "LT SQM PJ"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
         Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
         Actual += ' | name after=' + Seq.State(Name());
-        if Actual <> 'TBD' then
+        if Actual <> 'initialized=Yes | pv=run:No:'''' | name=missing | preview=missing | rows=INIT | entries=none | next=missing | preview next=missing | name after=missing' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
@@ -3252,7 +3314,7 @@ codeunit 79571 "LT SQM XF"
         Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.EntriesRel(Base);
         Actual += ' | next=' + Seq.NextRel(Name(), Base) + ' | preview next=' + Seq.NextRel(Seq.PreviewName(Name()), PreviewBase);
         Actual += ' | name after=' + Seq.Rel(Name(), Base);
-        if Actual <> 'TBD' then
+        if Actual <> 'onrun=found,found | initialized=Yes | start=cur=S,cur=S | changed=restart cur=S+6 | taken=S+6 | pv=run:No:'''' | name=cur=S+7 | preview=cur=S-2000000003 | rows=B1,INIT | entries=S+5,S+6 | next=S+8 | preview next=S-2000000002 | name after=cur=S+8' then
             Error('OBSERVE %1: %2', Cell, Actual);
     end;
 
