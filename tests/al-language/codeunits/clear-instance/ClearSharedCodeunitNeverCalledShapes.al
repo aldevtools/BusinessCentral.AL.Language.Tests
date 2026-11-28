@@ -18,6 +18,15 @@
 // the holder. "ClearAll clears the shared instance" and "ClearAll only drops the owner's reference" predict different values
 // in every one of these cells. al-runner issue 8964.
 // BC versions: 27, 28, 29
+// What BC did (the same in all six shapes: TableNo, TableNoRun, LocalProc, LocalOwner, Internal, Activity):
+// - The ClearAll clears the one shared register instance; the owner's variable stays bound to it. Never called before: the
+//   owner's write right after its ClearAll (Cnt 21) is read through the holder's variable, every other global reads its default.
+// - Written before through the holder (every global set): after the owner's ClearAll the holder reads every plain global reset
+//   (field values, filters, Integer, Date, Booleans) except the owner's write (Cnt 21); temporary records keep their rows
+//   (Count 1); Labels keep their text; the SingleInstance U and C/I keep the values primed through other variables.
+// - The owner runs the register right after its ClearAll (inserts entry row 5, counter 1); the holder's later run (by the test
+//   after the holder returns, or by the holder itself inside its own OnRun after PostSourceDocument) uses the same instance:
+//   counter 2, row 5 modified (Runs 2), no second row. With the owner in a local, its view read right after Run is the same.
 codeunit 86901 "CNC Owner Internal"
 {
     TableNo = "CKK Row";
@@ -477,7 +486,11 @@ codeunit 86907 "CNC Shape Test"
         Observer.Observe('owner', H.OwnerState());
         Observer.Observe('si', H.StateSI());
         Observer.Observe('entries', Entries());
-        Observer.Finish();
+        Observer.Expect('holder', 'reg[0,0,0,,,21,reg label,reg plain,false]');
+        Observer.Expect('owner', 'reg[0,0,0,,,21,reg label,reg plain,false]');
+        Observer.Expect('si', 'ci[Yes]u[71,No.: 71,u71,u label,u plain]|u[71,No.: 71,u71,u label,u plain]ci[Yes]u[71,No.: 71,u71,u label,u plain]');
+        Observer.Expect('entries', 'entries[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -494,7 +507,12 @@ codeunit 86907 "CNC Shape Test"
         Observer.Observe('b', H.StateB());
         Observer.Observe('si', H.StateSI());
         Observer.Observe('owner', H.OwnerState());
-        Observer.Finish();
+        Observer.Expect('holder', 'reg[0,0,0,,,21,reg label,reg plain,false]');
+        Observer.Expect('a', 'a[1,0,,,0,,,0,,falsefalsefalsefalse,a label,a plain]');
+        Observer.Expect('b', 'b[0,,,0,,1,falsefalse,0,b label,b plain]w[w label,w plain]a[1,0,,,0,,,0,,falsefalsefalsefalse,a label,a plain]');
+        Observer.Expect('si', 'ci[Yes]u[72,No.: 72,u72,u label,u plain]|u[72,No.: 72,u72,u label,u plain]ci[Yes]u[72,No.: 72,u72,u label,u plain]');
+        Observer.Expect('owner', 'reg[0,0,0,,,21,reg label,reg plain,false]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -511,7 +529,12 @@ codeunit 86907 "CNC Shape Test"
         Observer.Observe('second.holder', H.State());
         Observer.Observe('second.owner', H.OwnerState());
         Observer.Observe('second.entries', Entries());
-        Observer.Finish();
+        Observer.Expect('first.holder', 'reg[5,1,8,,,1,reg label,reg plain,true]');
+        Observer.Expect('first.entries', 'entries[4:0;5:1;]');
+        Observer.Expect('second.holder', 'reg[5,2,7,,,2,reg label,reg plain,true]');
+        Observer.Expect('second.owner', 'reg[5,2,7,,,2,reg label,reg plain,true]');
+        Observer.Expect('second.entries', 'entries[4:0;5:2;]');
+        Observer.Verify();
     end;
 
     // TableNo holder, entered through its own OnRun by Run
@@ -531,7 +554,11 @@ codeunit 86907 "CNC Shape Test"
         Observer.Observe('owner', H.OwnerState());
         Observer.Observe('si', H.StateSI());
         Observer.Observe('entries', Entries());
-        Observer.Finish();
+        Observer.Expect('holder', 'reg[0,0,0,,,21,reg label,reg plain,false]');
+        Observer.Expect('owner', 'reg[0,0,0,,,21,reg label,reg plain,false]');
+        Observer.Expect('si', 'ci[Yes]u[74,No.: 74,u74,u label,u plain]|u[74,No.: 74,u74,u label,u plain]ci[Yes]u[74,No.: 74,u74,u label,u plain]');
+        Observer.Expect('entries', 'entries[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -551,7 +578,12 @@ codeunit 86907 "CNC Shape Test"
         Observer.Observe('b', H.StateB());
         Observer.Observe('si', H.StateSI());
         Observer.Observe('owner', H.OwnerState());
-        Observer.Finish();
+        Observer.Expect('holder', 'reg[0,0,0,,,21,reg label,reg plain,false]');
+        Observer.Expect('a', 'a[1,0,,,0,,,0,,falsefalsefalsefalse,a label,a plain]');
+        Observer.Expect('b', 'b[0,,,0,,1,falsefalse,0,b label,b plain]w[w label,w plain]a[1,0,,,0,,,0,,falsefalsefalsefalse,a label,a plain]');
+        Observer.Expect('si', 'ci[Yes]u[75,No.: 75,u75,u label,u plain]|u[75,No.: 75,u75,u label,u plain]ci[Yes]u[75,No.: 75,u75,u label,u plain]');
+        Observer.Expect('owner', 'reg[0,0,0,,,21,reg label,reg plain,false]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -571,7 +603,12 @@ codeunit 86907 "CNC Shape Test"
         Observer.Observe('second.holder', H.State());
         Observer.Observe('second.owner', H.OwnerState());
         Observer.Observe('second.entries', Entries());
-        Observer.Finish();
+        Observer.Expect('first.holder', 'reg[5,1,8,,,1,reg label,reg plain,true]');
+        Observer.Expect('first.entries', 'entries[4:0;5:1;]');
+        Observer.Expect('second.holder', 'reg[5,2,7,,,2,reg label,reg plain,true]');
+        Observer.Expect('second.owner', 'reg[5,2,7,,,2,reg label,reg plain,true]');
+        Observer.Expect('second.entries', 'entries[4:0;5:2;]');
+        Observer.Verify();
     end;
 
     // Holder runs the owner from a local procedure
@@ -588,7 +625,11 @@ codeunit 86907 "CNC Shape Test"
         Observer.Observe('owner', H.OwnerState());
         Observer.Observe('si', H.StateSI());
         Observer.Observe('entries', Entries());
-        Observer.Finish();
+        Observer.Expect('holder', 'reg[0,0,0,,,21,reg label,reg plain,false]');
+        Observer.Expect('owner', 'reg[0,0,0,,,21,reg label,reg plain,false]');
+        Observer.Expect('si', 'ci[Yes]u[77,No.: 77,u77,u label,u plain]|u[77,No.: 77,u77,u label,u plain]ci[Yes]u[77,No.: 77,u77,u label,u plain]');
+        Observer.Expect('entries', 'entries[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -605,7 +646,12 @@ codeunit 86907 "CNC Shape Test"
         Observer.Observe('b', H.StateB());
         Observer.Observe('si', H.StateSI());
         Observer.Observe('owner', H.OwnerState());
-        Observer.Finish();
+        Observer.Expect('holder', 'reg[0,0,0,,,21,reg label,reg plain,false]');
+        Observer.Expect('a', 'a[1,0,,,0,,,0,,falsefalsefalsefalse,a label,a plain]');
+        Observer.Expect('b', 'b[0,,,0,,1,falsefalse,0,b label,b plain]w[w label,w plain]a[1,0,,,0,,,0,,falsefalsefalsefalse,a label,a plain]');
+        Observer.Expect('si', 'ci[Yes]u[78,No.: 78,u78,u label,u plain]|u[78,No.: 78,u78,u label,u plain]ci[Yes]u[78,No.: 78,u78,u label,u plain]');
+        Observer.Expect('owner', 'reg[0,0,0,,,21,reg label,reg plain,false]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -622,7 +668,12 @@ codeunit 86907 "CNC Shape Test"
         Observer.Observe('second.holder', H.State());
         Observer.Observe('second.owner', H.OwnerState());
         Observer.Observe('second.entries', Entries());
-        Observer.Finish();
+        Observer.Expect('first.holder', 'reg[5,1,8,,,1,reg label,reg plain,true]');
+        Observer.Expect('first.entries', 'entries[4:0;5:1;]');
+        Observer.Expect('second.holder', 'reg[5,2,7,,,2,reg label,reg plain,true]');
+        Observer.Expect('second.owner', 'reg[5,2,7,,,2,reg label,reg plain,true]');
+        Observer.Expect('second.entries', 'entries[4:0;5:2;]');
+        Observer.Verify();
     end;
 
     // Holder holds the owner in a local variable (owner view read right after Run, inside that procedure)
@@ -639,7 +690,11 @@ codeunit 86907 "CNC Shape Test"
         Observer.Observe('owner', H.OwnerState());
         Observer.Observe('si', H.StateSI());
         Observer.Observe('entries', Entries());
-        Observer.Finish();
+        Observer.Expect('holder', 'reg[0,0,0,,,21,reg label,reg plain,false]');
+        Observer.Expect('owner', 'reg[0,0,0,,,21,reg label,reg plain,false]');
+        Observer.Expect('si', 'ci[Yes]u[81,No.: 81,u81,u label,u plain]|u[81,No.: 81,u81,u label,u plain]ci[Yes]u[81,No.: 81,u81,u label,u plain]');
+        Observer.Expect('entries', 'entries[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -656,7 +711,12 @@ codeunit 86907 "CNC Shape Test"
         Observer.Observe('b', H.StateB());
         Observer.Observe('si', H.StateSI());
         Observer.Observe('owner', H.OwnerState());
-        Observer.Finish();
+        Observer.Expect('holder', 'reg[0,0,0,,,21,reg label,reg plain,false]');
+        Observer.Expect('a', 'a[1,0,,,0,,,0,,falsefalsefalsefalse,a label,a plain]');
+        Observer.Expect('b', 'b[0,,,0,,1,falsefalse,0,b label,b plain]w[w label,w plain]a[1,0,,,0,,,0,,falsefalsefalsefalse,a label,a plain]');
+        Observer.Expect('si', 'ci[Yes]u[82,No.: 82,u82,u label,u plain]|u[82,No.: 82,u82,u label,u plain]ci[Yes]u[82,No.: 82,u82,u label,u plain]');
+        Observer.Expect('owner', 'reg[0,0,0,,,21,reg label,reg plain,false]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -673,7 +733,12 @@ codeunit 86907 "CNC Shape Test"
         H.RunReg();
         Observer.Observe('second.holder', H.State());
         Observer.Observe('second.entries', Entries());
-        Observer.Finish();
+        Observer.Expect('first.holder', 'reg[5,1,8,,,1,reg label,reg plain,true]');
+        Observer.Expect('first.owner', 'reg[5,1,8,,,1,reg label,reg plain,true]');
+        Observer.Expect('first.entries', 'entries[4:0;5:1;]');
+        Observer.Expect('second.holder', 'reg[5,2,7,,,2,reg label,reg plain,true]');
+        Observer.Expect('second.entries', 'entries[4:0;5:2;]');
+        Observer.Verify();
     end;
 
     // Owner's RunWithCheck is internal
@@ -690,7 +755,11 @@ codeunit 86907 "CNC Shape Test"
         Observer.Observe('owner', H.OwnerState());
         Observer.Observe('si', H.StateSI());
         Observer.Observe('entries', Entries());
-        Observer.Finish();
+        Observer.Expect('holder', 'reg[0,0,0,,,21,reg label,reg plain,false]');
+        Observer.Expect('owner', 'reg[0,0,0,,,21,reg label,reg plain,false]');
+        Observer.Expect('si', 'ci[Yes]u[84,No.: 84,u84,u label,u plain]|u[84,No.: 84,u84,u label,u plain]ci[Yes]u[84,No.: 84,u84,u label,u plain]');
+        Observer.Expect('entries', 'entries[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -707,7 +776,12 @@ codeunit 86907 "CNC Shape Test"
         Observer.Observe('b', H.StateB());
         Observer.Observe('si', H.StateSI());
         Observer.Observe('owner', H.OwnerState());
-        Observer.Finish();
+        Observer.Expect('holder', 'reg[0,0,0,,,21,reg label,reg plain,false]');
+        Observer.Expect('a', 'a[1,0,,,0,,,0,,falsefalsefalsefalse,a label,a plain]');
+        Observer.Expect('b', 'b[0,,,0,,1,falsefalse,0,b label,b plain]w[w label,w plain]a[1,0,,,0,,,0,,falsefalsefalsefalse,a label,a plain]');
+        Observer.Expect('si', 'ci[Yes]u[85,No.: 85,u85,u label,u plain]|u[85,No.: 85,u85,u label,u plain]ci[Yes]u[85,No.: 85,u85,u label,u plain]');
+        Observer.Expect('owner', 'reg[0,0,0,,,21,reg label,reg plain,false]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -724,7 +798,12 @@ codeunit 86907 "CNC Shape Test"
         Observer.Observe('second.holder', H.State());
         Observer.Observe('second.owner', H.OwnerState());
         Observer.Observe('second.entries', Entries());
-        Observer.Finish();
+        Observer.Expect('first.holder', 'reg[5,1,8,,,1,reg label,reg plain,true]');
+        Observer.Expect('first.entries', 'entries[4:0;5:1;]');
+        Observer.Expect('second.holder', 'reg[5,2,7,,,2,reg label,reg plain,true]');
+        Observer.Expect('second.owner', 'reg[5,2,7,,,2,reg label,reg plain,true]');
+        Observer.Expect('second.entries', 'entries[4:0;5:2;]');
+        Observer.Verify();
     end;
 
     // All four facts: the "Whse.-Activity-Post" -> "Sales-Post" shape
@@ -744,7 +823,11 @@ codeunit 86907 "CNC Shape Test"
         Observer.Observe('owner', H.OwnerState());
         Observer.Observe('si', H.StateSI());
         Observer.Observe('entries', Entries());
-        Observer.Finish();
+        Observer.Expect('holder', 'reg[0,0,0,,,21,reg label,reg plain,false]');
+        Observer.Expect('owner', 'reg[0,0,0,,,21,reg label,reg plain,false]');
+        Observer.Expect('si', 'ci[Yes]u[87,No.: 87,u87,u label,u plain]|u[87,No.: 87,u87,u label,u plain]ci[Yes]u[87,No.: 87,u87,u label,u plain]');
+        Observer.Expect('entries', 'entries[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -764,7 +847,12 @@ codeunit 86907 "CNC Shape Test"
         Observer.Observe('b', H.StateB());
         Observer.Observe('si', H.StateSI());
         Observer.Observe('owner', H.OwnerState());
-        Observer.Finish();
+        Observer.Expect('holder', 'reg[0,0,0,,,21,reg label,reg plain,false]');
+        Observer.Expect('a', 'a[1,0,,,0,,,0,,falsefalsefalsefalse,a label,a plain]');
+        Observer.Expect('b', 'b[0,,,0,,1,falsefalse,0,b label,b plain]w[w label,w plain]a[1,0,,,0,,,0,,falsefalsefalsefalse,a label,a plain]');
+        Observer.Expect('si', 'ci[Yes]u[88,No.: 88,u88,u label,u plain]|u[88,No.: 88,u88,u label,u plain]ci[Yes]u[88,No.: 88,u88,u label,u plain]');
+        Observer.Expect('owner', 'reg[0,0,0,,,21,reg label,reg plain,false]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -784,7 +872,12 @@ codeunit 86907 "CNC Shape Test"
         H.RunReg();
         Observer.Observe('second.holder', H.State());
         Observer.Observe('second.entries', Entries());
-        Observer.Finish();
+        Observer.Expect('first.holder', 'reg[5,1,8,,,1,reg label,reg plain,true]');
+        Observer.Expect('first.owner', 'reg[5,1,8,,,1,reg label,reg plain,true]');
+        Observer.Expect('first.entries', 'entries[4:0;5:1;]');
+        Observer.Expect('second.holder', 'reg[5,2,7,,,2,reg label,reg plain,true]');
+        Observer.Expect('second.entries', 'entries[4:0;5:2;]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -803,6 +896,11 @@ codeunit 86907 "CNC Shape Test"
         Observer.Observe('holder', H.State());
         Observer.Observe('si', H.StateSI());
         Observer.Observe('entries', Entries());
-        Observer.Finish();
+        Observer.Expect('owner', 'reg[5,1,8,,,1,reg label,reg plain,true]');
+        Observer.Expect('inside', 'reg[5,2,7,,,2,reg label,reg plain,true]');
+        Observer.Expect('holder', 'reg[5,2,7,,,2,reg label,reg plain,true]');
+        Observer.Expect('si', 'ci[Yes]u[90,No.: 90,u90,u label,u plain]|u[90,No.: 90,u90,u label,u plain]ci[Yes]u[90,No.: 90,u90,u label,u plain]');
+        Observer.Expect('entries', 'entries[4:0;5:2;]');
+        Observer.Verify();
     end;
 }
