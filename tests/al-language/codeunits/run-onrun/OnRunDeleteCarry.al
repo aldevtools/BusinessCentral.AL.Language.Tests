@@ -16,13 +16,17 @@
 //     D: Disabled. Seed "LT ODC Hub Seed" uses Disabled.
 //   - 130450 group (prefix W): no TestPermissions property, so the Codeunit test runner runs it on every leg.
 //
-// Measured on BC 27.5, 28.5 and 29.0 (Linux legs, the same values on all three):
+// Measured on BC 27.5, 28.5 and 29.0 (Linux legs; the hub values below are BC 28 and 29):
 //   - Inside the writer codeunit, its test sees every OnRun delete (cells 1-5 rows gone) in every group.
 //   - Hub, Codeunit and Function isolation: the next codeunit sees the rows again. The OnRun delete is rolled back with the
 //     codeunit, the committed one of cell 3 too.
 //   - Hub, Disabled isolation: the next codeunit does not see the rows. The delete persists (cells 1-5).
 //   - 130450 runner: the next codeunit does not see the rows. The OnRun delete carries (cells 1-5), as OnRun inserts do.
 //   - Cell 7: a DeleteAll on a temporary record never touches the real row (all groups, writer and reader).
+//   - BC 27 runs the hub groups under 130450 (CI run 46082141726): there the C and F readers do not see the rows either, the
+//     delete carries as in the W group (#else branches). The BC28PLUS guards mark this difference of the test HARNESS, not of
+//     the platform, as in RqIsolationModes.al. That run reported only the first wrong row of each reader (da1, d1, cm1, rr1,
+//     ev1); da2 and rr2 go with da1 and rr1 (one DeleteAll statement) and are checked by the next CI run.
 // Measured locally, not a test here (it fails the leg): OnRun that deletes and then raises Error. The hub reports a failed
 // "OnRun" result with the error text and does not run the codeunit's test; the 130450 runner reports no result for that
 // codeunit. In every group the next codeunit sees the row again: the error rolls the delete back.
@@ -254,9 +258,15 @@ codeunit 83412 "LT ODC C1 DeleteAll Reader"
         Observer: Codeunit "Probe Observer";
     begin
         Probe.ObserveCell('C', 1, Observer);
+#if BC28PLUS
         Observer.Expect('keep_row', 'Yes');
         Observer.Expect('da1_row', 'Yes');
         Observer.Expect('da2_row', 'Yes');
+#else
+        Observer.Expect('keep_row', 'Yes');
+        Observer.Expect('da1_row', 'No');
+        Observer.Expect('da2_row', 'No');
+#endif
         Observer.Verify();
     end;
 }
@@ -300,8 +310,13 @@ codeunit 83414 "LT ODC C2 Delete Reader"
         Observer: Codeunit "Probe Observer";
     begin
         Probe.ObserveCell('C', 2, Observer);
+#if BC28PLUS
         Observer.Expect('keep_row', 'Yes');
         Observer.Expect('d1_row', 'Yes');
+#else
+        Observer.Expect('keep_row', 'Yes');
+        Observer.Expect('d1_row', 'No');
+#endif
         Observer.Verify();
     end;
 }
@@ -345,8 +360,13 @@ codeunit 83416 "LT ODC C3 Commit Reader"
         Observer: Codeunit "Probe Observer";
     begin
         Probe.ObserveCell('C', 3, Observer);
+#if BC28PLUS
         Observer.Expect('keep_row', 'Yes');
         Observer.Expect('cm1_row', 'Yes');
+#else
+        Observer.Expect('keep_row', 'Yes');
+        Observer.Expect('cm1_row', 'No');
+#endif
         Observer.Verify();
     end;
 }
@@ -391,9 +411,15 @@ codeunit 83418 "LT ODC C4 RecRef Reader"
         Observer: Codeunit "Probe Observer";
     begin
         Probe.ObserveCell('C', 4, Observer);
+#if BC28PLUS
         Observer.Expect('keep_row', 'Yes');
         Observer.Expect('rr1_row', 'Yes');
         Observer.Expect('rr2_row', 'Yes');
+#else
+        Observer.Expect('keep_row', 'Yes');
+        Observer.Expect('rr1_row', 'No');
+        Observer.Expect('rr2_row', 'No');
+#endif
         Observer.Verify();
     end;
 }
@@ -437,8 +463,13 @@ codeunit 83420 "LT ODC C5 Event Reader"
         Observer: Codeunit "Probe Observer";
     begin
         Probe.ObserveCell('C', 5, Observer);
+#if BC28PLUS
         Observer.Expect('keep_row', 'Yes');
         Observer.Expect('ev1_row', 'Yes');
+#else
+        Observer.Expect('keep_row', 'Yes');
+        Observer.Expect('ev1_row', 'No');
+#endif
         Observer.Verify();
     end;
 }
@@ -530,9 +561,15 @@ codeunit 83426 "LT ODC F1 DeleteAll Reader"
         Observer: Codeunit "Probe Observer";
     begin
         Probe.ObserveCell('F', 1, Observer);
+#if BC28PLUS
         Observer.Expect('keep_row', 'Yes');
         Observer.Expect('da1_row', 'Yes');
         Observer.Expect('da2_row', 'Yes');
+#else
+        Observer.Expect('keep_row', 'Yes');
+        Observer.Expect('da1_row', 'No');
+        Observer.Expect('da2_row', 'No');
+#endif
         Observer.Verify();
     end;
 }
@@ -576,8 +613,13 @@ codeunit 83428 "LT ODC F2 Delete Reader"
         Observer: Codeunit "Probe Observer";
     begin
         Probe.ObserveCell('F', 2, Observer);
+#if BC28PLUS
         Observer.Expect('keep_row', 'Yes');
         Observer.Expect('d1_row', 'Yes');
+#else
+        Observer.Expect('keep_row', 'Yes');
+        Observer.Expect('d1_row', 'No');
+#endif
         Observer.Verify();
     end;
 }
@@ -621,8 +663,13 @@ codeunit 83430 "LT ODC F3 Commit Reader"
         Observer: Codeunit "Probe Observer";
     begin
         Probe.ObserveCell('F', 3, Observer);
+#if BC28PLUS
         Observer.Expect('keep_row', 'Yes');
         Observer.Expect('cm1_row', 'Yes');
+#else
+        Observer.Expect('keep_row', 'Yes');
+        Observer.Expect('cm1_row', 'No');
+#endif
         Observer.Verify();
     end;
 }
@@ -667,9 +714,15 @@ codeunit 83432 "LT ODC F4 RecRef Reader"
         Observer: Codeunit "Probe Observer";
     begin
         Probe.ObserveCell('F', 4, Observer);
+#if BC28PLUS
         Observer.Expect('keep_row', 'Yes');
         Observer.Expect('rr1_row', 'Yes');
         Observer.Expect('rr2_row', 'Yes');
+#else
+        Observer.Expect('keep_row', 'Yes');
+        Observer.Expect('rr1_row', 'No');
+        Observer.Expect('rr2_row', 'No');
+#endif
         Observer.Verify();
     end;
 }
@@ -713,8 +766,13 @@ codeunit 83434 "LT ODC F5 Event Reader"
         Observer: Codeunit "Probe Observer";
     begin
         Probe.ObserveCell('F', 5, Observer);
+#if BC28PLUS
         Observer.Expect('keep_row', 'Yes');
         Observer.Expect('ev1_row', 'Yes');
+#else
+        Observer.Expect('keep_row', 'Yes');
+        Observer.Expect('ev1_row', 'No');
+#endif
         Observer.Verify();
     end;
 }
