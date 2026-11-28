@@ -74,6 +74,23 @@ codeunit 75483 "STR B64 Holder Helper"
         Observer.Observe('equals_text_form', Format(Result = Base64.ToBase64(Content, true)));
     end;
 
+    procedure EdgeCodes(Value: Text): Text
+    begin
+        if StrLen(Value) <= 4 then
+            exit(Codes(Value));
+        exit(Codes(CopyStr(Value, 1, 4)) + '... ' + Codes(CopyStr(Value, StrLen(Value) - 3, 4)));
+    end;
+
+    // A3b: the record is the caller's (by var); this procedure writes it and opens the stream.
+    procedure FillCallerHolder(var Holder: Record "STR B64 Holder Temp"; var InS: InStream)
+    var
+        OutS: OutStream;
+    begin
+        Holder.Data.CreateOutStream(OutS);
+        OutS.WriteText(HundredA());
+        Holder.Data.CreateInStream(InS);
+    end;
+
     // A3: the record lives only in this procedure of a non-test codeunit; the stream is handed back.
     procedure FillTempHolder(var InS: InStream)
     var
@@ -136,6 +153,21 @@ codeunit 75484 "STR B64 Blob Holders"
     begin
         // A3: written and opened in a procedure of a non-test codeunit, the stream handed back
         H.FillTempHolder(InS);
+        Observer.Observe('eos_before_call', Format(InS.EOS()));
+        H.ObserveResult(Observer, Base64.ToBase64(InS, true), H.HundredA());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ToBase64_TempTableCallerRecordOtherCodeunit_LineBreaks()
+    var
+        Holder: Record "STR B64 Holder Temp";
+        Observer: Codeunit "Probe Observer";
+        InS: InStream;
+    begin
+        // A3b (neighbor of A3): the record is a local of the test, passed by var to a non-test codeunit that writes it and opens the stream
+        H.FillCallerHolder(Holder, InS);
+        Observer.Observe('eos_before_call', Format(InS.EOS()));
         H.ObserveResult(Observer, Base64.ToBase64(InS, true), H.HundredA());
         Observer.Finish();
     end;
@@ -327,13 +359,17 @@ codeunit 75485 "STR B64 Blob Stream History"
         OutS: OutStream;
         InS: InStream;
         Content: Text;
+        Result: Text;
     begin
         // B3: OutS.Write(Text) instead of WriteText
         Content := H.HundredA();
         Holder.Data.CreateOutStream(OutS);
         OutS.Write(Content);
         Holder.Data.CreateInStream(InS);
-        H.ObserveResult(Observer, Base64.ToBase64(InS, true), H.HundredA());
+        Result := Base64.ToBase64(InS, true);
+        Observer.Observe('edge_codes', H.EdgeCodes(Result));
+        Observer.Observe('without_last_line_equals_text_form', Format(CopyStr(Result, 1, 76) = CopyStr(Base64.ToBase64(H.HundredA(), true), 1, 76)));
+        H.ObserveResult(Observer, Result, H.HundredA());
         Observer.Finish();
     end;
 
@@ -383,13 +419,18 @@ codeunit 75485 "STR B64 Blob Stream History"
         OutS: OutStream;
         InS: InStream;
         Content: Text;
+        Result: Text;
     begin
         // B6: three non-ASCII letters then 97 'A', default encoding
         Content := 'ÄÖÜ' + PadStr('', 97, 'A');
         Holder.Data.CreateOutStream(OutS);
         OutS.WriteText(Content);
         Holder.Data.CreateInStream(InS);
-        H.ObserveResult(Observer, Base64.ToBase64(InS, true), Content);
+        Result := Base64.ToBase64(InS, true);
+        Observer.Observe('edge_codes', H.EdgeCodes(Result));
+        Observer.Observe('first_8', CopyStr(Result, 1, 8));
+        Observer.Observe('text_form_first_8', CopyStr(Base64.ToBase64(Content, true), 1, 8));
+        H.ObserveResult(Observer, Result, Content);
         Observer.Finish();
     end;
 
@@ -426,6 +467,7 @@ codeunit 75485 "STR B64 Blob Stream History"
         Holder.Data.CreateInStream(InS);
         InS.Read(Skipped);
         Observer.Observe('read_strlen', Format(StrLen(Skipped)));
+        Observer.Observe('eos_after_read', Format(InS.EOS()));
         H.ObserveResult(Observer, Base64.ToBase64(InS, true), H.HundredA());
         Observer.Finish();
     end;
@@ -496,6 +538,64 @@ codeunit 75485 "STR B64 Blob Stream History"
         Holder.Data.CreateInStream(InS);
         InS2 := InS;
         H.ObserveResult(Observer, Base64.ToBase64(InS2, true), H.HundredA());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ToBase64_ReadTextWholeBeforeCall_LineBreaks()
+    var
+        Holder: Record "STR B64 Holder Temp";
+        Observer: Codeunit "Probe Observer";
+        OutS: OutStream;
+        InS: InStream;
+        Skipped: Text;
+    begin
+        // C7 (neighbor of C1 and C2): ReadText(T) without a length before the call
+        Holder.Data.CreateOutStream(OutS);
+        OutS.WriteText(H.HundredA());
+        Holder.Data.CreateInStream(InS);
+        InS.ReadText(Skipped);
+        Observer.Observe('read_strlen', Format(StrLen(Skipped)));
+        Observer.Observe('eos_after_read', Format(InS.EOS()));
+        H.ObserveResult(Observer, Base64.ToBase64(InS, true), H.HundredA());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ToBase64_ReadWithLengthBeforeCall_LineBreaks()
+    var
+        Holder: Record "STR B64 Holder Temp";
+        Observer: Codeunit "Probe Observer";
+        OutS: OutStream;
+        InS: InStream;
+        Skipped: Text;
+    begin
+        // C8 (neighbor of C1 and C2): InS.Read(T, 10) before the call
+        Holder.Data.CreateOutStream(OutS);
+        OutS.WriteText(H.HundredA());
+        Holder.Data.CreateInStream(InS);
+        InS.Read(Skipped, 10);
+        Observer.Observe('read_strlen', Format(StrLen(Skipped)));
+        H.ObserveResult(Observer, Base64.ToBase64(InS, true), H.HundredA());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ToBase64_TempBlobReadBeforeCall_LineBreaks()
+    var
+        TempBlob: Codeunit "Temp Blob";
+        Observer: Codeunit "Probe Observer";
+        OutS: OutStream;
+        InS: InStream;
+        Skipped: Text;
+    begin
+        // C9 (control for C2): the same Read(T) before the call on a Temp Blob stream
+        TempBlob.CreateOutStream(OutS);
+        OutS.WriteText(H.HundredA());
+        TempBlob.CreateInStream(InS);
+        InS.Read(Skipped);
+        Observer.Observe('read_strlen', Format(StrLen(Skipped)));
+        H.ObserveResult(Observer, Base64.ToBase64(InS, true), H.HundredA());
         Observer.Finish();
     end;
 
