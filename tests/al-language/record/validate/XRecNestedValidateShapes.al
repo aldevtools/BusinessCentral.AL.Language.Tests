@@ -5,7 +5,7 @@
 //   XNV Cfg, XNV Subscribers, XNV Tests)
 // local object: the field triggers, table extension triggers, event subscribers and table procedures that read or assign xRec are
 //   what is under test; each shape has a table of its own so its code is the only code that runs between the two Validates.
-// Probe (al-runner issue 9331, follow-up of XRecTableProcThroughSubscriber.al): which xRec each code point sees when a field
+// Probe (al-runner issues 9331 and 8312, follow-up of XRecTableProcThroughSubscriber.al): which xRec each code point sees when a field
 //   OnValidate validates another field of the same record, beyond the two-procedure cell pinned there. Every cell inserts the row
 //   as 0/OLD/I1 (Mode ordinal/Series/"Item No."), sets Series := 'NEW' and runs Validate("Item No.", 'I2'). The outer trigger
 //   ("Item No.") logs 'I', sets Series := 'MID', nests Validate(Mode, Production) and logs 'I after'; the inner trigger (Mode) logs
@@ -27,8 +27,10 @@
 //   - zero, one and three table procedures between the triggers with the writers of issue 9331: outer assigns, inner assigns,
 //     inner xRec.SetRange, inner xRec.MarkedOnly(true), inner calls a [TryFunction] table procedure that assigns xRec then raises
 //     (also with two procedures); the outer trigger's own xRec.SetRange / MarkedOnly(true) without nesting;
+//   - the same [TryFunction] table procedure called as a statement (result not used), with zero and two procedures between, the
+//     outer Validate run from a test TryFunction;
 //   - the outer Validate run from a [TryFunction] and from a MessageHandler of the test codeunit (two procedures between).
-// Facts (measured on 27.5, 28.5 and 29.0, the same on all three):
+// Facts (measured on 27.5, 28.5 and 29.0, the same on all three; the two TryFunction statement cells locally on 29.0 only):
 //   - on the same record variable the nested Validates share ONE xRec: the inner trigger sees the outer Validate's before-image
 //     (0/NEW/I1, not the record at the inner call 1/MID/I2), at every depth (two levels, the same field nested) and with zero to
 //     three procedures between; whatever any code point assigns to it is what every later reader sees: the table extension
@@ -42,6 +44,9 @@
 //     assigned before the copy does not reach it;
 //   - xRec.SetRange and xRec.MarkedOnly(true) in a trigger show on Rec and on the caller's record too (GetFilters 'Series: F',
 //     MarkedOnly Yes), nested or not: xRec's filters and marked-only state are Rec's.
+//   - a [TryFunction] table procedure called as a statement does not catch its error: the error ('XNV try failed') leaves the inner
+//     trigger and both Validates, no later code point runs (no 'T after try', no 'I after'), and the caller's record is back at
+//     0/NEW/I1 after the failed test TryFunction.
 // BC versions: 27.5, 28.5, 29.0
 
 table 77460 "XNV InExt Line"
@@ -1880,7 +1885,7 @@ codeunit 77473 "XNV Tests"
     end;
 
     [Test]
-    procedure Validate_NoProcInnerTryStatementAssigns_Observed()
+    procedure Validate_NoProcInnerTryStatementAssigns_ErrorPropagates()
     var
         Observer: Codeunit "Probe Observer";
         Line: Record "XNV Proc Line";
@@ -1900,11 +1905,15 @@ codeunit 77473 "XNV Tests"
         Observer.Observe('log', Cfg.Take());
         Observer.Observe('record', Format(Line.Mode, 0, 2) + '/' + Line.Series + '/' + Line."Item No.");
         Cfg.Set('');
-        Observer.Finish();
+        Observer.Expect('validate ok', 'No');
+        Observer.Expect('error', 'XNV try failed');
+        Observer.Expect('log', 'I x=0/NEW/I1 r=0/NEW/I2;T x=0/NEW/I1 r=1/MID/I2;');
+        Observer.Expect('record', '0/NEW/I1');
+        Observer.Verify();
     end;
 
     [Test]
-    procedure Validate_TwoProcsInnerTryStatementAssigns_Observed()
+    procedure Validate_TwoProcsInnerTryStatementAssigns_ErrorPropagates()
     var
         Observer: Codeunit "Probe Observer";
         Line: Record "XNV Proc Line";
@@ -1924,7 +1933,11 @@ codeunit 77473 "XNV Tests"
         Observer.Observe('log', Cfg.Take());
         Observer.Observe('record', Format(Line.Mode, 0, 2) + '/' + Line.Series + '/' + Line."Item No.");
         Cfg.Set('');
-        Observer.Finish();
+        Observer.Expect('validate ok', 'No');
+        Observer.Expect('error', 'XNV try failed');
+        Observer.Expect('log', 'I x=0/NEW/I1 r=0/NEW/I2;T x=0/NEW/I1 r=1/MID/I2;');
+        Observer.Expect('record', '0/NEW/I1');
+        Observer.Verify();
     end;
 
     [TryFunction]
