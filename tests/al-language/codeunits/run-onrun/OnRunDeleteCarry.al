@@ -48,6 +48,70 @@ table 83400 "LT ODC Row"
     }
 }
 
+// Cell 8: Truncate empties the whole table, so group C has a table of its own.
+table 83404 "LT ODC Trunc C"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "Key"; Code[30]) { }
+    }
+
+    keys
+    {
+        key(PK; "Key") { Clustered = true; }
+    }
+}
+
+// Cell 8: Truncate empties the whole table, so group F has a table of its own.
+table 83405 "LT ODC Trunc F"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "Key"; Code[30]) { }
+    }
+
+    keys
+    {
+        key(PK; "Key") { Clustered = true; }
+    }
+}
+
+// Cell 8: Truncate empties the whole table, so group D has a table of its own.
+table 83406 "LT ODC Trunc D"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "Key"; Code[30]) { }
+    }
+
+    keys
+    {
+        key(PK; "Key") { Clustered = true; }
+    }
+}
+
+// Cell 8: Truncate empties the whole table, so group W has a table of its own.
+table 83407 "LT ODC Trunc W"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "Key"; Code[30]) { }
+    }
+
+    keys
+    {
+        key(PK; "Key") { Clustered = true; }
+    }
+}
+
 // Seeds, writers and readers of every group.
 codeunit 83401 "LT ODC Probe"
 {
@@ -80,6 +144,8 @@ codeunit 83401 "LT ODC Probe"
         Put(P + '-RR2');
         Put(P + '-EV1');
         Put(P + '-T1');
+        PutTrunc(P, P + '-TR1');
+        PutTrunc(P, P + '-TR2');
     end;
 
     // Cell 1: a filtered DeleteAll.
@@ -131,6 +197,85 @@ codeunit 83401 "LT ODC Probe"
         TempRow.DeleteAll();
     end;
 
+    // Cell 8: puts a row into the truncate table of group P.
+    procedure PutTrunc(P: Text; RowKey: Text)
+    var
+        TruncC: Record "LT ODC Trunc C";
+        TruncF: Record "LT ODC Trunc F";
+        TruncD: Record "LT ODC Trunc D";
+        TruncW: Record "LT ODC Trunc W";
+    begin
+        case P of
+            'C':
+                begin
+                    if TruncC.Get(RowKey) then
+                        TruncC.Delete();
+                    TruncC."Key" := CopyStr(RowKey, 1, MaxStrLen(TruncC."Key"));
+                    TruncC.Insert();
+                end;
+            'F':
+                begin
+                    if TruncF.Get(RowKey) then
+                        TruncF.Delete();
+                    TruncF."Key" := CopyStr(RowKey, 1, MaxStrLen(TruncF."Key"));
+                    TruncF.Insert();
+                end;
+            'D':
+                begin
+                    if TruncD.Get(RowKey) then
+                        TruncD.Delete();
+                    TruncD."Key" := CopyStr(RowKey, 1, MaxStrLen(TruncD."Key"));
+                    TruncD.Insert();
+                end;
+            'W':
+                begin
+                    if TruncW.Get(RowKey) then
+                        TruncW.Delete();
+                    TruncW."Key" := CopyStr(RowKey, 1, MaxStrLen(TruncW."Key"));
+                    TruncW.Insert();
+                end;
+        end;
+    end;
+
+    procedure HasTrunc(P: Text; RowKey: Text): Text
+    var
+        TruncC: Record "LT ODC Trunc C";
+        TruncF: Record "LT ODC Trunc F";
+        TruncD: Record "LT ODC Trunc D";
+        TruncW: Record "LT ODC Trunc W";
+    begin
+        case P of
+            'C':
+                exit(Format(TruncC.Get(RowKey)));
+            'F':
+                exit(Format(TruncF.Get(RowKey)));
+            'D':
+                exit(Format(TruncD.Get(RowKey)));
+            'W':
+                exit(Format(TruncW.Get(RowKey)));
+        end;
+    end;
+
+    // Cell 8: Truncate without filters on the truncate table of group P.
+    procedure TruncateAll(P: Text)
+    var
+        TruncC: Record "LT ODC Trunc C";
+        TruncF: Record "LT ODC Trunc F";
+        TruncD: Record "LT ODC Trunc D";
+        TruncW: Record "LT ODC Trunc W";
+    begin
+        case P of
+            'C':
+                TruncC.Truncate();
+            'F':
+                TruncF.Truncate();
+            'D':
+                TruncD.Truncate();
+            'W':
+                TruncW.Truncate();
+        end;
+    end;
+
     procedure ObserveCell(P: Text; Cell: Integer; var Observer: Codeunit "Probe Observer")
     begin
         Observer.Observe('keep_row', Has(P + '-KEEP'));
@@ -153,6 +298,11 @@ codeunit 83401 "LT ODC Probe"
                 Observer.Observe('ev1_row', Has(P + '-EV1'));
             7:
                 Observer.Observe('t1_row', Has(P + '-T1'));
+            8:
+                begin
+                    Observer.Observe('tr1_row', HasTrunc(P, P + '-TR1'));
+                    Observer.Observe('tr2_row', HasTrunc(P, P + '-TR2'));
+                end;
         end;
     end;
 }
@@ -519,6 +669,47 @@ codeunit 83422 "LT ODC C7 Temp Reader"
     end;
 }
 
+codeunit 83423 "LT ODC C8 Truncate Writer"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+    RequiredTestIsolation = Codeunit;
+
+    trigger OnRun()
+    var
+        Probe: Codeunit "LT ODC Probe";
+    begin
+        Probe.TruncateAll('C');
+    end;
+
+    [Test]
+    procedure ODC_C8_WriterSees()
+    var
+        Probe: Codeunit "LT ODC Probe";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Probe.ObserveCell('C', 8, Observer);
+        Observer.Finish();
+    end;
+}
+
+codeunit 83424 "LT ODC C8 Truncate Reader"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+    RequiredTestIsolation = Codeunit;
+
+    [Test]
+    procedure ODC_C8_ReaderSees()
+    var
+        Probe: Codeunit "LT ODC Probe";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Probe.ObserveCell('C', 8, Observer);
+        Observer.Finish();
+    end;
+}
+
 // Hub group, RequiredTestIsolation = Function.
 
 codeunit 83425 "LT ODC F1 DeleteAll Writer"
@@ -822,6 +1013,47 @@ codeunit 83436 "LT ODC F7 Temp Reader"
     end;
 }
 
+codeunit 83437 "LT ODC F8 Truncate Writer"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+    RequiredTestIsolation = Function;
+
+    trigger OnRun()
+    var
+        Probe: Codeunit "LT ODC Probe";
+    begin
+        Probe.TruncateAll('F');
+    end;
+
+    [Test]
+    procedure ODC_F8_WriterSees()
+    var
+        Probe: Codeunit "LT ODC Probe";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Probe.ObserveCell('F', 8, Observer);
+        Observer.Finish();
+    end;
+}
+
+codeunit 83438 "LT ODC F8 Truncate Reader"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+    RequiredTestIsolation = Function;
+
+    [Test]
+    procedure ODC_F8_ReaderSees()
+    var
+        Probe: Codeunit "LT ODC Probe";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Probe.ObserveCell('F', 8, Observer);
+        Observer.Finish();
+    end;
+}
+
 // Hub group, RequiredTestIsolation = Disabled.
 
 codeunit 83439 "LT ODC D1 DeleteAll Writer"
@@ -1098,6 +1330,47 @@ codeunit 83450 "LT ODC D7 Temp Reader"
     end;
 }
 
+codeunit 83451 "LT ODC D8 Truncate Writer"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+    RequiredTestIsolation = Disabled;
+
+    trigger OnRun()
+    var
+        Probe: Codeunit "LT ODC Probe";
+    begin
+        Probe.TruncateAll('D');
+    end;
+
+    [Test]
+    procedure ODC_D8_WriterSees()
+    var
+        Probe: Codeunit "LT ODC Probe";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Probe.ObserveCell('D', 8, Observer);
+        Observer.Finish();
+    end;
+}
+
+codeunit 83452 "LT ODC D8 Truncate Reader"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+    RequiredTestIsolation = Disabled;
+
+    [Test]
+    procedure ODC_D8_ReaderSees()
+    var
+        Probe: Codeunit "LT ODC Probe";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Probe.ObserveCell('D', 8, Observer);
+        Observer.Finish();
+    end;
+}
+
 // 130450 group (no TestPermissions = Disabled: the Codeunit test runner on every leg). OnRun inserts carry (RqIsolationModes.al).
 codeunit 83460 "LT ODC W Seed"
 {
@@ -1369,5 +1642,42 @@ codeunit 83472 "LT ODC W7 Temp Reader"
         Observer.Expect('keep_row', 'Yes');
         Observer.Expect('t1_row', 'Yes');
         Observer.Verify();
+    end;
+}
+
+codeunit 83473 "LT ODC W8 Truncate Writer"
+{
+    Subtype = Test;
+
+    trigger OnRun()
+    var
+        Probe: Codeunit "LT ODC Probe";
+    begin
+        Probe.TruncateAll('W');
+    end;
+
+    [Test]
+    procedure ODC_W8_WriterSees()
+    var
+        Probe: Codeunit "LT ODC Probe";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Probe.ObserveCell('W', 8, Observer);
+        Observer.Finish();
+    end;
+}
+
+codeunit 83474 "LT ODC W8 Truncate Reader"
+{
+    Subtype = Test;
+
+    [Test]
+    procedure ODC_W8_ReaderSees()
+    var
+        Probe: Codeunit "LT ODC Probe";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Probe.ObserveCell('W', 8, Observer);
+        Observer.Finish();
     end;
 }
