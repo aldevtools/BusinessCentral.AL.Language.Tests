@@ -8,7 +8,16 @@
 //   tests of FvcTemporalIntoNumberPlaces.al (codeunit 73491).
 //   Each cell runs in a TryFunction on a fresh RecordRef and records "ok: <Format(result, 0, 9)>" or "E: <GetLastErrorText> |
 //   <GetLastErrorCode>". A test is <Source>_Targets.
-//   Observe round: every test ends with Observer.Finish(), which fails the test with the readings (OBSERVE:...); nothing is asserted yet.
+//   Measured on a local BC 29.0.54011.57673 service tier (Linux, W1, en-US session) on 2026-11-28 with an invented app holding
+//   these objects (AL 18.0.43.1464, run by al runtests of AL tool 18.1.43.24897); the values are those readings, turned into
+//   Expect and Verify by convert.py verbatim. This pull request's CI checks them on 27.5, 28.5 and 29.0; a version difference
+//   gets a version guard.
+//   Facts (BC 29.0.54011.57673): every source into Integer, BigInteger, Decimal, Byte or Char fails with 'Unable to convert from
+//   Microsoft.Dynamics.Nav.Runtime.Nav<Date|Time|DateTime> to <the target's .NET type>.' (Conversion). A Date or Time into Duration,
+//   Option and Boolean converts to its number: 1753-01-01 1280543, 9999-12-31 7304849, the closing date of 2026-01-15 1479994 (one
+//   more than the normal date's 1479993), 08:30:15 30615001, 00:00:01 1001; Boolean true. The DateTime into Duration gives
+//   P640271DT0H0M1.001S; into Option it fails with 'The value "01/01/1753 12:00 AM" can't be evaluated into type Option.'
+//   (Evaluate:Conversion; the year has four digits) and into Boolean with the Int32 conversion error.
 // BC versions: 27, 28, 29 by CI
 table 73382 "LT FTM Row"
 {
@@ -159,7 +168,15 @@ codeunit 73383 "LT FTM Value Tests"
         Probe.TargetCell(Observer, 'EarlyDate', 'Duration');
         Probe.TargetCell(Observer, 'EarlyDate', 'Option');
         Probe.TargetCell(Observer, 'EarlyDate', 'Boolean');
-        Observer.Finish();
+        Observer.Expect('Integer', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Int32. | Conversion');
+        Observer.Expect('BigInteger', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Int64. | Conversion');
+        Observer.Expect('Decimal', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to Microsoft.Dynamics.Nav.Runtime.Decimal18. | Conversion');
+        Observer.Expect('Byte', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Byte. | Conversion');
+        Observer.Expect('Char', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Char. | Conversion');
+        Observer.Expect('Duration', 'ok: P0DT0H21M20.543S');
+        Observer.Expect('Option', 'ok: 1280543');
+        Observer.Expect('Boolean', 'ok: true');
+        Observer.Verify();
     end;
 
     // The Date 9999-12-31 into each target, in a plain local.
@@ -177,7 +194,15 @@ codeunit 73383 "LT FTM Value Tests"
         Probe.TargetCell(Observer, 'LateDate', 'Duration');
         Probe.TargetCell(Observer, 'LateDate', 'Option');
         Probe.TargetCell(Observer, 'LateDate', 'Boolean');
-        Observer.Finish();
+        Observer.Expect('Integer', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Int32. | Conversion');
+        Observer.Expect('BigInteger', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Int64. | Conversion');
+        Observer.Expect('Decimal', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to Microsoft.Dynamics.Nav.Runtime.Decimal18. | Conversion');
+        Observer.Expect('Byte', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Byte. | Conversion');
+        Observer.Expect('Char', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Char. | Conversion');
+        Observer.Expect('Duration', 'ok: P0DT2H1M44.849S');
+        Observer.Expect('Option', 'ok: 7304849');
+        Observer.Expect('Boolean', 'ok: true');
+        Observer.Verify();
     end;
 
     // The closing date C01/15/26 into each target, in a plain local.
@@ -195,7 +220,15 @@ codeunit 73383 "LT FTM Value Tests"
         Probe.TargetCell(Observer, 'ClosingDate', 'Duration');
         Probe.TargetCell(Observer, 'ClosingDate', 'Option');
         Probe.TargetCell(Observer, 'ClosingDate', 'Boolean');
-        Observer.Finish();
+        Observer.Expect('Integer', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Int32. | Conversion');
+        Observer.Expect('BigInteger', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Int64. | Conversion');
+        Observer.Expect('Decimal', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to Microsoft.Dynamics.Nav.Runtime.Decimal18. | Conversion');
+        Observer.Expect('Byte', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Byte. | Conversion');
+        Observer.Expect('Char', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDate to System.Char. | Conversion');
+        Observer.Expect('Duration', 'ok: P0DT0H24M39.994S');
+        Observer.Expect('Option', 'ok: 1479994');
+        Observer.Expect('Boolean', 'ok: true');
+        Observer.Verify();
     end;
 
     // The Time 08:30:15 into each target, in a plain local.
@@ -213,7 +246,15 @@ codeunit 73383 "LT FTM Value Tests"
         Probe.TargetCell(Observer, 'Time083015', 'Duration');
         Probe.TargetCell(Observer, 'Time083015', 'Option');
         Probe.TargetCell(Observer, 'Time083015', 'Boolean');
-        Observer.Finish();
+        Observer.Expect('Integer', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to System.Int32. | Conversion');
+        Observer.Expect('BigInteger', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to System.Int64. | Conversion');
+        Observer.Expect('Decimal', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to Microsoft.Dynamics.Nav.Runtime.Decimal18. | Conversion');
+        Observer.Expect('Byte', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to System.Byte. | Conversion');
+        Observer.Expect('Char', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to System.Char. | Conversion');
+        Observer.Expect('Duration', 'ok: P0DT8H30M15.001S');
+        Observer.Expect('Option', 'ok: 30615001');
+        Observer.Expect('Boolean', 'ok: true');
+        Observer.Verify();
     end;
 
     // The Time 00:00:01 into each target, in a plain local.
@@ -231,7 +272,15 @@ codeunit 73383 "LT FTM Value Tests"
         Probe.TargetCell(Observer, 'Time000001', 'Duration');
         Probe.TargetCell(Observer, 'Time000001', 'Option');
         Probe.TargetCell(Observer, 'Time000001', 'Boolean');
-        Observer.Finish();
+        Observer.Expect('Integer', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to System.Int32. | Conversion');
+        Observer.Expect('BigInteger', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to System.Int64. | Conversion');
+        Observer.Expect('Decimal', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to Microsoft.Dynamics.Nav.Runtime.Decimal18. | Conversion');
+        Observer.Expect('Byte', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to System.Byte. | Conversion');
+        Observer.Expect('Char', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavTime to System.Char. | Conversion');
+        Observer.Expect('Duration', 'ok: P0DT0H0M1.001S');
+        Observer.Expect('Option', 'ok: 1001');
+        Observer.Expect('Boolean', 'ok: true');
+        Observer.Verify();
     end;
 
     // The DateTime 1753-01-01 00:00:01 into each target, in a plain local.
@@ -249,6 +298,14 @@ codeunit 73383 "LT FTM Value Tests"
         Probe.TargetCell(Observer, 'DateTimeEarly', 'Duration');
         Probe.TargetCell(Observer, 'DateTimeEarly', 'Option');
         Probe.TargetCell(Observer, 'DateTimeEarly', 'Boolean');
-        Observer.Finish();
+        Observer.Expect('Integer', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32. | Conversion');
+        Observer.Expect('BigInteger', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int64. | Conversion');
+        Observer.Expect('Decimal', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to Microsoft.Dynamics.Nav.Runtime.Decimal18. | Conversion');
+        Observer.Expect('Byte', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Byte. | Conversion');
+        Observer.Expect('Char', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Char. | Conversion');
+        Observer.Expect('Duration', 'ok: P640271DT0H0M1.001S');
+        Observer.Expect('Option', 'E: The value "01/01/1753 12:00 AM" can''t be evaluated into type Option. | Evaluate:Conversion');
+        Observer.Expect('Boolean', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32. | Conversion');
+        Observer.Verify();
     end;
 }

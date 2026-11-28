@@ -8,7 +8,15 @@
 //   FvcTimestampField.al (codeunit 73611: Code[20], Text and Code[3]).
 //   Each cell runs in a TryFunction and records "ok: <result>" or "E: <GetLastErrorText> | <GetLastErrorCode>". A test is
 //   ExitValue_<Field> and reads the four returns.
-//   Observe round: every test ends with Observer.Finish(), which fails the test with the readings (OBSERVE:...); nothing is asserted yet.
+//   Measured on a local BC 29.0.54011.57673 service tier (Linux, W1, en-US session) on 2026-11-28 with an invented app holding
+//   these objects (AL 18.0.43.1464, run by al runtests of AL tool 18.1.43.24897); the values are those readings, turned into
+//   Expect and Verify by convert.py verbatim. This pull request's CI checks them on 27.5, 28.5 and 29.0; a version difference
+//   gets a version guard.
+//   Facts (BC 29.0.54011.57673): the return is the value's formatted text, upper-cased for Code. A Decimal keeps the thousands
+//   separator (1,234.5, -1,234.5, 1,234,567.89). An Option gives its OptionCaption (Second / SECOND), not the member name (Beta). An
+//   Enum member without a Caption gives its name (Plain), one with a Caption gives the Caption. A bounded return takes the text
+//   when it fits (Text[3]: 5, Yes) and else fails with 'The length of the string is <n>, but it must be less than or equal to
+//   <m> characters. Value: <text>' (StringLengthExceeded); Text[30] takes every text here.
 // BC versions: 27, 28, 29 by CI
 enum 73380 "LT FXM Kind"
 {
@@ -138,7 +146,11 @@ codeunit 73381 "LT FXM Exit Tests"
     begin
         Probe.Seed();
         Probe.Cells(Observer, 2);
-        Observer.Finish();
+        Observer.Expect('code20', 'ok: 5');
+        Observer.Expect('text', 'ok: 5');
+        Observer.Expect('text3', 'ok: 5');
+        Observer.Expect('text30', 'ok: 5');
+        Observer.Verify();
     end;
 
     // exit(FR.Value()) of a Decimal 1234.5.
@@ -150,7 +162,11 @@ codeunit 73381 "LT FXM Exit Tests"
     begin
         Probe.Seed();
         Probe.Cells(Observer, 3);
-        Observer.Finish();
+        Observer.Expect('code20', 'ok: 1,234.5');
+        Observer.Expect('text', 'ok: 1,234.5');
+        Observer.Expect('text3', 'E: The length of the string is 7, but it must be less than or equal to 3 characters. Value: 1,234.5 | StringLengthExceeded');
+        Observer.Expect('text30', 'ok: 1,234.5');
+        Observer.Verify();
     end;
 
     // exit(FR.Value()) of a Decimal -1234.5.
@@ -162,7 +178,11 @@ codeunit 73381 "LT FXM Exit Tests"
     begin
         Probe.Seed();
         Probe.Cells(Observer, 4);
-        Observer.Finish();
+        Observer.Expect('code20', 'ok: -1,234.5');
+        Observer.Expect('text', 'ok: -1,234.5');
+        Observer.Expect('text3', 'E: The length of the string is 8, but it must be less than or equal to 3 characters. Value: -1,234.5 | StringLengthExceeded');
+        Observer.Expect('text30', 'ok: -1,234.5');
+        Observer.Verify();
     end;
 
     // exit(FR.Value()) of a Decimal 1234567.89.
@@ -174,7 +194,11 @@ codeunit 73381 "LT FXM Exit Tests"
     begin
         Probe.Seed();
         Probe.Cells(Observer, 5);
-        Observer.Finish();
+        Observer.Expect('code20', 'ok: 1,234,567.89');
+        Observer.Expect('text', 'ok: 1,234,567.89');
+        Observer.Expect('text3', 'E: The length of the string is 12, but it must be less than or equal to 3 characters. Value: 1,234,567.89 | StringLengthExceeded');
+        Observer.Expect('text30', 'ok: 1,234,567.89');
+        Observer.Verify();
     end;
 
     // exit(FR.Value()) of an Option Beta whose OptionCaption is 'First,Second,Third'.
@@ -186,7 +210,11 @@ codeunit 73381 "LT FXM Exit Tests"
     begin
         Probe.Seed();
         Probe.Cells(Observer, 6);
-        Observer.Finish();
+        Observer.Expect('code20', 'ok: SECOND');
+        Observer.Expect('text', 'ok: Second');
+        Observer.Expect('text3', 'E: The length of the string is 6, but it must be less than or equal to 3 characters. Value: Second | StringLengthExceeded');
+        Observer.Expect('text30', 'ok: Second');
+        Observer.Verify();
     end;
 
     // exit(FR.Value()) of an Enum member Plain without a Caption.
@@ -198,7 +226,11 @@ codeunit 73381 "LT FXM Exit Tests"
     begin
         Probe.Seed();
         Probe.Cells(Observer, 7);
-        Observer.Finish();
+        Observer.Expect('code20', 'ok: PLAIN');
+        Observer.Expect('text', 'ok: Plain');
+        Observer.Expect('text3', 'E: The length of the string is 5, but it must be less than or equal to 3 characters. Value: Plain | StringLengthExceeded');
+        Observer.Expect('text30', 'ok: Plain');
+        Observer.Verify();
     end;
 
     // exit(FR.Value()) of an Enum member Fancy with Caption 'Fancy Caption'.
@@ -210,7 +242,11 @@ codeunit 73381 "LT FXM Exit Tests"
     begin
         Probe.Seed();
         Probe.Cells(Observer, 8);
-        Observer.Finish();
+        Observer.Expect('code20', 'ok: FANCY CAPTION');
+        Observer.Expect('text', 'ok: Fancy Caption');
+        Observer.Expect('text3', 'E: The length of the string is 13, but it must be less than or equal to 3 characters. Value: Fancy Caption | StringLengthExceeded');
+        Observer.Expect('text30', 'ok: Fancy Caption');
+        Observer.Verify();
     end;
 
     // exit(FR.Value()) of a Boolean true.
@@ -222,7 +258,11 @@ codeunit 73381 "LT FXM Exit Tests"
     begin
         Probe.Seed();
         Probe.Cells(Observer, 9);
-        Observer.Finish();
+        Observer.Expect('code20', 'ok: YES');
+        Observer.Expect('text', 'ok: Yes');
+        Observer.Expect('text3', 'ok: Yes');
+        Observer.Expect('text30', 'ok: Yes');
+        Observer.Verify();
     end;
 
     // exit(FR.Value()) of the Date 2026-01-15.
@@ -234,6 +274,10 @@ codeunit 73381 "LT FXM Exit Tests"
     begin
         Probe.Seed();
         Probe.Cells(Observer, 10);
-        Observer.Finish();
+        Observer.Expect('code20', 'ok: 01/15/26');
+        Observer.Expect('text', 'ok: 01/15/26');
+        Observer.Expect('text3', 'E: The length of the string is 8, but it must be less than or equal to 3 characters. Value: 01/15/26 | StringLengthExceeded');
+        Observer.Expect('text30', 'ok: 01/15/26');
+        Observer.Verify();
     end;
 }
