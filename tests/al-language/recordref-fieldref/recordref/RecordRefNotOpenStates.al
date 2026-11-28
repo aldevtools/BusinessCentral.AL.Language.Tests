@@ -13,19 +13,23 @@
 //   <GetLastErrorCode>". A test is State_<State>; it starts with state = what building the state returned (Get's result) and
 //   number = the RecordRef's Number after it.
 //   Page.Run tests (codeunit 73482): Page.Run(<card or list page>, V) and Page.RunModal(<card>, V), V a Variant holding RecRef, with RecRef open on the page's table
-//   (positioned on a row, not positioned, on an empty table), Page.Run(0, RecRef) (the table's LookupPageId is the list page), and
-//   RecRef not open (never opened, after Open(0)) or open on another table. The handlers record which row the page shows. The
+//   (positioned on a row, not positioned, on an empty table), Page.Run(0, V) (the table's LookupPageId is the list page), and
+//   RecRef not open (never opened, after Open(0), closed, after Get of an empty RecordId and of a missing row) or open on another
+//   table. The handlers record which row the page shows. The
 //   RecordRef goes in through a Variant (V := RecRef; Page.Run(Id, V)); a control passes a Variant holding a Record.
 //   Not probed: Page.Run(Id, RecRef) with the RecordRef itself does not compile (AL0666 under runtime 16, AL0133 "cannot convert
 //   from 'RecordRef' to 'Table'" under runtime 18).
 //   Already pinned elsewhere, kept here only as part of a state's row: the Fresh and Closed answers of FindFirst, SetLoadFields,
 //   SetRecFilter, Count, FieldCount, ReadPermission and Number (UhUnopenedRecordRef.al), and Number, FieldCount and Count after
-//   Open(0) (RfTOpen.al).
+//   Open(0) (RfTOpen.al). CePageRun.al pins Page.Run and Page.RunModal with a Variant holding a positioned RecordRef, and that the
+//   RecordRef form does not compile (must-not-compile cases 1633 and 1634); W4RecordRefGetUnopened.al pins Get of a missing
+//   RecordId on a never-opened RecordRef.
 //   Measured on BC 29.0 (Linux, W1, en-US session) with an invented app holding these objects, through the dev endpoint's
 //   TestRunnerHub (the member tests also through a codeunit run request: the same readings); the values are that run's readings,
-//   turned into Expect and Verify by convert.py verbatim. This pull request's CI checks them on 27.5, 28.5 and 29.0; a version
-//   difference gets a version guard.
-//   Facts (BC 29.0):
+//   turned into Expect and Verify by convert.py verbatim. This pull request's CI gave the same values on 27.5, 28.5 and 29.0. The
+//   review cells Card_Closed, Card_AfterGetEmpty and Card_AfterGetMissing were measured on a local BC 29.0.54011.57673 on
+//   2026-11-28 and are asserted on BC 28 and later; on BC 27.5 they are an observe round, red on purpose (#else ends with Finish()).
+//   Facts (BC 27.5, 28.5 and 29.0):
 //   - Every member above but Number fails with 'The record is not open.' (RecordNotOpened) in every state that is not open: Fresh,
 //     OpenZero, GetEmpty, GetMissing and Closed, Duplicate and ClearMarks included. Number is 0 in all of them.
 //   - Open(0) raises nothing. Get of an empty RecordId and of a RecordId whose row does not exist both return No and leave the
@@ -572,7 +576,7 @@ codeunit 73482 "LT RUO Page Run Tests"
         Observer.Verify();
     end;
 
-    // Page.Run(0, RecRef): the table's LookupPageId is the list page.
+    // Page.Run(0, V), V a Variant holding the RecordRef: the table's LookupPageId is the list page.
     [Test]
     [HandlerFunctions('ListHandler')]
     procedure PageZero_OpenPositioned()
@@ -678,5 +682,64 @@ codeunit 73482 "LT RUO Page Run Tests"
         Observer.Expect('run', 'E: The table IDs do not match. | TableIdMismatch');
         Observer.Expect('seen', '');
         Observer.Verify();
+    end;
+
+    // A RecordRef in the state State (closed, after Get of an empty RecordId, after Get of a missing row): the card page, no handler.
+    local procedure StateCell(var Observer: Codeunit "Probe Observer"; State: Text)
+    var
+        Probe: Codeunit "LT RUO Probe";
+        R: RecordRef;
+    begin
+        Probe.Seed();
+        Observer.Observe('state', Probe.MakeState(R, State));
+        RunCell(Observer, Page::"LT RUO Card", R);
+    end;
+
+    [Test]
+    procedure Card_Closed()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        StateCell(Observer, 'Closed');
+#if BC28PLUS
+        Observer.Expect('state', 'ok');
+        Observer.Expect('run', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavRecordRef to Microsoft.Dynamics.Nav.Runtime.INavRecordHandle. | Conversion');
+        Observer.Expect('seen', '');
+        Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
+        Observer.Finish();
+#endif
+    end;
+
+    [Test]
+    procedure Card_AfterGetEmpty()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        StateCell(Observer, 'GetEmpty');
+#if BC28PLUS
+        Observer.Expect('state', 'No');
+        Observer.Expect('run', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavRecordRef to Microsoft.Dynamics.Nav.Runtime.INavRecordHandle. | Conversion');
+        Observer.Expect('seen', '');
+        Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
+        Observer.Finish();
+#endif
+    end;
+
+    [Test]
+    procedure Card_AfterGetMissing()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        StateCell(Observer, 'GetMissing');
+#if BC28PLUS
+        Observer.Expect('state', 'No');
+        Observer.Expect('run', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavRecordRef to Microsoft.Dynamics.Nav.Runtime.INavRecordHandle. | Conversion');
+        Observer.Expect('seen', '');
+        Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
+        Observer.Finish();
+#endif
     end;
 }
