@@ -18,6 +18,10 @@
 //   more than the normal date's 1479993), 08:30:15 30615001, 00:00:01 1001; Boolean true. The DateTime into Duration gives
 //   P640271DT0H0M1.001S; into Option it fails with 'The value "01/01/1753 12:00 AM" can't be evaluated into type Option.'
 //   (Evaluate:Conversion; the year has four digits) and into Boolean with the Int32 conversion error.
+//   BC 27.5: CI run 46092234270 failed DateTimeEarly_Targets on 27.5 (both 27.5 legs alike): the DateTime into Option gives
+//   'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32.' (Conversion), as FvcTemporalIntoNumberPlaces.al
+//   pins for the other DateTimes on 27.5. In that test the BC 27.5 branch (#else) is an observe round, red on purpose: it ends
+//   with Finish() and asserts nothing. BC 28 and later (#if BC28PLUS) keep the BC 29 assertions; every other test passed on 27.5.
 // BC versions: 27, 28, 29 by CI
 table 73382 "LT FTM Row"
 {
@@ -298,6 +302,7 @@ codeunit 73383 "LT FTM Value Tests"
         Probe.TargetCell(Observer, 'DateTimeEarly', 'Duration');
         Probe.TargetCell(Observer, 'DateTimeEarly', 'Option');
         Probe.TargetCell(Observer, 'DateTimeEarly', 'Boolean');
+#if BC28PLUS
         Observer.Expect('Integer', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32. | Conversion');
         Observer.Expect('BigInteger', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int64. | Conversion');
         Observer.Expect('Decimal', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to Microsoft.Dynamics.Nav.Runtime.Decimal18. | Conversion');
@@ -307,5 +312,8 @@ codeunit 73383 "LT FTM Value Tests"
         Observer.Expect('Option', 'E: The value "01/01/1753 12:00 AM" can''t be evaluated into type Option. | Evaluate:Conversion');
         Observer.Expect('Boolean', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32. | Conversion');
         Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; CI run 46092234270 measured Option = E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32. | Conversion
+        Observer.Finish();
+#endif
     end;
 }
