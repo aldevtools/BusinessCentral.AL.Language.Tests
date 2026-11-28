@@ -29,8 +29,6 @@
 //     (also with two procedures); the outer trigger's own xRec.SetRange / MarkedOnly(true) without nesting;
 //   - the same [TryFunction] table procedure called as a statement (result not used), with zero and two procedures between, the
 //     outer Validate run from a test TryFunction;
-//   - the outer Validate run from a test TryFunction called as a statement (result discarded): inner assigns, outer assigns, and
-//     the nest raising through the statement-called table TryFunction;
 //   - the outer Validate run from a [TryFunction] and from a MessageHandler of the test codeunit (two procedures between).
 // Facts (measured on 27.5, 28.5 and 29.0, the same on all three):
 //   - on the same record variable the nested Validates share ONE xRec: the inner trigger sees the outer Validate's before-image
@@ -49,9 +47,6 @@
 //   - a [TryFunction] table procedure called as a statement does not catch its error: the error ('XNV try failed') leaves the inner
 //     trigger and both Validates, no later code point runs (no 'T after try', no 'I after'), and the caller's record is back at
 //     0/NEW/I1 after the failed test TryFunction.
-//   - a test TryFunction called as a statement runs the Validate as a plain call: one xRec as above (0/INN/I1, 0/OUT/I1); when the
-//     nest raises, the error leaves the test TryFunction too (asserterror catches 'XNV try failed', code Dialog) and the record is
-//     back at 0/NEW/I1.
 // BC versions: 27.5, 28.5, 29.0
 
 table 77460 "XNV InExt Line"
@@ -1945,6 +1940,11 @@ codeunit 77473 "XNV Tests"
         Observer.Verify();
     end;
 
+    // The outer Validate run from a test TryFunction called as a statement (result discarded), two procedures between
+    // (measured on 27.5, 28.5 and 29.0): it runs as a plain call, one xRec as above (0/INN/I1, 0/OUT/I1); when the nest
+    // raises through the statement-called table TryFunction, the error leaves the test TryFunction too (asserterror catches
+    // 'XNV try failed', code Dialog) and the record is back at 0/NEW/I1. Kept here so the line numbers above stay those cited
+    // by al-runner (header unchanged).
     [Test]
     procedure Validate_FromTestTryFunctionStatement_OneXRec()
     var
