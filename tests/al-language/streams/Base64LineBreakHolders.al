@@ -1,7 +1,37 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/application/system-application/codeunit/system.text.base64-convert
 // Scope: in-scope
 // Fixtures used: codeunit 69160 "Probe Observer", table 60008 "ALT Blob", System Application codeunits "Base64 Convert" and "Temp Blob"
-// Probe: OBSERVING (header is rewritten with the measured facts)
+// Probe: written against local BC on Linux tiers; every literal asserted below is what those tiers produced. Other BC versions are checked by the corpus CI matrix.
+// Measured on: 27.5.54899.59044, 28.5.54976.59048, 29.0.54011.59052 (W1 sandbox artifacts; tests through the TestRunnerHub on every leg)
+// BC versions: 27.5, 28.5, 29.0
+// Lead: al-runner issue 9322 (ToBase64(InStream, true) on the Blob field of a TableType = Temporary table). Extends
+// Base64LineBreaks.al, which pins the same call on a Temp Blob stream only.
+//
+// Area: Base64 Convert ToBase64(InStream, true) and ToBase64(InStream, true, OutStream) on streams of every Blob holder
+// (TableType = Temporary table, temporary record variable, normal record not inserted, inserted, modified, Temp Blob
+// FromRecord), every write history (one or two WriteText, UTF8 OutStream, Write(Text), WriteText with a length,
+// CopyStream, non-ASCII content) and every stream use before the call (ReadText, Read, EOS, UTF8 InStream, a second
+// CreateInStream, an assigned InStream).
+//
+// What BC did (28.5 and 29.0 gave the same results everywhere; 27.5 differs only where a #if BC28PLUS block says so):
+// - The holder does not change the result. 100 bytes give 138 characters with CR LF (13 10) at 77 and 78, the same string
+//   as the Text form, for every holder: TableType = Temporary record (local, global, inserted and read back with Get and
+//   CalcFields), a temporary record variable of a normal table (inserted or not), a normal record (not inserted; inserted
+//   and read back in a second variable; modified), a Temp Blob filled with FromRecord, a record of the test passed by var
+//   to another codeunit.
+// - A stream opened on a record that is a local of another codeunit's procedure is empty once that procedure returns:
+//   EOS is true and ToBase64 returns an empty text.
+// - Write history: two WriteText calls equal one; a UTF8 OutStream gives the same bytes for 'A'; WriteText(Text, 60)
+//   writes 60 bytes (82 characters, CR LF at 77). OutS.Write(Text) writes a trailing 0 byte: still 138 characters, the
+//   first line equals the Text form, the end is 'QQA='. A default OutStream writes ÄÖÜ as one byte each in the MSDos
+//   code page (8E 99 9A, 'jpma'), so the result differs from the Text form (UTF-8, 'w4TDlsOc') but keeps 138 characters.
+// - Stream use before the call: EOS, a UTF8 InStream, a second CreateInStream and InS2 := InS do not change the result.
+//   ReadText(T, 10) or Read(T, 10) first: 28.5 and 29.0 still convert all 100 bytes (138), 27.5 converts the 90 bytes
+//   left (122). Reading the whole stream first (Read(T) or ReadText(T)) leaves nothing on every version: ToBase64
+//   returns an empty text; the same holds for a Temp Blob stream.
+// - ToBase64(InStream, true, OutStream) (System Application 28 and later, so not on 27.5) with this source writes 138
+//   bytes with CR LF at 77 and 78 into a Temp Blob or into a TableType = Temporary record's Blob; one ReadText of the
+//   target returns the first line (76).
 
 table 75482 "STR B64 Holder Temp"
 {
@@ -126,7 +156,11 @@ codeunit 75484 "STR B64 Blob Holders"
         OutS.WriteText(H.HundredA());
         Holder.Data.CreateInStream(InS);
         H.ObserveResult(Observer, Base64.ToBase64(InS, true), H.HundredA());
-        Observer.Finish();
+        Observer.Expect('crlf_at', '77');
+        Observer.Expect('length', '138');
+        Observer.Expect('codes_76_to_78', '66 13 10 ');
+        Observer.Expect('equals_text_form', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -142,7 +176,11 @@ codeunit 75484 "STR B64 Blob Holders"
         OutS.WriteText(H.HundredA());
         GlobalHolder.Data.CreateInStream(InS);
         H.ObserveResult(Observer, Base64.ToBase64(InS, true), H.HundredA());
-        Observer.Finish();
+        Observer.Expect('crlf_at', '77');
+        Observer.Expect('length', '138');
+        Observer.Expect('codes_76_to_78', '66 13 10 ');
+        Observer.Expect('equals_text_form', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -155,7 +193,12 @@ codeunit 75484 "STR B64 Blob Holders"
         H.FillTempHolder(InS);
         Observer.Observe('eos_before_call', Format(InS.EOS()));
         H.ObserveResult(Observer, Base64.ToBase64(InS, true), H.HundredA());
-        Observer.Finish();
+        Observer.Expect('eos_before_call', 'Yes');
+        Observer.Expect('crlf_at', '0');
+        Observer.Expect('length', '0');
+        Observer.Expect('codes_76_to_78', '');
+        Observer.Expect('equals_text_form', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -169,7 +212,12 @@ codeunit 75484 "STR B64 Blob Holders"
         H.FillCallerHolder(Holder, InS);
         Observer.Observe('eos_before_call', Format(InS.EOS()));
         H.ObserveResult(Observer, Base64.ToBase64(InS, true), H.HundredA());
-        Observer.Finish();
+        Observer.Expect('eos_before_call', 'No');
+        Observer.Expect('crlf_at', '77');
+        Observer.Expect('length', '138');
+        Observer.Expect('codes_76_to_78', '66 13 10 ');
+        Observer.Expect('equals_text_form', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -185,7 +233,11 @@ codeunit 75484 "STR B64 Blob Holders"
         OutS.WriteText(H.HundredA());
         TempHolder.Data.CreateInStream(InS);
         H.ObserveResult(Observer, Base64.ToBase64(InS, true), H.HundredA());
-        Observer.Finish();
+        Observer.Expect('crlf_at', '77');
+        Observer.Expect('length', '138');
+        Observer.Expect('codes_76_to_78', '66 13 10 ');
+        Observer.Expect('equals_text_form', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -204,7 +256,11 @@ codeunit 75484 "STR B64 Blob Holders"
         TempHolder.CalcFields(Data);
         TempHolder.Data.CreateInStream(InS);
         H.ObserveResult(Observer, Base64.ToBase64(InS, true), H.HundredA());
-        Observer.Finish();
+        Observer.Expect('crlf_at', '77');
+        Observer.Expect('length', '138');
+        Observer.Expect('codes_76_to_78', '66 13 10 ');
+        Observer.Expect('equals_text_form', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -222,7 +278,11 @@ codeunit 75484 "STR B64 Blob Holders"
         OutS.WriteText(H.HundredA());
         Holder.Data.CreateInStream(InS);
         H.ObserveResult(Observer, Base64.ToBase64(InS, true), H.HundredA());
-        Observer.Finish();
+        Observer.Expect('crlf_at', '77');
+        Observer.Expect('length', '138');
+        Observer.Expect('codes_76_to_78', '66 13 10 ');
+        Observer.Expect('equals_text_form', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -244,7 +304,11 @@ codeunit 75484 "STR B64 Blob Holders"
         Reread.CalcFields(Data);
         Reread.Data.CreateInStream(InS);
         H.ObserveResult(Observer, Base64.ToBase64(InS, true), H.HundredA());
-        Observer.Finish();
+        Observer.Expect('crlf_at', '77');
+        Observer.Expect('length', '138');
+        Observer.Expect('codes_76_to_78', '66 13 10 ');
+        Observer.Expect('equals_text_form', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -265,7 +329,11 @@ codeunit 75484 "STR B64 Blob Holders"
         Holder.CalcFields(Data);
         Holder.Data.CreateInStream(InS);
         H.ObserveResult(Observer, Base64.ToBase64(InS, true), H.HundredA());
-        Observer.Finish();
+        Observer.Expect('crlf_at', '77');
+        Observer.Expect('length', '138');
+        Observer.Expect('codes_76_to_78', '66 13 10 ');
+        Observer.Expect('equals_text_form', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -285,7 +353,11 @@ codeunit 75484 "STR B64 Blob Holders"
         TempBlob.FromRecord(Holder, Holder.FieldNo(Data));
         TempBlob.CreateInStream(InS);
         H.ObserveResult(Observer, Base64.ToBase64(InS, true), H.HundredA());
-        Observer.Finish();
+        Observer.Expect('crlf_at', '77');
+        Observer.Expect('length', '138');
+        Observer.Expect('codes_76_to_78', '66 13 10 ');
+        Observer.Expect('equals_text_form', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -305,7 +377,11 @@ codeunit 75484 "STR B64 Blob Holders"
         Holder.CalcFields(Data);
         Holder.Data.CreateInStream(InS);
         H.ObserveResult(Observer, Base64.ToBase64(InS, true), H.HundredA());
-        Observer.Finish();
+        Observer.Expect('crlf_at', '77');
+        Observer.Expect('length', '138');
+        Observer.Expect('codes_76_to_78', '66 13 10 ');
+        Observer.Expect('equals_text_form', 'Yes');
+        Observer.Verify();
     end;
 }
 
@@ -332,7 +408,11 @@ codeunit 75485 "STR B64 Blob Stream History"
         OutS.WriteText(PadStr('', 50, 'A'));
         Holder.Data.CreateInStream(InS);
         H.ObserveResult(Observer, Base64.ToBase64(InS, true), H.HundredA());
-        Observer.Finish();
+        Observer.Expect('crlf_at', '77');
+        Observer.Expect('length', '138');
+        Observer.Expect('codes_76_to_78', '66 13 10 ');
+        Observer.Expect('equals_text_form', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -348,7 +428,11 @@ codeunit 75485 "STR B64 Blob Stream History"
         OutS.WriteText(H.HundredA());
         Holder.Data.CreateInStream(InS);
         H.ObserveResult(Observer, Base64.ToBase64(InS, true), H.HundredA());
-        Observer.Finish();
+        Observer.Expect('crlf_at', '77');
+        Observer.Expect('length', '138');
+        Observer.Expect('codes_76_to_78', '66 13 10 ');
+        Observer.Expect('equals_text_form', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -370,7 +454,13 @@ codeunit 75485 "STR B64 Blob Stream History"
         Observer.Observe('edge_codes', H.EdgeCodes(Result));
         Observer.Observe('without_last_line_equals_text_form', Format(CopyStr(Result, 1, 76) = CopyStr(Base64.ToBase64(H.HundredA(), true), 1, 76)));
         H.ObserveResult(Observer, Result, H.HundredA());
-        Observer.Finish();
+        Observer.Expect('edge_codes', '81 85 70 66 ... 81 81 65 61 ');
+        Observer.Expect('without_last_line_equals_text_form', 'Yes');
+        Observer.Expect('crlf_at', '77');
+        Observer.Expect('length', '138');
+        Observer.Expect('codes_76_to_78', '66 13 10 ');
+        Observer.Expect('equals_text_form', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -386,7 +476,11 @@ codeunit 75485 "STR B64 Blob Stream History"
         OutS.WriteText(H.HundredA(), 60);
         Holder.Data.CreateInStream(InS);
         H.ObserveResult(Observer, Base64.ToBase64(InS, true), PadStr('', 60, 'A'));
-        Observer.Finish();
+        Observer.Expect('crlf_at', '77');
+        Observer.Expect('length', '82');
+        Observer.Expect('codes_76_to_78', '66 13 10 ');
+        Observer.Expect('equals_text_form', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -408,7 +502,11 @@ codeunit 75485 "STR B64 Blob Stream History"
         CopyStream(OutS, SourceInS);
         Holder.Data.CreateInStream(InS);
         H.ObserveResult(Observer, Base64.ToBase64(InS, true), H.HundredA());
-        Observer.Finish();
+        Observer.Expect('crlf_at', '77');
+        Observer.Expect('length', '138');
+        Observer.Expect('codes_76_to_78', '66 13 10 ');
+        Observer.Expect('equals_text_form', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -431,7 +529,14 @@ codeunit 75485 "STR B64 Blob Stream History"
         Observer.Observe('first_8', CopyStr(Result, 1, 8));
         Observer.Observe('text_form_first_8', CopyStr(Base64.ToBase64(Content, true), 1, 8));
         H.ObserveResult(Observer, Result, Content);
-        Observer.Finish();
+        Observer.Expect('edge_codes', '106 112 109 97 ... 81 81 61 61 ');
+        Observer.Expect('first_8', 'jpmaQUFB');
+        Observer.Expect('text_form_first_8', 'w4TDlsOc');
+        Observer.Expect('crlf_at', '77');
+        Observer.Expect('length', '138');
+        Observer.Expect('codes_76_to_78', '66 13 10 ');
+        Observer.Expect('equals_text_form', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -449,7 +554,18 @@ codeunit 75485 "STR B64 Blob Stream History"
         Holder.Data.CreateInStream(InS);
         InS.ReadText(Skipped, 10);
         H.ObserveResult(Observer, Base64.ToBase64(InS, true), H.HundredA());
-        Observer.Finish();
+#if BC28PLUS // 27.5 converts from the read position (Base64LineBreaks.al, ToBase64_InStream_EmptyPartReadAndSecondCall)
+        Observer.Expect('crlf_at', '77');
+        Observer.Expect('length', '138');
+        Observer.Expect('codes_76_to_78', '66 13 10 ');
+        Observer.Expect('equals_text_form', 'Yes');
+#else
+        Observer.Expect('crlf_at', '77');
+        Observer.Expect('length', '122');
+        Observer.Expect('codes_76_to_78', '66 13 10 ');
+        Observer.Expect('equals_text_form', 'No');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -469,7 +585,13 @@ codeunit 75485 "STR B64 Blob Stream History"
         Observer.Observe('read_strlen', Format(StrLen(Skipped)));
         Observer.Observe('eos_after_read', Format(InS.EOS()));
         H.ObserveResult(Observer, Base64.ToBase64(InS, true), H.HundredA());
-        Observer.Finish();
+        Observer.Expect('read_strlen', '100');
+        Observer.Expect('eos_after_read', 'Yes');
+        Observer.Expect('crlf_at', '0');
+        Observer.Expect('length', '0');
+        Observer.Expect('codes_76_to_78', '');
+        Observer.Expect('equals_text_form', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -486,7 +608,12 @@ codeunit 75485 "STR B64 Blob Stream History"
         Holder.Data.CreateInStream(InS);
         Observer.Observe('eos', Format(InS.EOS()));
         H.ObserveResult(Observer, Base64.ToBase64(InS, true), H.HundredA());
-        Observer.Finish();
+        Observer.Expect('eos', 'No');
+        Observer.Expect('crlf_at', '77');
+        Observer.Expect('length', '138');
+        Observer.Expect('codes_76_to_78', '66 13 10 ');
+        Observer.Expect('equals_text_form', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -502,7 +629,11 @@ codeunit 75485 "STR B64 Blob Stream History"
         OutS.WriteText(H.HundredA());
         Holder.Data.CreateInStream(InS, TextEncoding::UTF8);
         H.ObserveResult(Observer, Base64.ToBase64(InS, true), H.HundredA());
-        Observer.Finish();
+        Observer.Expect('crlf_at', '77');
+        Observer.Expect('length', '138');
+        Observer.Expect('codes_76_to_78', '66 13 10 ');
+        Observer.Expect('equals_text_form', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -520,7 +651,11 @@ codeunit 75485 "STR B64 Blob Stream History"
         Holder.Data.CreateInStream(InS);
         Holder.Data.CreateInStream(InS2);
         H.ObserveResult(Observer, Base64.ToBase64(InS2, true), H.HundredA());
-        Observer.Finish();
+        Observer.Expect('crlf_at', '77');
+        Observer.Expect('length', '138');
+        Observer.Expect('codes_76_to_78', '66 13 10 ');
+        Observer.Expect('equals_text_form', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -538,7 +673,11 @@ codeunit 75485 "STR B64 Blob Stream History"
         Holder.Data.CreateInStream(InS);
         InS2 := InS;
         H.ObserveResult(Observer, Base64.ToBase64(InS2, true), H.HundredA());
-        Observer.Finish();
+        Observer.Expect('crlf_at', '77');
+        Observer.Expect('length', '138');
+        Observer.Expect('codes_76_to_78', '66 13 10 ');
+        Observer.Expect('equals_text_form', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -558,7 +697,13 @@ codeunit 75485 "STR B64 Blob Stream History"
         Observer.Observe('read_strlen', Format(StrLen(Skipped)));
         Observer.Observe('eos_after_read', Format(InS.EOS()));
         H.ObserveResult(Observer, Base64.ToBase64(InS, true), H.HundredA());
-        Observer.Finish();
+        Observer.Expect('read_strlen', '100');
+        Observer.Expect('eos_after_read', 'Yes');
+        Observer.Expect('crlf_at', '0');
+        Observer.Expect('length', '0');
+        Observer.Expect('codes_76_to_78', '');
+        Observer.Expect('equals_text_form', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -577,7 +722,19 @@ codeunit 75485 "STR B64 Blob Stream History"
         InS.Read(Skipped, 10);
         Observer.Observe('read_strlen', Format(StrLen(Skipped)));
         H.ObserveResult(Observer, Base64.ToBase64(InS, true), H.HundredA());
-        Observer.Finish();
+        Observer.Expect('read_strlen', '10');
+#if BC28PLUS // 27.5 converts from the read position (Base64LineBreaks.al, ToBase64_InStream_EmptyPartReadAndSecondCall)
+        Observer.Expect('crlf_at', '77');
+        Observer.Expect('length', '138');
+        Observer.Expect('codes_76_to_78', '66 13 10 ');
+        Observer.Expect('equals_text_form', 'Yes');
+#else
+        Observer.Expect('crlf_at', '77');
+        Observer.Expect('length', '122');
+        Observer.Expect('codes_76_to_78', '66 13 10 ');
+        Observer.Expect('equals_text_form', 'No');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -596,7 +753,12 @@ codeunit 75485 "STR B64 Blob Stream History"
         InS.Read(Skipped);
         Observer.Observe('read_strlen', Format(StrLen(Skipped)));
         H.ObserveResult(Observer, Base64.ToBase64(InS, true), H.HundredA());
-        Observer.Finish();
+        Observer.Expect('read_strlen', '100');
+        Observer.Expect('crlf_at', '0');
+        Observer.Expect('length', '0');
+        Observer.Expect('codes_76_to_78', '');
+        Observer.Expect('equals_text_form', 'No');
+        Observer.Verify();
     end;
 
 #if BC28PLUS // ToBase64(InStream, Boolean, OutStream) exists in System Application 28 and later
@@ -644,7 +806,11 @@ codeunit 75485 "STR B64 Blob Stream History"
         Target.CreateInStream(TargetInS);
         Target.CreateInStream(FirstLineInS);
         ObserveTarget(Observer, TargetInS, FirstLineInS);
-        Observer.Finish();
+        Observer.Expect('written_length', '138');
+        Observer.Expect('written_codes_76_to_78', '66 13 10 ');
+        Observer.Expect('first_readtext_return', '76');
+        Observer.Expect('first_readtext_strlen', '76');
+        Observer.Verify();
     end;
 
     [Test]
@@ -668,7 +834,11 @@ codeunit 75485 "STR B64 Blob Stream History"
         TargetHolder.Data.CreateInStream(TargetInS);
         TargetHolder.Data.CreateInStream(FirstLineInS);
         ObserveTarget(Observer, TargetInS, FirstLineInS);
-        Observer.Finish();
+        Observer.Expect('written_length', '138');
+        Observer.Expect('written_codes_76_to_78', '66 13 10 ');
+        Observer.Expect('first_readtext_return', '76');
+        Observer.Expect('first_readtext_strlen', '76');
+        Observer.Verify();
     end;
 #endif
 }
