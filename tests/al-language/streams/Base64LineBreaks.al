@@ -10,8 +10,10 @@
 // - ToBase64(InStream, true) breaks a line after 76 characters with CR LF (13 10), none after the last line: 57 bytes give 76
 //   characters, 100 bytes 138, 114 bytes 154, 120 bytes 164. With false: 76, 136, 152, 160. Removing CR LF from the true
 //   form gives the false form. The Text form with true gives the same string as the InStream form.
-// - Stream position: 28.5 and 29.0 convert the whole stream whatever was read before, and a second call on the same stream
-//   gives the same text. 27.5 converts from the read position (10 bytes read: 122 characters) and a second call gives another text.
+// - Stream position, measured here only after ReadText(T, 10) on a 100-byte stream: 28.5 and 29.0 convert the whole stream
+//   (138 characters), 27.5 converts from the read position (122 characters). A second call on the same unread stream gives
+//   the same text on 28.5 and 29.0 and another text on 27.5. Reads that reach the end of the stream and other read forms:
+//   Base64LineBreakHolders.al.
 // - ToBase64(InStream, Boolean, OutStream) (System Application 28 and later) writes the same characters as the string form.
 //   One ReadText of the target returns only the first line (76); an empty source writes 0; a target that held 'AB' keeps it.
 // - FromBase64 with UTF16 or UTF8 ignores the code page. With Windows or MSDos the code page counts: 1252, 850, 437, 65001
