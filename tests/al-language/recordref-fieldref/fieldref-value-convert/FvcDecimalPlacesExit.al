@@ -27,8 +27,9 @@
 //     Option.' (Evaluate:Conversion).
 //   - 0DT into an Option " ",A,B: 'The value "" can't be evaluated into type Option.' (Evaluate:Conversion), as into A,B,C.
 //   - 9999-12-31 23:59:59, the end of the range the field takes: into a Duration P3652424DT23H59M59.001S, into an Option 'The value
-//     "12/31/9999 11:59 PM" can't be evaluated into type Option.' (Evaluate:Conversion). Measured on BC 29 only: asserted on BC 28
-//     and later; on BC 27.5 EndOfRangeDateTime_DurationOption is an observe round, red on purpose (#else ends with Finish()).
+//     "12/31/9999 11:59 PM" can't be evaluated into type Option.' (Evaluate:Conversion). On BC 27.5 (CI run 46138877938, both 27.5 legs
+//     alike) the Duration is the same and the Option cell gives 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to
+//     System.Int32.' (Conversion): only that Expect line is guarded.
 // BC versions: 27, 28, 29 by CI
 table 73384 "LT FDP Row"
 {
@@ -250,12 +251,12 @@ codeunit 73385 "LT FDP Tests"
     begin
         Probe.Cell(Observer, 5, CreateDateTime(99991231D, 235959T), 'duration');
         Probe.Cell(Observer, 5, CreateDateTime(99991231D, 235959T), 'option');
-#if BC28PLUS
         Observer.Expect('duration', 'ok: P3652424DT23H59M59.001S');
+#if BC28PLUS
         Observer.Expect('option', 'E: The value "12/31/9999 11:59 PM" can''t be evaluated into type Option. | Evaluate:Conversion');
-        Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46138877938 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('option', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32. | Conversion');
 #endif
+        Observer.Verify();
     end;
 }
