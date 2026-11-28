@@ -6,7 +6,7 @@ Error, asserterror, ErrorInfo, collected errors, GetLastError*, TryFunction and 
 
 - (area folder itself): 46 AL files that are about the area as a whole or were not given a topic yet.
 - `error-texts/`: the texts of runtime errors (14 AL files).
-- `errorinfo/`: ErrorInfo and error notifications (12 AL files).
+- `errorinfo/`: ErrorInfo and error notifications (13 AL files).
 - `last-error/`: GetLastError* and call stacks (19 AL files).
 
 A new topic gets a line here in the same pull request (standing rule 8 in CONTRIBUTING.md).
