@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/database/database-lastusedrowversion-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160); own tables 76641 (RVS Other, from RowVersionWriteShapes.al), 76640 (RVS Row), 76644 to 76647
+// Fixtures used: Probe Observer (69160); own tables 76640 (RVS Row) and 76641 (RVS Other) from RowVersionWriteShapes.al, 76644 to 76647 and 76651
 // Probe: when an Insert of an open transaction gets its row version (when BC sends the row), measured by reading Database.LastUsedRowVersion()
 // FIRST, before any read of a record buffer (AL Runner issue 8671, review of runner PR 9237). RowVersionWriteShapes.al reads SystemRowVersion
 // from the buffer before LastUsedRowVersion(), and that read itself sends an unsent row; this file separates the two. Shapes: a checked Insert
@@ -104,6 +104,23 @@ table 76647 "RVS Sub Row"
     }
 }
 
+// The config rows of the issue-order cell (the issue inserts them into another table than the checked Inserts).
+table 76651 "RVS Config Row"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; Name; Text[30]) { }
+    }
+
+    keys
+    {
+        key(PK; Id) { Clustered = true; }
+    }
+}
+
 // local object: the OnBeforeInsertEvent subscriber of the checked Insert cell with a subscriber (only table RVS Sub Row).
 codeunit 76648 "RVS Sub Row Events"
 {
@@ -115,19 +132,14 @@ codeunit 76648 "RVS Sub Row Events"
 }
 
 // local object: the shared steps of the send order tests. Each value is an offset from LastUsedRowVersion() read right after the commit
-// that starts the attempt ('zero' for a SystemRowVersion of 0). Each test repeats its shape four times and keeps the attempt with the
-// smallest end offset: LastUsedRowVersion() is database wide, and a write of another session can only add to the end offset, so the
-// attempt with the smallest one is the attempt no other session wrote into (corpus issue 1063).
+// that starts the test ('zero' for a SystemRowVersion of 0).
 codeunit 76649 "RVS Send Cells"
 {
     var
         Prev: BigInteger;
         Acc: Text;
-        Best: BigInteger;
-        BestAcc: Text;
-        Attempts: Integer;
 
-    procedure StartAttempt(SeedRows: Integer; SeedOther: Boolean)
+    procedure Start(SeedRows: Integer; SeedOther: Boolean)
     var
         Row: Record "RVS Row";
         Other: Record "RVS Other";
@@ -135,6 +147,7 @@ codeunit 76649 "RVS Send Cells"
         AutoRow: Record "RVS Auto Row";
         TrigRow: Record "RVS Trig Row";
         SubRow: Record "RVS Sub Row";
+        ConfigRow: Record "RVS Config Row";
         i: Integer;
     begin
         Row.DeleteAll();
@@ -143,6 +156,7 @@ codeunit 76649 "RVS Send Cells"
         AutoRow.DeleteAll();
         TrigRow.DeleteAll();
         SubRow.DeleteAll();
+        ConfigRow.DeleteAll();
         for i := 1 to SeedRows do begin
             Row.Init();
             Row.Id := i;
@@ -156,6 +170,15 @@ codeunit 76649 "RVS Send Cells"
         Commit();
         Acc := '';
         Prev := LastUsedRowVersion();
+    end;
+
+    procedure Rel(Value: BigInteger; Other: BigInteger): Text
+    begin
+        if Value = Other then
+            exit('same');
+        if Value > Other then
+            exit('greater');
+        exit('less');
     end;
 
     local procedure Offset(RowVersion: BigInteger): Text
@@ -196,17 +219,10 @@ codeunit 76649 "RVS Send Cells"
         Add('next', Offset(Other.SystemRowVersion));
     end;
 
-    procedure Keep()
-    var
-        EndValue: BigInteger;
+    // LastUsedRowVersion() at the end of the test.
+    procedure EndValue()
     begin
-        EndValue := LastUsedRowVersion();
-        Add('end', Offset(EndValue));
-        Attempts += 1;
-        if (Attempts = 1) or (EndValue - Prev < Best) then begin
-            Best := EndValue - Prev;
-            BestAcc := Acc;
-        end;
+        Add('end', Offset(LastUsedRowVersion()));
     end;
 
     procedure Emit(var Observer: Codeunit "Probe Observer")
@@ -214,7 +230,7 @@ codeunit 76649 "RVS Send Cells"
         Pair: Text;
         At: Integer;
     begin
-        foreach Pair in BestAcc.Split('|') do
+        foreach Pair in Acc.Split('|') do
             if Pair <> '' then begin
                 At := Pair.IndexOf('=');
                 Observer.Observe(CopyStr(Pair, 1, At - 1), CopyStr(Pair, At + 1));
@@ -232,28 +248,19 @@ codeunit 76650 "RVS Send Order"
     var
         Observer: Codeunit "Probe Observer";
         Cells: Codeunit "RVS Send Cells";
-        Attempt: Integer;
         R1: Record "RVS Row";
     begin
-        for Attempt := 1 to 4 do begin
-            Cells.StartAttempt(0, false);
-            Clear(R1);
-            R1.Id := 1;
-            if not R1.Insert() then
-                Error('insert failed');
-            Cells.Value('value');
-            Cells.Version('row1', R1.SystemRowVersion);
-            Cells.Value('value2');
-            Cells.NextInsert();
-            Cells.Keep();
-        end;
+        Cells.Start(0, false);
+        R1.Id := 1;
+        if not R1.Insert() then
+            Error('insert failed');
+        Cells.Value('value');
+        Cells.Version('row1', R1.SystemRowVersion);
+        Cells.Value('value2');
+        Cells.NextInsert();
+        Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Expect('value', '1');
-        Observer.Expect('row1', '1');
-        Observer.Expect('value2', '1');
-        Observer.Expect('next', '2');
-        Observer.Expect('end', '2');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -261,35 +268,24 @@ codeunit 76650 "RVS Send Order"
     var
         Observer: Codeunit "Probe Observer";
         Cells: Codeunit "RVS Send Cells";
-        Attempt: Integer;
         R1: Record "RVS Row";
         R2: Record "RVS Row";
     begin
-        for Attempt := 1 to 4 do begin
-            Cells.StartAttempt(0, false);
-            Clear(R1);
-            Clear(R2);
-            R1.Id := 1;
-            if not R1.Insert() then
-                Error('insert failed');
-            R2.Id := 2;
-            if not R2.Insert() then
-                Error('insert failed');
-            Cells.Value('value');
-            Cells.Version('row1', R1.SystemRowVersion);
-            Cells.Version('row2', R2.SystemRowVersion);
-            Cells.Value('value2');
-            Cells.NextInsert();
-            Cells.Keep();
-        end;
+        Cells.Start(0, false);
+        R1.Id := 1;
+        if not R1.Insert() then
+            Error('insert failed');
+        R2.Id := 2;
+        if not R2.Insert() then
+            Error('insert failed');
+        Cells.Value('value');
+        Cells.Version('row1', R1.SystemRowVersion);
+        Cells.Version('row2', R2.SystemRowVersion);
+        Cells.Value('value2');
+        Cells.NextInsert();
+        Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Expect('value', '2');
-        Observer.Expect('row1', '1');
-        Observer.Expect('row2', '2');
-        Observer.Expect('value2', '2');
-        Observer.Expect('next', '3');
-        Observer.Expect('end', '3');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -297,34 +293,23 @@ codeunit 76650 "RVS Send Order"
     var
         Observer: Codeunit "Probe Observer";
         Cells: Codeunit "RVS Send Cells";
-        Attempt: Integer;
         R1: Record "RVS Row";
         R2: Record "RVS Row";
     begin
-        for Attempt := 1 to 4 do begin
-            Cells.StartAttempt(0, false);
-            Clear(R1);
-            Clear(R2);
-            R1.Id := 1;
-            R1.Insert();
-            R2.Id := 2;
-            if not R2.Insert() then
-                Error('insert failed');
-            Cells.Value('value');
-            Cells.Version('row1', R1.SystemRowVersion);
-            Cells.Version('row2', R2.SystemRowVersion);
-            Cells.Value('value2');
-            Cells.NextInsert();
-            Cells.Keep();
-        end;
+        Cells.Start(0, false);
+        R1.Id := 1;
+        R1.Insert();
+        R2.Id := 2;
+        if not R2.Insert() then
+            Error('insert failed');
+        Cells.Value('value');
+        Cells.Version('row1', R1.SystemRowVersion);
+        Cells.Version('row2', R2.SystemRowVersion);
+        Cells.Value('value2');
+        Cells.NextInsert();
+        Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Expect('value', '2');
-        Observer.Expect('row1', '1');
-        Observer.Expect('row2', '2');
-        Observer.Expect('value2', '2');
-        Observer.Expect('next', '3');
-        Observer.Expect('end', '3');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -332,29 +317,20 @@ codeunit 76650 "RVS Send Order"
     var
         Observer: Codeunit "Probe Observer";
         Cells: Codeunit "RVS Send Cells";
-        Attempt: Integer;
         R1: Record "RVS Row";
     begin
-        for Attempt := 1 to 4 do begin
-            Cells.StartAttempt(0, false);
-            Clear(R1);
-            R1.LockTable();
-            R1.Id := 1;
-            if not R1.Insert() then
-                Error('insert failed');
-            Cells.Value('value');
-            Cells.Version('row1', R1.SystemRowVersion);
-            Cells.Value('value2');
-            Cells.NextInsert();
-            Cells.Keep();
-        end;
+        Cells.Start(0, false);
+        R1.LockTable();
+        R1.Id := 1;
+        if not R1.Insert() then
+            Error('insert failed');
+        Cells.Value('value');
+        Cells.Version('row1', R1.SystemRowVersion);
+        Cells.Value('value2');
+        Cells.NextInsert();
+        Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Expect('value', '1');
-        Observer.Expect('row1', '1');
-        Observer.Expect('value2', '1');
-        Observer.Expect('next', '2');
-        Observer.Expect('end', '2');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -362,34 +338,24 @@ codeunit 76650 "RVS Send Order"
     var
         Observer: Codeunit "Probe Observer";
         Cells: Codeunit "RVS Send Cells";
-        Attempt: Integer;
         RecRef: RecordRef;
         R1: Record "RVS Row";
         RowVersion: BigInteger;
     begin
-        for Attempt := 1 to 4 do begin
-            Cells.StartAttempt(0, false);
-            Clear(RecRef);
-            Clear(R1);
-            RecRef.Open(Database::"RVS Row");
-            RecRef.Field(1).Value := 1;
-            if not RecRef.Insert() then
-                Error('insert failed');
-            Cells.Value('value');
-            RowVersion := RecRef.Field(R1.FieldNo(SystemRowVersion)).Value;
-            Cells.Version('row1', RowVersion);
-            RecRef.Close();
-            Cells.Value('value2');
-            Cells.NextInsert();
-            Cells.Keep();
-        end;
+        Cells.Start(0, false);
+        RecRef.Open(Database::"RVS Row");
+        RecRef.Field(1).Value := 1;
+        if not RecRef.Insert() then
+            Error('insert failed');
+        Cells.Value('value');
+        RowVersion := RecRef.Field(R1.FieldNo(SystemRowVersion)).Value;
+        Cells.Version('row1', RowVersion);
+        RecRef.Close();
+        Cells.Value('value2');
+        Cells.NextInsert();
+        Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Expect('value', '1');
-        Observer.Expect('row1', '1');
-        Observer.Expect('value2', '1');
-        Observer.Expect('next', '2');
-        Observer.Expect('end', '2');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -397,33 +363,23 @@ codeunit 76650 "RVS Send Order"
     var
         Observer: Codeunit "Probe Observer";
         Cells: Codeunit "RVS Send Cells";
-        Attempt: Integer;
         RecRef: RecordRef;
         R1: Record "RVS Row";
         RowVersion: BigInteger;
     begin
-        for Attempt := 1 to 4 do begin
-            Cells.StartAttempt(0, false);
-            Clear(RecRef);
-            Clear(R1);
-            RecRef.Open(Database::"RVS Row");
-            RecRef.Field(1).Value := 1;
-            RecRef.Insert();
-            Cells.Value('value');
-            RowVersion := RecRef.Field(R1.FieldNo(SystemRowVersion)).Value;
-            Cells.Version('row1', RowVersion);
-            RecRef.Close();
-            Cells.Value('value2');
-            Cells.NextInsert();
-            Cells.Keep();
-        end;
+        Cells.Start(0, false);
+        RecRef.Open(Database::"RVS Row");
+        RecRef.Field(1).Value := 1;
+        RecRef.Insert();
+        Cells.Value('value');
+        RowVersion := RecRef.Field(R1.FieldNo(SystemRowVersion)).Value;
+        Cells.Version('row1', RowVersion);
+        RecRef.Close();
+        Cells.Value('value2');
+        Cells.NextInsert();
+        Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Expect('value', '0');
-        Observer.Expect('row1', '1');
-        Observer.Expect('value2', '1');
-        Observer.Expect('next', '2');
-        Observer.Expect('end', '2');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -431,28 +387,19 @@ codeunit 76650 "RVS Send Order"
     var
         Observer: Codeunit "Probe Observer";
         Cells: Codeunit "RVS Send Cells";
-        Attempt: Integer;
         B1: Record "RVS Blob Row";
     begin
-        for Attempt := 1 to 4 do begin
-            Cells.StartAttempt(0, false);
-            Clear(B1);
-            B1.Id := 1;
-            if not B1.Insert() then
-                Error('insert failed');
-            Cells.Value('value');
-            Cells.Version('row1', B1.SystemRowVersion);
-            Cells.Value('value2');
-            Cells.NextInsert();
-            Cells.Keep();
-        end;
+        Cells.Start(0, false);
+        B1.Id := 1;
+        if not B1.Insert() then
+            Error('insert failed');
+        Cells.Value('value');
+        Cells.Version('row1', B1.SystemRowVersion);
+        Cells.Value('value2');
+        Cells.NextInsert();
+        Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Expect('value', '1');
-        Observer.Expect('row1', '1');
-        Observer.Expect('value2', '1');
-        Observer.Expect('next', '2');
-        Observer.Expect('end', '2');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -460,27 +407,18 @@ codeunit 76650 "RVS Send Order"
     var
         Observer: Codeunit "Probe Observer";
         Cells: Codeunit "RVS Send Cells";
-        Attempt: Integer;
         B1: Record "RVS Blob Row";
     begin
-        for Attempt := 1 to 4 do begin
-            Cells.StartAttempt(0, false);
-            Clear(B1);
-            B1.Id := 1;
-            B1.Insert();
-            Cells.Value('value');
-            Cells.Version('row1', B1.SystemRowVersion);
-            Cells.Value('value2');
-            Cells.NextInsert();
-            Cells.Keep();
-        end;
+        Cells.Start(0, false);
+        B1.Id := 1;
+        B1.Insert();
+        Cells.Value('value');
+        Cells.Version('row1', B1.SystemRowVersion);
+        Cells.Value('value2');
+        Cells.NextInsert();
+        Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Expect('value', '1');
-        Observer.Expect('row1', '1');
-        Observer.Expect('value2', '1');
-        Observer.Expect('next', '2');
-        Observer.Expect('end', '2');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -488,28 +426,19 @@ codeunit 76650 "RVS Send Order"
     var
         Observer: Codeunit "Probe Observer";
         Cells: Codeunit "RVS Send Cells";
-        Attempt: Integer;
         A1: Record "RVS Auto Row";
     begin
-        for Attempt := 1 to 4 do begin
-            Cells.StartAttempt(0, false);
-            Clear(A1);
-            A1.Id := 0;
-            if not A1.Insert() then
-                Error('insert failed');
-            Cells.Value('value');
-            Cells.Version('row1', A1.SystemRowVersion);
-            Cells.Value('value2');
-            Cells.NextInsert();
-            Cells.Keep();
-        end;
+        Cells.Start(0, false);
+        A1.Id := 0;
+        if not A1.Insert() then
+            Error('insert failed');
+        Cells.Value('value');
+        Cells.Version('row1', A1.SystemRowVersion);
+        Cells.Value('value2');
+        Cells.NextInsert();
+        Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Expect('value', '1');
-        Observer.Expect('row1', '1');
-        Observer.Expect('value2', '1');
-        Observer.Expect('next', '2');
-        Observer.Expect('end', '2');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -517,27 +446,18 @@ codeunit 76650 "RVS Send Order"
     var
         Observer: Codeunit "Probe Observer";
         Cells: Codeunit "RVS Send Cells";
-        Attempt: Integer;
         A1: Record "RVS Auto Row";
     begin
-        for Attempt := 1 to 4 do begin
-            Cells.StartAttempt(0, false);
-            Clear(A1);
-            A1.Id := 0;
-            A1.Insert();
-            Cells.Value('value');
-            Cells.Version('row1', A1.SystemRowVersion);
-            Cells.Value('value2');
-            Cells.NextInsert();
-            Cells.Keep();
-        end;
+        Cells.Start(0, false);
+        A1.Id := 0;
+        A1.Insert();
+        Cells.Value('value');
+        Cells.Version('row1', A1.SystemRowVersion);
+        Cells.Value('value2');
+        Cells.NextInsert();
+        Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Expect('value', '1');
-        Observer.Expect('row1', '1');
-        Observer.Expect('value2', '1');
-        Observer.Expect('next', '2');
-        Observer.Expect('end', '2');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -545,34 +465,23 @@ codeunit 76650 "RVS Send Order"
     var
         Observer: Codeunit "Probe Observer";
         Cells: Codeunit "RVS Send Cells";
-        Attempt: Integer;
         O1: Record "RVS Other";
         R1: Record "RVS Row";
     begin
-        for Attempt := 1 to 4 do begin
-            Cells.StartAttempt(0, false);
-            Clear(O1);
-            Clear(R1);
-            O1.Id := 1;
-            O1.Insert();
-            R1.Id := 1;
-            if not R1.Insert() then
-                Error('insert failed');
-            Cells.Value('value');
-            Cells.Version('other1', O1.SystemRowVersion);
-            Cells.Version('row1', R1.SystemRowVersion);
-            Cells.Value('value2');
-            Cells.NextInsert();
-            Cells.Keep();
-        end;
+        Cells.Start(0, false);
+        O1.Id := 1;
+        O1.Insert();
+        R1.Id := 1;
+        if not R1.Insert() then
+            Error('insert failed');
+        Cells.Value('value');
+        Cells.Version('other1', O1.SystemRowVersion);
+        Cells.Version('row1', R1.SystemRowVersion);
+        Cells.Value('value2');
+        Cells.NextInsert();
+        Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Expect('value', '1');
-        Observer.Expect('other1', '2');
-        Observer.Expect('row1', '1');
-        Observer.Expect('value2', '2');
-        Observer.Expect('next', '3');
-        Observer.Expect('end', '3');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -580,53 +489,36 @@ codeunit 76650 "RVS Send Order"
     var
         Observer: Codeunit "Probe Observer";
         Cells: Codeunit "RVS Send Cells";
-        Attempt: Integer;
         O1: Record "RVS Other";
         O2: Record "RVS Other";
         O3: Record "RVS Other";
         R1: Record "RVS Row";
         R2: Record "RVS Row";
     begin
-        for Attempt := 1 to 4 do begin
-            Cells.StartAttempt(0, false);
-            Clear(O1);
-            Clear(O2);
-            Clear(O3);
-            Clear(R1);
-            Clear(R2);
-            O1.Id := 1;
-            O1.Insert();
-            O2.Id := 2;
-            O2.Insert();
-            O3.Id := 3;
-            O3.Insert();
-            R1.Id := 1;
-            if not R1.Insert() then
-                Error('insert failed');
-            R2.Id := 2;
-            if not R2.Insert() then
-                Error('insert failed');
-            Cells.Value('value');
-            Cells.Version('other1', O1.SystemRowVersion);
-            Cells.Version('other2', O2.SystemRowVersion);
-            Cells.Version('other3', O3.SystemRowVersion);
-            Cells.Version('row1', R1.SystemRowVersion);
-            Cells.Version('row2', R2.SystemRowVersion);
-            Cells.Value('value2');
-            Cells.NextInsert();
-            Cells.Keep();
-        end;
+        Cells.Start(0, false);
+        O1.Id := 1;
+        O1.Insert();
+        O2.Id := 2;
+        O2.Insert();
+        O3.Id := 3;
+        O3.Insert();
+        R1.Id := 1;
+        if not R1.Insert() then
+            Error('insert failed');
+        R2.Id := 2;
+        if not R2.Insert() then
+            Error('insert failed');
+        Cells.Value('value');
+        Cells.Version('other1', O1.SystemRowVersion);
+        Cells.Version('other2', O2.SystemRowVersion);
+        Cells.Version('other3', O3.SystemRowVersion);
+        Cells.Version('row1', R1.SystemRowVersion);
+        Cells.Version('row2', R2.SystemRowVersion);
+        Cells.Value('value2');
+        Cells.NextInsert();
+        Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Expect('value', '2');
-        Observer.Expect('other1', '5');
-        Observer.Expect('other2', '5');
-        Observer.Expect('other3', '5');
-        Observer.Expect('row1', '1');
-        Observer.Expect('row2', '2');
-        Observer.Expect('value2', '5');
-        Observer.Expect('next', '6');
-        Observer.Expect('end', '6');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -634,42 +526,29 @@ codeunit 76650 "RVS Send Order"
     var
         Observer: Codeunit "Probe Observer";
         Cells: Codeunit "RVS Send Cells";
-        Attempt: Integer;
         O1: Record "RVS Other";
         R1: Record "RVS Row";
         R2: Record "RVS Row";
     begin
-        for Attempt := 1 to 4 do begin
-            Cells.StartAttempt(0, false);
-            Clear(O1);
-            Clear(R1);
-            Clear(R2);
-            R1.Id := 1;
-            R1.Insert();
-            O1.Id := 1;
-            O1.Insert();
-            O1.Name := 'y';
-            O1.Modify();
-            R2.Id := 2;
-            if not R2.Insert() then
-                Error('insert failed');
-            Cells.Value('value');
-            Cells.Version('row1', R1.SystemRowVersion);
-            Cells.Version('other1', O1.SystemRowVersion);
-            Cells.Version('row2', R2.SystemRowVersion);
-            Cells.Value('value2');
-            Cells.NextInsert();
-            Cells.Keep();
-        end;
+        Cells.Start(0, false);
+        R1.Id := 1;
+        R1.Insert();
+        O1.Id := 1;
+        O1.Insert();
+        O1.Name := 'y';
+        O1.Modify();
+        R2.Id := 2;
+        if not R2.Insert() then
+            Error('insert failed');
+        Cells.Value('value');
+        Cells.Version('row1', R1.SystemRowVersion);
+        Cells.Version('other1', O1.SystemRowVersion);
+        Cells.Version('row2', R2.SystemRowVersion);
+        Cells.Value('value2');
+        Cells.NextInsert();
+        Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Expect('value', '4');
-        Observer.Expect('row1', '3');
-        Observer.Expect('other1', '2');
-        Observer.Expect('row2', '4');
-        Observer.Expect('value2', '4');
-        Observer.Expect('next', '5');
-        Observer.Expect('end', '5');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -677,37 +556,25 @@ codeunit 76650 "RVS Send Order"
     var
         Observer: Codeunit "Probe Observer";
         Cells: Codeunit "RVS Send Cells";
-        Attempt: Integer;
         O1: Record "RVS Other";
         T1: Record "RVS Trig Row";
     begin
-        for Attempt := 1 to 4 do begin
-            Cells.StartAttempt(0, false);
-            Clear(O1);
-            Clear(T1);
-            O1.Id := 1;
-            O1.Name := 'o';
-            O1.Insert();
-            T1.Id := 1;
-            if not T1.Insert(true) then
-                Error('insert failed');
-            Cells.Value('value');
-            Cells.Fact('trigger name', T1.Name);
-            Cells.Version('other1', O1.SystemRowVersion);
-            Cells.Version('row1', T1.SystemRowVersion);
-            Cells.Value('value2');
-            Cells.NextInsert();
-            Cells.Keep();
-        end;
+        Cells.Start(0, false);
+        O1.Id := 1;
+        O1.Name := 'o';
+        O1.Insert();
+        T1.Id := 1;
+        if not T1.Insert(true) then
+            Error('insert failed');
+        Cells.Value('value');
+        Cells.Fact('trigger name', T1.Name);
+        Cells.Version('other1', O1.SystemRowVersion);
+        Cells.Version('row1', T1.SystemRowVersion);
+        Cells.Value('value2');
+        Cells.NextInsert();
+        Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Expect('value', '2');
-        Observer.Expect('trigger name', 'o');
-        Observer.Expect('other1', '1');
-        Observer.Expect('row1', '2');
-        Observer.Expect('value2', '2');
-        Observer.Expect('next', '3');
-        Observer.Expect('end', '3');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -715,30 +582,20 @@ codeunit 76650 "RVS Send Order"
     var
         Observer: Codeunit "Probe Observer";
         Cells: Codeunit "RVS Send Cells";
-        Attempt: Integer;
         S1: Record "RVS Sub Row";
     begin
-        for Attempt := 1 to 4 do begin
-            Cells.StartAttempt(0, false);
-            Clear(S1);
-            S1.Id := 1;
-            if not S1.Insert() then
-                Error('insert failed');
-            Cells.Value('value');
-            Cells.Fact('subscriber name', S1.Name);
-            Cells.Version('row1', S1.SystemRowVersion);
-            Cells.Value('value2');
-            Cells.NextInsert();
-            Cells.Keep();
-        end;
+        Cells.Start(0, false);
+        S1.Id := 1;
+        if not S1.Insert() then
+            Error('insert failed');
+        Cells.Value('value');
+        Cells.Fact('subscriber name', S1.Name);
+        Cells.Version('row1', S1.SystemRowVersion);
+        Cells.Value('value2');
+        Cells.NextInsert();
+        Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Expect('value', '1');
-        Observer.Expect('subscriber name', 'sub');
-        Observer.Expect('row1', '1');
-        Observer.Expect('value2', '1');
-        Observer.Expect('next', '2');
-        Observer.Expect('end', '2');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -746,29 +603,20 @@ codeunit 76650 "RVS Send Order"
     var
         Observer: Codeunit "Probe Observer";
         Cells: Codeunit "RVS Send Cells";
-        Attempt: Integer;
         R1: Record "RVS Row";
     begin
-        for Attempt := 1 to 4 do begin
-            Cells.StartAttempt(0, false);
-            Clear(R1);
-            R1.SystemId := CreateGuid();
-            R1.Id := 1;
-            if not R1.Insert(false, true) then
-                Error('insert failed');
-            Cells.Value('value');
-            Cells.Version('row1', R1.SystemRowVersion);
-            Cells.Value('value2');
-            Cells.NextInsert();
-            Cells.Keep();
-        end;
+        Cells.Start(0, false);
+        R1.SystemId := CreateGuid();
+        R1.Id := 1;
+        if not R1.Insert(false, true) then
+            Error('insert failed');
+        Cells.Value('value');
+        Cells.Version('row1', R1.SystemRowVersion);
+        Cells.Value('value2');
+        Cells.NextInsert();
+        Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Expect('value', '1');
-        Observer.Expect('row1', '1');
-        Observer.Expect('value2', '1');
-        Observer.Expect('next', '2');
-        Observer.Expect('end', '2');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -776,28 +624,19 @@ codeunit 76650 "RVS Send Order"
     var
         Observer: Codeunit "Probe Observer";
         Cells: Codeunit "RVS Send Cells";
-        Attempt: Integer;
         R1: Record "RVS Row";
     begin
-        for Attempt := 1 to 4 do begin
-            Cells.StartAttempt(0, false);
-            Clear(R1);
-            R1.Id := 1;
-            if not R1.Insert(true) then
-                Error('insert failed');
-            Cells.Value('value');
-            Cells.Version('row1', R1.SystemRowVersion);
-            Cells.Value('value2');
-            Cells.NextInsert();
-            Cells.Keep();
-        end;
+        Cells.Start(0, false);
+        R1.Id := 1;
+        if not R1.Insert(true) then
+            Error('insert failed');
+        Cells.Value('value');
+        Cells.Version('row1', R1.SystemRowVersion);
+        Cells.Value('value2');
+        Cells.NextInsert();
+        Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Expect('value', '1');
-        Observer.Expect('row1', '1');
-        Observer.Expect('value2', '1');
-        Observer.Expect('next', '2');
-        Observer.Expect('end', '2');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -805,32 +644,21 @@ codeunit 76650 "RVS Send Order"
     var
         Observer: Codeunit "Probe Observer";
         Cells: Codeunit "RVS Send Cells";
-        Attempt: Integer;
         O1: Record "RVS Other";
         R1: Record "RVS Row";
     begin
-        for Attempt := 1 to 4 do begin
-            Cells.StartAttempt(1, false);
-            Clear(O1);
-            Clear(R1);
-            O1.Id := 1;
-            O1.Insert();
-            R1.Id := 1;
-            Cells.Fact('inserted', Format(R1.Insert()));
-            Cells.Value('value');
-            Cells.Version('other1', O1.SystemRowVersion);
-            Cells.Value('value2');
-            Cells.NextInsert();
-            Cells.Keep();
-        end;
+        Cells.Start(1, false);
+        O1.Id := 1;
+        O1.Insert();
+        R1.Id := 1;
+        Cells.Fact('inserted', Format(R1.Insert()));
+        Cells.Value('value');
+        Cells.Version('other1', O1.SystemRowVersion);
+        Cells.Value('value2');
+        Cells.NextInsert();
+        Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Expect('inserted', 'No');
-        Observer.Expect('value', '1');
-        Observer.Expect('other1', '2');
-        Observer.Expect('value2', '2');
-        Observer.Expect('next', '3');
-        Observer.Expect('end', '3');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -838,33 +666,23 @@ codeunit 76650 "RVS Send Order"
     var
         Observer: Codeunit "Probe Observer";
         Cells: Codeunit "RVS Send Cells";
-        Attempt: Integer;
         O1: Record "RVS Other";
         R1: Record "RVS Row" temporary;
     begin
-        for Attempt := 1 to 4 do begin
-            Cells.StartAttempt(0, false);
-            Clear(O1);
-            Clear(R1);
-            R1.DeleteAll();
-            O1.Id := 1;
-            O1.Insert();
-            R1.Id := 1;
-            if not R1.Insert() then
-                Error('insert failed');
-            Cells.Value('value');
-            Cells.Version('other1', O1.SystemRowVersion);
-            Cells.Value('value2');
-            Cells.NextInsert();
-            Cells.Keep();
-        end;
+        Cells.Start(0, false);
+        R1.DeleteAll();
+        O1.Id := 1;
+        O1.Insert();
+        R1.Id := 1;
+        if not R1.Insert() then
+            Error('insert failed');
+        Cells.Value('value');
+        Cells.Version('other1', O1.SystemRowVersion);
+        Cells.Value('value2');
+        Cells.NextInsert();
+        Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Expect('value', '0');
-        Observer.Expect('other1', '1');
-        Observer.Expect('value2', '1');
-        Observer.Expect('next', '2');
-        Observer.Expect('end', '2');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -872,27 +690,18 @@ codeunit 76650 "RVS Send Order"
     var
         Observer: Codeunit "Probe Observer";
         Cells: Codeunit "RVS Send Cells";
-        Attempt: Integer;
         R1: Record "RVS Row";
     begin
-        for Attempt := 1 to 4 do begin
-            Cells.StartAttempt(0, false);
-            Clear(R1);
-            R1.Id := 1;
-            R1.Insert();
-            Cells.Value('value');
-            Cells.Version('row1', R1.SystemRowVersion);
-            Cells.Value('value2');
-            Cells.NextInsert();
-            Cells.Keep();
-        end;
+        Cells.Start(0, false);
+        R1.Id := 1;
+        R1.Insert();
+        Cells.Value('value');
+        Cells.Version('row1', R1.SystemRowVersion);
+        Cells.Value('value2');
+        Cells.NextInsert();
+        Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Expect('value', '0');
-        Observer.Expect('row1', '1');
-        Observer.Expect('value2', '1');
-        Observer.Expect('next', '2');
-        Observer.Expect('end', '2');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -900,29 +709,20 @@ codeunit 76650 "RVS Send Order"
     var
         Observer: Codeunit "Probe Observer";
         Cells: Codeunit "RVS Send Cells";
-        Attempt: Integer;
         R1: Record "RVS Row";
         RowVersion: BigInteger;
     begin
-        for Attempt := 1 to 4 do begin
-            Cells.StartAttempt(0, false);
-            Clear(R1);
-            R1.Id := 1;
-            R1.Insert();
-            RowVersion := R1.SystemRowVersion;
-            Cells.Value('value');
-            Cells.Version('row1', RowVersion);
-            Cells.Value('value2');
-            Cells.NextInsert();
-            Cells.Keep();
-        end;
+        Cells.Start(0, false);
+        R1.Id := 1;
+        R1.Insert();
+        RowVersion := R1.SystemRowVersion;
+        Cells.Value('value');
+        Cells.Version('row1', RowVersion);
+        Cells.Value('value2');
+        Cells.NextInsert();
+        Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Expect('value', '1');
-        Observer.Expect('row1', '1');
-        Observer.Expect('value2', '1');
-        Observer.Expect('next', '2');
-        Observer.Expect('end', '2');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -930,38 +730,25 @@ codeunit 76650 "RVS Send Order"
     var
         Observer: Codeunit "Probe Observer";
         Cells: Codeunit "RVS Send Cells";
-        Attempt: Integer;
         R1: Record "RVS Row";
         R2: Record "RVS Row";
         Row: Record "RVS Row";
     begin
-        for Attempt := 1 to 4 do begin
-            Cells.StartAttempt(0, false);
-            Clear(R1);
-            Clear(R2);
-            Clear(Row);
-            R1.Id := 1;
-            R1.Insert();
-            R2.Id := 2;
-            R2.Insert();
-            Row.DeleteAll();
-            Cells.Value('value');
-            Cells.Version('row1', R1.SystemRowVersion);
-            Cells.Version('row2', R2.SystemRowVersion);
-            Cells.Value('value2');
-            Cells.Fact('count', Format(Row.Count()));
-            Cells.NextInsert();
-            Cells.Keep();
-        end;
+        Cells.Start(0, false);
+        R1.Id := 1;
+        R1.Insert();
+        R2.Id := 2;
+        R2.Insert();
+        Row.DeleteAll();
+        Cells.Value('value');
+        Cells.Version('row1', R1.SystemRowVersion);
+        Cells.Version('row2', R2.SystemRowVersion);
+        Cells.Value('value2');
+        Cells.Fact('count', Format(Row.Count()));
+        Cells.NextInsert();
+        Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Expect('value', '2');
-        Observer.Expect('row1', '2');
-        Observer.Expect('row2', '2');
-        Observer.Expect('value2', '2');
-        Observer.Expect('count', '0');
-        Observer.Expect('next', '3');
-        Observer.Expect('end', '3');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -969,40 +756,27 @@ codeunit 76650 "RVS Send Order"
     var
         Observer: Codeunit "Probe Observer";
         Cells: Codeunit "RVS Send Cells";
-        Attempt: Integer;
         R1: Record "RVS Row";
         R2: Record "RVS Row";
         Row: Record "RVS Row";
     begin
-        for Attempt := 1 to 4 do begin
-            Cells.StartAttempt(2, false);
-            Clear(R1);
-            Clear(R2);
-            Clear(Row);
-            R1.Id := 10;
-            R1.Insert();
-            R2.Id := 11;
-            R2.Insert();
-            Row.SetRange(Id, 1, 2);
-            Row.DeleteAll();
-            Cells.Value('value');
-            Cells.Version('row1', R1.SystemRowVersion);
-            Cells.Version('row2', R2.SystemRowVersion);
-            Cells.Value('value2');
-            Row.Reset();
-            Cells.Fact('count', Format(Row.Count()));
-            Cells.NextInsert();
-            Cells.Keep();
-        end;
+        Cells.Start(2, false);
+        R1.Id := 10;
+        R1.Insert();
+        R2.Id := 11;
+        R2.Insert();
+        Row.SetRange(Id, 1, 2);
+        Row.DeleteAll();
+        Cells.Value('value');
+        Cells.Version('row1', R1.SystemRowVersion);
+        Cells.Version('row2', R2.SystemRowVersion);
+        Cells.Value('value2');
+        Row.Reset();
+        Cells.Fact('count', Format(Row.Count()));
+        Cells.NextInsert();
+        Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Expect('value', '2');
-        Observer.Expect('row1', '2');
-        Observer.Expect('row2', '2');
-        Observer.Expect('value2', '2');
-        Observer.Expect('count', '2');
-        Observer.Expect('next', '3');
-        Observer.Expect('end', '3');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -1010,32 +784,21 @@ codeunit 76650 "RVS Send Order"
     var
         Observer: Codeunit "Probe Observer";
         Cells: Codeunit "RVS Send Cells";
-        Attempt: Integer;
         R1: Record "RVS Row";
         Row: Record "RVS Row";
     begin
-        for Attempt := 1 to 4 do begin
-            Cells.StartAttempt(2, false);
-            Clear(R1);
-            Clear(Row);
-            R1.Id := 10;
-            R1.Insert();
-            Row.DeleteAll();
-            Cells.Value('value');
-            Cells.Version('row1', R1.SystemRowVersion);
-            Cells.Value('value2');
-            Cells.Fact('count', Format(Row.Count()));
-            Cells.NextInsert();
-            Cells.Keep();
-        end;
+        Cells.Start(2, false);
+        R1.Id := 10;
+        R1.Insert();
+        Row.DeleteAll();
+        Cells.Value('value');
+        Cells.Version('row1', R1.SystemRowVersion);
+        Cells.Value('value2');
+        Cells.Fact('count', Format(Row.Count()));
+        Cells.NextInsert();
+        Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Expect('value', '1');
-        Observer.Expect('row1', '1');
-        Observer.Expect('value2', '1');
-        Observer.Expect('count', '0');
-        Observer.Expect('next', '2');
-        Observer.Expect('end', '2');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -1043,40 +806,27 @@ codeunit 76650 "RVS Send Order"
     var
         Observer: Codeunit "Probe Observer";
         Cells: Codeunit "RVS Send Cells";
-        Attempt: Integer;
         R1: Record "RVS Row";
         R2: Record "RVS Row";
         RecRef: RecordRef;
     begin
-        for Attempt := 1 to 4 do begin
-            Cells.StartAttempt(0, false);
-            Clear(R1);
-            Clear(R2);
-            Clear(RecRef);
-            R1.Id := 1;
-            R1.Insert();
-            R2.Id := 2;
-            R2.Insert();
-            RecRef.Open(Database::"RVS Row");
-            RecRef.DeleteAll();
-            Cells.Value('value');
-            Cells.Version('row1', R1.SystemRowVersion);
-            Cells.Version('row2', R2.SystemRowVersion);
-            Cells.Value('value2');
-            Cells.Fact('count', Format(RecRef.Count()));
-            RecRef.Close();
-            Cells.NextInsert();
-            Cells.Keep();
-        end;
+        Cells.Start(0, false);
+        R1.Id := 1;
+        R1.Insert();
+        R2.Id := 2;
+        R2.Insert();
+        RecRef.Open(Database::"RVS Row");
+        RecRef.DeleteAll();
+        Cells.Value('value');
+        Cells.Version('row1', R1.SystemRowVersion);
+        Cells.Version('row2', R2.SystemRowVersion);
+        Cells.Value('value2');
+        Cells.Fact('count', Format(RecRef.Count()));
+        RecRef.Close();
+        Cells.NextInsert();
+        Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Expect('value', '2');
-        Observer.Expect('row1', '2');
-        Observer.Expect('row2', '2');
-        Observer.Expect('value2', '2');
-        Observer.Expect('count', '0');
-        Observer.Expect('next', '3');
-        Observer.Expect('end', '3');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -1084,29 +834,216 @@ codeunit 76650 "RVS Send Order"
     var
         Observer: Codeunit "Probe Observer";
         Cells: Codeunit "RVS Send Cells";
-        Attempt: Integer;
         R1: Record "RVS Row";
         Other: Record "RVS Other";
     begin
-        for Attempt := 1 to 4 do begin
-            Cells.StartAttempt(0, true);
-            Clear(R1);
-            Clear(Other);
-            R1.Id := 1;
-            R1.Insert();
-            Other.DeleteAll();
-            Cells.Value('value');
-            Cells.Version('row1', R1.SystemRowVersion);
-            Cells.Value('value2');
-            Cells.NextInsert();
-            Cells.Keep();
-        end;
+        Cells.Start(0, true);
+        R1.Id := 1;
+        R1.Insert();
+        Other.DeleteAll();
+        Cells.Value('value');
+        Cells.Version('row1', R1.SystemRowVersion);
+        Cells.Value('value2');
+        Cells.NextInsert();
+        Cells.EndValue();
         Cells.Emit(Observer);
-        Observer.Expect('value', '0');
-        Observer.Expect('row1', '1');
-        Observer.Expect('value2', '1');
-        Observer.Expect('next', '2');
-        Observer.Expect('end', '2');
-        Observer.Verify();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RowVersionSend_PlainModifyAfterInsert()
+    var
+        Observer: Codeunit "Probe Observer";
+        Cells: Codeunit "RVS Send Cells";
+        R1: Record "RVS Row";
+    begin
+        Cells.Start(0, false);
+        R1.Id := 1;
+        R1.Insert();
+        R1.Name := 'x';
+        R1.Modify();
+        Cells.Value('value');
+        Cells.Version('row1', R1.SystemRowVersion);
+        Cells.Value('value2');
+        Cells.NextInsert();
+        Cells.EndValue();
+        Cells.Emit(Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RowVersionSend_DeleteAfterInsert()
+    var
+        Observer: Codeunit "Probe Observer";
+        Cells: Codeunit "RVS Send Cells";
+        R1: Record "RVS Row";
+    begin
+        Cells.Start(0, false);
+        R1.Id := 1;
+        R1.Insert();
+        R1.Delete();
+        Cells.Value('value');
+        Cells.Version('row1', R1.SystemRowVersion);
+        Cells.Value('value2');
+        Cells.NextInsert();
+        Cells.EndValue();
+        Cells.Emit(Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RowVersionSend_RenameAfterInsert()
+    var
+        Observer: Codeunit "Probe Observer";
+        Cells: Codeunit "RVS Send Cells";
+        R1: Record "RVS Row";
+    begin
+        Cells.Start(0, false);
+        R1.Id := 1;
+        R1.Insert();
+        R1.Rename(2);
+        Cells.Value('value');
+        Cells.Version('row1', R1.SystemRowVersion);
+        Cells.Value('value2');
+        Cells.NextInsert();
+        Cells.EndValue();
+        Cells.Emit(Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RowVersionSend_ModifyAllAfterInsert()
+    var
+        Observer: Codeunit "Probe Observer";
+        Cells: Codeunit "RVS Send Cells";
+        R1: Record "RVS Row";
+        R2: Record "RVS Row";
+        Row: Record "RVS Row";
+    begin
+        Cells.Start(0, false);
+        R1.Id := 1;
+        R1.Insert();
+        R2.Id := 2;
+        R2.Insert();
+        Row.ModifyAll(Name, 'x');
+        Cells.Value('value');
+        Cells.Version('row1', R1.SystemRowVersion);
+        Cells.Version('row2', R2.SystemRowVersion);
+        Row.Get(1);
+        Cells.Version('get1', Row.SystemRowVersion);
+        Row.Get(2);
+        Cells.Version('get2', Row.SystemRowVersion);
+        Cells.Value('value2');
+        Cells.NextInsert();
+        Cells.EndValue();
+        Cells.Emit(Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RowVersionSend_TruncateAfterInsert()
+    var
+        Observer: Codeunit "Probe Observer";
+        Cells: Codeunit "RVS Send Cells";
+        R1: Record "RVS Row";
+        Row: Record "RVS Row";
+    begin
+        Cells.Start(0, false);
+        R1.Id := 1;
+        R1.Insert();
+        Row.Truncate();
+        Cells.Value('value');
+        Cells.Version('row1', R1.SystemRowVersion);
+        Cells.Value('value2');
+        Cells.NextInsert();
+        Cells.EndValue();
+        Cells.Emit(Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RowVersionSend_TwoTablesInsertModify()
+    var
+        Observer: Codeunit "Probe Observer";
+        Cells: Codeunit "RVS Send Cells";
+        R1: Record "RVS Row";
+        O1: Record "RVS Other";
+    begin
+        Cells.Start(0, false);
+        R1.Id := 1;
+        R1.Insert();
+        O1.Id := 1;
+        O1.Insert();
+        Cells.Value('value');
+        R1.Name := 'x';
+        R1.Modify();
+        Cells.Value('value modify1');
+        O1.Name := 'y';
+        O1.Modify();
+        Cells.Value('value modify2');
+        Cells.Version('row1', R1.SystemRowVersion);
+        Cells.Version('other1', O1.SystemRowVersion);
+        Cells.Value('value2');
+        Cells.NextInsert();
+        Cells.EndValue();
+        Cells.Emit(Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RowVersionSend_IssueOrder()
+    var
+        Observer: Codeunit "Probe Observer";
+        Cells: Codeunit "RVS Send Cells";
+        Row: Record "RVS Row";
+        Other: Record "RVS Other";
+        Config: Record "RVS Config Row";
+        R1: Record "RVS Row";
+        R2: Record "RVS Row";
+        Watermark: BigInteger;
+        Value: BigInteger;
+        i: Integer;
+    begin
+        Cells.Start(3, false);
+        Row.SetFilter(Id, '2..');
+        Row.DeleteAll();
+        Row.Reset();
+        Other.DeleteAll();
+        Other.Id := 1;
+        Other.Insert();
+        Other.Name := 'setup';
+        Other.Modify();
+        for i := 1 to 3 do begin
+            Config.Init();
+            Config.Id := i;
+            Config.Insert();
+        end;
+        Watermark := LastUsedRowVersion();
+        Cells.Version('watermark', Watermark);
+        R1.Id := 201;
+        if not R1.Insert() then
+            Error('insert failed');
+        R2.Id := 202;
+        if not R2.Insert() then
+            Error('insert failed');
+        Value := LastUsedRowVersion();
+        Cells.Version('value', Value);
+        for i := 1 to 3 do begin
+            Config.Get(i);
+            Cells.Fact('config' + Format(i) + '/watermark', Cells.Rel(Config.SystemRowVersion, Watermark));
+            Cells.Version('config' + Format(i), Config.SystemRowVersion);
+        end;
+        Row.Get(201);
+        Cells.Fact('row201/value', Cells.Rel(Row.SystemRowVersion, Value));
+        Row.Get(202);
+        Cells.Fact('row202/value', Cells.Rel(Row.SystemRowVersion, Value));
+        Row.Get(201);
+        Row.Name := 'x';
+        Row.Modify();
+        Cells.Value('value modify');
+        Cells.NextInsert();
+        Cells.EndValue();
+        Cells.Emit(Observer);
+        Observer.Finish();
     end;
 }
