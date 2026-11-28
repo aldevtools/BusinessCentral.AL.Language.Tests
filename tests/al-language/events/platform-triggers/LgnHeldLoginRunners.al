@@ -9,7 +9,7 @@
 // Harness (see codeunits/run-onrun/RqIsolationModes.al): on BC 28+ legs a codeunit without handlers and with TestPermissions =
 //   Disabled runs through the TestRunnerHub with its RequiredTestIsolation, in ascending id order; every other codeunit runs
 //   afterwards under 130450 through the websocket test runner. BC 27 legs run every codeunit under 130450; the observing tests
-//   assert nothing there (#else branches).
+//   are compiled only on BC 28+ (#if BC28PLUS around each observing test or codeunit), so BC 27 is not measured.
 // Fixture: this file's login subscriber (OnAfterLogin, OnRegisterAssistedSetup) writes one row per call into table 87414 in
 //   Web client sessions only (the hub session and the 130450 sessions are Web, LgnLoginChecklistTests.al), counts the calls in a SingleInstance memo (87418) and keeps there the
 //   row count of table 87416 at the newest login. Disabled codeunits take a committed snapshot (table 87415) in a first test
@@ -416,12 +416,12 @@ codeunit 87420 "LGN HL A1"
         Probe.Put('A1 TAFTER', Probe.TRows());
     end;
 
+#if BC28PLUS // BC 27 legs have no TestRunnerHub (every codeunit runs under 130450): not measured
     [Test]
     procedure HL_A1_Session()
     var
         Observer: Codeunit "Probe Observer";
     begin
-#if BC28PLUS
         Observer.Observe('OnAfterLogin calls in this session at the snapshot', Format(Probe.Get('A1 CALLS')));
         Observer.Observe('LOGIN rows of this session at the snapshot', Format(Probe.Get('A1 SROWS')));
         Observer.Observe('memo at the snapshot minus T rows at the snapshot', Format(Probe.Get('A1 MEMO') - Probe.Get('A1 TROWS')));
@@ -433,13 +433,12 @@ codeunit 87420 "LGN HL A1"
         Observer.Expect('T rows A1 inserted', '1');
         Observer.Expect('memo now minus T rows before A1', '0');
         Observer.Verify();
-#else
-        // BC 27 legs run every test codeunit under "Test Runner - Isol. Codeunit" (130450): not asked here.
-#endif
     end;
+#endif
 }
 
 // Cell 10: the next hub codeunit (Codeunit isolation) reads the memo of the session's one login.
+#if BC28PLUS // BC 27 legs have no TestRunnerHub (every codeunit runs under 130450): not measured
 codeunit 87421 "LGN HL Memo B"
 {
     Subtype = Test;
@@ -454,7 +453,6 @@ codeunit 87421 "LGN HL Memo B"
     var
         Observer: Codeunit "Probe Observer";
     begin
-#if BC28PLUS
         Probe.ObserveSince(Observer, 'A1');
         Probe.ObserveMemo(Observer);
         Observer.Expect('snapshot found', 'Yes');
@@ -474,11 +472,9 @@ codeunit 87421 "LGN HL Memo B"
         Observer.Expect('memo of this session''s login minus T rows before A1', '0');
         Observer.Expect('memo at A1 snapshot minus T rows before A1', '0');
         Observer.Verify();
-#else
-        // BC 27 legs run every test codeunit under "Test Runner - Isol. Codeunit" (130450): not asked here.
-#endif
     end;
 }
+#endif
 
 // Cell 9: a hub codeunit under Function isolation after the Disabled codeunit A1.
 codeunit 87422 "LGN HL Fn B"
@@ -490,12 +486,12 @@ codeunit 87422 "LGN HL Fn B"
     var
         Probe: Codeunit "LGN HL Probe";
 
+#if BC28PLUS // BC 27 legs have no TestRunnerHub (every codeunit runs under 130450): not measured
     [Test]
     procedure HL_FnB_First()
     var
         Observer: Codeunit "Probe Observer";
     begin
-#if BC28PLUS
         Probe.ObserveSince(Observer, 'A1');
         Observer.Expect('snapshot found', 'Yes');
         Observer.Expect('same session as the snapshot', 'Yes');
@@ -509,10 +505,8 @@ codeunit 87422 "LGN HL Fn B"
         Observer.Expect('LOGIN rows of the snapshot session', '1');
         Observer.Expect('LOGIN rows of the snapshot session at the snapshot', '1');
         Observer.Verify();
-#else
-        // BC 27 legs run every test codeunit under "Test Runner - Isol. Codeunit" (130450): not asked here.
-#endif
     end;
+#endif
 
     // Deletes the session's LOGIN row and inserts a row of its own; never fails.
     [Test]
@@ -529,13 +523,13 @@ codeunit 87422 "LGN HL Fn B"
         Log.Set(Before, Probe.SessionRows(SessionId(), 'LOGIN'), Deleted, Added);
     end;
 
+#if BC28PLUS // BC 27 legs have no TestRunnerHub (every codeunit runs under 130450): not measured
     [Test]
     procedure HL_FnB_AfterDelete()
     var
         Observer: Codeunit "Probe Observer";
         Log: Codeunit "LGN HL Fn Log";
     begin
-#if BC28PLUS
         Observer.Observe('LOGIN rows of this session before the delete', Format(Log.Before()));
         Observer.Observe('LOGIN rows of this session right after the delete', Format(Log.After()));
         Observer.Observe('LOGIN rows of this session in the next test', Format(Probe.SessionRows(SessionId(), 'LOGIN')));
@@ -551,10 +545,8 @@ codeunit 87422 "LGN HL Fn B"
         Observer.Expect('OnAfterLogin calls since the A1 snapshot', '0');
         Observer.Expect('T rows now minus T rows before A1', '1');
         Observer.Verify();
-#else
-        // BC 27 legs run every test codeunit under "Test Runner - Isol. Codeunit" (130450): not asked here.
-#endif
     end;
+#endif
 }
 
 // Cells 7 and 8 setup: a Disabled codeunit whose tests change the login rows: one EXTRA row more, the session's LOGIN row deleted.
@@ -580,12 +572,12 @@ codeunit 87424 "LGN HL A2"
         Probe.Put('A2 DELETED', Probe.DeleteSessionLogin(SessionId()));
     end;
 
+#if BC28PLUS // BC 27 legs have no TestRunnerHub (every codeunit runs under 130450): not measured
     [Test]
     procedure HL_A2_NextTest()
     var
         Observer: Codeunit "Probe Observer";
     begin
-#if BC28PLUS
         Observer.Observe('LOGIN rows of this session at the snapshot', Format(Probe.Get('A2 SROWS')));
         Observer.Observe('OnAfterLogin calls since the A1 snapshot', Format(Probe.Get('A2 CALLS') - Probe.Get('A1 CALLS')));
         Probe.ObserveA2Changes(Observer);
@@ -597,13 +589,12 @@ codeunit 87424 "LGN HL A2"
         Observer.Expect('EXTRA row A2 inserted is there', 'Yes');
         Observer.Expect('LOGIN rows of this session', '0');
         Observer.Verify();
-#else
-        // BC 27 legs run every test codeunit under "Test Runner - Isol. Codeunit" (130450): not asked here.
-#endif
     end;
+#endif
 }
 
 // Cell 7: a codeunit with handler functions (runner 130450 on the BC 28+ legs) after A2.
+#if BC28PLUS // BC 27 legs have no TestRunnerHub (every codeunit runs under 130450): not measured
 codeunit 87425 "LGN HL WS Handler"
 {
     Subtype = Test;
@@ -619,7 +610,6 @@ codeunit 87425 "LGN HL WS Handler"
         Observer: Codeunit "Probe Observer";
     begin
         Message('HL probe');
-#if BC28PLUS
         Probe.ObserveSince(Observer, 'A2');
         Probe.ObserveA2Changes(Observer);
         Probe.ObserveMemo(Observer);
@@ -643,9 +633,6 @@ codeunit 87425 "LGN HL WS Handler"
         Observer.Expect('memo of this session''s login minus T rows before A1', '1');
         Observer.Expect('memo at A1 snapshot minus T rows before A1', '0');
         Observer.Verify();
-#else
-        // BC 27 legs run every test codeunit under "Test Runner - Isol. Codeunit" (130450): not asked here.
-#endif
     end;
 
     [MessageHandler]
@@ -653,8 +640,10 @@ codeunit 87425 "LGN HL WS Handler"
     begin
     end;
 }
+#endif
 
 // Cell 8: a codeunit without handler functions and TestPermissions = NonRestrictive (runner 130450 on the BC 28+ legs).
+#if BC28PLUS // BC 27 legs have no TestRunnerHub (every codeunit runs under 130450): not measured
 codeunit 87426 "LGN HL WS NonRestr"
 {
     Subtype = Test;
@@ -668,7 +657,6 @@ codeunit 87426 "LGN HL WS NonRestr"
     var
         Observer: Codeunit "Probe Observer";
     begin
-#if BC28PLUS
         Probe.ObserveSince(Observer, 'A2');
         Probe.ObserveA2Changes(Observer);
         Probe.ObserveMemo(Observer);
@@ -692,13 +680,12 @@ codeunit 87426 "LGN HL WS NonRestr"
         Observer.Expect('memo of this session''s login minus T rows before A1', '1');
         Observer.Expect('memo at A1 snapshot minus T rows before A1', '0');
         Observer.Verify();
-#else
-        // BC 27 legs run every test codeunit under "Test Runner - Isol. Codeunit" (130450): not asked here.
-#endif
     end;
 }
+#endif
 
 // Cell 8, second shape: no handler functions and no TestPermissions property (Restrictive, runner 130450 on the BC 28+ legs).
+#if BC28PLUS // BC 27 legs have no TestRunnerHub (every codeunit runs under 130450): not measured
 codeunit 87427 "LGN HL WS Restr"
 {
     Subtype = Test;
@@ -711,7 +698,6 @@ codeunit 87427 "LGN HL WS Restr"
     var
         Observer: Codeunit "Probe Observer";
     begin
-#if BC28PLUS
         Probe.ObserveSince(Observer, 'A2');
         Probe.ObserveA2Changes(Observer);
         Probe.ObserveMemo(Observer);
@@ -735,8 +721,6 @@ codeunit 87427 "LGN HL WS Restr"
         Observer.Expect('memo of this session''s login minus T rows before A1', '1');
         Observer.Expect('memo at A1 snapshot minus T rows before A1', '0');
         Observer.Verify();
-#else
-        // BC 27 legs run every test codeunit under "Test Runner - Isol. Codeunit" (130450): not asked here.
-#endif
     end;
 }
+#endif
