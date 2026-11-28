@@ -10,14 +10,21 @@
 // that runs before the writers (OnRun writes of that seed reach the later codeunits in both groups), plus a <P>-KEEP row
 // nobody deletes. Every key has the prefix of its group. The delete shapes (cell numbers of the issue):
 //   1 SetFilter + DeleteAll, 2 Get + Delete, 3 Get + Delete + Commit, 4 RecordRef Open + SetView + DeleteAll,
-//   5 Delete in an event subscriber that OnRun raises, 7 Insert + DeleteAll on a temporary record (control).
+//   5 Delete in an event subscriber that OnRun raises, 7 Insert + DeleteAll on a temporary record (control),
+//   8 Truncate without filters. Truncate empties the whole table, so cell 8 uses one table per group ("LT ODC Trunc <P>",
+//   rows <P>-TR1 and <P>-TR2 from the group's seed); keep_row of cell 8 is the <P>-KEEP row of "LT ODC Row".
 // Groups (see RqIsolationModes.al for the routing of the Linux legs):
 //   - Hub group: TestPermissions = Disabled, no handlers. Prefix C: RequiredTestIsolation = Codeunit, F: Function,
 //     D: Disabled. Seed "LT ODC Hub Seed" uses Disabled.
 //   - 130450 group (prefix W): no TestPermissions property, so the Codeunit test runner runs it on every leg.
 //
-// Measured on BC 27.5, 28.5 and 29.0 (Linux legs; the hub values below are BC 28 and 29):
-//   - Inside the writer codeunit, its test sees every OnRun delete (cells 1-5 rows gone) in every group.
+// Measured on BC 27.5, 28.5 and 29.0 (Linux legs; the hub values below are BC 28 and 29). Cells 1-5 and 7: CI run
+// 46089371347 on builds 27.5.54899.59044, 28.5.54976.59048 and 29.0.54011.55816, and local Linux legs on builds
+// 27.5.54899.59044, 28.5.54976.59048 and 29.0.54011.59052. Cell 8: local Linux legs on 28.5.54976.59048 and
+// 29.0.54011.59052 (identical values); BC 27 and every CI leg: the PR run of the commit that added cell 8.
+//   - Inside the writer codeunit, its test sees every OnRun delete (cells 1-5 rows gone, cell 8 table empty) in every group.
+//   - Cell 8: Truncate in OnRun raises no error in any group and behaves as a DeleteAll: rolled back for the next codeunit
+//     under hub Codeunit and Function isolation, persists under hub Disabled isolation and carries under 130450.
 //   - Hub, Codeunit and Function isolation: the next codeunit sees the rows again. The OnRun delete is rolled back with the
 //     codeunit, the committed one of cell 3 too.
 //   - Hub, Disabled isolation: the next codeunit does not see the rows. The delete persists (cells 1-5).
@@ -25,12 +32,13 @@
 //   - Cell 7: a DeleteAll on a temporary record never touches the real row (all groups, writer and reader).
 //   - BC 27 runs the hub groups under 130450 (CI run 46082141726): there the C and F readers do not see the rows either, the
 //     delete carries as in the W group (#else branches). The BC28PLUS guards mark this difference of the test HARNESS, not of
-//     the platform, as in RqIsolationModes.al. That run reported only the first wrong row of each reader (da1, d1, cm1, rr1,
-//     ev1); da2 and rr2 go with da1 and rr1 (one DeleteAll statement) and are checked by the next CI run.
+//     the platform, as in RqIsolationModes.al. da2 and rr2 on BC 27 are measured by CI run 46089371347 (Verify compares
+//     the whole observation). The cell 8 C and F readers follow the same routing on BC 27 (#else: the W8 values).
 // Measured locally, not a test here (it fails the leg): OnRun that deletes and then raises Error. The hub reports a failed
 // "OnRun" result with the error text and does not run the codeunit's test; the 130450 runner reports no result for that
-// codeunit. In every group the next codeunit sees the row again: the error rolls the delete back.
-// Object ids 83400-83472.
+// codeunit. In every group the next codeunit sees the row again: the error rolls the delete back. Measured on the local
+// Linux legs 27.5.54899.59044, 28.5.54976.59048 and 29.0.54011.59052.
+// Object ids 83400-83407, 83410-83474.
 // BC versions: 27.5, 28.5, 29.0
 
 table 83400 "LT ODC Row"
@@ -689,7 +697,10 @@ codeunit 83423 "LT ODC C8 Truncate Writer"
         Observer: Codeunit "Probe Observer";
     begin
         Probe.ObserveCell('C', 8, Observer);
-        Observer.Finish();
+        Observer.Expect('keep_row', 'Yes');
+        Observer.Expect('tr1_row', 'No');
+        Observer.Expect('tr2_row', 'No');
+        Observer.Verify();
     end;
 }
 
@@ -706,7 +717,16 @@ codeunit 83424 "LT ODC C8 Truncate Reader"
         Observer: Codeunit "Probe Observer";
     begin
         Probe.ObserveCell('C', 8, Observer);
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('keep_row', 'Yes');
+        Observer.Expect('tr1_row', 'Yes');
+        Observer.Expect('tr2_row', 'Yes');
+#else
+        Observer.Expect('keep_row', 'Yes');
+        Observer.Expect('tr1_row', 'No');
+        Observer.Expect('tr2_row', 'No');
+#endif
+        Observer.Verify();
     end;
 }
 
@@ -1033,7 +1053,10 @@ codeunit 83437 "LT ODC F8 Truncate Writer"
         Observer: Codeunit "Probe Observer";
     begin
         Probe.ObserveCell('F', 8, Observer);
-        Observer.Finish();
+        Observer.Expect('keep_row', 'Yes');
+        Observer.Expect('tr1_row', 'No');
+        Observer.Expect('tr2_row', 'No');
+        Observer.Verify();
     end;
 }
 
@@ -1050,7 +1073,16 @@ codeunit 83438 "LT ODC F8 Truncate Reader"
         Observer: Codeunit "Probe Observer";
     begin
         Probe.ObserveCell('F', 8, Observer);
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('keep_row', 'Yes');
+        Observer.Expect('tr1_row', 'Yes');
+        Observer.Expect('tr2_row', 'Yes');
+#else
+        Observer.Expect('keep_row', 'Yes');
+        Observer.Expect('tr1_row', 'No');
+        Observer.Expect('tr2_row', 'No');
+#endif
+        Observer.Verify();
     end;
 }
 
@@ -1350,7 +1382,10 @@ codeunit 83451 "LT ODC D8 Truncate Writer"
         Observer: Codeunit "Probe Observer";
     begin
         Probe.ObserveCell('D', 8, Observer);
-        Observer.Finish();
+        Observer.Expect('keep_row', 'Yes');
+        Observer.Expect('tr1_row', 'No');
+        Observer.Expect('tr2_row', 'No');
+        Observer.Verify();
     end;
 }
 
@@ -1367,7 +1402,10 @@ codeunit 83452 "LT ODC D8 Truncate Reader"
         Observer: Codeunit "Probe Observer";
     begin
         Probe.ObserveCell('D', 8, Observer);
-        Observer.Finish();
+        Observer.Expect('keep_row', 'Yes');
+        Observer.Expect('tr1_row', 'No');
+        Observer.Expect('tr2_row', 'No');
+        Observer.Verify();
     end;
 }
 
@@ -1663,7 +1701,10 @@ codeunit 83473 "LT ODC W8 Truncate Writer"
         Observer: Codeunit "Probe Observer";
     begin
         Probe.ObserveCell('W', 8, Observer);
-        Observer.Finish();
+        Observer.Expect('keep_row', 'Yes');
+        Observer.Expect('tr1_row', 'No');
+        Observer.Expect('tr2_row', 'No');
+        Observer.Verify();
     end;
 }
 
@@ -1678,6 +1719,9 @@ codeunit 83474 "LT ODC W8 Truncate Reader"
         Observer: Codeunit "Probe Observer";
     begin
         Probe.ObserveCell('W', 8, Observer);
-        Observer.Finish();
+        Observer.Expect('keep_row', 'Yes');
+        Observer.Expect('tr1_row', 'No');
+        Observer.Expect('tr2_row', 'No');
+        Observer.Verify();
     end;
 }
