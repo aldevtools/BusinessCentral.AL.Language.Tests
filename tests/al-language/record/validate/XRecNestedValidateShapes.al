@@ -1940,6 +1940,73 @@ codeunit 77473 "XNV Tests"
         Observer.Verify();
     end;
 
+    [Test]
+    procedure Validate_FromTestTryFunctionStatement_OneXRec()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XNV Proc Line";
+    begin
+        Line.DeleteAll();
+        Line.Init();
+        Line."Line No." := 1;
+        Line.Mode := Line.Mode::Purchase;
+        Line.Series := 'OLD';
+        Line."Item No." := 'I1';
+        Line.Insert(false);
+        Line.Series := 'NEW';
+        Cfg.Set('two-inner-assign');
+        TryValidateItem(Line);
+        Observer.Observe('log', Cfg.Take());
+        Observer.Observe('record', Format(Line.Mode, 0, 2) + '/' + Line.Series + '/' + Line."Item No.");
+        Cfg.Set('');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Validate_FromTestTryFunctionStatementOuterAssigns_OneXRec()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XNV Proc Line";
+    begin
+        Line.DeleteAll();
+        Line.Init();
+        Line."Line No." := 1;
+        Line.Mode := Line.Mode::Purchase;
+        Line.Series := 'OLD';
+        Line."Item No." := 'I1';
+        Line.Insert(false);
+        Line.Series := 'NEW';
+        Cfg.Set('two-outer-assign');
+        TryValidateItem(Line);
+        Observer.Observe('log', Cfg.Take());
+        Observer.Observe('record', Format(Line.Mode, 0, 2) + '/' + Line.Series + '/' + Line."Item No.");
+        Cfg.Set('');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Validate_FromTestTryFunctionStatementInnerError_Observed()
+    var
+        Observer: Codeunit "Probe Observer";
+        Line: Record "XNV Proc Line";
+    begin
+        Line.DeleteAll();
+        Line.Init();
+        Line."Line No." := 1;
+        Line.Mode := Line.Mode::Purchase;
+        Line.Series := 'OLD';
+        Line."Item No." := 'I1';
+        Line.Insert(false);
+        Line.Series := 'NEW';
+        Cfg.Set('two-trystmt');
+        asserterror TryValidateItem(Line);
+        Observer.ObserveError('error');
+        Observer.Observe('log', Cfg.Take());
+        Observer.Observe('record', Format(Line.Mode, 0, 2) + '/' + Line.Series + '/' + Line."Item No.");
+        Cfg.Set('');
+        Observer.Finish();
+    end;
+
     [TryFunction]
     local procedure TryValidateItem(var Line: Record "XNV Proc Line")
     begin
