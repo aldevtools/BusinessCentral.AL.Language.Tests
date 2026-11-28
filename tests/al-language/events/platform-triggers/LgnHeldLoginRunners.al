@@ -11,7 +11,7 @@
 //   afterwards under 130450 through the websocket test runner. BC 27 legs run every codeunit under 130450; the observing tests
 //   assert nothing there (#else branches).
 // Fixture: this file's login subscriber (OnAfterLogin, OnRegisterAssistedSetup) writes one row per call into table 87414 in
-//   every session except background and child sessions, counts the calls in a SingleInstance memo (87418) and keeps there the
+//   Web client sessions only (the hub session and the 130450 sessions are Web, LgnLoginChecklistTests.al), counts the calls in a SingleInstance memo (87418) and keeps there the
 //   row count of table 87416 at the newest login. Disabled codeunits take a committed snapshot (table 87415) in a first test
 //   that never fails; later codeunits compare with it.
 // Cells: 87420 A1 (Disabled, inserts one row into table 87416) -> 87421 Codeunit isolation (cell 10); 87422 Function isolation
@@ -90,7 +90,9 @@ table 87416 "LGN HL T Row"
 }
 
 // local object: the subscribers exist to be run by the login of a test session; when they run is the subject.
-// They write in every session except background and child sessions (StartSession of other tests) and never fail.
+// They write only in Web client sessions and never fail. A write in every other session (API, OData, SOAP, Management, ...)
+// raised the database-wide row version under other tests that read it twice (CI run 46097701959, BC 29.0: codeunit 70542
+// in PnBRecordMisc.al, a shard without these tests); the DLW probe (LgnDisabledLoginWrites.al) uses the same Web guard.
 codeunit 87417 "LGN HL Login Subs"
 {
     local procedure Note(EventKind: Code[10])
@@ -99,7 +101,7 @@ codeunit 87417 "LGN HL Login Subs"
         TRow: Record "LGN HL T Row";
         Memo: Codeunit "LGN HL Login Memo";
     begin
-        if CurrentClientType() in [ClientType::Background, ClientType::ChildSession] then
+        if CurrentClientType() <> ClientType::Web then
             exit;
         Row.Init();
         Row."Session Id" := SessionId();
