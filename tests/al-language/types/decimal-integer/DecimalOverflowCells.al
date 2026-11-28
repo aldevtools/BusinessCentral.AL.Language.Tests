@@ -16,6 +16,11 @@
 //   TestRunnerHub; the values are that run's readings, turned into Expect and Verify by convert.py verbatim. This pull request's CI
 //   checks them on 27.5, 28.5 and 29.0; a version difference gets a version guard.
 //   Facts (BC 29.0):
+//   Extends: DecimalDigits.al:7-9 (18 significant digits, rounded half away from zero), EvalLastError.al:113-119,
+//   ScT70058.al:96 and JsonValueGetters.al:600 (format-evaluate and json folders). MAX itself rounds DOWN to ...337,5 (its 19th
+//   digit is 9): rounding up would pass the .NET maximum. The two cells field_plusassign_max_max and field_minusassign_negmax_max
+//   measure the field assignment Row.Amount := MAX (and -MAX), which raises before the += or -= runs; codeunit 73592 measures
+//   that assignment alone and its boundary.
 //   - The Decimal literal MAX holds 18 significant digits: MAX reads as 79228162514264.3375 e15 (79,228,162,514,264,337,500,000,000,000
 //     in the Format error), and so does every value at the limit below (MAX + 1, MAX + 0.5, -(-MAX), Abs(-MAX), Round(MAX, 1 | 10 |
 //     0.01), Round(79228162514264337593543950334.6, 1)): + 1, + 0.5 and - 1 at the limit raise nothing. The literal
@@ -34,6 +39,15 @@
 //     Variant cannot be type-converted to a Decimal value.' (TypeConversion:Overflow). JsonValue.ReadFrom of it, then AsDecimal:
 //     'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.Decimal18.'
 //     (Conversion). 9223372036854775807 into a Decimal holds 9223.37203685477581 e15.
+//   Codeunit 73592 (review cells, measured on a local BC 29.0.54011.57673 on 2026-11-28, asserted on BC 28 and later; on BC 27.5
+//   an observe round, red on purpose: #else ends with Finish()): the overflow boundary between the 18-digit MAX and the .NET
+//   maximum, the 19-digit literal alone, a negative mirror, Row.Amount := MAX alone and the field's range boundary, and two
+//   divisions past MAX. Readings (BC 29.0.54011.57673): 79228162514264337500000000000 + 49999999999, + 50000000000 and
+//   + 93543950335 (up to the exact .NET maximum) raise nothing and equal the 18-digit start value (the sum rounds back to it), and so
+//   does -79228162514264337500000000000 - 50000000000; the literal 79228162514264337560000000000 equals 79228162514264337500000000000
+//   (rounded down; rounding up would pass the .NET maximum). Row.Amount := MAX alone and Row.Amount := 1000000000000000 raise
+//   OutsidePermittedRange; Row.Amount := 999999999999999.99 is taken. MAX / 0.5 and 1E28 / 0.01 raise 'Value was either too large or
+//   too small for a Decimal.' (AL:Overflow).
 // BC versions: 27, 28, 29 by CI
 table 73590 "LT DOV Row"
 {
@@ -744,5 +758,150 @@ codeunit 73591 "LT DOV Overflow Tests"
         Observer.Expect('after_plusassign', 'E: Value was either too large or too small for a Decimal. | AL:Overflow; after big 79228162514264.3375 e15');
         Observer.Expect('after_field_mul', 'E: Value was either too large or too small for a Decimal. | AL:Overflow; after 1');
         Observer.Verify();
+    end;
+}
+
+// Review cells (corpus pull request 1630): the overflow boundary, a record field's range check, and division.
+codeunit 73592 "LT DOV Boundary Tests"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    [TryFunction]
+    local procedure TryCell(Cell: Text; var Result: Text)
+    var
+        Probe: Codeunit "LT DOV Probe";
+        Row: Record "LT DOV Row";
+        D: Decimal;
+        R: Decimal;
+    begin
+        case Cell of
+            'plus_49999999999':
+                begin
+                    D := 79228162514264337500000000000.0;
+                    R := D + 49999999999.0;
+                    Result := Probe.Show(R) + StrSubstNo(' equals D=%1', R = D);
+                end;
+            'plus_50000000000':
+                begin
+                    D := 79228162514264337500000000000.0;
+                    R := D + 50000000000.0;
+                    Result := Probe.Show(R) + StrSubstNo(' equals D=%1', R = D);
+                end;
+            'plus_93543950335':
+                begin
+                    D := 79228162514264337500000000000.0;
+                    R := D + 93543950335.0;
+                    Result := Probe.Show(R) + StrSubstNo(' equals D=%1', R = D);
+                end;
+            'literal_19_digits':
+                begin
+                    D := 79228162514264337560000000000.0;
+                    Result := Probe.Show(D) + StrSubstNo(' equals 79228162514264337500000000000=%1', D = 79228162514264337500000000000.0);
+                end;
+            'negative_minus_50000000000':
+                begin
+                    D := -79228162514264337500000000000.0;
+                    R := D - 50000000000.0;
+                    Result := Probe.Show(R) + StrSubstNo(' equals D=%1', R = D);
+                end;
+            'field_assign_max':
+                begin
+                    Row.Amount := Probe.Max();
+                    Result := Probe.Show(Row.Amount);
+                end;
+            'field_assign_1e15':
+                begin
+                    Row.Amount := 1000000000000000.0;
+                    Result := Probe.Show(Row.Amount);
+                end;
+            'field_assign_below_1e15':
+                begin
+                    Row.Amount := 999999999999999.99;
+                    Result := Probe.Show(Row.Amount);
+                end;
+            'max_div_half':
+                begin
+                    D := Probe.Max();
+                    R := D / 0.5;
+                    Result := Probe.Show(R);
+                end;
+            '1e28_div_001':
+                begin
+                    D := 10000000000000000000000000000.0;
+                    R := D / 0.01;
+                    Result := Probe.Show(R);
+                end;
+        end;
+    end;
+
+    local procedure Cell(var Observer: Codeunit "Probe Observer"; Name: Text)
+    var
+        Result: Text;
+        T: Text;
+    begin
+        ClearLastError();
+        if TryCell(Name, Result) then
+            T := 'ok: ' + Result
+        else
+            T := 'E: ' + GetLastErrorText() + ' | ' + GetLastErrorCode();
+        ClearLastError();
+        Observer.Observe(Name, T);
+    end;
+
+    [Test]
+    procedure Boundary_Cells()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Cell(Observer, 'plus_49999999999');
+        Cell(Observer, 'plus_50000000000');
+        Cell(Observer, 'plus_93543950335');
+        Cell(Observer, 'literal_19_digits');
+        Cell(Observer, 'negative_minus_50000000000');
+#if BC28PLUS
+        Observer.Expect('plus_49999999999', 'ok: big 79228162514264.3375 e15 equals D=Yes');
+        Observer.Expect('plus_50000000000', 'ok: big 79228162514264.3375 e15 equals D=Yes');
+        Observer.Expect('plus_93543950335', 'ok: big 79228162514264.3375 e15 equals D=Yes');
+        Observer.Expect('literal_19_digits', 'ok: big 79228162514264.3375 e15 equals 79228162514264337500000000000=Yes');
+        Observer.Expect('negative_minus_50000000000', 'ok: big -79228162514264.3375 e15 equals D=Yes');
+        Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
+        Observer.Finish();
+#endif
+    end;
+
+    [Test]
+    procedure FieldRange_Cells()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Cell(Observer, 'field_assign_max');
+        Cell(Observer, 'field_assign_1e15');
+        Cell(Observer, 'field_assign_below_1e15');
+#if BC28PLUS
+        Observer.Expect('field_assign_max', 'E: The value of Decimal parameter  is outside of the permitted range. The current value is: 79,228,162,514,264,337,500,000,000,000. The permitted range is: from -999,999,999,999,999.99 to 999,999,999,999,999.99. | OutsidePermittedRange');
+        Observer.Expect('field_assign_1e15', 'E: The value of Decimal parameter  is outside of the permitted range. The current value is: 1,000,000,000,000,000. The permitted range is: from -999,999,999,999,999.99 to 999,999,999,999,999.99. | OutsidePermittedRange');
+        Observer.Expect('field_assign_below_1e15', 'ok: 999999999999999.99');
+        Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
+        Observer.Finish();
+#endif
+    end;
+
+    [Test]
+    procedure Division_Cells()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Cell(Observer, 'max_div_half');
+        Cell(Observer, '1e28_div_001');
+#if BC28PLUS
+        Observer.Expect('max_div_half', 'E: Value was either too large or too small for a Decimal. | AL:Overflow');
+        Observer.Expect('1e28_div_001', 'E: Value was either too large or too small for a Decimal. | AL:Overflow');
+        Observer.Verify();
+#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
+        Observer.Finish();
+#endif
     end;
 }
