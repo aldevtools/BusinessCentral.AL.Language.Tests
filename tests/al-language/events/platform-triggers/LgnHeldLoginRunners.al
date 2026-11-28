@@ -2,9 +2,37 @@
 //   https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-testisolation-property
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160)
-// Probe (observe draft): the login of the hub session after a Disabled codeunit changed its rows, seen from a later codeunit
-//   under "Test Runner - Isol. Codeunit" (130450), from a later hub codeunit under Function isolation, and the session state the
-//   one login leaves (a SingleInstance memo it fills from a table).
+// Probe (AL Runner: the login under RequiredTestIsolation = Disabled, cells 7-10 after LgnDisabledLoginWrites.al): what a later
+//   test codeunit sees of the login after a Disabled codeunit changed the login's rows, when the later codeunit runs under
+//   "Test Runner - Isol. Codeunit" (130450) with and without handler functions, when it is a hub codeunit under Function
+//   isolation, and which state the session's one login leaves in a SingleInstance memo.
+// Harness (see codeunits/run-onrun/RqIsolationModes.al): on BC 28+ legs a codeunit without handlers and with TestPermissions =
+//   Disabled runs through the TestRunnerHub with its RequiredTestIsolation, in ascending id order; every other codeunit runs
+//   afterwards under 130450 through the websocket test runner. BC 27 legs run every codeunit under 130450; the observing tests
+//   assert nothing there (#else branches).
+// Fixture: this file's login subscriber (OnAfterLogin, OnRegisterAssistedSetup) writes one row per call into table 87414 in
+//   every session except background and child sessions, counts the calls in a SingleInstance memo (87418) and keeps there the
+//   row count of table 87416 at the newest login. Disabled codeunits take a committed snapshot (table 87415) in a first test
+//   that never fails; later codeunits compare with it.
+// Cells: 87420 A1 (Disabled, inserts one row into table 87416) -> 87421 Codeunit isolation (cell 10); 87422 Function isolation
+//   after A1 (cell 9); 87424 A2 (Disabled, inserts an EXTRA row and deletes the session's LOGIN row) -> 87425 with a
+//   MessageHandler (cell 7), 87426 TestPermissions = NonRestrictive (cell 8), 87427 no TestPermissions (Restrictive; cell 8).
+// Measured on BC 28.5 (28.5.54976.59048) and 29.0 (29.0.54011.59052), local BC on Linux legs that mirror the CI legs (2026-11-28),
+//   same values on both:
+//   - Order: the 130450 codeunits (87425-87427) ran after the hub codeunits (A2's snapshot found: Yes).
+//   - Cells 7 and 8 (all three 130450 shapes alike): the codeunit runs in ANOTHER session than the hub codeunits. That session
+//     raised its own login: OnAfterLogin 1 call in it (one LOGIN row of that session, written after A2's snapshot), but
+//     OnRegisterAssistedSetup 0 calls. It sees A2's changes to the login rows: the hub session's LOGIN row A2 deleted is gone (0
+//     LOGIN rows of the hub session), the EXTRA row A2 inserted is there. Its login's memo counts the row A1 committed (memo minus
+//     T rows before A1: 1).
+//   - Cell 9 (hub, Function isolation after Disabled A1): same session, 0 login calls since A1's snapshot, the session's 1 LOGIN
+//     row. A test that deletes that LOGIN row and inserts a row of its own: in the next test the LOGIN row is back and the
+//     inserted row is gone (rolled back to the state at the test's start, which holds A1's committed row of table 87416).
+//   - Cell 10 (hub, Codeunit isolation after Disabled A1): the memo still holds the count of the session's one login, taken
+//     before A1 inserted its row (memo minus T rows before A1: 0), while the table now has A1's row (1). No login runs before the
+//     codeunit.
+//   - In A2 itself (Disabled), the next test sees its delete and insert (LOGIN rows of the session: 0, EXTRA row there).
+// BC 27.5: not asserted. The local BC 27.5 leg runs these codeunits through the hub; the CI 27 legs run them under 130450 (needs CI).
 // Object ids 87414-87427.
 // BC versions: 27.5, 28.5, 29.0
 
@@ -397,7 +425,12 @@ codeunit 87420 "LGN HL A1"
         Observer.Observe('memo at the snapshot minus T rows at the snapshot', Format(Probe.Get('A1 MEMO') - Probe.Get('A1 TROWS')));
         Observer.Observe('T rows A1 inserted', Format(Probe.Get('A1 TAFTER') - Probe.Get('A1 TROWS')));
         Observer.Observe('memo now minus T rows before A1', Format(Probe.MemoTRows() - Probe.Get('A1 TROWS')));
-        Observer.Finish();
+        Observer.Expect('OnAfterLogin calls in this session at the snapshot', '1');
+        Observer.Expect('LOGIN rows of this session at the snapshot', '1');
+        Observer.Expect('memo at the snapshot minus T rows at the snapshot', '0');
+        Observer.Expect('T rows A1 inserted', '1');
+        Observer.Expect('memo now minus T rows before A1', '0');
+        Observer.Verify();
 #else
         // BC 27 legs run every test codeunit under "Test Runner - Isol. Codeunit" (130450): not asked here.
 #endif
@@ -422,7 +455,23 @@ codeunit 87421 "LGN HL Memo B"
 #if BC28PLUS
         Probe.ObserveSince(Observer, 'A1');
         Probe.ObserveMemo(Observer);
-        Observer.Finish();
+        Observer.Expect('snapshot found', 'Yes');
+        Observer.Expect('same session as the snapshot', 'Yes');
+        Observer.Expect('OnAfterLogin calls in this session', '1');
+        Observer.Expect('OnRegisterAssistedSetup calls in this session', '1');
+        Observer.Expect('OnAfterLogin calls since the snapshot', '0');
+        Observer.Expect('OnRegisterAssistedSetup calls since the snapshot', '0');
+        Observer.Expect('LOGIN rows of this session', '1');
+        Observer.Expect('REGISTER rows of this session', '1');
+        Observer.Expect('LOGIN rows of this session written after the snapshot', '0');
+        Observer.Expect('LOGIN rows of the snapshot session', '1');
+        Observer.Expect('LOGIN rows of the snapshot session at the snapshot', '1');
+        Observer.Expect('A1 snapshot found', 'Yes');
+        Observer.Expect('T rows A1 inserted', '1');
+        Observer.Expect('T rows now minus T rows before A1', '1');
+        Observer.Expect('memo of this session''s login minus T rows before A1', '0');
+        Observer.Expect('memo at A1 snapshot minus T rows before A1', '0');
+        Observer.Verify();
 #else
         // BC 27 legs run every test codeunit under "Test Runner - Isol. Codeunit" (130450): not asked here.
 #endif
@@ -446,7 +495,18 @@ codeunit 87422 "LGN HL Fn B"
     begin
 #if BC28PLUS
         Probe.ObserveSince(Observer, 'A1');
-        Observer.Finish();
+        Observer.Expect('snapshot found', 'Yes');
+        Observer.Expect('same session as the snapshot', 'Yes');
+        Observer.Expect('OnAfterLogin calls in this session', '1');
+        Observer.Expect('OnRegisterAssistedSetup calls in this session', '1');
+        Observer.Expect('OnAfterLogin calls since the snapshot', '0');
+        Observer.Expect('OnRegisterAssistedSetup calls since the snapshot', '0');
+        Observer.Expect('LOGIN rows of this session', '1');
+        Observer.Expect('REGISTER rows of this session', '1');
+        Observer.Expect('LOGIN rows of this session written after the snapshot', '0');
+        Observer.Expect('LOGIN rows of the snapshot session', '1');
+        Observer.Expect('LOGIN rows of the snapshot session at the snapshot', '1');
+        Observer.Verify();
 #else
         // BC 27 legs run every test codeunit under "Test Runner - Isol. Codeunit" (130450): not asked here.
 #endif
@@ -481,7 +541,14 @@ codeunit 87422 "LGN HL Fn B"
         Observer.Observe('row the delete test inserted is there', Format(Probe.RowExists(Log.NewEntry())));
         Observer.Observe('OnAfterLogin calls since the A1 snapshot', Format(Probe.LiveCalls('LOGIN') - Probe.Get('A1 CALLS')));
         Observer.Observe('T rows now minus T rows before A1', Format(Probe.TRows() - Probe.Get('A1 TROWS')));
-        Observer.Finish();
+        Observer.Expect('LOGIN rows of this session before the delete', '1');
+        Observer.Expect('LOGIN rows of this session right after the delete', '0');
+        Observer.Expect('LOGIN rows of this session in the next test', '1');
+        Observer.Expect('deleted LOGIN row is back', 'Yes');
+        Observer.Expect('row the delete test inserted is there', 'No');
+        Observer.Expect('OnAfterLogin calls since the A1 snapshot', '0');
+        Observer.Expect('T rows now minus T rows before A1', '1');
+        Observer.Verify();
 #else
         // BC 27 legs run every test codeunit under "Test Runner - Isol. Codeunit" (130450): not asked here.
 #endif
@@ -521,7 +588,13 @@ codeunit 87424 "LGN HL A2"
         Observer.Observe('OnAfterLogin calls since the A1 snapshot', Format(Probe.Get('A2 CALLS') - Probe.Get('A1 CALLS')));
         Probe.ObserveA2Changes(Observer);
         Observer.Observe('LOGIN rows of this session', Format(Probe.SessionRows(SessionId(), 'LOGIN')));
-        Observer.Finish();
+        Observer.Expect('LOGIN rows of this session at the snapshot', '1');
+        Observer.Expect('OnAfterLogin calls since the A1 snapshot', '0');
+        Observer.Expect('A2 deleted a LOGIN row', 'Yes');
+        Observer.Expect('LOGIN row A2 deleted is there', 'No');
+        Observer.Expect('EXTRA row A2 inserted is there', 'Yes');
+        Observer.Expect('LOGIN rows of this session', '0');
+        Observer.Verify();
 #else
         // BC 27 legs run every test codeunit under "Test Runner - Isol. Codeunit" (130450): not asked here.
 #endif
@@ -548,7 +621,26 @@ codeunit 87425 "LGN HL WS Handler"
         Probe.ObserveSince(Observer, 'A2');
         Probe.ObserveA2Changes(Observer);
         Probe.ObserveMemo(Observer);
-        Observer.Finish();
+        Observer.Expect('snapshot found', 'Yes');
+        Observer.Expect('same session as the snapshot', 'No');
+        Observer.Expect('OnAfterLogin calls in this session', '1');
+        Observer.Expect('OnRegisterAssistedSetup calls in this session', '0');
+        Observer.Expect('OnAfterLogin calls since the snapshot', 'other session');
+        Observer.Expect('OnRegisterAssistedSetup calls since the snapshot', 'other session');
+        Observer.Expect('LOGIN rows of this session', '1');
+        Observer.Expect('REGISTER rows of this session', '0');
+        Observer.Expect('LOGIN rows of this session written after the snapshot', '1');
+        Observer.Expect('LOGIN rows of the snapshot session', '0');
+        Observer.Expect('LOGIN rows of the snapshot session at the snapshot', '1');
+        Observer.Expect('A2 deleted a LOGIN row', 'Yes');
+        Observer.Expect('LOGIN row A2 deleted is there', 'No');
+        Observer.Expect('EXTRA row A2 inserted is there', 'Yes');
+        Observer.Expect('A1 snapshot found', 'Yes');
+        Observer.Expect('T rows A1 inserted', '1');
+        Observer.Expect('T rows now minus T rows before A1', '1');
+        Observer.Expect('memo of this session''s login minus T rows before A1', '1');
+        Observer.Expect('memo at A1 snapshot minus T rows before A1', '0');
+        Observer.Verify();
 #else
         // BC 27 legs run every test codeunit under "Test Runner - Isol. Codeunit" (130450): not asked here.
 #endif
@@ -578,7 +670,26 @@ codeunit 87426 "LGN HL WS NonRestr"
         Probe.ObserveSince(Observer, 'A2');
         Probe.ObserveA2Changes(Observer);
         Probe.ObserveMemo(Observer);
-        Observer.Finish();
+        Observer.Expect('snapshot found', 'Yes');
+        Observer.Expect('same session as the snapshot', 'No');
+        Observer.Expect('OnAfterLogin calls in this session', '1');
+        Observer.Expect('OnRegisterAssistedSetup calls in this session', '0');
+        Observer.Expect('OnAfterLogin calls since the snapshot', 'other session');
+        Observer.Expect('OnRegisterAssistedSetup calls since the snapshot', 'other session');
+        Observer.Expect('LOGIN rows of this session', '1');
+        Observer.Expect('REGISTER rows of this session', '0');
+        Observer.Expect('LOGIN rows of this session written after the snapshot', '1');
+        Observer.Expect('LOGIN rows of the snapshot session', '0');
+        Observer.Expect('LOGIN rows of the snapshot session at the snapshot', '1');
+        Observer.Expect('A2 deleted a LOGIN row', 'Yes');
+        Observer.Expect('LOGIN row A2 deleted is there', 'No');
+        Observer.Expect('EXTRA row A2 inserted is there', 'Yes');
+        Observer.Expect('A1 snapshot found', 'Yes');
+        Observer.Expect('T rows A1 inserted', '1');
+        Observer.Expect('T rows now minus T rows before A1', '1');
+        Observer.Expect('memo of this session''s login minus T rows before A1', '1');
+        Observer.Expect('memo at A1 snapshot minus T rows before A1', '0');
+        Observer.Verify();
 #else
         // BC 27 legs run every test codeunit under "Test Runner - Isol. Codeunit" (130450): not asked here.
 #endif
@@ -602,7 +713,26 @@ codeunit 87427 "LGN HL WS Restr"
         Probe.ObserveSince(Observer, 'A2');
         Probe.ObserveA2Changes(Observer);
         Probe.ObserveMemo(Observer);
-        Observer.Finish();
+        Observer.Expect('snapshot found', 'Yes');
+        Observer.Expect('same session as the snapshot', 'No');
+        Observer.Expect('OnAfterLogin calls in this session', '1');
+        Observer.Expect('OnRegisterAssistedSetup calls in this session', '0');
+        Observer.Expect('OnAfterLogin calls since the snapshot', 'other session');
+        Observer.Expect('OnRegisterAssistedSetup calls since the snapshot', 'other session');
+        Observer.Expect('LOGIN rows of this session', '1');
+        Observer.Expect('REGISTER rows of this session', '0');
+        Observer.Expect('LOGIN rows of this session written after the snapshot', '1');
+        Observer.Expect('LOGIN rows of the snapshot session', '0');
+        Observer.Expect('LOGIN rows of the snapshot session at the snapshot', '1');
+        Observer.Expect('A2 deleted a LOGIN row', 'Yes');
+        Observer.Expect('LOGIN row A2 deleted is there', 'No');
+        Observer.Expect('EXTRA row A2 inserted is there', 'Yes');
+        Observer.Expect('A1 snapshot found', 'Yes');
+        Observer.Expect('T rows A1 inserted', '1');
+        Observer.Expect('T rows now minus T rows before A1', '1');
+        Observer.Expect('memo of this session''s login minus T rows before A1', '1');
+        Observer.Expect('memo at A1 snapshot minus T rows before A1', '0');
+        Observer.Verify();
 #else
         // BC 27 legs run every test codeunit under "Test Runner - Isol. Codeunit" (130450): not asked here.
 #endif
