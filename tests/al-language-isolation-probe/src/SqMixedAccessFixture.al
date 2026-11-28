@@ -381,6 +381,23 @@ codeunit 79527 "LT SQM Access"
         exit(Result);
     end;
 
+    // A plain read of "LT SQM Row" (FindFirst), no write.
+    procedure ReadRow()
+    var
+        Row: Record "LT SQM Row";
+    begin
+        if Row.FindFirst() then;
+    end;
+
+    // A locking read of "LT SQM Row" (LockTable, then FindFirst), no write.
+    procedure ReadRowLocked()
+    var
+        Row: Record "LT SQM Row";
+    begin
+        Row.LockTable();
+        if Row.FindFirst() then;
+    end;
+
     // Calls of a temporary Record variable: Insert, FindSet, Modify, DeleteAll.
     procedure TempRecord()
     var

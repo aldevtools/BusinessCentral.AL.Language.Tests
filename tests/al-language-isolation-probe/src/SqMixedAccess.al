@@ -3339,3 +3339,466 @@ codeunit 79571 "LT SQM XF"
         Commit();
     end;
 }
+
+// RR: new sequence: helper, Commit, a Record read, guarded Codeunit.Run of a preview engine (Error('')), mixed kinds, Commit, Record write, then the test fails (PH plus a read).
+// RRa: Initialize only.
+// RRb: the helper takes a number and inserts an entry, Commit(), a Record read (FindFirst on "LT SQM Row"), Codeunit.Run (return value used) of a preview engine that writes a row, takes a number through the helper and ends with Error(''), Record insert B1, a temporary Record (Insert, FindSet, Modify, DeleteAll), session builtins (CompanyName, UserId, GuiAllowed, WorkDate, ...), a Query Open, Read, Close, RecordRef calls the helper does not make (FieldCount, Field, SetRecFilter, GetFilters), Commit(), Record insert B2, then fails.
+// RRc: reads the sequences and the tables and asserts them.
+codeunit 79572 "LT SQM RR"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        Seq: Codeunit "LT SQM Seq";
+        Access: Codeunit "LT SQM Access";
+        IsInitialized: Boolean;
+        Token: Text;
+        PreviewResult: Text;
+        Cell: Code[10];
+
+    [Test]
+    procedure RRa_Earlier()
+    begin
+        Initialize();
+    end;
+
+    [Test]
+    procedure RRb_FailsOnPurpose()
+    begin
+        Initialize();
+        Seq.InsertEntry(Name(), Cell);
+        Commit();
+        Access.ReadRow();
+        PreviewResult += 'run:';
+        PreviewResult += Access.RunPreview(Name(), 0);
+        Access.InsertRow('B1');
+        Access.TempRecord();
+        Access.Builtins();
+        Access.QueryRead();
+        Access.RecordRefExtra();
+        Commit();
+        Access.InsertRow('B2');
+        Error('RRb fails on purpose');
+    end;
+
+    [Test]
+    procedure RRc_ReadsAndAsserts()
+    var
+        Actual: Text;
+    begin
+        Actual := 'initialized=' + Format(IsInitialized);
+        Initialize();
+        Actual += ' | pv=' + PreviewResult;
+        Actual += ' | name=' + Seq.State(Name()) + ' | preview=' + Seq.State(Seq.PreviewName(Name()));
+        Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
+        Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
+        Actual += ' | name after=' + Seq.State(Name());
+        if Actual <> 'TBD' then
+            Error('OBSERVE %1: %2', Cell, Actual);
+    end;
+
+    local procedure Name(): Text
+    begin
+        exit('LTSQM' + Cell + Token);
+    end;
+
+    // The first call deletes the rows of earlier cells, writes the INIT row and commits; later calls do nothing.
+    // Token: a number sequence outlives the app and the run, so the name carries a token made once per codeunit run.
+    local procedure Initialize()
+    begin
+        Cell := 'RR';
+        if IsInitialized then
+            exit;
+        Token := CopyStr(DelChr(Format(CreateGuid()), '=', '{}-'), 1, 10);
+        Access.DeleteAllRows();
+        Access.InsertRow('INIT');
+        IsInitialized := true;
+        Commit();
+    end;
+}
+
+// RQ: new sequence: helper, Commit, a Query read, guarded Codeunit.Run of a preview engine (Error('')), mixed kinds, Commit, Record write, then the test fails (PH plus a Query read).
+// RQa: Initialize only.
+// RQb: the helper takes a number and inserts an entry, Commit(), a Query Open, Read, Close, Codeunit.Run (return value used) of a preview engine that writes a row, takes a number through the helper and ends with Error(''), Record insert B1, a temporary Record (Insert, FindSet, Modify, DeleteAll), session builtins (CompanyName, UserId, GuiAllowed, WorkDate, ...), a Query Open, Read, Close, RecordRef calls the helper does not make (FieldCount, Field, SetRecFilter, GetFilters), Commit(), Record insert B2, then fails.
+// RQc: reads the sequences and the tables and asserts them.
+codeunit 79573 "LT SQM RQ"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        Seq: Codeunit "LT SQM Seq";
+        Access: Codeunit "LT SQM Access";
+        IsInitialized: Boolean;
+        Token: Text;
+        PreviewResult: Text;
+        Cell: Code[10];
+
+    [Test]
+    procedure RQa_Earlier()
+    begin
+        Initialize();
+    end;
+
+    [Test]
+    procedure RQb_FailsOnPurpose()
+    begin
+        Initialize();
+        Seq.InsertEntry(Name(), Cell);
+        Commit();
+        Access.QueryRead();
+        PreviewResult += 'run:';
+        PreviewResult += Access.RunPreview(Name(), 0);
+        Access.InsertRow('B1');
+        Access.TempRecord();
+        Access.Builtins();
+        Access.QueryRead();
+        Access.RecordRefExtra();
+        Commit();
+        Access.InsertRow('B2');
+        Error('RQb fails on purpose');
+    end;
+
+    [Test]
+    procedure RQc_ReadsAndAsserts()
+    var
+        Actual: Text;
+    begin
+        Actual := 'initialized=' + Format(IsInitialized);
+        Initialize();
+        Actual += ' | pv=' + PreviewResult;
+        Actual += ' | name=' + Seq.State(Name()) + ' | preview=' + Seq.State(Seq.PreviewName(Name()));
+        Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
+        Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
+        Actual += ' | name after=' + Seq.State(Name());
+        if Actual <> 'TBD' then
+            Error('OBSERVE %1: %2', Cell, Actual);
+    end;
+
+    local procedure Name(): Text
+    begin
+        exit('LTSQM' + Cell + Token);
+    end;
+
+    // The first call deletes the rows of earlier cells, writes the INIT row and commits; later calls do nothing.
+    // Token: a number sequence outlives the app and the run, so the name carries a token made once per codeunit run.
+    local procedure Initialize()
+    begin
+        Cell := 'RQ';
+        if IsInitialized then
+            exit;
+        Token := CopyStr(DelChr(Format(CreateGuid()), '=', '{}-'), 1, 10);
+        Access.DeleteAllRows();
+        Access.InsertRow('INIT');
+        IsInitialized := true;
+        Commit();
+    end;
+}
+
+// RL: new sequence: helper, Commit, a locking Record read, guarded Codeunit.Run of a preview engine (Error('')), mixed kinds, Commit, Record write, then the test fails (PH plus a locking read).
+// RLa: Initialize only.
+// RLb: the helper takes a number and inserts an entry, Commit(), a locking Record read (LockTable, then FindFirst on "LT SQM Row"), Codeunit.Run (return value used) of a preview engine that writes a row, takes a number through the helper and ends with Error(''), Record insert B1, a temporary Record (Insert, FindSet, Modify, DeleteAll), session builtins (CompanyName, UserId, GuiAllowed, WorkDate, ...), a Query Open, Read, Close, RecordRef calls the helper does not make (FieldCount, Field, SetRecFilter, GetFilters), Commit(), Record insert B2, then fails.
+// RLc: reads the sequences and the tables and asserts them.
+codeunit 79574 "LT SQM RL"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        Seq: Codeunit "LT SQM Seq";
+        Access: Codeunit "LT SQM Access";
+        IsInitialized: Boolean;
+        Token: Text;
+        PreviewResult: Text;
+        Cell: Code[10];
+
+    [Test]
+    procedure RLa_Earlier()
+    begin
+        Initialize();
+    end;
+
+    [Test]
+    procedure RLb_FailsOnPurpose()
+    begin
+        Initialize();
+        Seq.InsertEntry(Name(), Cell);
+        Commit();
+        Access.ReadRowLocked();
+        PreviewResult += 'run:';
+        PreviewResult += Access.RunPreview(Name(), 0);
+        Access.InsertRow('B1');
+        Access.TempRecord();
+        Access.Builtins();
+        Access.QueryRead();
+        Access.RecordRefExtra();
+        Commit();
+        Access.InsertRow('B2');
+        Error('RLb fails on purpose');
+    end;
+
+    [Test]
+    procedure RLc_ReadsAndAsserts()
+    var
+        Actual: Text;
+    begin
+        Actual := 'initialized=' + Format(IsInitialized);
+        Initialize();
+        Actual += ' | pv=' + PreviewResult;
+        Actual += ' | name=' + Seq.State(Name()) + ' | preview=' + Seq.State(Seq.PreviewName(Name()));
+        Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
+        Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
+        Actual += ' | name after=' + Seq.State(Name());
+        if Actual <> 'TBD' then
+            Error('OBSERVE %1: %2', Cell, Actual);
+    end;
+
+    local procedure Name(): Text
+    begin
+        exit('LTSQM' + Cell + Token);
+    end;
+
+    // The first call deletes the rows of earlier cells, writes the INIT row and commits; later calls do nothing.
+    // Token: a number sequence outlives the app and the run, so the name carries a token made once per codeunit run.
+    local procedure Initialize()
+    begin
+        Cell := 'RL';
+        if IsInitialized then
+            exit;
+        Token := CopyStr(DelChr(Format(CreateGuid()), '=', '{}-'), 1, 10);
+        Access.DeleteAllRows();
+        Access.InsertRow('INIT');
+        IsInitialized := true;
+        Commit();
+    end;
+}
+
+// RW: new sequence: helper, Commit, a Record write, guarded Codeunit.Run of a preview engine (Error('')), mixed kinds, Commit, Record write, then the test fails (PH plus a write).
+// RWa: Initialize only.
+// RWb: the helper takes a number and inserts an entry, Commit(), Record insert B0, Codeunit.Run (return value used) of a preview engine that writes a row, takes a number through the helper and ends with Error(''), Record insert B1, a temporary Record (Insert, FindSet, Modify, DeleteAll), session builtins (CompanyName, UserId, GuiAllowed, WorkDate, ...), a Query Open, Read, Close, RecordRef calls the helper does not make (FieldCount, Field, SetRecFilter, GetFilters), Commit(), Record insert B2, then fails.
+// RWc: reads the sequences and the tables and asserts them.
+codeunit 79575 "LT SQM RW"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        Seq: Codeunit "LT SQM Seq";
+        Access: Codeunit "LT SQM Access";
+        IsInitialized: Boolean;
+        Token: Text;
+        PreviewResult: Text;
+        Cell: Code[10];
+
+    [Test]
+    procedure RWa_Earlier()
+    begin
+        Initialize();
+    end;
+
+    [Test]
+    procedure RWb_FailsOnPurpose()
+    begin
+        Initialize();
+        Seq.InsertEntry(Name(), Cell);
+        Commit();
+        Access.InsertRow('B0');
+        PreviewResult += 'run:';
+        PreviewResult += Access.RunPreview(Name(), 0);
+        Access.InsertRow('B1');
+        Access.TempRecord();
+        Access.Builtins();
+        Access.QueryRead();
+        Access.RecordRefExtra();
+        Commit();
+        Access.InsertRow('B2');
+        Error('RWb fails on purpose');
+    end;
+
+    [Test]
+    procedure RWc_ReadsAndAsserts()
+    var
+        Actual: Text;
+    begin
+        Actual := 'initialized=' + Format(IsInitialized);
+        Initialize();
+        Actual += ' | pv=' + PreviewResult;
+        Actual += ' | name=' + Seq.State(Name()) + ' | preview=' + Seq.State(Seq.PreviewName(Name()));
+        Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
+        Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
+        Actual += ' | name after=' + Seq.State(Name());
+        if Actual <> 'TBD' then
+            Error('OBSERVE %1: %2', Cell, Actual);
+    end;
+
+    local procedure Name(): Text
+    begin
+        exit('LTSQM' + Cell + Token);
+    end;
+
+    // The first call deletes the rows of earlier cells, writes the INIT row and commits; later calls do nothing.
+    // Token: a number sequence outlives the app and the run, so the name carries a token made once per codeunit run.
+    local procedure Initialize()
+    begin
+        Cell := 'RW';
+        if IsInitialized then
+            exit;
+        Token := CopyStr(DelChr(Format(CreateGuid()), '=', '{}-'), 1, 10);
+        Access.DeleteAllRows();
+        Access.InsertRow('INIT');
+        IsInitialized := true;
+        Commit();
+    end;
+}
+
+// PK: raw insert, guarded Codeunit.Run of a preview engine that takes no number (Error('')), mixed kinds, Commit, Record write, then the test fails (PI with an engine that takes no number).
+// PKa: Initialize only.
+// PKb: NumberSequence.Insert(Name, 0, 1, true) and Next, Codeunit.Run (return value used) of a preview engine that writes a row and ends with Error(''), Record insert B1, a temporary Record (Insert, FindSet, Modify, DeleteAll), session builtins (CompanyName, UserId, GuiAllowed, WorkDate, ...), a Query Open, Read, Close, RecordRef calls the helper does not make (FieldCount, Field, SetRecFilter, GetFilters), Commit(), Record insert B2, then fails.
+// PKc: reads the sequences and the tables and asserts them.
+codeunit 79576 "LT SQM PK"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        Seq: Codeunit "LT SQM Seq";
+        Access: Codeunit "LT SQM Access";
+        IsInitialized: Boolean;
+        Token: Text;
+        PreviewResult: Text;
+        Cell: Code[10];
+
+    [Test]
+    procedure PKa_Earlier()
+    begin
+        Initialize();
+    end;
+
+    [Test]
+    procedure PKb_FailsOnPurpose()
+    begin
+        Initialize();
+        NumberSequence.Insert(Name(), 0, 1, true);
+        if NumberSequence.Next(Name()) = 0 then;
+        PreviewResult += 'run:';
+        PreviewResult += Access.RunPreview('', 0);
+        Access.InsertRow('B1');
+        Access.TempRecord();
+        Access.Builtins();
+        Access.QueryRead();
+        Access.RecordRefExtra();
+        Commit();
+        Access.InsertRow('B2');
+        Error('PKb fails on purpose');
+    end;
+
+    [Test]
+    procedure PKc_ReadsAndAsserts()
+    var
+        Actual: Text;
+    begin
+        Actual := 'initialized=' + Format(IsInitialized);
+        Initialize();
+        Actual += ' | pv=' + PreviewResult;
+        Actual += ' | name=' + Seq.State(Name()) + ' | preview=' + Seq.State(Seq.PreviewName(Name()));
+        Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
+        Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
+        Actual += ' | name after=' + Seq.State(Name());
+        if Actual <> 'TBD' then
+            Error('OBSERVE %1: %2', Cell, Actual);
+    end;
+
+    local procedure Name(): Text
+    begin
+        exit('LTSQM' + Cell + Token);
+    end;
+
+    // The first call deletes the rows of earlier cells, writes the INIT row and commits; later calls do nothing.
+    // Token: a number sequence outlives the app and the run, so the name carries a token made once per codeunit run.
+    local procedure Initialize()
+    begin
+        Cell := 'PK';
+        if IsInitialized then
+            exit;
+        Token := CopyStr(DelChr(Format(CreateGuid()), '=', '{}-'), 1, 10);
+        Access.DeleteAllRows();
+        Access.InsertRow('INIT');
+        IsInitialized := true;
+        Commit();
+    end;
+}
+
+// PT: new sequence: helper, Record write, asserterror of the guarded Codeunit.Run of an engine that ends normally, Commit, Record write, then the test fails.
+// PTa: Initialize only.
+// PTb: the helper takes a number and inserts an entry, Record insert B1, asserterror of Codeunit.Run (return value used) of an engine that writes a row and ends normally, Commit(), Record insert B2, then fails.
+// PTc: reads the sequences and the tables and asserts them.
+codeunit 79577 "LT SQM PT"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        Seq: Codeunit "LT SQM Seq";
+        Access: Codeunit "LT SQM Access";
+        IsInitialized: Boolean;
+        Token: Text;
+        PreviewResult: Text;
+        Cell: Code[10];
+
+    [Test]
+    procedure PTa_Earlier()
+    begin
+        Initialize();
+    end;
+
+    [Test]
+    procedure PTb_FailsOnPurpose()
+    begin
+        Initialize();
+        Seq.InsertEntry(Name(), Cell);
+        Access.InsertRow('B1');
+        PreviewResult += 'run:';
+        asserterror Access.RunPreview('', 1);
+        PreviewResult += 'asserterror:''' + GetLastErrorText() + ''' code:''' + GetLastErrorCode() + '''';
+        ClearLastError();
+        Commit();
+        Access.InsertRow('B2');
+        Error('PTb fails on purpose');
+    end;
+
+    [Test]
+    procedure PTc_ReadsAndAsserts()
+    var
+        Actual: Text;
+    begin
+        Actual := 'initialized=' + Format(IsInitialized);
+        Initialize();
+        Actual += ' | pv=' + PreviewResult;
+        Actual += ' | name=' + Seq.State(Name()) + ' | preview=' + Seq.State(Seq.PreviewName(Name()));
+        Actual += ' | rows=' + Access.Rows() + ' | entries=' + Seq.Entries();
+        Actual += ' | next=' + Seq.NextAbs(Name()) + ' | preview next=' + Seq.NextAbs(Seq.PreviewName(Name()));
+        Actual += ' | name after=' + Seq.State(Name());
+        if Actual <> 'TBD' then
+            Error('OBSERVE %1: %2', Cell, Actual);
+    end;
+
+    local procedure Name(): Text
+    begin
+        exit('LTSQM' + Cell + Token);
+    end;
+
+    // The first call deletes the rows of earlier cells, writes the INIT row and commits; later calls do nothing.
+    // Token: a number sequence outlives the app and the run, so the name carries a token made once per codeunit run.
+    local procedure Initialize()
+    begin
+        Cell := 'PT';
+        if IsInitialized then
+            exit;
+        Token := CopyStr(DelChr(Format(CreateGuid()), '=', '{}-'), 1, 10);
+        Access.DeleteAllRows();
+        Access.InsertRow('INIT');
+        IsInitialized := true;
+        Commit();
+    end;
+}
