@@ -4,7 +4,11 @@
 // Probe: written against al-runner issue 9318. System.IO.StreamWriter over a temporary Blob OutStream writes 48
 //        characters 'A' and flushes (as ZipBlobDotNetOverwrite.al). Then: Position := 0, 10 'B', and an AL WriteText('Z')
 //        into the same OutStream; BaseStream.SetLength(0); BaseStream.SetLength(47).
-// Facts: OBSERVE
+// Measured on BC 27.5.54899.59044, 28.5.54976.59048 and 29.0.54011.59052 (W1, BC on Linux, the CI leg setup); all three agree.
+// Facts: after Position := 0 and 10 'B' the .NET position is 10, but AL WriteText('Z') writes at offset 0 (the AL
+//        OutStream's own position) and leaves the .NET position at 1: text 'Z' + 9 'B' + 38 'A', length 48, no error.
+//        SetLength(0) empties the Blob (HasValue No, length 0, text '') and leaves Position at 48. SetLength(47) cuts the
+//        last 'A' (47 x 'A') and leaves Position at 48.
 // BC versions: 27, 28, 29
 codeunit 99027 "LT ZB DotNet Overwrite After"
 {
@@ -49,7 +53,12 @@ codeunit 99027 "LT ZB DotNet Overwrite After"
         Observer.Observe('position after AL write', Format(Base.Position));
         Observer.Observe('length', Format(Buffer.Content.Length));
         Observer.Observe('text', Helper.BlobText(Buffer));
-        Observer.Finish();
+        Observer.Expect('position before AL write', '10');
+        Observer.Expect('AL write error', 'none');
+        Observer.Expect('position after AL write', '1');
+        Observer.Expect('length', '48');
+        Observer.Expect('text', 'ZBBBBBBBBBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+        Observer.Verify();
     end;
 
     [Test]
@@ -70,7 +79,11 @@ codeunit 99027 "LT ZB DotNet Overwrite After"
         Observer.Observe('has value', Format(Buffer.Content.HasValue()));
         Observer.Observe('length', Format(Buffer.Content.Length));
         Observer.Observe('text', Helper.BlobText(Buffer));
-        Observer.Finish();
+        Observer.Expect('position', '48');
+        Observer.Expect('has value', 'No');
+        Observer.Expect('length', '0');
+        Observer.Expect('text', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -90,6 +103,9 @@ codeunit 99027 "LT ZB DotNet Overwrite After"
         Observer.Observe('position', Format(Base.Position));
         Observer.Observe('length', Format(Buffer.Content.Length));
         Observer.Observe('text', Helper.BlobText(Buffer));
-        Observer.Finish();
+        Observer.Expect('position', '48');
+        Observer.Expect('length', '47');
+        Observer.Expect('text', 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+        Observer.Verify();
     end;
 }

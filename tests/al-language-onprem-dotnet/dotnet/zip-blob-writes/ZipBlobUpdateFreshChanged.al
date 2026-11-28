@@ -6,7 +6,14 @@
 //        Blob before Dispose: an AL WriteText('x') into the same OutStream (after or before CreateEntry, 4- and 2-argument
 //        constructor, temporary and stored record), Clear of the field, Clear plus a rewrite with another zip (z.txt),
 //        and a .NET append through a StreamWriter over the same OutStream.
-// Facts: OBSERVE
+// Measured on BC 27.5.54899.59044, 28.5.54976.59048 and 29.0.54011.59052 (W1, BC on Linux, the CI leg setup); all three agree.
+// Facts: no cell raises an error, and every Dispose writes the archive it read at the constructor plus b.txt (194
+//        bytes, entries a.txt and b.txt, last bytes 0,0,0), whatever changed in between. An AL WriteText('x') into the fresh
+//        OutStream (after or before CreateEntry, 4- and 2-argument constructor, temporary or stored record) writes at offset
+//        0 over the seed (first bytes 120,75,3; length stays 108); the stored record keeps 194 bytes after Modify, Get and
+//        CalcFields. Clear makes HasValue No and Length 0; after Dispose HasValue is Yes again. Clear plus a rewrite with
+//        another 108-byte zip is lost at Dispose. A StreamWriter over the same OutStream writes 'xyz' at offset 0 too
+//        (length stays 108), and Dispose overwrites it.
 // BC versions: 27, 28, 29
 codeunit 99026 "LT ZB Update Fresh Changed"
 {
@@ -148,7 +155,16 @@ codeunit 99026 "LT ZB Update Fresh Changed"
         Observer.Observe('last bytes after write', Helper.LastBytes(Buffer));
         ObserveDispose(Observer, ZipArchive);
         ObserveBuffer(Observer, Buffer);
-        Observer.Finish();
+        Observer.Expect('entries in archive', '1');
+        Observer.Expect('length after write', '108');
+        Observer.Expect('first change after write', '0:120,75,3');
+        Observer.Expect('last bytes after write', '0,0,0');
+        Observer.Expect('dispose error', 'none');
+        Observer.Expect('has value', 'Yes');
+        Observer.Expect('length', '194');
+        Observer.Expect('last bytes', '0,0,0');
+        Observer.Expect('entries', '2:a.txt;b.txt;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -176,7 +192,15 @@ codeunit 99026 "LT ZB Update Fresh Changed"
         Helper.AddEntry(ZipArchive, 'b.txt');
         ObserveDispose(Observer, ZipArchive);
         ObserveBuffer(Observer, Buffer);
-        Observer.Finish();
+        Observer.Expect('length after write', '108');
+        Observer.Expect('first change after write', '0:120,75,3');
+        Observer.Expect('last bytes after write', '0,0,0');
+        Observer.Expect('dispose error', 'none');
+        Observer.Expect('has value', 'Yes');
+        Observer.Expect('length', '194');
+        Observer.Expect('last bytes', '0,0,0');
+        Observer.Expect('entries', '2:a.txt;b.txt;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -203,7 +227,15 @@ codeunit 99026 "LT ZB Update Fresh Changed"
         Observer.Observe('first change after write', FirstChange(Before, After));
         ObserveDispose(Observer, ZipArchive);
         ObserveBuffer(Observer, Buffer);
-        Observer.Finish();
+        Observer.Expect('entries in archive', '1');
+        Observer.Expect('length after write', '108');
+        Observer.Expect('first change after write', '0:120,75,3');
+        Observer.Expect('dispose error', 'none');
+        Observer.Expect('has value', 'Yes');
+        Observer.Expect('length', '194');
+        Observer.Expect('last bytes', '0,0,0');
+        Observer.Expect('entries', '2:a.txt;b.txt;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -251,7 +283,14 @@ codeunit 99026 "LT ZB Update Fresh Changed"
         else
             Observer.Observe('stored entries error', GetLastErrorText());
         ClearLastError();
-        Observer.Finish();
+        Observer.Expect('entries in archive', '1');
+        Observer.Expect('length after write', '108');
+        Observer.Expect('first change after write', '0:120,75,3');
+        Observer.Expect('dispose error', 'none');
+        Observer.Expect('length after Dispose', '194');
+        Observer.Expect('stored length', '194');
+        Observer.Expect('stored entries', '2:a.txt;b.txt;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -274,7 +313,14 @@ codeunit 99026 "LT ZB Update Fresh Changed"
         Observer.Observe('length before Dispose', Format(Buffer.Content.Length));
         ObserveDispose(Observer, ZipArchive);
         ObserveBuffer(Observer, Buffer);
-        Observer.Finish();
+        Observer.Expect('has value before Dispose', 'No');
+        Observer.Expect('length before Dispose', '0');
+        Observer.Expect('dispose error', 'none');
+        Observer.Expect('has value', 'Yes');
+        Observer.Expect('length', '194');
+        Observer.Expect('last bytes', '0,0,0');
+        Observer.Expect('entries', '2:a.txt;b.txt;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -302,7 +348,13 @@ codeunit 99026 "LT ZB Update Fresh Changed"
         Observer.Observe('length before Dispose', Format(Buffer.Content.Length));
         ObserveDispose(Observer, ZipArchive);
         ObserveBuffer(Observer, Buffer);
-        Observer.Finish();
+        Observer.Expect('length before Dispose', '108');
+        Observer.Expect('dispose error', 'none');
+        Observer.Expect('has value', 'Yes');
+        Observer.Expect('length', '194');
+        Observer.Expect('last bytes', '0,0,0');
+        Observer.Expect('entries', '2:a.txt;b.txt;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -333,6 +385,14 @@ codeunit 99026 "LT ZB Update Fresh Changed"
         Observer.Observe('last bytes after append', Helper.LastBytes(Buffer));
         ObserveDispose(Observer, ZipArchive);
         ObserveBuffer(Observer, Buffer);
-        Observer.Finish();
+        Observer.Expect('length after append', '108');
+        Observer.Expect('first change after append', '0:120,121,122');
+        Observer.Expect('last bytes after append', '0,0,0');
+        Observer.Expect('dispose error', 'none');
+        Observer.Expect('has value', 'Yes');
+        Observer.Expect('length', '194');
+        Observer.Expect('last bytes', '0,0,0');
+        Observer.Expect('entries', '2:a.txt;b.txt;');
+        Observer.Verify();
     end;
 }
