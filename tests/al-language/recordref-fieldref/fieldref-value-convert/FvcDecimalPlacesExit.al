@@ -11,19 +11,24 @@
 //   - 0DT into an Option " ",A,B.
 //   Each cell runs in a TryFunction and records "ok: <result>" (Format(.., 0, 9) for Duration and Option) or "E: <GetLastErrorText> |
 //   <GetLastErrorCode>".
-//   Measured on a local BC 29.0.54011.57673 service tier (Linux, W1, en-US session) on 2026-11-28 with an invented app holding
+//   Measured on a local BC 29.0.54011.57673 service tier (Linux, W1, en-US session, UTC) on 2026-11-28 with an invented app holding
 //   these objects (AL 18.0.43.1464, run by al runtests of AL tool 18.1.43.24897); the values are those readings, turned into
-//   Expect and Verify by convert.py verbatim, asserted on BC 28 and later. On BC 27.5 (#else) every test is an observe round, red
-//   on purpose: it ends with Finish(); one following commit asserts the 27.5 readings.
+//   Expect and Verify by convert.py verbatim. BC 27.5.54899.59044 was measured by this pull request's CI observe run 46137073537
+//   (both 27.5 legs alike): it equals BC 29 in every cell but the two DateTime-into-Option cells, where 27.5 gives 'Unable to
+//   convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32.' (Conversion); those two tests keep #if BC28PLUS /
+//   #else, the other four have one block.
 //   Facts (BC 29.0.54011.57673):
 //   - The field's DecimalPlaces does not shape the text: 1234.5 gives 1,234.5 with DecimalPlaces 2:2 and with 0:0, and 1234 gives
 //     1,234 with 0:0, the same through exit into Code[20] and Text and through T := FR.Value().
 //   - 9999-12-31 23:59:59.999 cannot be stored: 'Cannot write the value 12/31/9999 11:59 PM to the field DtF in the table LT FDP
-//     Row because the value is either too long or the content is invalid.' (NDBCS:BadCSideData), raised by the read after the
-//     Insert. 9999-12-30 23:59:59.999 reads back as 12/31/9999 12:00 AM (the milliseconds round up to the next day): into a
+//     Row because the value is either too long or the content is invalid.' (NDBCS:BadCSideData), raised by the Insert or the read
+//     right after it. 9999-12-30 23:59:59.999 reads back as 12/31/9999 12:00 AM (the milliseconds round up to the next day): into a
 //     Duration it gives P3652424DT0H0M0.001S, into an Option 'The value "12/31/9999 12:00 AM" can't be evaluated into type
 //     Option.' (Evaluate:Conversion).
 //   - 0DT into an Option " ",A,B: 'The value "" can't be evaluated into type Option.' (Evaluate:Conversion), as into A,B,C.
+//   - 9999-12-31 23:59:59, the end of the range the field takes: into a Duration P3652424DT23H59M59.001S, into an Option 'The value
+//     "12/31/9999 11:59 PM" can't be evaluated into type Option.' (Evaluate:Conversion). Measured on BC 29 only: asserted on BC 28
+//     and later; on BC 27.5 EndOfRangeDateTime_DurationOption is an observe round, red on purpose (#else ends with Finish()).
 // BC versions: 27, 28, 29 by CI
 table 73384 "LT FDP Row"
 {
@@ -139,14 +144,10 @@ codeunit 73385 "LT FDP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         DecimalCells(Observer, 2);
-#if BC28PLUS
         Observer.Expect('exit_code20', 'ok: 1,234.5');
         Observer.Expect('exit_text', 'ok: 1,234.5');
         Observer.Expect('assign_text', 'ok: 1,234.5');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     // 1234.5 in a field with DecimalPlaces = 0:0.
@@ -156,14 +157,10 @@ codeunit 73385 "LT FDP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         DecimalCells(Observer, 3);
-#if BC28PLUS
         Observer.Expect('exit_code20', 'ok: 1,234.5');
         Observer.Expect('exit_text', 'ok: 1,234.5');
         Observer.Expect('assign_text', 'ok: 1,234.5');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     // 1234 in a field with DecimalPlaces = 0:0.
@@ -173,14 +170,10 @@ codeunit 73385 "LT FDP Tests"
         Observer: Codeunit "Probe Observer";
     begin
         DecimalCells(Observer, 4);
-#if BC28PLUS
         Observer.Expect('exit_code20', 'ok: 1,234');
         Observer.Expect('exit_text', 'ok: 1,234');
         Observer.Expect('assign_text', 'ok: 1,234');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     // Insert, then a read of the table: the Insert is sent to the database at the latest when the table is read.
@@ -206,16 +199,12 @@ codeunit 73385 "LT FDP Tests"
         Row.DtF := CreateDateTime(99991231D, 235959.999T);
         asserterror InsertAndRead(Row);
         Observer.ObserveError('insert');
-#if BC28PLUS
         Observer.Expect('insert|text', 'Cannot write the value 12/31/9999 11:59 PM to the field DtF in the table LT FDP Row because the value is either too long or the content is invalid.');
         Observer.Expect('insert|code', 'NDBCS:BadCSideData');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
-    // The latest DateTime the field takes here, 9999-12-30 23:59:59.999, into a Duration and an Option A,B,C.
+    // A late DateTime, 9999-12-30 23:59:59.999, into a Duration and an Option A,B,C.
     [Test]
     procedure LateDateTime_DurationOption()
     var
@@ -228,8 +217,10 @@ codeunit 73385 "LT FDP Tests"
         Observer.Expect('duration', 'ok: P3652424DT0H0M0.001S');
         Observer.Expect('option', 'E: The value "12/31/9999 12:00 AM" can''t be evaluated into type Option. | Evaluate:Conversion');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46137073537 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('duration', 'ok: P3652424DT0H0M0.001S');
+        Observer.Expect('option', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32. | Conversion');
+        Observer.Verify();
 #endif
     end;
 
@@ -243,6 +234,25 @@ codeunit 73385 "LT FDP Tests"
         Probe.Cell(Observer, 5, 0DT, 'option_blank');
 #if BC28PLUS
         Observer.Expect('option_blank', 'E: The value "" can''t be evaluated into type Option. | Evaluate:Conversion');
+        Observer.Verify();
+#else // BC 27.5 gives another result, measured by this PR's CI run 46137073537 on 27.5 (both 27.5 legs agree)
+        Observer.Expect('option_blank', 'E: Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32. | Conversion');
+        Observer.Verify();
+#endif
+    end;
+
+    // The end of the range a table field takes, 9999-12-31 23:59:59 (no milliseconds), into a Duration and an Option A,B,C.
+    [Test]
+    procedure EndOfRangeDateTime_DurationOption()
+    var
+        Observer: Codeunit "Probe Observer";
+        Probe: Codeunit "LT FDP Probe";
+    begin
+        Probe.Cell(Observer, 5, CreateDateTime(99991231D, 235959T), 'duration');
+        Probe.Cell(Observer, 5, CreateDateTime(99991231D, 235959T), 'option');
+#if BC28PLUS
+        Observer.Expect('duration', 'ok: P3652424DT23H59M59.001S');
+        Observer.Expect('option', 'E: The value "12/31/9999 11:59 PM" can''t be evaluated into type Option. | Evaluate:Conversion');
         Observer.Verify();
 #else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
         Observer.Finish();
