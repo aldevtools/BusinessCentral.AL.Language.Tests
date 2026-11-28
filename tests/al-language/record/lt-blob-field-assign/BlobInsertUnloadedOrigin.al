@@ -13,8 +13,8 @@
 //   A failed Insert onto an existing key: guarded and followed by Modify, guarded alone on the source's own key, and under
 //   asserterror; each ends with CalcFields.
 //   The scope of I4 (CalcFields on the inserting record right after its Insert): after a Modify, after another variable wrote 'x'
-//   and modified the row, after Delete, after Get, and after a second Insert under another key. Not probed: I4 after Commit (a
-//   Commit in a test keeps the rows past the test and the run, so later cells would read another state).
+//   and modified the row, after Delete, after Get, and after a second Insert under another key; and (S3, review round) after
+//   Commit.
 //   Readings as in BlobInsertUnloaded.al: own = the record's own Blobs (after the CalcFields where the cell names one), before and
 //   stored = a fresh record's Get of the stored row, HasValue before and the Blobs after CalcFields.
 //   Measured on a local BC 29.0.54011.57673 service tier (Linux, W1, en-US session) on 2026-11-28 with an invented app holding
@@ -548,5 +548,114 @@ codeunit 73783 "LT BIU Origin Tests"
         Observer.Expect('stored_raw', 'hasValue=No text=[]');
         Observer.Expect('stored_ext', 'hasValue=No text=[]');
         Observer.Verify();
+    end;
+
+    // Review round (corpus pull request 1654).
+    // S3: C01's Insert, then Commit, then C.CalcFields. The test empties the table and commits again at the end; every test
+    // starts with Probe.Seed(), whose DeleteAll keeps a committed row away from later cells.
+    [Test]
+    procedure S3_InsertCommitCalcFields()
+    var
+        Observer: Codeunit "Probe Observer";
+        Probe: Codeunit "LT BIU Probe";
+        C: Record "LT BIU Row";
+        Row: Record "LT BIU Row";
+    begin
+        Probe.Seed();
+        CopyInsert(C);
+        Commit();
+        C.CalcFields(Body, Raw, Ext);
+        Probe.Own(Observer, C);
+        Row.DeleteAll();
+        Commit();
+        Observer.Finish();
+    end;
+
+    // O7: a RecordRef opened, filtered to SRC and read with FindFirst fills a record by RR.SetTable(C); the key NEW, C.Insert.
+    [Test]
+    procedure O7_RecordRefSetTableInsert()
+    var
+        Observer: Codeunit "Probe Observer";
+        Probe: Codeunit "LT BIU Probe";
+        C: Record "LT BIU Row";
+        RR: RecordRef;
+        FR: FieldRef;
+    begin
+        Probe.Seed();
+        RR.Open(Database::"LT BIU Row");
+        FR := RR.Field(1);
+        FR.SetRange('SRC');
+        RR.FindFirst();
+        RR.SetTable(C);
+        C."No." := 'NEW';
+        C.Insert();
+        Probe.Own(Observer, C);
+        Probe.Stored(Observer, 'NEW');
+        Observer.Finish();
+    end;
+
+    // F4: C := Src under the key OTHER, a guarded Insert (fails), then C.CalcFields with no Modify in between.
+    [Test]
+    procedure F4_GuardedInsertThenCalcFields()
+    var
+        Observer: Codeunit "Probe Observer";
+        Probe: Codeunit "LT BIU Probe";
+        Src: Record "LT BIU Row";
+        C: Record "LT BIU Row";
+    begin
+        Probe.Seed();
+        Src.Get('SRC');
+        C := Src;
+        C."No." := 'OTHER';
+        Observer.Observe('insert', Format(C.Insert()));
+        C.CalcFields(Body, Raw, Ext);
+        Probe.Own(Observer, C);
+        Probe.Stored(Observer, 'OTHER');
+        Observer.Finish();
+    end;
+
+    // S2b: S2 (C01's Insert, another variable writes 'x' into NEW's Body and modifies the row, C.CalcFields) and what NEW stores.
+    [Test]
+    procedure S2b_InsertOtherWriteStored()
+    var
+        Observer: Codeunit "Probe Observer";
+        Probe: Codeunit "LT BIU Probe";
+        C: Record "LT BIU Row";
+        Second: Record "LT BIU Row";
+    begin
+        Probe.Seed();
+        CopyInsert(C);
+        Second.Get('NEW');
+        Probe.Write(Second, 'x', '', '');
+        Second.Modify();
+        C.CalcFields(Body, Raw, Ext);
+        Probe.Own(Observer, C);
+        Probe.Stored(Observer, 'NEW');
+        Observer.Finish();
+    end;
+
+    // O6b: O6 (RecordRef Open, FindFirst, field 1 set to NEW, RecordRef.Insert) and the RecordRef's own Blobs after the Insert,
+    // read through RR.SetTable into a record, without CalcFields.
+    [Test]
+    procedure O6b_RecordRefInsertOwnBlobs()
+    var
+        Observer: Codeunit "Probe Observer";
+        Probe: Codeunit "LT BIU Probe";
+        C: Record "LT BIU Row";
+        RR: RecordRef;
+        FR: FieldRef;
+    begin
+        Probe.Seed();
+        RR.Open(Database::"LT BIU Row");
+        FR := RR.Field(1);
+        FR.SetRange('SRC');
+        RR.FindFirst();
+        FR.SetRange();
+        FR.Value := 'NEW';
+        RR.Insert();
+        RR.SetTable(C);
+        Probe.Own(Observer, C);
+        Probe.Stored(Observer, 'NEW');
+        Observer.Finish();
     end;
 }
