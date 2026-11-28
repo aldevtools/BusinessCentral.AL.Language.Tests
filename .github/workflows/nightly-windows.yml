@@ -1014,7 +1014,13 @@ jobs:
             # each cell codeunit asserts its own readings in its test c; test b fails on purpose.
             @{ runner = '130450'; range = '76440..76499'; out = 'xunit-sequence-scm-shapes-130450.xml' },
             @{ runner = '61301'; range = '76440..76499'; out = 'xunit-sequence-scm-shapes-codeunit.xml' },
-            @{ runner = '61300'; range = '76440..76499'; out = 'xunit-sequence-scm-shapes-function.xml' }
+            @{ runner = '61300'; range = '76440..76499'; out = 'xunit-sequence-scm-shapes-function.xml' },
+            # A passing (or failing) test changes a NumberSequence or an IsolatedStorage key; the next test of the codeunit
+            # reports what it sees (79350..79399, SqNextFunction.al; AL Runner issue 8002, runner-codeunit shape). Observe
+            # round: every test b fails on purpose and its message carries the readings.
+            @{ runner = '130450'; range = '79350..79399'; out = 'xunit-sequence-next-130450.xml' },
+            @{ runner = '61301'; range = '79350..79399'; out = 'xunit-sequence-next-codeunit.xml' },
+            @{ runner = '61300'; range = '79350..79399'; out = 'xunit-sequence-next-function.xml' }
           )
           foreach ($r in $runs) {
             Write-Host "::group::isolation probe under runner $($r.runner), test codeunits $($r.range)"
@@ -1097,6 +1103,20 @@ jobs:
             --run "TestIsolation = Codeunit (runner 61301)=xunit-sequence-existing-codeunit.xml" \
             --run "TestIsolation = Function (runner 61300)=xunit-sequence-existing-function.xml" \
             --outdir test-results/sequence-existing
+
+      - name: Sequence or key changed by an earlier test -- per-test rows
+        if: always()
+        continue-on-error: true
+        shell: bash
+        run: |
+          python .github/scripts/isolation-probe-results.py \
+            --title "A NumberSequence or IsolatedStorage key changed by an earlier test, read by the next test of the codeunit" \
+            --note "Not part of the headline above. Observe round (AL Runner issue 8002): in each cell codeunit (79351-79363) test b fails on purpose and its message carries what it saw; test a fails on purpose only in F1, F4 and K3." \
+            --fixture tests/al-language-isolation-probe/src/SqNextFunction.al \
+            --run "Runner 130450=xunit-sequence-next-130450.xml" \
+            --run "TestIsolation = Codeunit (runner 61301)=xunit-sequence-next-codeunit.xml" \
+            --run "TestIsolation = Function (runner 61300)=xunit-sequence-next-function.xml" \
+            --outdir test-results/sequence-next
 
       - name: Sequence after a failed test -- per-test rows
         if: always()
