@@ -454,6 +454,8 @@ jobs:
       # al-language is a production app HERE only in the sense that it has to be
       # published for al-language-onprem's dependency on the shared Assert fixture to
       # resolve. Its own tests are not run in this job - the test job above owns them.
+      # G, H, J and K (app logos of other JPEG sizes, read only by session-system/UsAppLogoJpegSizes.al of this app) are
+      # published only in this job, after E: nothing depends on them and no other job reads them.
       app_dirs: |
         tests/al-language-internals-fixture
         tests/al-language-xapp-a
@@ -463,6 +465,10 @@ jobs:
         tests/al-language-xapp-n
         tests/al-language-xapp-t
         tests/al-language-xapp-e
+        tests/al-language-xapp-g
+        tests/al-language-xapp-h
+        tests/al-language-xapp-j
+        tests/al-language-xapp-k
         tests/al-language
       test_app_dirs:        "tests/al-language-onprem"
       codeunit_range:       ${{ fromJson(needs.prepare.outputs.subset)['tests/al-language-onprem'] || '50000..99999' }}

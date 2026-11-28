@@ -1,0 +1,38 @@
+{
+  "id": "d6d4ac8f-10f6-42aa-9f09-139650c9ec53",
+  "name": "AL Language XApp K",
+  "publisher": "Kilo Probe Publisher",
+  "version": "1.0.0.0",
+  "brief": "Cross-app fixture K: an app whose logo is a 535 x 534 progressive JPEG and that registers an assisted setup when the login raises OnRegisterAssistedSetup.",
+  "description": "Holds a 535 x 534 progressive JPEG (9857 bytes) as the app logo and one OnRegisterAssistedSetup subscriber (tests/al-language-onprem/session-system/UsAppLogoJpegSizes.al). Depends on System Application and Base Application only; no app depends on it. It is published last, after cross-app fixture E, so it changes no subscriber order of the other fixtures. The app id, name and publisher are fixed: the probe reads them.",
+  "privacyStatement": "",
+  "EULA": "",
+  "help": "",
+  "url": "",
+  "logo": "logo.jpg",
+  "platform": "27.0.0.0",
+  "dependencies": [
+    {
+      "id": "63ca2fa4-4f03-4f2b-a480-172fef340d3f",
+      "name": "System Application",
+      "publisher": "Microsoft",
+      "version": "27.0.0.0"
+    },
+    {
+      "id": "437dbf0e-84ff-417a-965d-ed2bb9650972",
+      "name": "Base Application",
+      "publisher": "Microsoft",
+      "version": "27.0.0.0"
+    }
+  ],
+  "screenshots": [],
+  "idRanges": [
+    {
+      "from": 98083,
+      "to": 98083
+    }
+  ],
+  "features": [],
+  "runtime": "18.0",
+  "target": "Cloud"
+}

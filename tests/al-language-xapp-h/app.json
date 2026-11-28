@@ -1,0 +1,38 @@
+{
+  "id": "f985f602-d5a4-4fe8-acd8-6b725247f273",
+  "name": "AL Language XApp H",
+  "publisher": "Hotel Probe Publisher",
+  "version": "1.0.0.0",
+  "brief": "Cross-app fixture H: an app whose logo is a 16 x 8 baseline JPEG and that registers an assisted setup when the login raises OnRegisterAssistedSetup.",
+  "description": "Holds a 16 x 8 baseline JPEG (633 bytes) as the app logo and one OnRegisterAssistedSetup subscriber (tests/al-language-onprem/session-system/UsAppLogoJpegSizes.al). Depends on System Application and Base Application only; no app depends on it. It is published last, after cross-app fixture E, so it changes no subscriber order of the other fixtures. The app id, name and publisher are fixed: the probe reads them.",
+  "privacyStatement": "",
+  "EULA": "",
+  "help": "",
+  "url": "",
+  "logo": "logo.jpg",
+  "platform": "27.0.0.0",
+  "dependencies": [
+    {
+      "id": "63ca2fa4-4f03-4f2b-a480-172fef340d3f",
+      "name": "System Application",
+      "publisher": "Microsoft",
+      "version": "27.0.0.0"
+    },
+    {
+      "id": "437dbf0e-84ff-417a-965d-ed2bb9650972",
+      "name": "Base Application",
+      "publisher": "Microsoft",
+      "version": "27.0.0.0"
+    }
+  ],
+  "screenshots": [],
+  "idRanges": [
+    {
+      "from": 98081,
+      "to": 98081
+    }
+  ],
+  "features": [],
+  "runtime": "18.0",
+  "target": "Cloud"
+}
