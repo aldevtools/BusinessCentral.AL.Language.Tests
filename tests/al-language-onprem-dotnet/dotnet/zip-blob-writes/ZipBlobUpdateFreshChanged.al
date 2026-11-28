@@ -1,19 +1,27 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.ziparchive.dispose
 // Scope: in-scope, but ONLY for a Target = OnPrem app (DotNet), AL compiler 18.0 or newer (see TestDotNetValueKindsContracts.al)
-// Fixtures used: Probe Observer (69160), from the AL Language Coverage Tests app; LT ZB Zip Helper (99022) and tables 99020, 99021
-// Probe: written against al-runner issue 9318. A seed zip (one empty entry a.txt) is in a Blob; AL calls CreateOutStream
-//        on the field again and opens ZipArchive in Update mode over that fresh OutStream, adds b.txt, and then changes the
-//        Blob before Dispose: an AL WriteText('x') into the same OutStream (after or before CreateEntry, 4- and 2-argument
-//        constructor, temporary and stored record), Clear of the field, Clear plus a rewrite with another zip (z.txt),
-//        and a .NET append through a StreamWriter over the same OutStream.
+// Fixtures used: Probe Observer (69160), from the AL Language Coverage Tests app; LT ZB Zip Helper (99022) and tables 99020, 99021; own dotnet alias LtZbfStreamReader
+// Probe: written against al-runner issue 9318. A seed zip is in a Blob; AL calls CreateOutStream on the field again and
+//        opens ZipArchive in Update mode over that fresh OutStream, adds b.txt, and then changes the Blob before Dispose.
+//        Seed with one empty entry a.txt (108 bytes): an AL WriteText('x') into the same OutStream (after or before
+//        CreateEntry, 4- and 2-argument constructor, temporary and stored record), Clear of the field, Clear plus a rewrite
+//        with another zip (z.txt), and a .NET append through a StreamWriter over the same OutStream. Seed whose a.txt holds
+//        'hello' (121 bytes): no change, an AL WriteText of 40 'x' (covers the a.txt local header and its data), and Clear.
+//        Every cell compares the bytes after Dispose with the seed ("first change": 0-based offset and the next 3 bytes).
 // Measured on BC 27.5.54899.59044, 28.5.54976.59048 and 29.0.54011.59052 (W1, BC on Linux, the CI leg setup); all three agree.
-// Facts: no cell raises an error, and every Dispose writes the archive it read at the constructor plus b.txt (194
-//        bytes, entries a.txt and b.txt, last bytes 0,0,0), whatever changed in between. An AL WriteText('x') into the fresh
-//        OutStream (after or before CreateEntry, 4- and 2-argument constructor, temporary or stored record) writes at offset
-//        0 over the seed (first bytes 120,75,3; length stays 108); the stored record keeps 194 bytes after Modify, Get and
-//        CalcFields. Clear makes HasValue No and Length 0; after Dispose HasValue is Yes again. Clear plus a rewrite with
-//        another 108-byte zip is lost at Dispose. A StreamWriter over the same OutStream writes 'xyz' at offset 0 too
-//        (length stays 108), and Dispose overwrites it.
+// Facts: no ZipArchive call and no Dispose raises an error. Empty seed: every Dispose leaves 194 bytes, entries a.txt and
+//        b.txt in Read mode, last bytes 0,0,0. An AL WriteText('x') writes at offset 0 over the seed (first bytes
+//        120,75,3; length stays 108), and these bytes are still there after Dispose (first change at offset 0), on the
+//        stored record after Modify, Get and CalcFields too. A StreamWriter 'xyz' over the same OutStream also writes at
+//        offset 0 (length stays 108) and stays after Dispose. Clear makes HasValue No and Length 0; after Dispose HasValue
+//        is Yes and the bytes up to offset 36 equal the seed (first change at 37). Clear plus a rewrite with the z.txt zip:
+//        after Dispose the first change is at offset 30, the name 'z.txt' of the rewrite (bytes 122,46,116). 'hello' seed:
+//        without a change, Dispose leaves 207 bytes, a.txt reads 'hello', first change at offset 50. With 40 'x' written
+//        by AL (length stays 121), Dispose succeeds and leaves 207 bytes with entries a.txt and b.txt, the 40 'x' are still
+//        at offset 0, and opening a.txt fails with "A local file header is corrupt." before and after Dispose. With Clear,
+//        Dispose leaves 207 bytes, first change at 50, a.txt reads 'hello'. So Dispose does not write the bytes in front of
+//        those offsets: what is in the Blob there at Dispose stays (the AL write, the rewrite), and after Clear the seed
+//        bytes are there again.
 // BC versions: 27, 28, 29
 dotnet
 {
@@ -185,14 +193,14 @@ codeunit 99026 "LT ZB Update Fresh Changed"
         Content := Reader.ReadToEnd();
     end;
 
-    local procedure ObserveEntryText(var Observer: Codeunit "Probe Observer"; var Buffer: Record "LT ZB Zip File" temporary; Name: Text)
+    local procedure ObserveEntryText(var Observer: Codeunit "Probe Observer"; var Buffer: Record "LT ZB Zip File" temporary; Name: Text; Phase: Text)
     var
         Content: Text;
     begin
         if TryEntryText(Buffer, Name, Content) then
-            Observer.Observe(Name + ' content', Content)
+            Observer.Observe(Name + ' content ' + Phase, Content)
         else
-            Observer.Observe(Name + ' content error', GetLastErrorText());
+            Observer.Observe(Name + ' content error ' + Phase, GetLastErrorText());
         ClearLastError();
     end;
 
@@ -225,7 +233,17 @@ codeunit 99026 "LT ZB Update Fresh Changed"
         ObserveBuffer(Observer, Buffer);
         BufferBytes(Buffer, AfterDispose);
         Observer.Observe('first change after Dispose', FirstChange(Before, AfterDispose));
-        Observer.Finish();
+        Observer.Expect('entries in archive', '1');
+        Observer.Expect('length after write', '108');
+        Observer.Expect('first change after write', '0:120,75,3');
+        Observer.Expect('last bytes after write', '0,0,0');
+        Observer.Expect('dispose error', 'none');
+        Observer.Expect('has value', 'Yes');
+        Observer.Expect('length', '194');
+        Observer.Expect('last bytes', '0,0,0');
+        Observer.Expect('entries', '2:a.txt;b.txt;');
+        Observer.Expect('first change after Dispose', '0:120,75,3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -256,7 +274,16 @@ codeunit 99026 "LT ZB Update Fresh Changed"
         ObserveBuffer(Observer, Buffer);
         BufferBytes(Buffer, AfterDispose);
         Observer.Observe('first change after Dispose', FirstChange(Before, AfterDispose));
-        Observer.Finish();
+        Observer.Expect('length after write', '108');
+        Observer.Expect('first change after write', '0:120,75,3');
+        Observer.Expect('last bytes after write', '0,0,0');
+        Observer.Expect('dispose error', 'none');
+        Observer.Expect('has value', 'Yes');
+        Observer.Expect('length', '194');
+        Observer.Expect('last bytes', '0,0,0');
+        Observer.Expect('entries', '2:a.txt;b.txt;');
+        Observer.Expect('first change after Dispose', '0:120,75,3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -286,7 +313,16 @@ codeunit 99026 "LT ZB Update Fresh Changed"
         ObserveBuffer(Observer, Buffer);
         BufferBytes(Buffer, AfterDispose);
         Observer.Observe('first change after Dispose', FirstChange(Before, AfterDispose));
-        Observer.Finish();
+        Observer.Expect('entries in archive', '1');
+        Observer.Expect('length after write', '108');
+        Observer.Expect('first change after write', '0:120,75,3');
+        Observer.Expect('dispose error', 'none');
+        Observer.Expect('has value', 'Yes');
+        Observer.Expect('length', '194');
+        Observer.Expect('last bytes', '0,0,0');
+        Observer.Expect('entries', '2:a.txt;b.txt;');
+        Observer.Expect('first change after Dispose', '0:120,75,3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -339,7 +375,16 @@ codeunit 99026 "LT ZB Update Fresh Changed"
         else
             Observer.Observe('stored entries error', GetLastErrorText());
         ClearLastError();
-        Observer.Finish();
+        Observer.Expect('entries in archive', '1');
+        Observer.Expect('length after write', '108');
+        Observer.Expect('first change after write', '0:120,75,3');
+        Observer.Expect('dispose error', 'none');
+        Observer.Expect('length after Dispose', '194');
+        Observer.Expect('first change after Dispose', '0:120,75,3');
+        Observer.Expect('stored length', '194');
+        Observer.Expect('stored first change', '0:120,75,3');
+        Observer.Expect('stored entries', '2:a.txt;b.txt;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -367,7 +412,15 @@ codeunit 99026 "LT ZB Update Fresh Changed"
         ObserveBuffer(Observer, Buffer);
         BufferBytes(Buffer, AfterDispose);
         Observer.Observe('first change after Dispose', FirstChange(Before, AfterDispose));
-        Observer.Finish();
+        Observer.Expect('has value before Dispose', 'No');
+        Observer.Expect('length before Dispose', '0');
+        Observer.Expect('dispose error', 'none');
+        Observer.Expect('has value', 'Yes');
+        Observer.Expect('length', '194');
+        Observer.Expect('last bytes', '0,0,0');
+        Observer.Expect('entries', '2:a.txt;b.txt;');
+        Observer.Expect('first change after Dispose', '37:3,4,20');
+        Observer.Verify();
     end;
 
     [Test]
@@ -400,7 +453,14 @@ codeunit 99026 "LT ZB Update Fresh Changed"
         ObserveBuffer(Observer, Buffer);
         BufferBytes(Buffer, AfterDispose);
         Observer.Observe('first change after Dispose', FirstChange(Before, AfterDispose));
-        Observer.Finish();
+        Observer.Expect('length before Dispose', '108');
+        Observer.Expect('dispose error', 'none');
+        Observer.Expect('has value', 'Yes');
+        Observer.Expect('length', '194');
+        Observer.Expect('last bytes', '0,0,0');
+        Observer.Expect('entries', '2:a.txt;b.txt;');
+        Observer.Expect('first change after Dispose', '30:122,46,116');
+        Observer.Verify();
     end;
 
     [Test]
@@ -434,7 +494,16 @@ codeunit 99026 "LT ZB Update Fresh Changed"
         ObserveBuffer(Observer, Buffer);
         BufferBytes(Buffer, AfterDispose);
         Observer.Observe('first change after Dispose', FirstChange(Before, AfterDispose));
-        Observer.Finish();
+        Observer.Expect('length after append', '108');
+        Observer.Expect('first change after append', '0:120,121,122');
+        Observer.Expect('last bytes after append', '0,0,0');
+        Observer.Expect('dispose error', 'none');
+        Observer.Expect('has value', 'Yes');
+        Observer.Expect('length', '194');
+        Observer.Expect('last bytes', '0,0,0');
+        Observer.Expect('entries', '2:a.txt;b.txt;');
+        Observer.Expect('first change after Dispose', '0:120,121,122');
+        Observer.Verify();
     end;
 
     [Test]
@@ -452,7 +521,7 @@ codeunit 99026 "LT ZB Update Fresh Changed"
     begin
         SeedBufferHello(Buffer);
         Observer.Observe('seed length', Format(Buffer.Content.Length));
-        ObserveEntryText(Observer, Buffer, 'a.txt');
+        ObserveEntryText(Observer, Buffer, 'a.txt', 'before Dispose');
         BufferBytes(Buffer, Before);
         Buffer.Content.CreateOutStream(BufferOut);
         ZipArchive := ZipArchive.ZipArchive(BufferOut, Mode.Update, false, Enc.UTF8());
@@ -462,9 +531,20 @@ codeunit 99026 "LT ZB Update Fresh Changed"
         ObserveBuffer(Observer, Buffer);
         BufferBytes(Buffer, AfterDispose);
         Observer.Observe('first change after Dispose', FirstChange(Before, AfterDispose));
-        ObserveEntryText(Observer, Buffer, 'a.txt');
-        ObserveEntryText(Observer, Buffer, 'b.txt');
-        Observer.Finish();
+        ObserveEntryText(Observer, Buffer, 'a.txt', 'after Dispose');
+        ObserveEntryText(Observer, Buffer, 'b.txt', 'after Dispose');
+        Observer.Expect('seed length', '121');
+        Observer.Expect('a.txt content before Dispose', 'hello');
+        Observer.Expect('entries in archive', '1');
+        Observer.Expect('dispose error', 'none');
+        Observer.Expect('has value', 'Yes');
+        Observer.Expect('length', '207');
+        Observer.Expect('last bytes', '0,0,0');
+        Observer.Expect('entries', '2:a.txt;b.txt;');
+        Observer.Expect('first change after Dispose', '50:3,4,20');
+        Observer.Expect('a.txt content after Dispose', 'hello');
+        Observer.Expect('b.txt content after Dispose', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -492,14 +572,27 @@ codeunit 99026 "LT ZB Update Fresh Changed"
         Observer.Observe('length after write', Format(Buffer.Content.Length));
         BufferBytes(Buffer, After);
         Observer.Observe('first change after write', FirstChange(Before, After));
-        ObserveEntryText(Observer, Buffer, 'a.txt');
+        ObserveEntryText(Observer, Buffer, 'a.txt', 'before Dispose');
         ObserveDispose(Observer, ZipArchive);
         ObserveBuffer(Observer, Buffer);
         BufferBytes(Buffer, AfterDispose);
         Observer.Observe('first change after Dispose', FirstChange(Before, AfterDispose));
-        ObserveEntryText(Observer, Buffer, 'a.txt');
-        ObserveEntryText(Observer, Buffer, 'b.txt');
-        Observer.Finish();
+        ObserveEntryText(Observer, Buffer, 'a.txt', 'after Dispose');
+        ObserveEntryText(Observer, Buffer, 'b.txt', 'after Dispose');
+        Observer.Expect('seed length', '121');
+        Observer.Expect('entries in archive', '1');
+        Observer.Expect('length after write', '121');
+        Observer.Expect('first change after write', '0:120,120,120');
+        Observer.Expect('a.txt content error before Dispose', 'A call to System.IO.Compression.ZipArchiveEntry.Open failed with this message: A local file header is corrupt.');
+        Observer.Expect('dispose error', 'none');
+        Observer.Expect('has value', 'Yes');
+        Observer.Expect('length', '207');
+        Observer.Expect('last bytes', '0,0,0');
+        Observer.Expect('entries', '2:a.txt;b.txt;');
+        Observer.Expect('first change after Dispose', '0:120,120,120');
+        Observer.Expect('a.txt content error after Dispose', 'A call to System.IO.Compression.ZipArchiveEntry.Open failed with this message: A local file header is corrupt.');
+        Observer.Expect('b.txt content after Dispose', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -526,7 +619,15 @@ codeunit 99026 "LT ZB Update Fresh Changed"
         ObserveBuffer(Observer, Buffer);
         BufferBytes(Buffer, AfterDispose);
         Observer.Observe('first change after Dispose', FirstChange(Before, AfterDispose));
-        ObserveEntryText(Observer, Buffer, 'a.txt');
-        Observer.Finish();
+        ObserveEntryText(Observer, Buffer, 'a.txt', 'after Dispose');
+        Observer.Expect('length before Dispose', '0');
+        Observer.Expect('dispose error', 'none');
+        Observer.Expect('has value', 'Yes');
+        Observer.Expect('length', '207');
+        Observer.Expect('last bytes', '0,0,0');
+        Observer.Expect('entries', '2:a.txt;b.txt;');
+        Observer.Expect('first change after Dispose', '50:3,4,20');
+        Observer.Expect('a.txt content after Dispose', 'hello');
+        Observer.Verify();
     end;
 }
