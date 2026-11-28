@@ -19,8 +19,9 @@
 //   stored = a fresh record's Get of the stored row, HasValue before and the Blobs after CalcFields.
 //   Measured on a local BC 29.0.54011.57673 service tier (Linux, W1, en-US session) on 2026-11-28 with an invented app holding
 //   these objects (AL 18.0.43.1464, run by al runtests of AL tool 18.1.43.24897); the values are those readings, turned into
-//   Expect and Verify by convert.py verbatim, asserted on BC 28 and later (#if BC28PLUS). On BC 27.5 (#else) every test is an
-//   observe round, red on purpose: it ends with Finish(); one following commit asserts the 27.5 readings.
+//   Expect and Verify by convert.py verbatim. This pull request's CI observe run 46135557709 measured every test on BC
+//   27.5.54899.59044, the same on both 27.5 legs, with readings equal to BC 29 in every cell, so one set of assertions holds on
+//   every version, with no version guard.
 //   Facts (BC 29.0.54011.57673), the same for the three Blob fields:
 //   - Every read origin (FindLast, Find('-'), Find('='), Find('+'), the second row of a FindSet loop, a RecordRef FindFirst and
 //     RecordRef.Insert) stores no Blob, as Get, FindFirst and FindSet do; the inserting record answers HasValue Yes, empty.
@@ -65,7 +66,6 @@ codeunit 73783 "LT BIU Origin Tests"
         Src.SetRange("No.", 'SRC');
         Src.FindLast();
         InsertCopy(Observer, Src);
-#if BC28PLUS
         Observer.Expect('own_body', 'hasValue=Yes text=[]');
         Observer.Expect('own_raw', 'hasValue=Yes text=[]');
         Observer.Expect('own_ext', 'hasValue=Yes text=[]');
@@ -74,9 +74,6 @@ codeunit 73783 "LT BIU Origin Tests"
         Observer.Expect('stored_raw', 'hasValue=No text=[]');
         Observer.Expect('stored_ext', 'hasValue=No text=[]');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     [Test]
@@ -90,7 +87,6 @@ codeunit 73783 "LT BIU Origin Tests"
         Src.SetRange("No.", 'SRC');
         Src.Find('-');
         InsertCopy(Observer, Src);
-#if BC28PLUS
         Observer.Expect('own_body', 'hasValue=Yes text=[]');
         Observer.Expect('own_raw', 'hasValue=Yes text=[]');
         Observer.Expect('own_ext', 'hasValue=Yes text=[]');
@@ -99,9 +95,6 @@ codeunit 73783 "LT BIU Origin Tests"
         Observer.Expect('stored_raw', 'hasValue=No text=[]');
         Observer.Expect('stored_ext', 'hasValue=No text=[]');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     [Test]
@@ -115,7 +108,6 @@ codeunit 73783 "LT BIU Origin Tests"
         Src."No." := 'SRC';
         Src.Find('=');
         InsertCopy(Observer, Src);
-#if BC28PLUS
         Observer.Expect('own_body', 'hasValue=Yes text=[]');
         Observer.Expect('own_raw', 'hasValue=Yes text=[]');
         Observer.Expect('own_ext', 'hasValue=Yes text=[]');
@@ -124,9 +116,6 @@ codeunit 73783 "LT BIU Origin Tests"
         Observer.Expect('stored_raw', 'hasValue=No text=[]');
         Observer.Expect('stored_ext', 'hasValue=No text=[]');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     [Test]
@@ -140,7 +129,6 @@ codeunit 73783 "LT BIU Origin Tests"
         Src.SetRange("No.", 'SRC');
         Src.Find('+');
         InsertCopy(Observer, Src);
-#if BC28PLUS
         Observer.Expect('own_body', 'hasValue=Yes text=[]');
         Observer.Expect('own_raw', 'hasValue=Yes text=[]');
         Observer.Expect('own_ext', 'hasValue=Yes text=[]');
@@ -149,9 +137,6 @@ codeunit 73783 "LT BIU Origin Tests"
         Observer.Expect('stored_raw', 'hasValue=No text=[]');
         Observer.Expect('stored_ext', 'hasValue=No text=[]');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     // O5: the second row of a FindSet loop (EMPTY, then OTHER), copied and inserted.
@@ -167,7 +152,6 @@ codeunit 73783 "LT BIU Origin Tests"
         Src.Next();
         Observer.Observe('row', Src."No.");
         InsertCopy(Observer, Src);
-#if BC28PLUS
         Observer.Expect('row', 'OTHER');
         Observer.Expect('own_body', 'hasValue=Yes text=[]');
         Observer.Expect('own_raw', 'hasValue=Yes text=[]');
@@ -177,9 +161,6 @@ codeunit 73783 "LT BIU Origin Tests"
         Observer.Expect('stored_raw', 'hasValue=No text=[]');
         Observer.Expect('stored_ext', 'hasValue=No text=[]');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     // O6: RecordRef.Open, a filter to SRC, FindFirst, field 1 set to NEW, RecordRef.Insert.
@@ -200,15 +181,11 @@ codeunit 73783 "LT BIU Origin Tests"
         FR.Value := 'NEW';
         RR.Insert();
         Probe.Stored(Observer, 'NEW');
-#if BC28PLUS
         Observer.Expect('before', 'body=No raw=No ext=No');
         Observer.Expect('stored_body', 'hasValue=No text=[]');
         Observer.Expect('stored_raw', 'hasValue=No text=[]');
         Observer.Expect('stored_ext', 'hasValue=No text=[]');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     // M4: C := Src under the key OTHER, Modify(true).
@@ -226,15 +203,11 @@ codeunit 73783 "LT BIU Origin Tests"
         C."No." := 'OTHER';
         C.Modify(true);
         Probe.Stored(Observer, 'OTHER');
-#if BC28PLUS
         Observer.Expect('before', 'body=Yes raw=Yes ext=Yes');
         Observer.Expect('stored_body', 'hasValue=Yes text=[other]');
         Observer.Expect('stored_raw', 'hasValue=Yes text=[other-raw]');
         Observer.Expect('stored_ext', 'hasValue=Yes text=[other-ext]');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     // M5: RecordRef.GetTable(Src), field 1 set to OTHER, RecordRef.Modify.
@@ -254,15 +227,11 @@ codeunit 73783 "LT BIU Origin Tests"
         FR.Value := 'OTHER';
         RR.Modify();
         Probe.Stored(Observer, 'OTHER');
-#if BC28PLUS
         Observer.Expect('before', 'body=Yes raw=Yes ext=Yes');
         Observer.Expect('stored_body', 'hasValue=Yes text=[other]');
         Observer.Expect('stored_raw', 'hasValue=Yes text=[other-raw]');
         Observer.Expect('stored_ext', 'hasValue=Yes text=[other-ext]');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     local procedure ModifyByValue(C: Record "LT BIU Row")
@@ -283,15 +252,11 @@ codeunit 73783 "LT BIU Origin Tests"
         Src.Get('SRC');
         ModifyByValue(Src);
         Probe.Stored(Observer, 'OTHER');
-#if BC28PLUS
         Observer.Expect('before', 'body=Yes raw=Yes ext=Yes');
         Observer.Expect('stored_body', 'hasValue=Yes text=[other]');
         Observer.Expect('stored_raw', 'hasValue=Yes text=[other-raw]');
         Observer.Expect('stored_ext', 'hasValue=Yes text=[other-ext]');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     // M7: C := Src (this company), C.ChangeCompany(<other>), Modify of the other company's row SRC (holding 'there', ...), under
@@ -327,14 +292,10 @@ codeunit 73783 "LT BIU Origin Tests"
             asserterror C.Modify();
             Observer.ObserveError('modify');
         end;
-#if BC28PLUS
         Observer.Expect('other_company_found', 'Yes');
         Observer.Expect('modify|text', 'The changes to the LT BIU Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''SRC''');
         Observer.Expect('modify|code', 'DB:RecordChanged');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     // T1: a temporary row written with a stream and inserted (T1), read with Get, Rename('T2'), then the new key T3 and Insert.
@@ -355,7 +316,6 @@ codeunit 73783 "LT BIU Origin Tests"
         T.Insert();
         Probe.Own(Observer, T);
         Probe.StoredTemp(Observer, T, 'T3');
-#if BC28PLUS
         Observer.Expect('own_body', 'hasValue=Yes text=[]');
         Observer.Expect('own_raw', 'hasValue=Yes text=[]');
         Observer.Expect('own_ext', 'hasValue=Yes text=[]');
@@ -364,9 +324,6 @@ codeunit 73783 "LT BIU Origin Tests"
         Observer.Expect('stored_raw', 'hasValue=No text=[]');
         Observer.Expect('stored_ext', 'hasValue=No text=[]');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     // T2: the same Rename, then Note changed and Modify of the renamed row T2.
@@ -387,7 +344,6 @@ codeunit 73783 "LT BIU Origin Tests"
         T.Modify();
         Probe.Own(Observer, T);
         Probe.StoredTemp(Observer, T, 'T2');
-#if BC28PLUS
         Observer.Expect('own_body', 'hasValue=Yes text=[]');
         Observer.Expect('own_raw', 'hasValue=Yes text=[]');
         Observer.Expect('own_ext', 'hasValue=Yes text=[]');
@@ -396,9 +352,6 @@ codeunit 73783 "LT BIU Origin Tests"
         Observer.Expect('stored_raw', 'hasValue=No text=[]');
         Observer.Expect('stored_ext', 'hasValue=No text=[]');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     // F1: C := Src under the key OTHER, a guarded Insert (fails: OTHER exists), then Modify and C.CalcFields.
@@ -419,7 +372,6 @@ codeunit 73783 "LT BIU Origin Tests"
         C.CalcFields(Body, Raw, Ext);
         Probe.Own(Observer, C);
         Probe.Stored(Observer, 'OTHER');
-#if BC28PLUS
         Observer.Expect('insert', 'No');
         Observer.Expect('own_body', 'hasValue=Yes text=[other]');
         Observer.Expect('own_raw', 'hasValue=Yes text=[other-raw]');
@@ -429,9 +381,6 @@ codeunit 73783 "LT BIU Origin Tests"
         Observer.Expect('stored_raw', 'hasValue=Yes text=[other-raw]');
         Observer.Expect('stored_ext', 'hasValue=Yes text=[other-ext]');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     // F2: a guarded Insert of the source itself on its own key (fails), then Src.CalcFields.
@@ -448,7 +397,6 @@ codeunit 73783 "LT BIU Origin Tests"
         Src.CalcFields(Body, Raw, Ext);
         Probe.Own(Observer, Src);
         Probe.Stored(Observer, 'SRC');
-#if BC28PLUS
         Observer.Expect('insert', 'No');
         Observer.Expect('own_body', 'hasValue=Yes text=[hello]');
         Observer.Expect('own_raw', 'hasValue=Yes text=[hello-raw]');
@@ -458,9 +406,6 @@ codeunit 73783 "LT BIU Origin Tests"
         Observer.Expect('stored_raw', 'hasValue=Yes text=[hello-raw]');
         Observer.Expect('stored_ext', 'hasValue=Yes text=[hello-ext]');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     // F3: C := Src under the key OTHER, asserterror C.Insert(), then C.CalcFields.
@@ -483,15 +428,11 @@ codeunit 73783 "LT BIU Origin Tests"
         Probe.Seed();
         C.CalcFields(Body, Raw, Ext);
         Probe.Own(Observer, C);
-#if BC28PLUS
         Observer.Expect('insert_error', 'DB:RecordExists');
         Observer.Expect('own_body', 'hasValue=Yes text=[other]');
         Observer.Expect('own_raw', 'hasValue=Yes text=[other-raw]');
         Observer.Expect('own_ext', 'hasValue=Yes text=[other-ext]');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     local procedure CopyInsert(var C: Record "LT BIU Row")
@@ -518,14 +459,10 @@ codeunit 73783 "LT BIU Origin Tests"
         C.Modify();
         C.CalcFields(Body, Raw, Ext);
         Probe.Own(Observer, C);
-#if BC28PLUS
         Observer.Expect('own_body', 'hasValue=Yes text=[]');
         Observer.Expect('own_raw', 'hasValue=Yes text=[]');
         Observer.Expect('own_ext', 'hasValue=Yes text=[]');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     // S2: C01's Insert, then a second variable writes 'x' into NEW's Body and modifies the row, then C.CalcFields.
@@ -544,14 +481,10 @@ codeunit 73783 "LT BIU Origin Tests"
         Second.Modify();
         C.CalcFields(Body, Raw, Ext);
         Probe.Own(Observer, C);
-#if BC28PLUS
         Observer.Expect('own_body', 'hasValue=Yes text=[x]');
         Observer.Expect('own_raw', 'hasValue=Yes text=[]');
         Observer.Expect('own_ext', 'hasValue=Yes text=[]');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     // S4: C01's Insert, then C.Delete, then C.CalcFields.
@@ -567,14 +500,10 @@ codeunit 73783 "LT BIU Origin Tests"
         C.Delete();
         C.CalcFields(Body, Raw, Ext);
         Probe.Own(Observer, C);
-#if BC28PLUS
         Observer.Expect('own_body', 'hasValue=No text=[]');
         Observer.Expect('own_raw', 'hasValue=No text=[]');
         Observer.Expect('own_ext', 'hasValue=No text=[]');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     // S5: C01's Insert, then C.Get('NEW'), then C.CalcFields.
@@ -590,14 +519,10 @@ codeunit 73783 "LT BIU Origin Tests"
         C.Get('NEW');
         C.CalcFields(Body, Raw, Ext);
         Probe.Own(Observer, C);
-#if BC28PLUS
         Observer.Expect('own_body', 'hasValue=No text=[]');
         Observer.Expect('own_raw', 'hasValue=No text=[]');
         Observer.Expect('own_ext', 'hasValue=No text=[]');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 
     // S6: C01's Insert, then the key NEW2 and a second Insert, then C.CalcFields; and what NEW2 stores.
@@ -615,7 +540,6 @@ codeunit 73783 "LT BIU Origin Tests"
         C.CalcFields(Body, Raw, Ext);
         Probe.Own(Observer, C);
         Probe.Stored(Observer, 'NEW2');
-#if BC28PLUS
         Observer.Expect('own_body', 'hasValue=Yes text=[]');
         Observer.Expect('own_raw', 'hasValue=Yes text=[]');
         Observer.Expect('own_ext', 'hasValue=Yes text=[]');
@@ -624,8 +548,5 @@ codeunit 73783 "LT BIU Origin Tests"
         Observer.Expect('stored_raw', 'hasValue=No text=[]');
         Observer.Expect('stored_ext', 'hasValue=No text=[]');
         Observer.Verify();
-#else // BC 27.5: observe round, red on purpose; not measured on 27.5 yet
-        Observer.Finish();
-#endif
     end;
 }
