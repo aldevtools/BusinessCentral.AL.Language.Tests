@@ -12,7 +12,7 @@
 //   - The test session's login does not raise OnRegisterAssistedSetup: without the call below the app has no Guided Experience
 //     Item. Guided Experience.SetupForExtensionExists raises it (it returns false: the fixtures register a codeunit, not a page).
 //   - Icon: one item per app; the Icon is a Tenant Media row of its own (not the logo's Media id), Height and Width of the image,
-//     Description = the app id, same length as the file.
+//     Description = the app id, same length as the file (on 27 and 28 only on Windows, see below).
 //   - No error in any registration (the regression of 9111 was an error there for JPEG logos other than 8 x 8).
 // Host dependent (Windows vs BC on Linux). These cells are observed but not asserted (Observer.Ignore):
 //   - Mime Type of the logo Media row and of the icon: Windows 27.5 and 29.0 image/jpeg; BC on Linux 29.0 image/jpeg, 28.5
@@ -21,6 +21,10 @@
 //     0 -> 1; bytes 16 and 18, low bytes of the X and Y density, 1 -> 0), for every logo here, baseline and progressive.
 //     BC on Linux 29.0: the icon is byte-identical to the file ('icon equals file' Yes, no differing bytes).
 //     Names of the ignored observations: 'icon equals file', 'icon vs logo media, differing bytes'.
+//   - Icon length on 27 and 28 (asserted only under BC29PLUS, ignored on 27 and 28): Windows 27.5 gives the file's length
+//     (8 x 8: 307, 535 x 534: 14191, 16 x 8: 633, 400 x 300: 62851, progressive 535 x 534: 9857), as 29.0 does on both hosts.
+//     BC on Linux 27.5 and 28.5 (corpus CI run 46103902257) re-encode the icon: 131, 32290, 107, 303683 and 32290 bytes.
+//     Reported to the BC on Linux repository as a host difference.
 // Not measured: JPEG logos whose JFIF header already has density units 1 or another density, JPEG without a JFIF header (EXIF
 //   only), CMYK or grayscale JPEG, EXIF orientation, PNG, GIF or BMP logos of other sizes, the Icon of a manual setup
 //   (InsertManualSetup), and a second registration that modifies an existing item.
@@ -271,7 +275,12 @@ codeunit 98084 "LT US App Logo Jpeg Sizes"
         Observer.Expect('icon description is the app id', 'Yes');
         Observer.Expect('icon description has the app id', 'Yes');
         Observer.Expect('icon content has value', 'Yes');
+#if BC29PLUS
         Observer.Expect('icon length', '307');
+#else
+        // Host dependent on 27 and 28 (see the header): not asserted.
+        Observer.Ignore('icon length');
+#endif
         Observer.Ignore('icon equals file');
         Observer.Expect('logo media equals file', 'Yes');
         Observer.Ignore('icon vs logo media, differing bytes');
@@ -298,7 +307,12 @@ codeunit 98084 "LT US App Logo Jpeg Sizes"
         Observer.Expect('icon description is the app id', 'Yes');
         Observer.Expect('icon description has the app id', 'Yes');
         Observer.Expect('icon content has value', 'Yes');
+#if BC29PLUS
         Observer.Expect('icon length', '14191');
+#else
+        // Host dependent on 27 and 28 (see the header): not asserted.
+        Observer.Ignore('icon length');
+#endif
         Observer.Ignore('icon equals file');
         Observer.Expect('logo media equals file', 'Yes');
         Observer.Ignore('icon vs logo media, differing bytes');
@@ -325,7 +339,12 @@ codeunit 98084 "LT US App Logo Jpeg Sizes"
         Observer.Expect('icon description is the app id', 'Yes');
         Observer.Expect('icon description has the app id', 'Yes');
         Observer.Expect('icon content has value', 'Yes');
+#if BC29PLUS
         Observer.Expect('icon length', '633');
+#else
+        // Host dependent on 27 and 28 (see the header): not asserted.
+        Observer.Ignore('icon length');
+#endif
         Observer.Ignore('icon equals file');
         Observer.Expect('logo media equals file', 'Yes');
         Observer.Ignore('icon vs logo media, differing bytes');
@@ -352,7 +371,12 @@ codeunit 98084 "LT US App Logo Jpeg Sizes"
         Observer.Expect('icon description is the app id', 'Yes');
         Observer.Expect('icon description has the app id', 'Yes');
         Observer.Expect('icon content has value', 'Yes');
+#if BC29PLUS
         Observer.Expect('icon length', '62851');
+#else
+        // Host dependent on 27 and 28 (see the header): not asserted.
+        Observer.Ignore('icon length');
+#endif
         Observer.Ignore('icon equals file');
         Observer.Expect('logo media equals file', 'Yes');
         Observer.Ignore('icon vs logo media, differing bytes');
@@ -379,7 +403,12 @@ codeunit 98084 "LT US App Logo Jpeg Sizes"
         Observer.Expect('icon description is the app id', 'Yes');
         Observer.Expect('icon description has the app id', 'Yes');
         Observer.Expect('icon content has value', 'Yes');
+#if BC29PLUS
         Observer.Expect('icon length', '9857');
+#else
+        // Host dependent on 27 and 28 (see the header): not asserted.
+        Observer.Ignore('icon length');
+#endif
         Observer.Ignore('icon equals file');
         Observer.Expect('logo media equals file', 'Yes');
         Observer.Ignore('icon vs logo media, differing bytes');
